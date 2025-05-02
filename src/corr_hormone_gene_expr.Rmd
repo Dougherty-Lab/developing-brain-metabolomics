@@ -1,0 +1,49 @@
+---
+title: "Correlation of Hormone Concentration and Gene Expression Data"
+author: "Emma Jones"
+date: "2025-05-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from fetal human brain samples.
+
+## Load packages
+
+First, we load packages. We might want more later, but for now I know I need the following
+
+```{r load packages}
+library(tidyverse)
+library(Seurat)
+library(readxl)
+
+```
+
+
+## Load data
+
+```{r load seurat object and excel spreadsheet}
+
+# load 10x multiome data
+SSD_data_v5 <- readRDS("../data/SSD_data_v5.rds")
+
+# load hormone metabolomics data
+targeted_comparision_raw <- read_xlsx("../doc/Targeted Comparison.xlsx")
+
+```
+
+## 
+
+
+
+
+
+
+
+
+
+
+

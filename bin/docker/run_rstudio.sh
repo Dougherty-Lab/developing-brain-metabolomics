@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=rstudio
-#SBATCH --mem=200GB
+#SBATCH --mem=100GB
 #SBATCH --cpus-per-task=2
 #SBATCH --time=2-00:00:00
 
@@ -24,7 +24,7 @@ echo -e "
 singularity exec \
    -B /tmp:/var/lib/rstudio-server \
    -B /tmp:/var/run/rstudio-server \
-   -B /scratch/jdlab/emma/fetal_brain_hormone_analyis \
+   -B /scratch/jdlab/emma/fetal_brain_hormone_analysis \
    rstudio-myt1l-pilot_1.0.9.sif \
    rserver \
      --server-user=$USER
