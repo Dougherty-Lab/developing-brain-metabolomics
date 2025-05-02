@@ -6,6 +6,10 @@
 .RData
 .RDataTmp
 
+# Large Data and Singularity files
+*.rds
+*.sif
+
 # User-specific files
 .Ruserdata
 
