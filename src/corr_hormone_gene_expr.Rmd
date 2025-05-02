@@ -19,6 +19,7 @@ First, we load packages. We might want more later, but for now I know I need the
 library(tidyverse)
 library(Seurat)
 library(readxl)
+library(Signac)
 
 ```
 
@@ -35,15 +36,152 @@ targeted_comparision_raw <- read_xlsx("../doc/Targeted Comparison.xlsx")
 
 ```
 
-## 
+## Explore data
+
+```{r make histograms of hormone concentrations}
+
+hist(targeted_comparision_raw$TT, breaks = 20)
+
+hist(targeted_comparision_raw$`17B-E2`, breaks = 20)
+
+hist(targeted_comparision_raw$P4, breaks = 20)
+
+```
+
+## how does this correlate with age?
+
+```{r ggplot}
+
+ggplot(targeted_comparision_raw, aes(x = GW, y = TT, color = Sex)) +
+  geom_point() + theme_minimal()
+
+targeted_comparision_males <- targeted_comparision_raw[targeted_comparision_raw$Sex == "M",]
+
+# fit polynomial regression models up to degree 5 
+linear_model1 <- lm(TT~GW, data=targeted_comparision_males) 
+linear_model2 <- lm(TT~poly(GW,2,raw=TRUE), data=targeted_comparision_males) 
+linear_model3 <- lm(TT~poly(GW,3,raw=TRUE), data=targeted_comparision_males)
+
+# Sort the x values and get corresponding predicted values
+x_axis_sorted <- sort(targeted_comparision_males$GW)
+
+# Base plot - males
+plot(targeted_comparision_males$GW, targeted_comparision_males$TT, main="Polynomial Fits", xlab="GW", ylab="TT")
+
+# Add model lines using sorted x
+lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
+lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
+lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
 
 
+# calculated adjusted R-squared of each model 
+summary(linear_model1)$adj.r.squared 
+summary(linear_model2)$adj.r.squared 
+summary(linear_model3)$adj.r.squared 
+```
+
+```{r run for females}
+# try again for females
+targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
+
+# fit polynomial regression models up to degree 5 
+linear_model1 <- lm(TT~GW, data=targeted_comparision_females) 
+linear_model2 <- lm(TT~poly(GW,2,raw=TRUE), data=targeted_comparision_females) 
+linear_model3 <- lm(TT~poly(GW,3,raw=TRUE), data=targeted_comparision_females) 
+
+# Sort the x values and get corresponding predicted values
+x_axis_sorted <- sort(targeted_comparision_females$GW)
+
+# Base plot - males
+plot(targeted_comparision_females$GW, targeted_comparision_females$TT, main="Polynomial Fits", xlab="GW", ylab="TT")
+
+# Add model lines using sorted x
+lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
+lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
+lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
 
 
+# calculated adjusted R-squared of each model 
+summary(linear_model1)$adj.r.squared 
+summary(linear_model2)$adj.r.squared 
+summary(linear_model3)$adj.r.squared 
+
+```
+
+```{r run loess instead}
+# try loess
+plot(targeted_comparision_males$GW, targeted_comparision_males$TT, main="Loess Fit", xlab="GW", ylab="TT")
+loess_fit_m <- loess(TT ~ GW, data = targeted_comparision_males, span = 0.85)
+lines(sort(targeted_comparision_males$GW),
+      predict(loess_fit_m, newdata = data.frame(GW = sort(targeted_comparision_males$GW))),
+      col = "dodgerblue", lwd = 2)
+
+plot(targeted_comparision_females$GW, targeted_comparision_females$TT, main="Loess Fit", xlab="GW", ylab="TT")
+loess_fit_f <- loess(TT ~ GW, data = targeted_comparision_females, span = 0.85)
+lines(sort(targeted_comparision_females$GW),
+      predict(loess_fit_f, newdata = data.frame(GW = sort(targeted_comparision_females$GW))),
+      col = "violetred2", lwd = 2)
+
+# Combine male and female data (assuming you already split them)
+targeted_comparision_males$sex <- "male"
+targeted_comparision_females$sex <- "female"
+combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
+
+# Plot with LOESS curves
+ggplot(combined_data, aes(x = GW, y = TT, color = sex, fill = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
+  labs(title = "LOESS Fit by Sex", x = "GW", y = "TT") +
+  scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
+  theme_minimal()
+
+```
 
 
+```{r model using equation}
 
 
+male_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_males)
+summary(male_model) #p-value: 0.01292
 
+female_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_females)
+summary(female_model) #p-value: 0.6589
+
+# Create prediction frame - male
+new_male <- data.frame(GW = seq(min(targeted_comparision_males$GW),
+                                max(targeted_comparision_males$GW), length.out = 100))
+new_male$TT_pred <- predict(lm(TT ~ GW + I(GW^2), data = targeted_comparision_males),
+                            newdata = new_male)
+
+# Create prediction frame - female
+new_female <- data.frame(GW = seq(min(targeted_comparision_females$GW),
+                                max(targeted_comparision_females$GW), length.out = 100))
+new_female$TT_pred <- predict(lm(TT ~ GW + I(GW^2), data = targeted_comparision_females),
+                            newdata = new_female)
+
+# Plot 1
+ggplot(targeted_comparision_males, aes(x = GW, y = TT)) +
+  geom_point(color = "dodgerblue", alpha = 0.6) +
+  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
+  labs(title = "TT ~ GW² Fit in Males", x = "GW", y = "TT") +
+  theme_minimal()
+
+# Plot 2
+ggplot(targeted_comparision_females, aes(x = GW, y = TT)) +
+  geom_point(color = "violetred2", alpha = 0.6) +
+  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
+  labs(title = "TT ~ GW² Fit in Females", x = "GW", y = "TT") +
+  theme_minimal()
+
+# Combine information
+ggplot(targeted_comparision_raw, aes(x = GW, y = TT, color = Sex)) +
+  scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
+  geom_point(alpha = 0.6) +
+  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
+  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
+  labs(title = "TT ~ GW² Fit in Males and Females", subtitle = "Male p-value: 0.01292\nFemale p-value:0.6589", x = "GW", y = "TT") +
+  theme_minimal()
+
+```
 
 

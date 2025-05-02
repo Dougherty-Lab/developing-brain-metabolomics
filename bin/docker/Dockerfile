@@ -41,5 +41,5 @@ FROM bioconductor/bioconductor_docker:RELEASE_3_18
  RUN R -e 'remotes::install_github("chris-mcginnis-ucsf/DoubletFinder")'
  RUN R -e 'devtools::install_github("immunogenomics/harmony")'
  RUN R -e 'devtools::install_github("immunogenomics/presto")'
- RUN R -e 'install.packages("grr", "ashr")'
+ RUN R -e 'install.packages(c("grr", "ashr"))'
  RUN R -e 'install.packages("Signac")'
