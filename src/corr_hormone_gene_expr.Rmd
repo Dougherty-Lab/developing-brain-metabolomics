@@ -184,4 +184,101 @@ ggplot(targeted_comparision_raw, aes(x = GW, y = TT, color = Sex)) +
 
 ```
 
+# Work on understanding expression patterns and TT level
+
+If there is a quadratic equation that explains expression over time, it is possible the relationship between TT and gene expression is also nonlinear. Will start with linear first, since that is more straightforward.
+
+```{r Combine metadata and expression matrix and Prepare and join sample-level metadata with TT concentrations}
+expr_mat <- as.matrix(GetAssayData(SSD_data_v5[["SCT"]], slot = "data"))  # use SCT-transformed expression
+
+cell_metadata <- SSD_data_v5@meta.data %>%
+  select(sample, cluster_call)
+cell_metadata$cell_id <- rownames(cell_metadata) 
+
+targeted_comparision_raw$Sample <- paste0("tissue", targeted_comparision_raw$Sample)
+
+cell_metadata <- cell_metadata %>%
+  left_join(targeted_comparision_raw, by = c("sample" = "Sample"))
+
+# Rename cell types for clarity
+cell_metadata$cell_type <- cell_metadata$cluster_call
+```
+
+
+```{r For each cell type, compute median expression of each gene per sample}
+# Split cell metadata by cell_type and Sex
+median_expr_by_group <- cell_metadata %>%
+  group_by(cell_type, Sex) %>%
+  group_split() %>%
+  set_names(map_chr(., ~ paste(unique(.x$cell_type), unique(.x$Sex), sep = "_"))) %>%
+  map(function(df) {
+    samples <- unique(df$sample)
+    expr_sub <- expr_mat[, df$cell_id, drop = FALSE]
+    median_expr_list <- map(samples, function(sid) {
+      cells_in_sample <- df %>% filter(sample == sid) %>% pull(cell_id)
+      if (length(cells_in_sample) == 0) {
+        return(rep(NA, nrow(expr_sub)))
+        }
+      matrixStats::rowMedians(expr_sub[, cells_in_sample, drop = FALSE])
+})
+
+# Combine to matrix and name columns
+median_expr <- do.call(cbind, median_expr_list)
+colnames(median_expr) <- as.character(samples)
+    rownames(median_expr) <- rownames(expr_sub)
+    return(median_expr)
+  })
+
+```
+
+```{r remove samples 14 and 16 because there are no testosterone measurements?}
+```
+
+
+```{r For each cell type and gene, correlate or regress with testosterone}
+# Regression/correlation per group (cell_type + sex)
+results_by_group <- map2_dfr(median_expr_by_group, names(median_expr_by_group), function(expr_df, groupname) {
+  samples <- colnames(expr_df)
+  sex_label <- strsplit(groupname, "_")[[1]][2]
+  celltype_label <- strsplit(groupname, "_")[[1]][1]
+  
+  test_vals <- targeted_comparision_raw %>%
+    filter(Sample %in% samples) %>%
+    arrange(match(Sample, samples)) %>%
+    pull(TT)
+  
+  if (sd(test_vals, na.rm = TRUE) == 0 || all(is.na(test_vals))) {
+    message(glue::glue("Skipping {groupname}: no variation in testosterone"))
+    return(NULL)
+  }
+  
+  tibble(
+    gene = rownames(expr_df),
+    cell_type = celltype_label,
+    Sex = sex_label,
+    cor = apply(expr_df, 1, function(gene_expr) {
+  if (sd(gene_expr, na.rm = TRUE) == 0) return(NA)
+  cor(gene_expr, test_vals, use = "complete.obs")
+}),
+    pval = apply(expr_df, 1, function(gene_expr) {
+  if (sd(gene_expr, na.rm = TRUE) == 0) return(NA)
+  model <- lm(gene_expr ~ test_vals)
+  summary(model)$coefficients[2, 4]
+})
+  )
+})
+```
+
+```{r add fdr correction}
+
+results_by_group <- results_by_group %>%
+  group_by(cell_type, Sex) %>%
+  mutate(padj = p.adjust(pval, method = "fdr")) %>%
+  ungroup()
+
+```
+
+
+
+
 
