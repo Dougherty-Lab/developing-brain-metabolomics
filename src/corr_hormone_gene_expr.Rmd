@@ -276,6 +276,17 @@ results_by_group <- results_by_group %>%
   mutate(padj = p.adjust(pval, method = "fdr")) %>%
   ungroup()
 
+sig_results_males <- results_by_group %>% filter(Sex == "M", padj < 0.05)
+length(unique(sig_results_males$gene))
+
+sig_results_females <- results_by_group %>% filter(Sex == "F", padj < 0.05)
+length(unique(sig_results_females$gene))
+
+sig_overlap <- intersect(unique(sig_results_males$gene),unique(sig_results_females$gene))
+
+write_csv(sig_results_males, "../results/sig_TT_results_males.csv")
+write_csv(sig_results_females, "../results/sig_TT_results_females.csv")
+
 ```
 
 
