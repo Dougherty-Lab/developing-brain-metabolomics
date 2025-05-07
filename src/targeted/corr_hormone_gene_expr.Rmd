@@ -29,10 +29,10 @@ library(Signac)
 ```{r load seurat object and excel spreadsheet}
 
 # load 10x multiome data
-SSD_data_v5 <- readRDS("../data/SSD_data_v5.rds")
+SSD_data_v5 <- readRDS("../../data/SSD_data_v5.rds")
 
 # load hormone metabolomics data
-targeted_comparision_raw <- read_xlsx("../doc/Targeted Comparison.xlsx")
+targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xlsx")
 
 ```
 
@@ -48,14 +48,45 @@ hist(targeted_comparision_raw$P4, breaks = 20)
 
 ```
 
+## remove outliers
+
+The statistical definition of an outlier differs by field, but generally Q3 + 1.5*IQR is accepted as a way to detect outliers
+
+lets calculate below
+
+```{r detect and remove female outlier}
+#filter for only females
+targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
+
+IQR(targeted_comparision_females$TT)
+
+outlier_limit <- quantile(targeted_comparision_females$TT)[4] + 1.5*IQR(targeted_comparision_females$TT)
+
+max(targeted_comparision_females$TT) > outlier_limit 
+
+```
+
+So, yes, this is above the typical outlier limit so we can remove from analysis. It is sample number 38, which has an XX Xist genotype and sex_genome_studio
+
+```{r remove outlier}
+targeted_comparision_filtered <- targeted_comparision_raw[-34,]
+```
+
+
 ## how does this correlate with age?
-
-```{r ggplot}
-
-ggplot(targeted_comparision_raw, aes(x = GW, y = TT, color = Sex)) +
+```{r look at overall relationship}
+# look at relationship with age
+ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
   geom_point() + theme_minimal()
 
-targeted_comparision_males <- targeted_comparision_raw[targeted_comparision_raw$Sex == "M",]
+all_simple <- lm(TT~GW, data=targeted_comparision_filtered) 
+summary(all_simple)
+```
+
+so its not signficant, but the graph clearly supports that males differ from females, so I will separate the groups
+
+```{r separate groups and find a model}
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
 
 # fit polynomial regression models up to degree 5 
 linear_model1 <- lm(TT~GW, data=targeted_comparision_males) 
@@ -81,8 +112,8 @@ summary(linear_model3)$adj.r.squared
 ```
 
 ```{r run for females}
-# try again for females
-targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
+#filter for only females
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
 
 # fit polynomial regression models up to degree 5 
 linear_model1 <- lm(TT~GW, data=targeted_comparision_females) 
@@ -131,21 +162,22 @@ combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
 ggplot(combined_data, aes(x = GW, y = TT, color = sex, fill = sex)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
-  labs(title = "LOESS Fit by Sex", x = "GW", y = "TT") +
+  labs(title = "LOESS Fit by Sex (outlier removed)", x = "Gestational Week (GW)", y = "Testosterone") +
   scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
   theme_minimal()
+
+# Save
+ggsave("../../results/TT_loess_graph.png")
 
 ```
 
 
-```{r model using equation}
-
-
+```{r model using best-fitting equation}
 male_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_males)
 summary(male_model) #p-value: 0.01292
 
 female_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_females)
-summary(female_model) #p-value: 0.6589
+summary(female_model) #p-value: 0.7959
 
 # Create prediction frame - male
 new_male <- data.frame(GW = seq(min(targeted_comparision_males$GW),
@@ -174,13 +206,27 @@ ggplot(targeted_comparision_females, aes(x = GW, y = TT)) +
   theme_minimal()
 
 # Combine information
-ggplot(targeted_comparision_raw, aes(x = GW, y = TT, color = Sex)) +
+ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
   scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
   geom_point(alpha = 0.6) +
   geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
   geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² Fit in Males and Females", subtitle = "Male p-value: 0.01292\nFemale p-value:0.6589", x = "GW", y = "TT") +
+  labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", subtitle = "Male p-value: 0.01292\nFemale p-value:0.7959", x = "GW", y = "TT") +
   theme_minimal()
+
+# move the text
+ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
+  scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
+  geom_point(alpha = 0.6) +
+  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
+  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
+  labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", x = "Gestational Week (GW)", y = "Testosterone") +
+  annotate("text", x = 16, y = 0.4, label = "Male p-value: 0.01292", color = "dodgerblue4", hjust = 0) +
+  annotate("text", x = 16, y = 0.35, label = "Female p-value: 0.7959", color = "violetred4", hjust = 0) +
+  theme_minimal()
+
+# save new plot
+ggsave("../../results/TT_GW_modelfit.png")
 
 ```
 
@@ -195,10 +241,10 @@ cell_metadata <- SSD_data_v5@meta.data %>%
   select(sample, cluster_call)
 cell_metadata$cell_id <- rownames(cell_metadata) 
 
-targeted_comparision_raw$Sample <- paste0("tissue", targeted_comparision_raw$Sample)
+targeted_comparision_filtered$Sample <- paste0("tissue", targeted_comparision_filtered$Sample)
 
 cell_metadata <- cell_metadata %>%
-  left_join(targeted_comparision_raw, by = c("sample" = "Sample"))
+  left_join(targeted_comparision_filtered, by = c("sample" = "Sample"))
 
 # Rename cell types for clarity
 cell_metadata$cell_type <- cell_metadata$cluster_call
@@ -231,9 +277,6 @@ colnames(median_expr) <- as.character(samples)
 
 ```
 
-```{r remove samples 14 and 16 because there are no testosterone measurements?}
-```
-
 
 ```{r For each cell type and gene, correlate or regress with testosterone}
 # Regression/correlation per group (cell_type + sex)
@@ -242,29 +285,34 @@ results_by_group <- map2_dfr(median_expr_by_group, names(median_expr_by_group), 
   sex_label <- strsplit(groupname, "_")[[1]][2]
   celltype_label <- strsplit(groupname, "_")[[1]][1]
   
+  if (is.na(sex_label)) {
+    message(glue::glue("Skipping {groupname}: sex is NA"))
+    return(NULL)
+  }
+  
   test_vals <- targeted_comparision_raw %>%
     filter(Sample %in% samples) %>%
     arrange(match(Sample, samples)) %>%
     pull(TT)
   
-  if (sd(test_vals, na.rm = TRUE) == 0 || all(is.na(test_vals))) {
-    message(glue::glue("Skipping {groupname}: no variation in testosterone"))
+  if (all(is.na(test_vals)) || sum(!is.na(test_vals)) < 2 || sd(test_vals, na.rm = TRUE) == 0) {
+    message(glue::glue("Skipping {groupname}: no variation in testosterone or not enough non-NA values"))
     return(NULL)
   }
-  
+
   tibble(
     gene = rownames(expr_df),
     cell_type = celltype_label,
     Sex = sex_label,
     cor = apply(expr_df, 1, function(gene_expr) {
-  if (sd(gene_expr, na.rm = TRUE) == 0) return(NA)
-  cor(gene_expr, test_vals, use = "complete.obs")
-}),
+      if (sum(!is.na(gene_expr)) < 2 || sd(gene_expr, na.rm = TRUE) == 0) return(NA)
+      cor(gene_expr, test_vals, use = "complete.obs")
+    }),
     pval = apply(expr_df, 1, function(gene_expr) {
-  if (sd(gene_expr, na.rm = TRUE) == 0) return(NA)
-  model <- lm(gene_expr ~ test_vals)
-  summary(model)$coefficients[2, 4]
-})
+      if (sum(!is.na(gene_expr)) < 2 || sd(gene_expr, na.rm = TRUE) == 0) return(NA)
+      model <- lm(gene_expr ~ test_vals)
+      summary(model)$coefficients[2, 4]
+    })
   )
 })
 ```
@@ -284,8 +332,8 @@ length(unique(sig_results_females$gene))
 
 sig_overlap <- intersect(unique(sig_results_males$gene),unique(sig_results_females$gene))
 
-write_csv(sig_results_males, "../results/sig_TT_results_males.csv")
-write_csv(sig_results_females, "../results/sig_TT_results_females.csv")
+write_csv(sig_results_males, "../../results/sig_TT_results_males.csv")
+write_csv(sig_results_females, "../../results/sig_TT_results_females.csv")
 
 ```
 

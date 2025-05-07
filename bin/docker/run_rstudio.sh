@@ -24,8 +24,8 @@ echo -e "
 singularity exec \
    -B /tmp:/var/lib/rstudio-server \
    -B /tmp:/var/run/rstudio-server \
-   -B /scratch/jdlab/emma/fetal_brain_hormone_analysis \
-   fetal-brain-hormone-analysis_1.0.1.sif \
+   -B /scratch/jdlab/emma/developing-brain-metabolomics \
+   developing-brain-metabolomics_1.0.0.sif \
    rserver \
      --server-user=$USER
 
