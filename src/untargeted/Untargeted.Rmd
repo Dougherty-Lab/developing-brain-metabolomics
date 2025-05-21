@@ -12,27 +12,50 @@ if (!require("pacman")) {
   install.packages("pacman")
   library(pacman)
 } 
-p_load(tidyverse,readxl,dplyr,stats,ggplot2)
-```
+p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggfortify)
 
-
-```{r LoadDataset, echo=TRUE}
-full_dataset = read_excel('./Datasets/32_untargeted_developing_2025.xlsx',sheet="Area",range=NULL)
-```
-#Format Datafile
-
-```{r CleanUp, echo=TRUE}
+#Functions
 #function to convert to numeric
 convert_to_numeric <- function(x) {
   x <- as.character(x)
   x[x == "N/A"] <- NA
-  as.numeric(x)
+  as.numeric(x)}
+
+# Imputation function to replace NaN with 1/5th of the minimum value in each row
+min_value_impute <- function(column) {
+  min_value <- min(column, na.rm = TRUE)
+  column[is.na(column)] <- min_value / 5
+  return(column)
 }
 
-# Clean the data:
-# 1. Remove asterisks from names (*indicates isomers detected)
-# 2. Convert numeric columns
-# 3. Remove rows where all sample values are NA - relevant if annotated with other experimental samples
+# Function to calculate percentage of samples each peak is present in
+calculate_missingness <- function(data) {
+  # Calculate proportion of NA values for each metabolite
+  missing_prop <- rowMeans(is.na(data[,-1]))
+  
+  # Add missingness to metabolite names
+  missing_df <- data.frame(
+    metabolite = data[,1],
+    missing_proportion = missing_prop
+  )
+  
+  return(missing_df)
+}
+```
+
+#Load Dataset
+```{r LoadDataset, echo=TRUE}
+full_dataset = read_excel('../../doc/untargeted/32_untargeted_developing_2025.xlsx',sheet="Area",range=NULL)
+```
+
+#Format Datafile
+1. Remove asterisks from names 
+  MTAC Key: *indicates isomers detected
+2. Make data set completely numeric
+3. Remove rows that are NaN across all samples - esp. relevant if annotated with other groups not present in current analysis
+
+```{r CleanUp, echo=TRUE}
+# Clean the data
 full_dataset <- full_dataset %>%
   # First clean names with asterisks
   mutate(Name = gsub("\\*$", "", Name)) %>%
@@ -40,7 +63,7 @@ full_dataset <- full_dataset %>%
   mutate(across(4:ncol(.), convert_to_numeric)) %>%
   filter(if_any(4:ncol(.), ~!is.na(.)))
 
-#create complete numeric data set for functions
+#create complete numeric data set for functions by replacing N/A with NaN
 full_dataset <- cbind(full_dataset[1:3], full_dataset[,(4:27)] %>% replace(is.na(.), NaN))
 
 # Modify sample names for columns 4 to 27
@@ -54,82 +77,112 @@ names(full_dataset)[4:27] <- new_col_names
 ##QC
 
 #Data Visualization
-```{r Distribution_Plots}
-#metabolite scatter plot
-# Reshape the data to long format for plotting
-data_long <- full_dataset %>%
-  pivot_longer(cols = 4:27, names_to = "Sample", values_to = "Metabolite")
+```{r Distribution_Plots_One}
+#peak scatter plot
+# Reshape the data
+data_long <- full_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
 
 #Remove non-finite values
 data_long <- data_long %>%
-  filter(is.finite(Metabolite))
+  filter(is.finite(Intensity))
 
 # Log-transform the metabolite values
 data_long <- data_long %>%
-  mutate(ZScore = log10(Metabolite))
+  mutate(log10 = log10(Intensity))
 
-# Plot the histogram
-ggplot(data_long, aes(x = ZScore)) +
-  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
   theme_minimal() +
-  labs(title = "Distribution of Metabolites",
-       x = "Metabolite Z Score",
-       y = "Frequency")
+  labs(title = "Distribution of Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Peaks")
 
 # Plot the scatter plot
-ggplot(data_long, aes(x = as.factor(Sample), y = Metabolite)) +
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
   geom_point(size = 1, color = "darkorange") +
   theme_minimal() +
-  labs(title = "Metabolite Values per Sample",
+  labs(title = "Peak Intensity per Sample",
        x = "Sample",
-       y = "Metabolite Value") +
+       y = "Log10 Intensity") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 
-# Calculate number of metabolites per sample
-  metabolite_count_full <- colSums(!is.na(full_dataset[, 4:27]))
-  metabolite_count_full <- data.frame(Sample = names(metabolite_count_full), Count = metabolite_count_full)
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(full_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
 
 #Graph
-ggplot(data = metabolite_count_full, aes(x = Sample, y = Count)) +
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(title = "Number of Metabolites per Sample",
-       x = "Sample", y = "Metabolite Count")
-```
-```{r MetaboliteMissingness, echo=TRUE}
-# Function to calculate missingness per metabolite
-calculate_missingness <- function(data) {
-  # Calculate proportion of NA values for each metabolite
-  missing_prop <- rowMeans(is.na(data[,-1]))
-  
-  # Add missingness to metabolite names
-  missing_df <- data.frame(
-    metabolite = data[,1],
-    missing_proportion = missing_prop
-  )
-  
-  return(missing_df)
-}
+  labs(title = "Number of Distinct Peaks per Sample",
+       x = "Sample", y = "Peak Count")
 
-#Run function
+#Run function for percentage of peaks missing across samples
  missing_stats_full <- calculate_missingness(full_dataset)
 
 #Plot
 ggplot(missing_stats_full, aes(x = missing_proportion)) +
-  geom_histogram(bins = 20, fill = "steelblue", color = "black") +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
   theme_minimal() +
-  labs(title = "Distribution of Missing Values",
-       x = "Proportion Missing",
-       y = "Count") +
+  labs(title = "Distribution of Missing Peaks Across Samples",
+       x = "Percentage of Samples Missing Peak",
+       y = "Peak Count") +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-  geom_text(stat='count', aes(label=..count..), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
   
+```
 
+#Initial PCA
+```{r PCA_One, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- full_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Plot PCA for samples
+ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
+  geom_point(aes(color = Sample), size = 3) +
+  geom_text(vjust = -1, hjust = -0.1) +
+  theme_minimal() +
+  labs(title = "PCA of Sample Variation")
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- full_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Compound.ID <- full_dataset$Compound.ID
+
+# Plot PCA for metabolites
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "PCA of Metabolite Variation")
 
 ```
 
-#Outlier Detection/Removal
+#Outlier Removal
 ```{r OutlierSamples, echo=TRUE}
 identify_outlier_samples <- function(data, threshold = 3, i = c(4:27)) {
   # Calculate total intensity per sample
@@ -159,75 +212,345 @@ print(outlier_columns)
 clean_dataset <- full_dataset %>% select(-all_of(outlier_columns))
 ```
 
-#Data Re-visualization after Outlier Exclusion
+Data Re-visualization after Outlier Exclusion
 
-```{r ReDistribution_Plots}
-# Calculate number of metabolites per sample
-  metabolite_count_clean <- colSums(!is.na(clean_dataset[, 4:27]))
-  metabolite_count_clean <- data.frame(Sample = names(metabolite_count_clean), Count = metabolite_count_clean)
+```{r Distribution_Plots_Two, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- clean_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
+
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Peaks")
+
+# Plot the scatter plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_point(size = 1, color = "darkorange") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(clean_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
 
 #Graph
-ggplot(data = metabolite_count_clean, aes(x = Sample, y = Count)) +
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(title = "Number of Metabolites per Sample",
-       x = "Sample", y = "Metabolite Count")
+  labs(title = "Number of Distinct Peaks per Sample",
+       x = "Sample", y = "Peak Count")
 
-#Calculate total intensity per sample
-  total_intensity_clean <- colSums(clean_dataset[, 4:27], na.rm = TRUE)
-  total_intensity_clean <- data.frame(Sample = names(total_intensity_clean), Intensity = total_intensity_clean)
-  
-#Plot
-ggplot(data = total_intensity_clean, aes(x = Sample, y = Intensity)) +
-  geom_bar(stat = "identity", fill = "darkorange") +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  labs(title = "Intensity of Total Metabolites per Sample",
-       x = "Sample", y = "Total Intensity")
-
-#Missing Stats
- missing_stats_clean <- calculate_missingness(clean_dataset)
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(clean_dataset)
 
 #Plot
-ggplot(missing_stats_clean, aes(x = missing_proportion)) +
-  geom_histogram(bins = 20, fill = "steelblue", color = "black") +
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
   theme_minimal() +
-  labs(title = "Distribution of Missing Values",
-       x = "Proportion Missing",
-       y = "Count") +
+  labs(title = "Distribution of Missing Peaks Across Samples",
+       x = "Percentage of Samples Missing Peak",
+       y = "Peak Count") +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
-  geom_text(stat='count', aes(label=..count..), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
   
 ```
+#Outlier PCA
+```{r PCA_Two, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- clean_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Plot PCA for samples
+ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
+  geom_point(aes(color = Sample), size = 3) +
+  geom_text(vjust = -1, hjust = -0.1) +
+  theme_minimal() +
+  labs(title = "PCA of Sample Variation")
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- clean_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Compound.ID <- clean_dataset$Compound.ID
+
+# Plot PCA for metabolites
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "PCA of Metabolite Variation")
+
+```
   
-
-
-Split annotated and unannotated
+##Data Split
 ```{r Dataframe_Split}
-# Assuming your dataframe is named 'df'
-annotated <- full_dataset_num[!is.na(full_dataset_num$Name) & full_dataset_num$Name != "", ]
-unannotated <- full_dataset_num[is.na(full_dataset_num$Name) | full_dataset_num$Name == "", ]
+annotated_dataset <- clean_dataset[!is.na(clean_dataset$Name) & clean_dataset$Name != "", ]
+unannotated_dataset <- clean_dataset[is.na(clean_dataset$Name) | clean_dataset$Name == "", ]
 ```
 
+#Visualization per Split
+```{r Distribution_Plots_Annotated, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- annotated_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
 
-#Annotated Metabolomics Analysis
-Identify Duplicates
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Annotated Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Annotated Peaks")
+
+# Plot the scatter plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_point(size = 1, color = "darkorange") +
+  theme_minimal() +
+  labs(title = "Annotated Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(annotated_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Distinct Annotated Peaks per Sample",
+       x = "Sample", y = "Peak Count")
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(annotated_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Annotated Peaks Across Samples",
+       x = "Percentage of Samples Missing Annotated Peak",
+       y = "Annotated Peak Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+  
+```
+
+```{r PCA_Annotated, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- annotated_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Plot PCA for samples
+ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
+  geom_point(aes(color = Sample), size = 3) +
+  geom_text(vjust = -1, hjust = -0.1) +
+  theme_minimal() +
+  labs(title = "PCA of Sample Variation")
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- annotated_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Compound.ID <- annotated_dataset$Compound.ID
+
+# Plot PCA for metabolites
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "PCA of Metabolite Variation")
+
+```
+
+```{r Distribution_Plots_Unannotated, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- unannotated_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
+
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Annotated Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Annotated Peaks")
+
+# Plot the scatter plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_point(size = 1, color = "darkorange") +
+  theme_minimal() +
+  labs(title = "Annotated Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(unannotated_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Distinct Unannotated Peaks per Sample",
+       x = "Sample", y = "Peak Count")
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(unannotated_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Unannotated Peaks Across Samples",
+       x = "Percentage of Samples Missing Unannotated Peak",
+       y = "Unannotated Peak Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+  
+```
+```{r PCA_Unannotated, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- unannotated_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Plot PCA for samples
+ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
+  geom_point(aes(color = Sample), size = 3) +
+  geom_text(vjust = -1, hjust = -0.1) +
+  theme_minimal() +
+  labs(title = "PCA of Sample Variation")
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- unannotated_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Compound.ID <- unannotated_dataset$Compound.ID
+
+# Plot PCA for metabolites
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "PCA of Metabolite Variation")
+
+```
+
+##Annotated Analysis
+#Duplicate Removal
 
 ```{r LoadAnnotation, echo=TRUE}
-Annotation = read_excel('./Datasets/32_untargeted_developing_2025.xlsx',sheet="Annotation",range=NULL)
+compound_annotation = read_excel('../../doc/untargeted/32_untargeted_developing_2025.xlsx',sheet="Annotation", range=NULL)
 
-Annotation <- Annotation %>%
+compound_annotation <- compound_annotation %>%
   # First clean names with asterisks
   mutate(Name = gsub("\\*$", "", Name))
 
 # split file
-A_annotated <- Annotation[!is.na(Annotation$InChiKey) & Annotation$InChiKey != "", ]
-A_unannotated <- Annotation[is.na(Annotation$InChiKey) | Annotation$InChiKey == "", ]
+annotated_compounds <- compound_annotation[!is.na(compound_annotation$InChiKey) & compound_annotation$InChiKey != "", ]
+unannotated_compounds <- compound_annotation[is.na(compound_annotation$InChiKey) | compound_annotation$InChiKey == "", ]
 ```
 
 ```{r Duplicate_Identification}
 
 # Find duplicate names in the column "InChiKey"
-duplicates <- A_annotated %>%
+duplicates <- annotated_compounds %>%
   group_by(InChiKey) %>%
   filter(n() > 1) %>%
   arrange(Name)
@@ -247,19 +570,12 @@ ggplot(duplicate_counts, aes(x = count)) +
   xlab("Count of Duplicates") +
   ylab("Frequency")
 
-# Print table of all duplicate names
-print(duplicates)
-
-# Optionally, you could view the duplicate counts separately
-print(duplicate_counts)
 ```
 Create non-duplicate dataframe
-
 ```{r DuplicateRemoval, echo=TRUE}
 
-# Assuming your dataframe of duplicates is named 'duplicates'
 # Calculate % Relative Standard Deviation (% RSD) for each row
-annotated <- annotated %>%
+annotated_dataset <- annotated_dataset %>%
   rowwise() %>%
   mutate(
     mean_value = mean(c_across(4:27), na.rm = TRUE),
@@ -268,59 +584,120 @@ annotated <- annotated %>%
   ) %>%
   ungroup()
 
-annotated <- annotated %>%
-  left_join(A_annotated %>% select(Compound.ID, InChiKey), by = "Compound.ID")
+annotated_dataset <- annotated_dataset %>%
+  left_join(annotated_compounds %>% select(Compound.ID, InChiKey), by = "Compound.ID")
 
 # Create a new dataframe that keeps only non-NA RSD values, and then finds the duplicate with the lower % RSD for each InChiKey
-clean_annotated <- annotated %>%
+clean_annotated_dataset <- annotated_dataset %>%
   filter(!is.na(percent_RSD)) %>%
   group_by(InChiKey) %>%
   filter(percent_RSD == min(percent_RSD, na.rm = TRUE)) %>%
   ungroup()
 ```
 
-Imputation
 
-```{r MinImpute}
+#Unique Metabolite Visualization
 
-# Assuming your dataframe is named 'clean_annotated'
-# Imputation function to replace NaN with 1/5th of the minimum value in each row
-min_value_imputation_row <- function(df, cols) {
-  df <- df %>%
-    rowwise() %>%
-    mutate(
-      across(all_of(cols), ~ replace_na(., min(c_across(all_of(cols)), na.rm = TRUE) / 5))
-    ) %>%
-    ungroup()
-  return(df)
-}
+```{r Distribution_Plots_Unique_Annotated, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- clean_annotated_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
 
-# Apply imputation to columns 4 to 27 in the clean_annotated dataframe
-clean_annotated_imputed <- min_value_imputation_row(clean_annotated, 4:27)
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
 
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Unique Metabolite Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Unique Metablites")
+
+# Plot the scatter plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_point(size = 1, color = "darkorange") +
+  theme_minimal() +
+  labs(title = "Unique Metabolites per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(clean_annotated_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Unique Metabolites per Sample",
+       x = "Sample", y = "Metabolite Count")
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(clean_annotated_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Metabolites Across Samples",
+       x = "Percentage of Samples Missing Metabolite",
+       y = "Unique Metabolite Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+  
 ```
+```{r PCA_Unique_Annotated, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- clean_annotated_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
 
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
 
-Normalization
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
 
-```{r Normalization}
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
 
-# Z-score normalize metabolites across samples
-normalized_clean_annotated <- clean_annotated_imputed
-normalized_clean_annotated[4:27] <- as.data.frame(scale(clean_annotated_imputed[4:27], center = TRUE, scale = TRUE))
+# Plot PCA for samples
+ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
+  geom_point(aes(color = Sample), size = 3) +
+  geom_text(vjust = -1, hjust = -0.1) +
+  theme_minimal() +
+  labs(title = "PCA of Sample Variation")
 
-```
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- clean_annotated_dataset %>%
+  select(starts_with("Sample"))
 
-Clean Sample names
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
 
-```{r CleanSampleNames, echo=TRUE}
-# Assuming your dataframe is named 'normalized_clean_annotated'
-# Modify column names for columns 4 to 27
-new_col_names <- names(normalized_clean_annotated)[4:27] %>%
-  sub("Area\\. ", "Sample", .)
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 
-# Assign the new column names back to the dataframe
-names(normalized_clean_annotated)[4:27] <- new_col_names
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Compound.ID <- clean_annotated_dataset$Compound.ID
+
+# Plot PCA for metabolites
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  theme_minimal() +
+  labs(title = "PCA of Metabolite Variation")
 
 ```
 
