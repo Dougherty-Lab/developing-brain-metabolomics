@@ -1,18 +1,18 @@
 ---
 title: "Untargeted_Analysis"
 author: "Sneha Michaela Chaturvedi"
-date: "05-06-2025"
+date: "05-21-2025"
 output: html_document
 ---
 
-##Set Up
-```{r setup, include=FALSE}
+# Set Up
+```{r setup, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 if (!require("pacman")) {
   install.packages("pacman")
   library(pacman)
 } 
-p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggfortify)
+p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggfortify,ggrepel,limma,Biobase,ComplexHeatmap)
 
 #Functions
 #function to convert to numeric
@@ -43,13 +43,13 @@ calculate_missingness <- function(data) {
 }
 ```
 
-#Load Dataset
+# Load Dataset
 ```{r LoadDataset, echo=TRUE}
 full_dataset = read_excel('../../doc/untargeted/32_untargeted_developing_2025.xlsx',sheet="Area",range=NULL)
 ```
 
-#Format Datafile
-1. Remove asterisks from names 
+# Format Datafile
+1. Remove asterisks from names
   MTAC Key: *indicates isomers detected
 2. Make data set completely numeric
 3. Remove rows that are NaN across all samples - esp. relevant if annotated with other groups not present in current analysis
@@ -74,9 +74,9 @@ new_col_names <- names(full_dataset)[4:27] %>%
 names(full_dataset)[4:27] <- new_col_names
 ```
 
-##QC
+## QC
 
-#Data Visualization
+# Data Visualization
 ```{r Distribution_Plots_One}
 #peak scatter plot
 # Reshape the data
@@ -135,7 +135,7 @@ ggplot(missing_stats_full, aes(x = missing_proportion)) +
   
 ```
 
-#Initial PCA
+# Initial PCA
 ```{r PCA_One, echo = TRUE}
 # PCA of sample variation
 # Prepare data for PCA (samples as rows, metabolites as columns)
@@ -153,12 +153,31 @@ pca_samples <- prcomp(samples_matrix, scale. = TRUE)
 sample_scores <- as.data.frame(pca_samples$x)
 sample_scores$Sample <- rownames(sample_scores)
 
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for samples
 ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_point(aes(color = Sample), size = 3) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
-  labs(title = "PCA of Sample Variation")
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), title = "PCA of Sample Variation")
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
@@ -174,15 +193,35 @@ pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 metabolite_scores <- as.data.frame(pca_metabolites$x)
 metabolite_scores$Compound.ID <- full_dataset$Compound.ID
 
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for metabolites
 ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
   geom_point() +
   theme_minimal() +
-  labs(title = "PCA of Metabolite Variation")
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+                   title = "PCA of Metabolite Variation")
 
 ```
 
-#Outlier Removal
+# Outlier Removal
 ```{r OutlierSamples, echo=TRUE}
 identify_outlier_samples <- function(data, threshold = 3, i = c(4:27)) {
   # Calculate total intensity per sample
@@ -271,7 +310,7 @@ ggplot(missing_stats_full, aes(x = missing_proportion)) +
   geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
   
 ```
-#Outlier PCA
+# Outlier PCA
 ```{r PCA_Two, echo = TRUE}
 # PCA of sample variation
 # Prepare data for PCA (samples as rows, metabolites as columns)
@@ -289,12 +328,31 @@ pca_samples <- prcomp(samples_matrix, scale. = TRUE)
 sample_scores <- as.data.frame(pca_samples$x)
 sample_scores$Sample <- rownames(sample_scores)
 
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for samples
 ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_point(aes(color = Sample), size = 3) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
-  labs(title = "PCA of Sample Variation")
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), title = "PCA of Sample Variation")
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
@@ -310,21 +368,40 @@ pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 metabolite_scores <- as.data.frame(pca_metabolites$x)
 metabolite_scores$Compound.ID <- clean_dataset$Compound.ID
 
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for metabolites
 ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
   geom_point() +
   theme_minimal() +
-  labs(title = "PCA of Metabolite Variation")
-
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+                   title = "PCA of Metabolite Variation")
 ```
   
-##Data Split
+## Data Split
 ```{r Dataframe_Split}
 annotated_dataset <- clean_dataset[!is.na(clean_dataset$Name) & clean_dataset$Name != "", ]
 unannotated_dataset <- clean_dataset[is.na(clean_dataset$Name) | clean_dataset$Name == "", ]
 ```
 
-#Visualization per Split
+# Visualization per Split
 ```{r Distribution_Plots_Annotated, echo=TRUE}
 #peak scatter plot
 # Reshape the data
@@ -400,12 +477,31 @@ pca_samples <- prcomp(samples_matrix, scale. = TRUE)
 sample_scores <- as.data.frame(pca_samples$x)
 sample_scores$Sample <- rownames(sample_scores)
 
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for samples
 ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_point(aes(color = Sample), size = 3) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
-  labs(title = "PCA of Sample Variation")
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), title = "PCA of Sample Variation")
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
@@ -421,12 +517,31 @@ pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 metabolite_scores <- as.data.frame(pca_metabolites$x)
 metabolite_scores$Compound.ID <- annotated_dataset$Compound.ID
 
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for metabolites
 ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
   geom_point() +
   theme_minimal() +
-  labs(title = "PCA of Metabolite Variation")
-
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+                   title = "PCA of Metabolite Variation")
 ```
 
 ```{r Distribution_Plots_Unannotated, echo=TRUE}
@@ -503,12 +618,31 @@ pca_samples <- prcomp(samples_matrix, scale. = TRUE)
 sample_scores <- as.data.frame(pca_samples$x)
 sample_scores$Sample <- rownames(sample_scores)
 
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for samples
 ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_point(aes(color = Sample), size = 3) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
-  labs(title = "PCA of Sample Variation")
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), title = "PCA of Sample Variation")
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
@@ -524,16 +658,35 @@ pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 metabolite_scores <- as.data.frame(pca_metabolites$x)
 metabolite_scores$Compound.ID <- unannotated_dataset$Compound.ID
 
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for metabolites
 ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
   geom_point() +
   theme_minimal() +
-  labs(title = "PCA of Metabolite Variation")
-
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+                   title = "PCA of Metabolite Variation")
 ```
 
-##Annotated Analysis
-#Duplicate Removal
+## Annotated Analysis
+# Duplicate Removal
 
 ```{r LoadAnnotation, echo=TRUE}
 compound_annotation = read_excel('../../doc/untargeted/32_untargeted_developing_2025.xlsx',sheet="Annotation", range=NULL)
@@ -593,10 +746,13 @@ clean_annotated_dataset <- annotated_dataset %>%
   group_by(InChiKey) %>%
   filter(percent_RSD == min(percent_RSD, na.rm = TRUE)) %>%
   ungroup()
+
+# Filter the annotated compounds to keep only the rows with Compound.ID in the unique compounds
+unique_annotated_compounds = annotated_compounds %>%
+  filter(Compound.ID %in% clean_annotated_dataset$Compound.ID)
+
 ```
-
-
-#Unique Metabolite Visualization
+# Unique Metabolite Visualization
 
 ```{r Distribution_Plots_Unique_Annotated, echo=TRUE}
 #peak scatter plot
@@ -672,12 +828,31 @@ pca_samples <- prcomp(samples_matrix, scale. = TRUE)
 sample_scores <- as.data.frame(pca_samples$x)
 sample_scores$Sample <- rownames(sample_scores)
 
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for samples
 ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_point(aes(color = Sample), size = 3) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
-  labs(title = "PCA of Sample Variation")
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), title = "PCA of Sample Variation")
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
@@ -693,31 +868,486 @@ pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 metabolite_scores <- as.data.frame(pca_metabolites$x)
 metabolite_scores$Compound.ID <- clean_annotated_dataset$Compound.ID
 
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 # Plot PCA for metabolites
 ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
   geom_point() +
   theme_minimal() +
-  labs(title = "PCA of Metabolite Variation")
-
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+                   title = "PCA of Metabolite Variation")
 ```
 
-Assign Metadata
+# Assign Metadata
 ```{r Metadata, echo=TRUE}
-metadata = read_excel('./Datasets/metadata.xlsx',sheet="metadata",range=NULL)
+# Convert metabolites data to matrix format
+final_matrix <- clean_annotated_dataset %>%
+  select(starts_with("Sample"))
+  
+metabolite_names <- clean_annotated_dataset[[31]]
+final_matrix <- apply(final_matrix, 2, as.numeric)
+rownames(final_matrix) <- metabolite_names
 
-# Ensure the "SampleName" column in metadata matches these sample names
-metadata$Sample <- paste0("Sample", metadata$SampleName)
+sample_metadata = read_excel('../../doc/untargeted/32_metadata.xlsx',sheet="metadata",range=NULL)
 
-# In case the metadata 'Sample' column needs to be redefined to match main_df column names
-metadata <- metadata %>%
-  select(Sample, Sex, GW)
+# Filter metadata to match metabolites samples
+sample_metadata_filtered <- sample_metadata %>%
+  filter(SampleName %in% colnames(final_matrix)) %>%
+  # Ensure the order matches the metabolites data
+  arrange(match(SampleName, colnames(final_matrix)))
 
-# Merge metadata with the long-format main dataframe
-merged_df <- normalized_clean_annotated %>%
-left_join(metadata, by = "Sample")
+# Create the metadata dataframe
+sample_metadata_df <- as.data.frame(sample_metadata_filtered)
+rownames(sample_metadata_df) <- sample_metadata_df$SampleName
 
-# Pivot the long-format dataframe back to the wide format if necessary
-final_untargeted_dataset <- merged_df %>%
- pivot_wider(names_from = Sample, values_from = Value)
+# Create Biobase ExpressionSet with the matched data
+sample_phenoData <- AnnotatedDataFrame(sample_metadata_df)
+
+# Ensure the metabolite metadata matches the order of the final_matrix rows
+metabolite_metadata_filtered <- unique_annotated_compounds %>%
+  filter(InChiKey %in% rownames(final_matrix)) %>%
+  arrange(match(InChiKey, rownames(final_matrix)))
+
+# Create the metabolite metadata dataframe
+metabolite_metadata_df <- as.data.frame(metabolite_metadata_filtered)
+rownames(metabolite_metadata_df) <- metabolite_metadata_df$InChiKey
+
+metabolite_featureData <- AnnotatedDataFrame(metabolite_metadata_df)
+
+# Create the ExpressionSet with both phenodata and featuredata
+final_annotated_df <- ExpressionSet(
+  assayData = final_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+
+#Create Biobase ExpressionSet with imputed values for PCA
+imputed_matrix <- apply(final_matrix, 2, min_value_impute)
+imputed_annotated_df <- ExpressionSet(
+  assayData = imputed_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+```
+
+# PCA by Sample Variable
+```{r Variable_Sample_PCA, echo = TRUE}
+#PCA using imputed Biobase dataset
+pca_samples <- prcomp(t(exprs(imputed_annotated_df)), scale. = TRUE)
+
+
+# Create PCA data frame with metadata
+pca_data <- data.frame(
+  PC1 = pca_samples$x[,1],
+  PC2 = pca_samples$x[,2],
+  PC3 = pca_samples$x[,3],
+  PC4 = pca_samples$x[,4],
+  Sex = as.factor(pData(imputed_annotated_df)$Sex),
+  GW = pData(imputed_annotated_df)$GW,
+  Sample = rownames(pca_samples$x)
+)
+
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Sex PCA
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# GW PCA
+ggplot(pca_data, aes(x = PC1, y = PC2, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+```{r PCA_Metabolites, echo=TRUE}
+
+#PCA using imputed Biobase dataset
+pca_metabolites <- prcomp(exprs(imputed_annotated_df), scale. = TRUE)
+
+# Create PCA data frame with metadata
+pca_data <- data.frame(
+  PC1 = pca_metabolites$x[,1],
+  PC2 = pca_metabolites$x[,2],
+  PC3 = pca_metabolites$x[,3],
+  PC4 = pca_metabolites$x[,4],
+  Name = as.factor(fData(imputed_annotated_df)$Name),
+  SuperClass = fData(imputed_annotated_df)$Super.Class,
+  Class = fData(imputed_annotated_df)$Class,
+  SubClass = fData(imputed_annotated_df)$Sub.Class,
+  Pathways = fData(imputed_annotated_df)$Pathways,
+  Metabolites = rownames(pca_metabolites$x)
+)
+
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+#SuperClass PCA
+ggplot(pca_data, aes(x = PC1, y = PC2, color = SuperClass)) +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]),
+       title = "Metabolite PCA by SuperClass") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 ```
+## Metabolite-Factor Correlations
+
+Non-Imputed for Comparison
+```{r nonimputed_correlations, echo=TRUE}
+# Calculate correlations between metabolites and metadata
+metadata <- pData(final_annotated_df)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+GW <- metadata$GW
+
+# Calculate correlations for each metabolite
+nonimputed_metadata_correlation <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey,
+  Name = fData(imputed_annotated_df)$Name,
+  Sex_correlation = apply(exprs(final_annotated_df), 1, function(x) cor(x, sex_numeric)),
+  GW_correlation = apply(exprs(final_annotated_df), 1, function(x) cor(x, GW))
+)
+
+# Create correlation strength plots
+# For sex
+top_sex_correlations <- nonimputed_metadata_correlation %>%
+  arrange(desc(abs(Sex_correlation))) %>%
+  head(15)
+
+ggplot(top_sex_correlations, 
+                               aes(x = reorder(Name, abs(Sex_correlation)), 
+                                   y = Sex_correlation)) +
+  geom_bar(stat = "identity", aes(fill = Sex_correlation > 0)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Correlation with Sex",
+       title = "Top 15 Sex-Correlated Metabolites") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+# For GW
+top_GW_correlations <- nonimputed_metadata_correlation %>%
+  arrange(desc(abs(GW_correlation))) %>%
+  head(15)
+
+ggplot(top_GW_correlations, 
+                               aes(x = reorder(Name, abs(GW_correlation)), 
+                                   y = GW_correlation)) +
+  geom_bar(stat = "identity", aes(fill = GW_correlation > 0)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Correlation with GW",
+       title = "Top 15 GW-Correlated Metabolites") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+# Print top correlations
+print(nonimputed_metadata_correlation %>% 
+        arrange(desc(abs(Sex_correlation))) %>% 
+        select(Name, Sex_correlation) %>% 
+        head(10))
+
+print(nonimputed_metadata_correlation %>% 
+        arrange(desc(abs(GW_correlation))) %>% 
+        select(Name, GW_correlation) %>% 
+        head(10))
+```
+
+Imputed Correlation for statistical testing
+```{r Metabolite_Correlations, echo=TRUE}
+# Calculate correlations and p-values between metabolites and metadata
+metadata <- pData(imputed_annotated_df)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+GW <- metadata$GW
+
+# Function to calculate correlation and p-value
+correlation_test <- function(x, y) {
+  result <- cor.test(x, y)
+  c(correlation = result$estimate, p_value = result$p.value)
+}
+
+# Calculate correlations and p-values for each metabolite
+metabolite_samplemetadata_stats <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey,
+  Name = fData(imputed_annotated_df)$Name,
+  Sex_corr_pval = t(apply(exprs(imputed_annotated_df), 1, function(x) correlation_test(x, sex_numeric))),
+  GW_corr_pval = t(apply(exprs(imputed_annotated_df), 1, function(x) correlation_test(x, GW)))
+)
+
+metabolite_samplemetadata_stats <- metabolite_samplemetadata_stats %>%
+  mutate(
+    Sex_FDR = p.adjust(Sex_corr_pval.p_value, method = "fdr"),
+    GW_FDR = p.adjust(GW_corr_pval.p_value, method = "fdr")
+  )
+
+# Scatter plot for significant Sex correlations
+significant_sex <- metabolite_samplemetadata_stats %>% filter(Sex_FDR < 0.05)
+scatter_sex <- ggplot(significant_sex, aes(x = reorder(Name, Sex_corr_pval.correlation.cor), y = Sex_corr_pval.correlation.cor)) +
+  geom_point(aes(size = -log10(Sex_corr_pval.p_value), color = Sex_corr_pval.correlation.cor)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Correlation with Sex",
+       title = "Significant Metabolite Correlations with Sex") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Scatter plot for significant GW correlations
+significant_GW <- metabolite_samplemetadata_stats %>% filter(GW_FDR < 0.05)
+scatter_GW <- ggplot(significant_GW, aes(x = reorder(Name, GW_corr_pval.correlation.cor), y = GW_corr_pval.correlation.cor)) +
+  geom_point(aes(size = -log10(GW_corr_pval.p_value), color = GW_corr_pval.correlation.cor)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Correlation with GW",
+       title = "Significant Metabolite Correlations with Gestational Weeks (GW)") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Heatmap of correlations
+correlation_matrix <- metabolite_samplemetadata_stats %>%
+  select(Sex_corr_pval.correlation.cor, GW_corr_pval.correlation.cor) %>%
+  as.matrix()
+
+rownames(correlation_matrix) <- metabolite_samplemetadata_stats$Name
+colnames(correlation_matrix) <- c("Sex", "GW")
+
+heatmap_plot <- Heatmap(correlation_matrix, name = "Correlation",
+                        show_row_names = F, show_column_names = T)
+
+# Plot the results
+print(scatter_sex)
+print(scatter_GW)
+heatmap_plot
+
+# Print top correlations with significance details
+top_sex_correlations <- metabolite_samplemetadata_stats %>%
+  arrange(desc(abs(Sex_corr_pval.correlation.cor))) %>%
+  head(10) %>%
+  select(Name, Sex_corr_pval.correlation.cor, Sex_corr_pval.p_value, Sex_FDR)
+print(top_sex_correlations)
+
+top_GW_correlations <- metabolite_samplemetadata_stats %>%
+  arrange(desc(abs(GW_corr_pval.correlation.cor))) %>%
+  head(10) %>%
+  select(Name, GW_corr_pval.correlation.cor, GW_corr_pval.p_value, GW_FDR)
+print(top_GW_correlations)
+```
+
+
+## Sex Differential Analysis
+# Univariate Testing for Sex Differences with Volcano Plots
+```{r Univariate_Testing, echo=TRUE, message=FALSE, warning=FALSE}
+
+# Calculate p-values for sex differences using the Wilcoxon rank-sum test
+metadata <- pData(imputed_annotated_df)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+
+# Function to calculate Wilcoxon rank-sum test p-value
+wilcoxon_test <- function(x, sex) {
+  result <- wilcox.test(x[sex == 0], x[sex == 1], exact = FALSE)
+  c(statistic = result$statistic, p_value = result$p.value)
+}
+
+# Perform Wilcoxon rank-sum test for each metabolite
+metabolite_sex_stats <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey[apply(exprs(imputed_annotated_df), 1, function(x) all(is.finite(x)))],
+  Name = fData(imputed_annotated_df)$Name[apply(exprs(imputed_annotated_df), 1, function(x) all(is.finite(x)))],
+  Wilcoxon_stat_pval = t(apply(imputed_annotated_df, 1, function(x) wilcoxon_test(x, sex_numeric)))
+)
+
+# Calculate log fold changes for volcano plot
+metabolite_sex_stats <- metabolite_sex_stats %>%
+  mutate(
+    logFC = log2(apply(imputed_annotated_df[, sex_numeric == 1], 1, mean) / apply(imputed_annotated_df[, sex_numeric == 0], 1, mean)),
+    FDR = p.adjust(Wilcoxon_stat_pval.p_value, method = "fdr"),
+    Bonferroni = p.adjust(Wilcoxon_stat_pval.p_value, method = "bonferroni")
+  )
+
+# Volcano plot with FDR correction
+volcano_FDR <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(Wilcoxon_stat_pval.p_value))) +
+  geom_point(aes(color = FDR < 0.05, size = -log10(Wilcoxon_stat_pval.p_value))) +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change",
+       y = "-log10(p-value)",
+       title = "Volcano Plot with FDR Correction") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+
+# Volcano plot with Bonferroni correction
+volcano_Bonferroni <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(Wilcoxon_stat_pval.p_value))) +
+  geom_point(aes(color = Bonferroni < 0.05, size = -log10(Wilcoxon_stat_pval.p_value))) +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change",
+       y = "-log10(p-value)",
+       title = "Volcano Plot with Bonferroni Correction") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+
+# Plot the results
+print(volcano_FDR)
+print(volcano_Bonferroni)
+
+# Print top metabolites with significance details
+top_metabolites <- metabolite_sex_stats %>%
+  arrange(desc(-log10(Wilcoxon_stat_pval.p_value))) %>%
+  head(10) %>%
+  select(Name, logFC, Wilcoxon_stat_pval.p_value, FDR, Bonferroni)
+print(top_metabolites)
+
+```
+# Multivariate testing
+```{r Multivariate_Model, echo=TRUE}
+metadata <- pData(imputed_annotated_df)
+metadata$Sex <- as.factor(metadata$Sex)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+GW <- metadata$GW
+
+metabolite_matrix <- exprs(imputed_annotated_df)
+
+# Fit linear model and collect coefficients and p-values
+lm_results <- lapply(1:nrow(metabolite_matrix), function(i) {
+  metabolite <- metabolite_matrix[i, ]
+  tryCatch({
+    model <- lm(metabolite ~ Sex + GW, data = metadata)
+    summary(model)
+  }, error = function(e) {
+    warning_message <- paste("Model fitting failed for row", i, "due to error:", e$message)
+    message(warning_message)
+    NULL
+  })
+})
+
+# Extract coefficients and p-values
+coefficients_list <- lapply(lm_results, function(res) {
+  if (is.null(res) || !inherits(res, "summary.lm")) {
+    return(c(Sex_estimate = NA, Sex_p_value = NA, GW_estimate = NA, GW_p_value = NA))
+  }
+  coef_table <- res$coefficients
+  if (all(c("SexM", "GW") %in% rownames(coef_table))) {
+    c(Sex_estimate = coef_table["SexM", "Estimate"],
+      Sex_p_value = coef_table["SexM", "Pr(>|t|)"],
+      GW_estimate = coef_table["GW", "Estimate"],
+      GW_p_value = coef_table["GW", "Pr(>|t|)"])
+  } else {
+    c(Sex_estimate = NA, Sex_p_value = NA, GW_estimate = NA, GW_p_value = NA)
+  }
+})
+
+coefficients_df <- do.call(rbind, coefficients_list)
+metabolite_lm_stats <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey[1:nrow(coefficients_df)],
+  Name = fData(imputed_annotated_df)$Name[1:nrow(coefficients_df)],
+  coefficients_df
+)
+
+# Adjust p-values for multiple testing
+metabolite_lm_stats <- metabolite_lm_stats %>%
+  mutate(
+    Sex_FDR = p.adjust(Sex_p_value, method = "fdr"),
+    GW_FDR = p.adjust(GW_p_value, method = "fdr"),
+    Sex_Bonferroni = p.adjust(Sex_p_value, method = "bonferroni"),
+    GW_Bonferroni = p.adjust(GW_p_value, method = "bonferroni")
+  )
+
+# Scatter plot for significant Sex effects
+significant_sex <- metabolite_lm_stats %>% filter(Sex_FDR < 0.05)
+scatter_sex <- ggplot(significant_sex, aes(x = reorder(Name, Sex_estimate), y = Sex_estimate)) +
+  geom_point(aes(size = -log10(Sex_p_value), color = Sex_FDR < 0.05)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Effect Size of Sex",
+       title = "Significant Metabolite Effects due to Sex") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+# Scatter plot for significant GW effects
+significant_GW <- metabolite_lm_stats %>% filter(GW_FDR < 0.05)
+scatter_GW <- ggplot(significant_GW, aes(x = reorder(Name, GW_estimate), y = GW_estimate)) +
+  geom_point(aes(size = -log10(GW_p_value), color = GW_FDR < 0.05)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Effect Size of GW",
+       title = "Significant Metabolite Effects due to Gestational Weeks (GW)") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Plot the results
+print(scatter_sex)
+print(scatter_GW)
+
+# Print top metabolites with significance details
+top_sex_metabolites <- metabolite_lm_stats %>%
+  arrange(Sex_p_value) %>%
+  head(10) %>%
+  select(Name, Sex_estimate, Sex_p_value, Sex_FDR, Sex_Bonferroni)
+print(top_sex_metabolites)
+
+top_GW_metabolites <- metabolite_lm_stats %>%
+  arrange(GW_p_value) %>%
+  head(10) %>%
+  select(Name, GW_estimate, GW_p_value, GW_FDR, GW_Bonferroni)
+print(top_GW_metabolites)
+```
+
