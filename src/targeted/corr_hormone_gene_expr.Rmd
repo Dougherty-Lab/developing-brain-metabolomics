@@ -429,24 +429,13 @@ results_all <- bind_rows(results_by_group[!sapply(results_by_group, is.null)])
 results_female <- results_all %>%
   filter(sex == "F")
 
+write_csv(results_female, "../../results/targeted/res_TT_genes_female.csv")
+
 # examine male results
 results_male <- results_all %>%
   filter(sex == "M")
 
-# Get top genes
-top_genes <- results_all %>%
-  filter(adj.P.Val < 0.05) %>%
-  group_by(cell_type) %>%
-  arrange(desc(abs(t))) %>%
-  slice_head(n = 5) %>%
-  ungroup()
-
-  
-str(pb$counts)
-summary(pb$counts)
-anyNA(pb$counts)
-any(rowSums(pb$counts) == 0)
-any(colSums(pb$counts) == 0)
+write_csv(results_male, "../../results/targeted/res_TT_genes_male.csv")
 
 # Remove genes (columns) with zero total count
 pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
