@@ -22,7 +22,9 @@ library(readxl)
 library(Signac)
 library(glue)
 library(cowplot)
-
+library(edgeR)
+library(limma)
+library(patchwork)
 ```
 
 
@@ -219,13 +221,11 @@ ggsave("../../results/TT_GW_modelfit.png")
 
 ```
 
-# Work on understanding expression patterns and TT level
+# Work on understanding expression patterns and TT level - DO NOT SKIP!
 
 If there is a quadratic equation that explains expression over time, it is possible the relationship between TT and gene expression is also nonlinear. Will start with linear first, since that is more straightforward.
 
 ```{r Combine metadata and expression matrix and Prepare and join sample-level metadata with TT concentrations}
-expr_mat <- as.matrix(GetAssayData(SSD_data_v5[["SCT"]], layer = "data"))  # use SCT-transformed expression
-
 cell_metadata <- SSD_data_v5@meta.data %>%
   select(sample, cluster_call)
 cell_metadata$cell_id <- rownames(cell_metadata) 
@@ -242,250 +242,13 @@ cell_metadata$cell_type <- cell_metadata$cluster_call
 cell_metadata <- cell_metadata[!is.na(cell_metadata$TT),]
 ```
 
-
-```{r For each cell type, compute median expression of each gene per cell type and sample}
-# Set minimum cell count threshold
-min_cells <- 10
-
-# Initialize list to store dropped samples
-dropped_samples_info <- list()
-
-# Main processing
-median_expr_by_group <- cell_metadata %>%
-  group_by(cell_type, Sex) %>%
-  group_split() %>%
-  set_names(map_chr(., ~ paste(unique(.x$cell_type), unique(.x$Sex), sep = "_"))) %>%
-  imap(function(df, group_name) {
-    # Count cells per sample
-    cell_counts <- df %>%
-      count(sample, name = "n_cells")
-
-    # Identify low-cell samples
-    low_count_samples <- cell_counts %>% filter(n_cells < min_cells)
-    if (nrow(low_count_samples) > 0) {
-      dropped_samples_info[[group_name]] <<- low_count_samples
-    }
-
-    # Keep only valid samples
-    valid_samples <- cell_counts %>% filter(n_cells >= min_cells) %>% pull(sample)
-    df_filtered <- df %>% filter(sample %in% valid_samples)
-    if (length(unique(df_filtered$sample)) < 2) return(NULL)
-
-    samples <- unique(df_filtered$sample)
-    expr_sub <- expr_mat[, df_filtered$cell_id, drop = FALSE]
-
-    median_expr_list <- map(samples, function(sid) {
-      cells_in_sample <- df_filtered %>% filter(sample == sid) %>% pull(cell_id)
-      matrixStats::rowMedians(expr_sub[, cells_in_sample, drop = FALSE])
-    })
-
-    median_expr <- do.call(cbind, median_expr_list)
-    colnames(median_expr) <- as.character(samples)
-    rownames(median_expr) <- rownames(expr_sub)
-
-    # Remove genes with sum == 0
-    median_expr <- median_expr[rowSums(median_expr, na.rm = TRUE) != 0, , drop = FALSE]
-
-    return(median_expr)
-  }) %>%
-  compact()  # Remove NULLs
-
-```
-
-
-```{r For each cell type and gene, correlate or regress with testosterone}
-# Helper function to calculate correlation and p-value
-calculate_corr_pval <- function(gene_expr, test_vals) {
-  valid_idx <- gene_expr != 0 & !is.na(gene_expr) & test_vals != 0 & !is.na(test_vals)
-  
-  #if (sum(valid_idx) < 2 || sd(gene_expr[valid_idx]) == 0 || sd(test_vals[valid_idx]) == 0) {
-   # return(list(cor = NA, pval = NA))
- # }
-  
-  cor_value <- cor(gene_expr[valid_idx], test_vals[valid_idx], use = "complete.obs")
-  model <- lm(gene_expr[valid_idx] ~ test_vals[valid_idx])
-  pval_value <- summary(model)$coefficients[2, 4]
-  
-  list(cor = cor_value, pval = pval_value)
-}
-
-# Generate results by group using precomputed median expressions
-results_by_group <- map2_dfr(median_expr_by_group, names(median_expr_by_group), function(expr_df, groupname) {
-  samples <- colnames(expr_df)
-
-  # Split the group name to extract cell type and sex labels
-  group_labels <- strsplit(groupname, "_")[[1]]
-  celltype_label <- group_labels[1]
-  sex_label <- group_labels[2]
-
-  # Obtain testosterone values for the current group of samples
-  test_vals <- targeted_comparision_filtered %>%
-    filter(Sample %in% samples) %>%
-    arrange(match(Sample, samples)) %>%
-    pull(TT)
-
-  # Check if there is sufficient variation in testosterone values
-  if (all(test_vals == 0) || sum(test_vals != 0) < 3) {
-    message(glue("Skipping {groupname}: no variation in testosterone or not enough non-zero values"))
-    return(NULL)  # Skip this group if conditions are met
-  }
-  
-  # Remove low TT sample counts
-  if (sum(test_vals != 0 & !is.na(test_vals)) < 4) {
-  message(glue("Skipping {groupname}: < 4 non-zero testosterone values"))
-  return(NULL)
-    }
-  
-  # Apply calculate_corr_pval function to each gene expression profile
-  results <- apply(expr_df, 1, function(gene_expr) calculate_corr_pval(gene_expr, test_vals))
-  
-  # Extract correlation and p-value from the results
-  cor_values <- sapply(results, `[[`, "cor")
-  pval_values <- sapply(results, `[[`, "pval")
-  
-  # Create a tibble to store the results
-  tibble(
-    gene = rownames(expr_df),
-    cell_type = celltype_label,
-    Sex = sex_label,
-    cor = cor_values,
-    pval = pval_values
-  )
-})
-```
-
-```{r add fdr correction and save}
-results_by_group_median <- results_by_group %>%
-  filter(!is.na(pval))  %>%
-  group_by(cell_type, Sex) %>%
-  mutate(padj = p.adjust(pval, method = "fdr")) %>%
-  ungroup()
-
-write_csv(results_by_group, "../../results/all_TT_corr_res.csv")
-```
-
-```{r get top results for males and females}
-sig_results_males <- results_by_group %>% filter(Sex == "M", padj < 0.05)
-sig_results_females <- results_by_group %>% filter(Sex == "F", padj < 0.05)
-
-sig_overlap <- intersect(unique(sig_results_males$gene),unique(sig_results_females$gene))
-
-write_csv(sig_results_males, "../../results/sig_TT_results_males.csv")
-write_csv(sig_results_females, "../../results/sig_TT_results_females.csv")
-```
-
-
-```{r get top 3 genes per sex}
-top_genes_per_sex <- results_by_group %>%
-  filter(padj < 0.05) %>%
-  group_by(Sex, cell_type) %>%
-  arrange(desc(abs(cor))) %>%
-  slice_head(n = 5) %>%
-  ungroup()
-```
-
-
-```{r plot nicely}
-# Function to generate one plot
-make_scatter_plot <- function(gene, cell_type, sex, expr_df, test_vals) {
-  expr_vals <- expr_df[gene, ]
-  data <- tibble(
-    Expression = as.numeric(expr_vals),
-    Testosterone = test_vals
-  ) %>%
-    filter(!is.na(Expression) & !is.na(Testosterone) & Expression != 0)
-
-  ggplot(data, aes(x = Testosterone, y = Expression)) +
-    geom_point(size = 2, alpha = 0.7) +
-    geom_smooth(method = "lm", se = TRUE, color = "blue") +
-    labs(
-      title = glue::glue("{gene} in {cell_type} ({sex})"),
-      x = "Testosterone",
-      y = "Median Gene Expression"
-    ) +
-    theme_minimal()
-}
-
-# Plot all top genes per sex
-top_plots <- pmap(
-  top_genes_per_sex,
-  function(gene, cell_type, Sex, cor, pval, padj) {
-    groupname <- paste(cell_type, Sex, sep = "_")
-    expr_df <- median_expr_by_group[[groupname]]
-    
-    samples <- colnames(expr_df)
-    test_vals <- targeted_comparision_filtered %>%
-      filter(Sample %in% samples) %>%
-      arrange(match(Sample, samples)) %>%
-      pull(TT)
-
-    make_scatter_plot(gene, cell_type, Sex, expr_df, test_vals)
-  }
-)
-
-top_plots
-```
-
-
-```{r plot median gene expr results}
-# Function to generate one plot with correlation and p-value
-make_scatter_plot <- function(gene, cell_type, sex, expr_df, test_vals) {
-  expr_vals <- expr_df[gene, ]
-  data <- tibble(
-    Expression = as.numeric(expr_vals),
-    Testosterone = test_vals
-  ) %>%
-    filter(!is.na(Expression) & !is.na(Testosterone) & Expression != 0)
-  
-  # Calculate correlation and p-value
-  valid_idx <- !is.na(data$Expression) & !is.na(data$Testosterone)
-  cor_value <- cor(data$Expression[valid_idx], data$Testosterone[valid_idx])
-  model <- lm(Expression ~ Testosterone, data = data)
-  pval_value <- summary(model)$coefficients[2, 4]
-
-  # Create plot
-  plot <- ggplot(data, aes(x = Testosterone, y = Expression)) +
-    geom_point(size = 2, alpha = 0.7) +
-    geom_smooth(method = "lm", se = TRUE, color = "blue") +
-    labs(
-      title = glue::glue("{gene} in {cell_type} ({sex})"),
-      x = "Testosterone",
-      y = "Gene Expression",
-      subtitle = glue::glue("Correlation: {round(cor_value, 4)}, p-value: {round(pval_value, 8)}")
-    ) +
-    theme_minimal()
-  
-  return(plot)
-}
-
-# Plot all top genes per sex
-top_plots <- pmap(
-  top_genes_per_sex,
-  function(gene, cell_type, Sex, cor, pval, padj) {
-    groupname <- paste(cell_type, Sex, sep = "_")
-    expr_df <- median_expr_by_group[[groupname]]
-    
-    samples <- colnames(expr_df)
-    test_vals <- targeted_comparision_filtered %>%
-      filter(Sample %in% samples) %>%
-      arrange(match(Sample, samples)) %>%
-      pull(TT)
-
-    make_scatter_plot(gene, cell_type, Sex, expr_df, test_vals)
-  }
-)
-
-top_plots
-
-```
-
 # Try pseudobulk approach
 
 ```{r psuedobulk data function}
-pseudobulk_data <- function(seurat_obj, assay = "RNA", slot = "counts", 
+pseudobulk_data <- function(seurat_obj, assay = "RNA", layer = "counts", 
                             sample_col = "sample_id", celltype_col = "cell_type") {
   # Get raw counts
-  counts <- GetAssayData(seurat_obj, assay = assay, slot = slot)
+  counts <- GetAssayData(seurat_obj, assay = assay, layer = layer)
   meta <- seurat_obj@meta.data
   
   # Group cells by sample and cell type
@@ -526,7 +289,6 @@ pseudobulk_data <- function(seurat_obj, assay = "RNA", slot = "counts",
 ```
 
 
-
 ```{r pseudobulk}
 # Run pseudobulk
 pb <- pseudobulk_data(SSD_data_v5, sample_col = "sample", celltype_col = "cluster_call")
@@ -535,11 +297,10 @@ pb <- pseudobulk_data(SSD_data_v5, sample_col = "sample", celltype_col = "cluste
 str(pb)
 ```
 
-
-```{r prepare for correlations}
+```{r prepare metadata}
 # Convert rownames to a column so they survive the join
 pb_metadata <- pb$metadata %>%
-  tibble::rownames_to_column("pseudobulk_id")
+  rownames_to_column("pseudobulk_id")
 
 # Join with testosterone/sex data
 metadata_merged <- pb_metadata %>%
@@ -547,310 +308,285 @@ metadata_merged <- pb_metadata %>%
             by = c("sample_id" = "Sample")) %>%
   filter(!is.na(Sex)) %>%
   mutate(group = paste(cell_type, Sex, sep = "_")) %>%
-  tibble::column_to_rownames("pseudobulk_id")
+  column_to_rownames("pseudobulk_id")
 
-# Drop samples with missing sex info (i.e., no testosterone measurement)
+# Filter out samples with missing sex or too few cells
 metadata_merged <- metadata_merged %>%
-  filter(!is.na(Sex))
+  filter(!is.na(Sex)) %>%
+  filter(cell_count >= 10)  # Remove sparse pseudobulks
 
-# Subset logcounts to only include valid samples
+# Subset logcounts and counts to only include valid samples
 pb$logcounts <- pb$logcounts[rownames(pb$logcounts) %in% rownames(metadata_merged), , drop = FALSE]
+pb$counts <- pb$counts[rownames(pb$counts) %in% rownames(metadata_merged), , drop = FALSE]
 
-# Reorder metadata to match logcounts
+# Reorder metadata to match logcounts and counts
 metadata_merged <- metadata_merged[match(rownames(pb$logcounts), rownames(metadata_merged)), ]
-
-# Confirm alignment
-stopifnot(identical(rownames(pb$logcounts), rownames(metadata_merged)))
+metadata_merged <- metadata_merged[match(rownames(pb$counts), rownames(metadata_merged)), ]
 
 # Split into pseudobulk expression matrices by cell type + sex
-pseudobulk_expr_by_group <- split(seq_len(nrow(pb$logcounts)), metadata_merged$group) %>%
-  purrr::map(~ pb$logcounts[.x, , drop = FALSE])
+pseudobulk_expr_by_group <- split(seq_len(nrow(pb$counts)), metadata_merged$group) %>%
+  purrr::map(~ {
+    mat <- pb$counts[.x, , drop = FALSE]
+    
+    # Filter genes: retain only those with at least three samples with count >= 3
+    keep_genes <- which(colSums(mat >= 3) >= 3)
+    mat[, keep_genes, drop = FALSE]
+  })
 ```
 
+## Run limma to model everything
 
+```{r prepare to run limma}
+metadata_merged <- left_join(metadata_merged, targeted_comparision_filtered, by = c("sample_id" = "Sample", "Sex" = "Sex"))
 
-```{r run regression}
-calculate_corr_pval <- function(gene_expr, test_vals) {
-  valid_idx <- !is.na(gene_expr) & !is.na(test_vals)
-  
-  # Check if there are enough valid data points
-  if (sum(valid_idx) < 2) {
-    return(list(cor = NA, pval = NA, message = "Not enough valid data points"))
-  }
-  
-  # Check if either variable has zero variance
-  if (sd(gene_expr[valid_idx]) == 0 || sd(test_vals[valid_idx]) == 0) {
-    return(list(cor = NA, pval = NA, message = "Zero variance in data"))
-  }
+# Create unique rownames by combining sample_id and cell_type
+metadata_merged <- metadata_merged %>%
+  mutate(pseudobulk_id = paste(sample_id, cell_type, sep = "_")) %>%
+  column_to_rownames("pseudobulk_id")
 
-  # Ensure proper alignment of data
-  test_vals <- test_vals[valid_idx]
-  gene_expr <- gene_expr[valid_idx]
-  
-  # Calculate correlation
-  cor_value <- cor(gene_expr, test_vals, use = "complete.obs")
-  
-  # Fit linear regression
-  model <- lm(gene_expr ~ test_vals)
-  pval_value <- summary(model)$coefficients[2, 4]
-  
-  # Return results
-  list(cor = cor_value, pval = pval_value, message = "Success")
+# Update pb$counts and pb$logcounts rownames accordingly
+rownames(pb$counts) <- rownames(metadata_merged)
+rownames(pb$logcounts) <- rownames(metadata_merged)
+
+# Confirm alignment
+stopifnot(identical(rownames(pb$counts), rownames(metadata_merged)))
+
+run_voom_lm <- function(counts, metadata) {
+  # Transpose counts: genes as rows, samples as columns
+  counts_t <- t(counts)
+
+  # Check dimensions
+  stopifnot(ncol(counts_t) == nrow(metadata))
+
+  # Create design matrix
+  design <- model.matrix(~ TT + cell_count, data = metadata)
+
+  # Run voom
+  v <- limma::voom(counts_t, design)
+
+  # Fit model
+  fit <- limma::lmFit(v, design)
+  fit <- limma::eBayes(fit)
+
+  # Tidy results
+  results <- limma::topTable(fit, coef = "TT", number = Inf, sort.by = "none") %>%
+    tibble::rownames_to_column("gene")
+
+  return(results)
 }
 
-# Run correlation/regression for each celltype-sex pseudobulk group
-results_by_group_pseudo <- map2_dfr(pseudobulk_expr_by_group, names(pseudobulk_expr_by_group), function(expr_mat, groupname) {
-  samples <- rownames(expr_mat)
-  samples <- substr(samples, 1, regexpr("\\.", samples) - 1)
+# Ensure sample order matches
+stopifnot(identical(rownames(pb$counts), rownames(metadata_merged)))
 
-  # Extract cell type and sex
-  group_parts <- strsplit(groupname, "_")[[1]]
-  celltype_label <- group_parts[1]
-  sex_label <- group_parts[2]
+# Split by both cell type and sex
+split_indices <- split(seq_len(nrow(pb$counts)), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
+```
 
-  # Get testosterone values for these samples
-  test_vals <- targeted_comparision_filtered %>%
-    filter(Sample %in% samples) %>%
-    arrange(match(Sample, samples)) %>%
-    pull(TT)
+```{r run limma for each group}
+# Run model per group
+results_by_group <- purrr::map(split(seq_len(nrow(pb$counts)), metadata_merged$group), function(idx) {
+  counts_sub <- pb$counts[idx, , drop = FALSE]
+  metadata_sub <- metadata_merged[idx, , drop = FALSE]
 
-  # Ensure alignment
-  if (length(test_vals) != length(samples)) {
-    warning(glue("Sample mismatch in group {groupname}"))
+  # Remove samples with zero library size
+  keep_samples <- rowSums(counts_sub) > 0
+  counts_sub <- counts_sub[keep_samples, , drop = FALSE]
+  metadata_sub <- metadata_sub[keep_samples, , drop = FALSE]
+
+  # Skip group if too few samples remain
+  if (nrow(metadata_sub) < 5) {
+    message("Skipping group ", unique(metadata_sub$group), " due to too few samples.")
     return(NULL)
   }
 
-  # Filter for all NA or zero/low variance
-  non_na <- !is.na(test_vals)
-  if (sum(non_na) < 4 || length(unique(test_vals[non_na])) < 2) {
-    message(glue("Skipping {groupname}: insufficient testosterone data"))
+  # Optional: filter genes with low expression across samples
+  keep_genes <- colSums(counts_sub >= 3) >= 5
+  counts_sub <- counts_sub[, keep_genes, drop = FALSE]
+
+  if (ncol(counts_sub) == 0) {
+    message("Skipping group ", unique(metadata_sub$group), " due to no genes passing filter.")
     return(NULL)
   }
 
-  # Run regression for each gene
-  results <- apply(expr_mat, 2, function(gene_expr) calculate_corr_pval(gene_expr, test_vals))
-  cor_values <- sapply(results, `[[`, "cor")
-  pval_values <- sapply(results, `[[`, "pval")
-
-  tibble(
-    gene = colnames(expr_mat),
-    cell_type = celltype_label,
-    sex = sex_label,
-    cor = cor_values,
-    pval = pval_values
-  )
+  # Run voom + lm with error handling
+  tryCatch({
+    result <- run_voom_lm(counts_sub, metadata_sub)
+    result$cell_type <- metadata_sub$cell_type[1]
+    result$sex <- metadata_sub$Sex[1]
+    result
+  }, error = function(e) {
+    message("Skipping group ", unique(metadata_sub$group), " due to error: ", e$message)
+    NULL
+  })
 })
 ```
 
+```{r examine limma results}
+# Combine all results (remove NULLs)
+results_all <- bind_rows(results_by_group[!sapply(results_by_group, is.null)])
 
+# examine female results
+results_female <- results_all %>%
+  filter(sex == "F")
 
-```{r pseudo results}
-results_by_group_pseudo <- results_by_group_pseudo %>%
-  filter(!is.na(pval))  %>%
-  group_by(cell_type, sex) %>%
-  mutate(padj = p.adjust(pval, method = "fdr")) %>%
-  ungroup()
+# examine male results
+results_male <- results_all %>%
+  filter(sex == "M")
 
-top_genes_per_sex_pseudo <- results_by_group_pseudo %>%
-  filter(padj < 0.05) %>%
-  group_by(sex, cell_type) %>%
-  arrange(desc(abs(cor))) %>%
+# Get top genes
+top_genes <- results_all %>%
+  filter(adj.P.Val < 0.05) %>%
+  group_by(cell_type) %>%
+  arrange(desc(abs(t))) %>%
   slice_head(n = 5) %>%
   ungroup()
 
-sig_results_males_pseudo <- results_by_group_pseudo %>% filter(sex == "M", padj < 0.05)
-sig_results_females_pseudo <- results_by_group_pseudo %>% filter(sex == "F", padj < 0.05)
+  
+str(pb$counts)
+summary(pb$counts)
+anyNA(pb$counts)
+any(rowSums(pb$counts) == 0)
+any(colSums(pb$counts) == 0)
 
+# Remove genes (columns) with zero total count
+pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
+
+# make log(cpm) matrix for plotting
+log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
 ```
 
 
+```{r make and save male plots}
+# Get unique male cell types from results
+cell_types <- unique(results_male$cell_type)
 
-```{r look at results again}
-# Function to generate one plot with correlation and p-value
-make_scatter_plot <- function(gene, cell_type, sex, pseudobulk_expr_df, test_vals) {
-  expr_vals <- pseudobulk_expr_df[, gene]
-  data <- tibble(
-    Expression = as.numeric(expr_vals),
-    Testosterone = test_vals
-  ) %>%
-    filter(!is.na(Expression) & !is.na(Testosterone) & Expression != 0)
+# Directory to save plots
+output_dir <- "../../results/targeted/pseudobulk_plots"
+dir.create(output_dir, showWarnings = FALSE)
+
+# Loop through groups and save combined plots
+walk(cell_types, function(group_of_interest) {
   
-  # Calculate correlation and p-value
-  valid_idx <- !is.na(data$Expression) & !is.na(data$Testosterone)
-  cor_value <- cor(data$Expression[valid_idx], data$Testosterone[valid_idx])
-  model <- lm(Expression ~ Testosterone, data = data)
-  pval_value <- summary(model)$coefficients[2, 4]
-
-  # Create plot
-  plot <- ggplot(data, aes(x = Testosterone, y = Expression)) +
-    geom_point(size = 2, alpha = 0.7) +
-    geom_smooth(method = "lm", se = TRUE, color = "blue") +
-    labs(
-      title = glue::glue("{gene} in {cell_type} ({sex})"),
-      x = "Testosterone",
-      y = "Gene Expression",
-      subtitle = glue::glue("Correlation: {round(cor_value, 2)}, p-value: {round(pval_value, 3)}")
-    ) +
-    theme_minimal()
+  # === Filter for this group ===
+  results_subset <- results_male %>%
+    filter(cell_type == group_of_interest) %>%
+    arrange(P.Value) %>%
+    slice_head(n = n_top)
   
-  return(plot)
-}
-
-# Plot all top genes per sex using pseudobulk expression data
-top_plots <- pmap(
-  top_genes_per_sex_pseudo,
-  function(gene, cell_type, sex, cor, pval, padj) {
-    groupname <- paste(cell_type, sex, sep = "_")
-    expr_df <- pseudobulk_expr_by_group[[groupname]]
-
-    # Get sample names and strip suffix like ".RG" to match testosterone data
-    samples <- rownames(expr_df)
-    samples_clean <- sub("\\..*", "", samples)
-
-    # Get testosterone values in the same order as the expression matrix
-    test_vals_df <- targeted_comparision_filtered %>%
-      filter(Sample %in% samples_clean) %>%
-      mutate(row_id = match(Sample, samples_clean)) %>%
-      arrange(row_id)
-
-    test_vals <- test_vals_df$TT
-
-    # Now plot
-    make_scatter_plot(gene, cell_type, sex, expr_df, test_vals)
-  }
-)
-
-
-top_plots
-
-
-```
-
-
-```{r try one more time before giving up}
-
-calculate_corr_pval <- function(expr_vals, test_vals) {
-  valid_idx <- !is.na(expr_vals) & !is.na(test_vals)
-  expr_vals <- expr_vals[valid_idx]
-  test_vals <- test_vals[valid_idx]
-
-  # Early return if insufficient data
-  if (length(expr_vals) < 3 || length(unique(test_vals)) < 2 || length(unique(expr_vals)) < 2) {
-    return(list(cor = NA, pval = NA))
-  }
-
-  # Safe correlation and linear model
-  cor_value <- cor(expr_vals, test_vals)
-  model <- lm(expr_vals ~ test_vals)
-  pval_value <- summary(model)$coefficients[2, 4]
-
-  return(list(cor = cor_value, pval = pval_value))
-}
-
-# Function to generate one plot with correlation and p-value
-make_scatter_plot <- function(gene, cell_type, sex, pseudobulk_expr_df, test_vals) {
-  expr_vals <- pseudobulk_expr_df[, gene]
-  data <- tibble(
-    Expression = as.numeric(expr_vals),
-    Testosterone = test_vals
-  ) %>%
-    filter(!is.na(Expression) & !is.na(Testosterone) & Expression != 0)
+  # === Subset expression and metadata ===
+  samples_in_group <- metadata_merged %>%
+    filter(cell_type == group_of_interest)
   
-  # Calculate correlation and p-value using the helper function
-  corr_pval_results <- calculate_corr_pval(data$Expression, data$Testosterone)
-  cor_value <- corr_pval_results$cor
-  pval_value <- corr_pval_results$pval
+  if (nrow(samples_in_group) == 0) return()
+  counts_in_group <- log_cpm_mat[rownames(samples_in_group), , drop = FALSE]
   
-  # Create plot
-  plot <- ggplot(data, aes(x = Testosterone, y = Expression)) +
-    geom_point(size = 2, alpha = 0.7) +
-    geom_smooth(method = "lm", se = TRUE, color = "blue") +
-    labs(
-      title = glue::glue("{gene} in {cell_type} ({sex})"),
-      x = "Testosterone",
-      y = "Gene Expression",
-      subtitle = glue::glue("Correlation: {round(cor_value, 2)}, p-value: {round(pval_value, 3)}")
-    ) +
-    theme_minimal()
+  # === Plot top genes ===
+  plot_list <- map(results_subset$gene, function(gene) {
+    if (!gene %in% colnames(counts_in_group)) return(NULL)
+    
+    expr_vals <- counts_in_group[, gene]
+    if (all(is.na(expr_vals)) || all(expr_vals == 0)) return(NULL)
+    
+    df <- samples_in_group %>%
+      mutate(expr = expr_vals) %>%
+      filter(Sex == "M")
+    
+    ggplot(df, aes(x = TT, y = expr)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = TRUE, color = "steelblue", fill = "steelblue") +
+      labs(
+        title = paste0(gene, " in ", group_of_interest, ": Males"),
+        x = "Testosterone",
+        y = "LogCPM"
+      ) +
+      theme_minimal()
+  }) %>% compact()  # remove NULLs
   
-  return(plot)
-}
-
-# Run correlation/regression for each celltype-sex pseudobulk group
-results_by_group_pseudo <- map2_dfr(pseudobulk_expr_by_group, names(pseudobulk_expr_by_group), function(expr_mat, groupname) {
-  samples <- rownames(expr_mat)
-  samples <- substr(samples, 1, regexpr("\\.", samples) - 1)
-
-  # Extract cell type and sex
-  group_parts <- strsplit(groupname, "_")[[1]]
-  celltype_label <- group_parts[1]
-  sex_label <- group_parts[2]
-
-  # Get testosterone values for these samples
-  test_vals <- targeted_comparision_filtered %>%
-    filter(Sample %in% samples) %>%
-    arrange(match(Sample, samples)) %>%
-    pull(TT)
-
-  # Ensure alignment
-  if (length(test_vals) != length(samples)) {
-    warning(glue("Sample mismatch in group {groupname}"))
-    return(NULL)
-  }
-
-  # Filter for all NA or zero/low variance
-  non_na <- !is.na(test_vals)
-  if (sum(non_na) < 4 || length(unique(test_vals[non_na])) < 2) {
-    message(glue("Skipping {groupname}: insufficient testosterone data"))
-    return(NULL)
-  }
-
-  # Run regression for each gene (calculate correlation and p-value)
-  results <- apply(expr_mat, 2, function(gene_expr) {
-    calculate_corr_pval(gene_expr, test_vals)
-  })
-
-  # Extract correlation and p-value from the results
-  cor_values <- sapply(results, `[[`, "cor")
-  pval_values <- sapply(results, `[[`, "pval")
-
-  # Create a tibble to store the results
-  tibble(
-    gene = colnames(expr_mat),
-    cell_type = celltype_label,
-    sex = sex_label,
-    cor = cor_values,
-    pval = pval_values
+  if (length(plot_list) == 0) return()
+  
+  # Combine plots using patchwork
+  combined_plot <- wrap_plots(plotlist = plot_list, ncol = 2)
+  
+  # Clean group name for filename
+clean_name <- gsub("/", "-", group_of_interest)
+  
+  # Save to PNG
+  ggsave(
+    filename = file.path(output_dir, paste0(clean_name, "_male_top_genes.png")),
+    plot = combined_plot,
+    width = 10,
+    height = 6 + ceiling(length(plot_list) / 2),
+    dpi = 300
   )
 })
 
-top_plots <- pmap(
-  top_genes_per_sex_pseudo,
-  function(gene, cell_type, sex, cor, pval, padj) {
-    groupname <- paste(cell_type, sex, sep = "_")
-    expr_df <- pseudobulk_expr_by_group[[groupname]]
-
-    # Get sample names and strip suffix like ".RG" to match testosterone data
-    samples <- rownames(expr_df)
-    samples_clean <- sub("\\..*", "", samples)
-
-    # Get testosterone values in the same order as the expression matrix
-    test_vals_df <- targeted_comparision_filtered %>%
-      filter(Sample %in% samples_clean) %>%
-      mutate(row_id = match(Sample, samples_clean)) %>%
-      arrange(row_id)
-
-    # Ensure sample alignment (in case of missing values)
-    aligned_idx <- match(test_vals_df$Sample, samples_clean)
-    expr_df <- expr_df[aligned_idx, , drop = FALSE]
-
-    test_vals <- test_vals_df$TT
-
-    # Now plot
-    make_scatter_plot(gene, cell_type, sex, expr_df, test_vals)
-  }
-)
+```
 
 
-top_plots
+
+```{r make and save female plots}
+# Get unique male cell types from results
+cell_types <- unique(results_female$cell_type)
+
+# Directory to save plots
+output_dir <- "../../results/targeted/pseudobulk_plots"
+dir.create(output_dir, showWarnings = FALSE)
+
+# Loop through groups and save combined plots
+walk(cell_types, function(group_of_interest) {
+  
+  # === Filter for this group ===
+  results_subset <- results_female %>%
+    filter(cell_type == group_of_interest) %>%
+    arrange(P.Value) %>%
+    slice_head(n = n_top)
+  
+  # === Subset expression and metadata ===
+  samples_in_group <- metadata_merged %>%
+    filter(cell_type == group_of_interest)
+  
+  if (nrow(samples_in_group) == 0) return()
+  counts_in_group <- log_cpm_mat[rownames(samples_in_group), , drop = FALSE]
+
+  
+  # === Plot top genes ===
+  plot_list <- map(results_subset$gene, function(gene) {
+    if (!gene %in% colnames(counts_in_group)) return(NULL)
+    
+    expr_vals <- counts_in_group[, gene]
+    if (all(is.na(expr_vals)) || all(expr_vals == 0)) return(NULL)
+    
+    df <- samples_in_group %>%
+      mutate(expr = expr_vals) %>%
+      filter(Sex == "F")
+    
+    ggplot(df, aes(x = TT, y = expr)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = TRUE, color = "violetred3", fill = "violetred3") +
+      labs(
+        title = paste0(gene, " in ", group_of_interest, ": Females"),
+        x = "Testosterone",
+        y = "LogCPM"
+      ) +
+      theme_minimal()
+  }) %>% compact()  # remove NULLs
+  
+  if (length(plot_list) == 0) return()
+  
+  # Combine plots using patchwork
+  combined_plot <- wrap_plots(plotlist = plot_list, ncol = 2)
+  
+  # Clean group name for filename
+clean_name <- gsub("/", "-", group_of_interest)
+  
+  # Save to PNG
+  ggsave(
+    filename = file.path(output_dir, paste0(clean_name, "_female_top_genes.png")),
+    plot = combined_plot,
+    width = 10,
+    height = 6 + ceiling(length(plot_list) / 2),
+    dpi = 300
+  )
+})
+
 ```
