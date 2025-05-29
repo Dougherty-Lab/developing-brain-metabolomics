@@ -221,7 +221,8 @@ ggsave("../../results/TT_GW_modelfit.png")
 
 ```
 
-# Work on understanding expression patterns and TT level - DO NOT SKIP!
+
+# Work on understanding expression patterns and hormone/TT level - DO NOT SKIP!
 
 If there is a quadratic equation that explains expression over time, it is possible the relationship between TT and gene expression is also nonlinear. Will start with linear first, since that is more straightforward.
 
@@ -322,7 +323,9 @@ pb$counts <- pb$counts[rownames(pb$counts) %in% rownames(metadata_merged), , dro
 # Reorder metadata to match logcounts and counts
 metadata_merged <- metadata_merged[match(rownames(pb$logcounts), rownames(metadata_merged)), ]
 metadata_merged <- metadata_merged[match(rownames(pb$counts), rownames(metadata_merged)), ]
+```
 
+```{r split pseduobulk}
 # Split into pseudobulk expression matrices by cell type + sex
 pseudobulk_expr_by_group <- split(seq_len(nrow(pb$counts)), metadata_merged$group) %>%
   purrr::map(~ {
@@ -333,8 +336,6 @@ pseudobulk_expr_by_group <- split(seq_len(nrow(pb$counts)), metadata_merged$grou
     mat[, keep_genes, drop = FALSE]
   })
 ```
-
-## Run limma to model everything
 
 ```{r prepare to run limma}
 metadata_merged <- left_join(metadata_merged, targeted_comparision_filtered, by = c("sample_id" = "Sample", "Sex" = "Sex"))
@@ -350,7 +351,13 @@ rownames(pb$logcounts) <- rownames(metadata_merged)
 
 # Confirm alignment
 stopifnot(identical(rownames(pb$counts), rownames(metadata_merged)))
+```
 
+
+## Run limma to model everything, start with testosterone
+
+
+```{r run limma on TT}
 run_voom_lm <- function(counts, metadata) {
   # Transpose counts: genes as rows, samples as columns
   counts_t <- t(counts)
@@ -450,7 +457,7 @@ log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
 cell_types <- unique(results_male$cell_type)
 
 # Directory to save plots
-output_dir <- "../../results/targeted/pseudobulk_plots"
+output_dir <- "../../results/targeted/pseudobulk_plots_testosterone"
 dir.create(output_dir, showWarnings = FALSE)
 
 # Loop through groups and save combined plots
@@ -460,7 +467,7 @@ walk(cell_types, function(group_of_interest) {
   results_subset <- results_male %>%
     filter(cell_type == group_of_interest) %>%
     arrange(P.Value) %>%
-    slice_head(n = n_top)
+    slice_head(n = 6)
   
   # === Subset expression and metadata ===
   samples_in_group <- metadata_merged %>%
@@ -518,7 +525,7 @@ clean_name <- gsub("/", "-", group_of_interest)
 cell_types <- unique(results_female$cell_type)
 
 # Directory to save plots
-output_dir <- "../../results/targeted/pseudobulk_plots"
+output_dir <- "../../results/targeted/pseudobulk_plots_testosterone"
 dir.create(output_dir, showWarnings = FALSE)
 
 # Loop through groups and save combined plots
@@ -528,7 +535,7 @@ walk(cell_types, function(group_of_interest) {
   results_subset <- results_female %>%
     filter(cell_type == group_of_interest) %>%
     arrange(P.Value) %>%
-    slice_head(n = n_top)
+    slice_head(n = 6)
   
   # === Subset expression and metadata ===
   samples_in_group <- metadata_merged %>%
@@ -555,6 +562,473 @@ walk(cell_types, function(group_of_interest) {
       labs(
         title = paste0(gene, " in ", group_of_interest, ": Females"),
         x = "Testosterone",
+        y = "LogCPM"
+      ) +
+      theme_minimal()
+  }) %>% compact()  # remove NULLs
+  
+  if (length(plot_list) == 0) return()
+  
+  # Combine plots using patchwork
+  combined_plot <- wrap_plots(plotlist = plot_list, ncol = 2)
+  
+  # Clean group name for filename
+clean_name <- gsub("/", "-", group_of_interest)
+  
+  # Save to PNG
+  ggsave(
+    filename = file.path(output_dir, paste0(clean_name, "_female_top_genes.png")),
+    plot = combined_plot,
+    width = 10,
+    height = 6 + ceiling(length(plot_list) / 2),
+    dpi = 300
+  )
+})
+
+```
+
+# Do everything again for estrogen - can make this into better function later
+
+```{r prepare to run limma}
+colnames(metadata_merged)[colnames(metadata_merged) == "17B-E2"] <- "E2"
+
+run_voom_lm <- function(counts, metadata) {
+  # Transpose counts: genes as rows, samples as columns
+  counts_t <- t(counts)
+
+  # Check dimensions
+  stopifnot(ncol(counts_t) == nrow(metadata))
+
+  # Create design matrix
+  design <- model.matrix(~ E2 + cell_count, data = metadata)
+
+  # Run voom
+  v <- limma::voom(counts_t, design)
+
+  # Fit model
+  fit <- limma::lmFit(v, design)
+  fit <- limma::eBayes(fit)
+
+  # Tidy results
+  results <- limma::topTable(fit, coef = "E2", number = Inf, sort.by = "none") %>%
+    tibble::rownames_to_column("gene")
+
+  return(results)
+}
+
+# Ensure sample order matches
+stopifnot(identical(rownames(pb$counts), rownames(metadata_merged)))
+
+# Split by both cell type and sex
+split_indices <- split(seq_len(nrow(pb$counts)), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
+```
+
+```{r run limma for each group}
+# Run model per group
+results_by_group <- purrr::map(split(seq_len(nrow(pb$counts)), metadata_merged$group), function(idx) {
+  counts_sub <- pb$counts[idx, , drop = FALSE]
+  metadata_sub <- metadata_merged[idx, , drop = FALSE]
+
+  # Remove samples with zero library size
+  keep_samples <- rowSums(counts_sub) > 0
+  counts_sub <- counts_sub[keep_samples, , drop = FALSE]
+  metadata_sub <- metadata_sub[keep_samples, , drop = FALSE]
+
+  # Skip group if too few samples remain
+  if (nrow(metadata_sub) < 5) {
+    message("Skipping group ", unique(metadata_sub$group), " due to too few samples.")
+    return(NULL)
+  }
+
+  # Optional: filter genes with low expression across samples
+  keep_genes <- colSums(counts_sub >= 3) >= 5
+  counts_sub <- counts_sub[, keep_genes, drop = FALSE]
+
+  if (ncol(counts_sub) == 0) {
+    message("Skipping group ", unique(metadata_sub$group), " due to no genes passing filter.")
+    return(NULL)
+  }
+
+  # Run voom + lm with error handling
+  tryCatch({
+    result <- run_voom_lm(counts_sub, metadata_sub)
+    result$cell_type <- metadata_sub$cell_type[1]
+    result$sex <- metadata_sub$Sex[1]
+    result
+  }, error = function(e) {
+    message("Skipping group ", unique(metadata_sub$group), " due to error: ", e$message)
+    NULL
+  })
+})
+```
+
+```{r examine limma results}
+# Combine all results (remove NULLs)
+results_all <- bind_rows(results_by_group[!sapply(results_by_group, is.null)])
+
+# examine female results
+results_female <- results_all %>%
+  filter(sex == "F")
+
+write_csv(results_female, "../../results/targeted/res_E2_genes_female.csv")
+
+# examine male results
+results_male <- results_all %>%
+  filter(sex == "M")
+
+write_csv(results_male, "../../results/targeted/res_E2_genes_male.csv")
+
+# Remove genes (columns) with zero total count
+pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
+
+# make log(cpm) matrix for plotting
+log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
+```
+
+
+```{r make and save male plots}
+# Get unique male cell types from results
+cell_types <- unique(results_male$cell_type)
+
+# Directory to save plots
+output_dir <- "../../results/targeted/pseudobulk_plots_estrogen"
+dir.create(output_dir, showWarnings = FALSE)
+
+# Loop through groups and save combined plots
+walk(cell_types, function(group_of_interest) {
+  
+  # === Filter for this group ===
+  results_subset <- results_male %>%
+    filter(cell_type == group_of_interest) %>%
+    arrange(P.Value) %>%
+    slice_head(n = 6)
+  
+  # === Subset expression and metadata ===
+  samples_in_group <- metadata_merged %>%
+    filter(cell_type == group_of_interest)
+  
+  if (nrow(samples_in_group) == 0) return()
+  counts_in_group <- log_cpm_mat[rownames(samples_in_group), , drop = FALSE]
+  
+  # === Plot top genes ===
+  plot_list <- map(results_subset$gene, function(gene) {
+    if (!gene %in% colnames(counts_in_group)) return(NULL)
+    
+    expr_vals <- counts_in_group[, gene]
+    if (all(is.na(expr_vals)) || all(expr_vals == 0)) return(NULL)
+    
+    df <- samples_in_group %>%
+      mutate(expr = expr_vals) %>%
+      filter(Sex == "M")
+    
+    ggplot(df, aes(x = E2, y = expr)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = TRUE, color = "steelblue", fill = "steelblue") +
+      labs(
+        title = paste0(gene, " in ", group_of_interest, ": Males"),
+        x = "Estrogen",
+        y = "LogCPM"
+      ) +
+      theme_minimal()
+  }) %>% compact()  # remove NULLs
+  
+  if (length(plot_list) == 0) return()
+  
+  # Combine plots using patchwork
+  combined_plot <- wrap_plots(plotlist = plot_list, ncol = 2)
+  
+  # Clean group name for filename
+clean_name <- gsub("/", "-", group_of_interest)
+  
+  # Save to PNG
+  ggsave(
+    filename = file.path(output_dir, paste0(clean_name, "_male_top_genes.png")),
+    plot = combined_plot,
+    width = 10,
+    height = 6 + ceiling(length(plot_list) / 2),
+    dpi = 300
+  )
+})
+
+```
+
+
+
+```{r make and save female plots}
+# Get unique male cell types from results
+cell_types <- unique(results_female$cell_type)
+
+# Directory to save plots
+output_dir <- "../../results/targeted/pseudobulk_plots_estrogen"
+dir.create(output_dir, showWarnings = FALSE)
+
+# Loop through groups and save combined plots
+walk(cell_types, function(group_of_interest) {
+  
+  # === Filter for this group ===
+  results_subset <- results_female %>%
+    filter(cell_type == group_of_interest) %>%
+    arrange(P.Value) %>%
+    slice_head(n = 6)
+  
+  # === Subset expression and metadata ===
+  samples_in_group <- metadata_merged %>%
+    filter(cell_type == group_of_interest)
+  
+  if (nrow(samples_in_group) == 0) return()
+  counts_in_group <- log_cpm_mat[rownames(samples_in_group), , drop = FALSE]
+
+  
+  # === Plot top genes ===
+  plot_list <- map(results_subset$gene, function(gene) {
+    if (!gene %in% colnames(counts_in_group)) return(NULL)
+    
+    expr_vals <- counts_in_group[, gene]
+    if (all(is.na(expr_vals)) || all(expr_vals == 0)) return(NULL)
+    
+    df <- samples_in_group %>%
+      mutate(expr = expr_vals) %>%
+      filter(Sex == "F")
+    
+    ggplot(df, aes(x = E2, y = expr)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = TRUE, color = "violetred3", fill = "violetred3") +
+      labs(
+        title = paste0(gene, " in ", group_of_interest, ": Females"),
+        x = "Estrogen",
+        y = "LogCPM"
+      ) +
+      theme_minimal()
+  }) %>% compact()  # remove NULLs
+  
+  if (length(plot_list) == 0) return()
+  
+  # Combine plots using patchwork
+  combined_plot <- wrap_plots(plotlist = plot_list, ncol = 2)
+  
+  # Clean group name for filename
+clean_name <- gsub("/", "-", group_of_interest)
+  
+  # Save to PNG
+  ggsave(
+    filename = file.path(output_dir, paste0(clean_name, "_female_top_genes.png")),
+    plot = combined_plot,
+    width = 10,
+    height = 6 + ceiling(length(plot_list) / 2),
+    dpi = 300
+  )
+})
+
+```
+
+
+# Do everything again for progesterone - can make this into better function later
+
+```{r prepare to run limma}
+run_voom_lm <- function(counts, metadata) {
+  # Transpose counts: genes as rows, samples as columns
+  counts_t <- t(counts)
+
+  # Check dimensions
+  stopifnot(ncol(counts_t) == nrow(metadata))
+
+  # Create design matrix
+  design <- model.matrix(~ P4 + cell_count, data = metadata)
+
+  # Run voom
+  v <- limma::voom(counts_t, design)
+
+  # Fit model
+  fit <- limma::lmFit(v, design)
+  fit <- limma::eBayes(fit)
+
+  # Tidy results
+  results <- limma::topTable(fit, coef = "P4", number = Inf, sort.by = "none") %>%
+    tibble::rownames_to_column("gene")
+
+  return(results)
+}
+
+# Ensure sample order matches
+stopifnot(identical(rownames(pb$counts), rownames(metadata_merged)))
+
+# Split by both cell type and sex
+split_indices <- split(seq_len(nrow(pb$counts)), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
+```
+
+```{r run limma for each group}
+# Run model per group
+results_by_group <- purrr::map(split(seq_len(nrow(pb$counts)), metadata_merged$group), function(idx) {
+  counts_sub <- pb$counts[idx, , drop = FALSE]
+  metadata_sub <- metadata_merged[idx, , drop = FALSE]
+
+  # Remove samples with zero library size
+  keep_samples <- rowSums(counts_sub) > 0
+  counts_sub <- counts_sub[keep_samples, , drop = FALSE]
+  metadata_sub <- metadata_sub[keep_samples, , drop = FALSE]
+
+  # Skip group if too few samples remain
+  if (nrow(metadata_sub) < 5) {
+    message("Skipping group ", unique(metadata_sub$group), " due to too few samples.")
+    return(NULL)
+  }
+
+  # Optional: filter genes with low expression across samples
+  keep_genes <- colSums(counts_sub >= 3) >= 5
+  counts_sub <- counts_sub[, keep_genes, drop = FALSE]
+
+  if (ncol(counts_sub) == 0) {
+    message("Skipping group ", unique(metadata_sub$group), " due to no genes passing filter.")
+    return(NULL)
+  }
+
+  # Run voom + lm with error handling
+  tryCatch({
+    result <- run_voom_lm(counts_sub, metadata_sub)
+    result$cell_type <- metadata_sub$cell_type[1]
+    result$sex <- metadata_sub$Sex[1]
+    result
+  }, error = function(e) {
+    message("Skipping group ", unique(metadata_sub$group), " due to error: ", e$message)
+    NULL
+  })
+})
+```
+
+```{r examine limma results}
+# Combine all results (remove NULLs)
+results_all <- bind_rows(results_by_group[!sapply(results_by_group, is.null)])
+
+# examine female results
+results_female <- results_all %>%
+  filter(sex == "F")
+
+write_csv(results_female, "../../results/targeted/res_P4_genes_female.csv")
+
+# examine male results
+results_male <- results_all %>%
+  filter(sex == "M")
+
+write_csv(results_male, "../../results/targeted/res_P4_genes_male.csv")
+
+# Remove genes (columns) with zero total count
+pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
+
+# make log(cpm) matrix for plotting
+log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
+```
+
+
+```{r make and save male plots}
+# Get unique male cell types from results
+cell_types <- unique(results_male$cell_type)
+
+# Directory to save plots
+output_dir <- "../../results/targeted/pseudobulk_plots_progesterone"
+dir.create(output_dir, showWarnings = FALSE)
+
+# Loop through groups and save combined plots
+walk(cell_types, function(group_of_interest) {
+  
+  # === Filter for this group ===
+  results_subset <- results_male %>%
+    filter(cell_type == group_of_interest) %>%
+    arrange(P.Value) %>%
+    slice_head(n = 6)
+  
+  # === Subset expression and metadata ===
+  samples_in_group <- metadata_merged %>%
+    filter(cell_type == group_of_interest)
+  
+  if (nrow(samples_in_group) == 0) return()
+  counts_in_group <- log_cpm_mat[rownames(samples_in_group), , drop = FALSE]
+  
+  # === Plot top genes ===
+  plot_list <- map(results_subset$gene, function(gene) {
+    if (!gene %in% colnames(counts_in_group)) return(NULL)
+    
+    expr_vals <- counts_in_group[, gene]
+    if (all(is.na(expr_vals)) || all(expr_vals == 0)) return(NULL)
+    
+    df <- samples_in_group %>%
+      mutate(expr = expr_vals) %>%
+      filter(Sex == "M")
+    
+    ggplot(df, aes(x = E2, y = expr)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = TRUE, color = "steelblue", fill = "steelblue") +
+      labs(
+        title = paste0(gene, " in ", group_of_interest, ": Males"),
+        x = "Progesterone",
+        y = "LogCPM"
+      ) +
+      theme_minimal()
+  }) %>% compact()  # remove NULLs
+  
+  if (length(plot_list) == 0) return()
+  
+  # Combine plots using patchwork
+  combined_plot <- wrap_plots(plotlist = plot_list, ncol = 2)
+  
+  # Clean group name for filename
+clean_name <- gsub("/", "-", group_of_interest)
+  
+  # Save to PNG
+  ggsave(
+    filename = file.path(output_dir, paste0(clean_name, "_male_top_genes.png")),
+    plot = combined_plot,
+    width = 10,
+    height = 6 + ceiling(length(plot_list) / 2),
+    dpi = 300
+  )
+})
+
+```
+
+
+
+```{r make and save female plots}
+# Get unique male cell types from results
+cell_types <- unique(results_female$cell_type)
+
+# Directory to save plots
+output_dir <- "../../results/targeted/pseudobulk_plots_progesterone"
+dir.create(output_dir, showWarnings = FALSE)
+
+# Loop through groups and save combined plots
+walk(cell_types, function(group_of_interest) {
+  
+  # === Filter for this group ===
+  results_subset <- results_female %>%
+    filter(cell_type == group_of_interest) %>%
+    arrange(P.Value) %>%
+    slice_head(n = 6)
+  
+  # === Subset expression and metadata ===
+  samples_in_group <- metadata_merged %>%
+    filter(cell_type == group_of_interest)
+  
+  if (nrow(samples_in_group) == 0) return()
+  counts_in_group <- log_cpm_mat[rownames(samples_in_group), , drop = FALSE]
+
+  
+  # === Plot top genes ===
+  plot_list <- map(results_subset$gene, function(gene) {
+    if (!gene %in% colnames(counts_in_group)) return(NULL)
+    
+    expr_vals <- counts_in_group[, gene]
+    if (all(is.na(expr_vals)) || all(expr_vals == 0)) return(NULL)
+    
+    df <- samples_in_group %>%
+      mutate(expr = expr_vals) %>%
+      filter(Sex == "F")
+    
+    ggplot(df, aes(x = E2, y = expr)) +
+      geom_point() +
+      geom_smooth(method = "lm", se = TRUE, color = "violetred3", fill = "violetred3") +
+      labs(
+        title = paste0(gene, " in ", group_of_interest, ": Females"),
+        x = "Progesterone",
         y = "LogCPM"
       ) +
       theme_minimal()
