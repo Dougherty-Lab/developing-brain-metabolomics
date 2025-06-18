@@ -1,0 +1,119 @@
+---
+title: "Examine estrogen and androgen receptor gene expression"
+author: "Emma Jones"
+date: "2025-06-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The purpose of this script is to examine estrogen and andorgen expressing cells
+
+
+First, we load packages. We might want more later, but for now I know I need the following
+
+```{r load packages}
+library(tidyverse)
+library(Seurat)
+library(readxl)
+library(Signac)
+library(glue)
+library(cowplot)
+library(edgeR)
+library(limma)
+library(patchwork)
+```
+
+
+## Load data
+
+```{r load seurat object and metabolomics excel spreadsheet}
+# load 10x multiome data
+SSD_data_v5 <- readRDS("../../data/SSD_data_v5.rds")
+# remove doublets
+SSD_data_v5 <- subset(SSD_data_v5, subset = Droplet == "SNG")
+
+# load hormone metabolomics data
+targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xlsx")
+
+```
+
+## Examine esrogen and androgen recpetor expression per cell type
+
+```{r make violin plots}
+
+VlnPlot(SSD_data_v5, "AR", assay = "SCT")
+
+VlnPlot(SSD_data_v5, "ESR1", assay = "SCT")
+
+VlnPlot(SSD_data_v5, "ESR2", assay = "SCT")
+
+DefaultAssay(SSD_data_v5) <- "SCT"
+
+FeaturePlot(SSD_data_v5, "ESR2")
+
+DimPlot(SSD_data_v5)
+
+table(SSD_data_v5$cluster_call)
+
+```
+
+
+```{r get esr2 cells as metadata}
+
+# Identify ESR2-expressing cells
+esr2_cells <- WhichCells(SSD_data_v5, expression = ESR2 != 0)
+
+# Add metadata column for labeling
+SSD_data_v5 <- AddMetaData(object = SSD_data_v5, metadata = ifelse(colnames(SSD_data_v5) %in% esr2_cells, "ESR2_positive", "ESR2_negative"), col.name = "ESR2_expression_status")
+
+# Figure out which cell type have the most ESR2
+SSD_data_v5$ESR2_positive_SCT <- SSD_data_v5@assays$SCT@data["ESR2",] > 0
+
+percentage_ESR2_by_cell_type_SCT <- SSD_data_v5@meta.data %>%
+    group_by(cluster_call) %>%
+    summarize(percent_ESR2_positive = mean(ESR2_positive_SCT) * 100)
+
+# Visualize the data
+ggplot(percentage_ESR2_by_cell_type_SCT, aes(x = cluster_call, y = percent_ESR2_positive, fill = percent_ESR2_positive)) +
+    geom_bar(stat = "identity") +
+    theme_minimal() +
+    labs(title = "Percentage of ESR2-expressing Cells (any) by Cell Type",
+         x = "Cell Type",
+         y = "Percentage of ESR2-expressing Cells")
+
+# try for "high"
+SSD_data_v5$ESR2_positive_SCT_high <- SSD_data_v5@assays$SCT@data["ESR2",] > 1
+
+percentage_ESR2_by_cell_type_SCT_high <- SSD_data_v5@meta.data %>%
+    group_by(cluster_call) %>%
+    summarize(percent_ESR2_positive = mean(ESR2_positive_SCT_high) * 100)
+
+# Visualize the data
+ggplot(percentage_ESR2_by_cell_type_SCT_high, aes(x = cluster_call, y = percent_ESR2_positive, fill = percent_ESR2_positive)) +
+    geom_bar(stat = "identity") +
+    theme_minimal() +
+    labs(title = "Percentage of ESR2-expressing Cells (high) by Cell Type",
+         x = "Cell Type",
+         y = "Percentage of ESR2-expressing Cells")
+
+# try for "med"
+SSD_data_v5$ESR2_positive_SCT_med <- SSD_data_v5@assays$SCT@data["ESR2",] > 0.5
+
+percentage_ESR2_by_cell_type_SCT_med <- SSD_data_v5@meta.data %>%
+    group_by(cluster_call) %>%
+    summarize(percent_ESR2_positive = mean(ESR2_positive_SCT_med) * 100)
+
+# Visualize the data
+ggplot(percentage_ESR2_by_cell_type_SCT_med, aes(x = cluster_call, y = percent_ESR2_positive, fill = percent_ESR2_positive)) +
+    geom_bar(stat = "identity") +
+    theme_minimal() +
+    labs(title = "Percentage of ESR2-expressing Cells (med) by Cell Type",
+         x = "Cell Type",
+         y = "Percentage of ESR2-expressing Cells")
+
+```
+
+

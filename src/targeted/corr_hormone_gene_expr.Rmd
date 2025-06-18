@@ -33,6 +33,8 @@ library(patchwork)
 ```{r load seurat object and excel spreadsheet}
 # load 10x multiome data
 SSD_data_v5 <- readRDS("../../data/SSD_data_v5.rds")
+# remove doublets
+SSD_data_v5 <- subset(SSD_data_v5, subset = Droplet == "SNG")
 
 # load hormone metabolomics data
 targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xlsx")
@@ -55,9 +57,10 @@ outlier_limit <- quantile(targeted_comparision_females$TT)[4] + 1.5*IQR(targeted
 
 max(targeted_comparision_females$TT) > outlier_limit 
 
+targeted_comparision_females$TT > outlier_limit
 ```
 
-So, yes, this is above the typical outlier limit so we can remove from analysis. It is sample number 38, which has an XX Xist genotype and sex_genome_studio asignment of XX as well, so it seems to be a true female sample and not a swap.
+So, yes, this is above the typical outlier limit so we can remove from analysis. It is sample number 38, which has an XX Xist genotype and sex_genome_studio asignment of XX as well, so it seems to be a true female sample and not a swap. However, there are other samples that are also outliers by this definition, so we may want to be cautious by how this is represented
 
 ```{r remove outlier}
 targeted_comparision_filtered <- targeted_comparision_raw[-34,]
@@ -438,11 +441,39 @@ results_female <- results_all %>%
 
 write_csv(results_female, "../../results/targeted/res_TT_genes_female.csv")
 
+sig_counts_female <- results_female %>%
+  filter(P.Value < 0.01, abs(logFC) >= 1) %>%
+  count(cell_type, name = "num_sig_genes") %>%
+  arrange(desc(num_sig_genes))
+
+ggplot(sig_counts_female, aes(x = cell_type, y = num_sig_genes)) +
+  geom_bar(stat = "identity", fill = "violetred3") +
+  geom_text(aes(label = num_sig_genes), vjust = -0.5) +
+  theme_minimal() +
+  labs(x = "Cell Type", y = "Number of Significant Genes (WARNING - INFLATED)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("../../results/targeted/sig_TT_genes_female.png")
+
 # examine male results
 results_male <- results_all %>%
   filter(sex == "M")
 
 write_csv(results_male, "../../results/targeted/res_TT_genes_male.csv")
+
+sig_counts_male <- results_male %>%
+  filter(P.Value < 0.01, abs(logFC) >= 1) %>%
+  count(cell_type, name = "num_sig_genes") %>%
+  arrange(desc(num_sig_genes))
+
+ggplot(sig_counts_male, aes(x = cell_type, y = num_sig_genes)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_text(aes(label = num_sig_genes), vjust = -0.5) +
+  theme_minimal() +
+  labs(x = "Cell Type", y = "Number of Significant Genes (P.Value < 0.01)") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("../../results/targeted/sig_TT_genes_male.png")
 
 # Remove genes (columns) with zero total count
 pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
@@ -672,11 +703,39 @@ results_female <- results_all %>%
 
 write_csv(results_female, "../../results/targeted/res_E2_genes_female.csv")
 
+sig_counts_female <- results_female %>%
+  filter(adj.P.Val < 0.05) %>%
+  count(cell_type, name = "num_sig_genes") %>%
+  arrange(desc(num_sig_genes))
+
+ggplot(sig_counts_female, aes(x = cell_type, y = num_sig_genes)) +
+  geom_bar(stat = "identity", fill = "violetred3") +
+  geom_text(aes(label = num_sig_genes), vjust = -0.5) +
+  theme_minimal() +
+  labs(x = "Cell Type", y = "Number of Significant Genes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("../../results/targeted/sig_E2_genes_female.png")
+
 # examine male results
 results_male <- results_all %>%
   filter(sex == "M")
 
 write_csv(results_male, "../../results/targeted/res_E2_genes_male.csv")
+
+sig_counts_male <- results_male %>%
+  filter(adj.P.Val < 0.05) %>%
+  count(cell_type, name = "num_sig_genes") %>%
+  arrange(desc(num_sig_genes))
+
+ggplot(sig_counts_male, aes(x = cell_type, y = num_sig_genes)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_text(aes(label = num_sig_genes), vjust = -0.5) +
+  theme_minimal() +
+  labs(x = "Cell Type", y = "Number of Significant Genes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("../../results/targeted/sig_E2_genes_male.png")
 
 # Remove genes (columns) with zero total count
 pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
@@ -905,11 +964,39 @@ results_female <- results_all %>%
 
 write_csv(results_female, "../../results/targeted/res_P4_genes_female.csv")
 
+sig_counts_female <- results_female %>%
+  filter(adj.P.Val < 0.05) %>%
+  count(cell_type, name = "num_sig_genes") %>%
+  arrange(desc(num_sig_genes))
+
+ggplot(sig_counts_female, aes(x = cell_type, y = num_sig_genes)) +
+  geom_bar(stat = "identity", fill = "violetred3") +
+  geom_text(aes(label = num_sig_genes), vjust = -0.5) +
+  theme_minimal() +
+  labs(x = "Cell Type", y = "Number of Significant Genes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("../../results/targeted/sig_P4_genes_female.png")
+
 # examine male results
 results_male <- results_all %>%
   filter(sex == "M")
 
 write_csv(results_male, "../../results/targeted/res_P4_genes_male.csv")
+
+sig_counts_female <- results_male %>%
+  filter(adj.P.Val < 0.05) %>%
+  count(cell_type, name = "num_sig_genes") %>%
+  arrange(desc(num_sig_genes))
+
+ggplot(sig_counts_female, aes(x = cell_type, y = num_sig_genes)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_text(aes(label = num_sig_genes), vjust = -0.5) +
+  theme_minimal() +
+  labs(x = "Cell Type", y = "Number of Significant Genes") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggsave("../../results/targeted/sig_P4_genes_male.png")
 
 # Remove genes (columns) with zero total count
 pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
