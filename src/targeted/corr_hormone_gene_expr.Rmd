@@ -27,7 +27,6 @@ library(limma)
 library(patchwork)
 ```
 
-
 ## Load data
 
 ```{r load seurat object and excel spreadsheet}
@@ -51,181 +50,20 @@ Let's calculate below:
 #filter for only females
 targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
 
-IQR(targeted_comparision_females$TT)
-
-outlier_limit <- quantile(targeted_comparision_females$TT)[4] + 1.5*IQR(targeted_comparision_females$TT)
+outlier_limit <- quantile(targeted_comparision_raw$TT)[4] + 1.5*IQR(targeted_comparision_raw$TT)
 
 max(targeted_comparision_females$TT) > outlier_limit 
 
 targeted_comparision_females$TT > outlier_limit
 ```
 
-So, yes, this is above the typical outlier limit so we can remove from analysis. It is sample number 38, which has an XX Xist genotype and sex_genome_studio asignment of XX as well, so it seems to be a true female sample and not a swap. However, there are other samples that are also outliers by this definition, so we may want to be cautious by how this is represented
+So, yes, this is above the typical outlier limit so we can remove from analysis. It is sample number 38, which has an XX Xist genotype and sex_genome_studio asignment of XX as well, so it seems to be a true female sample and not a swap.
 
 ```{r remove outlier}
 targeted_comparision_filtered <- targeted_comparision_raw[-34,]
 ```
 
-
-## how does this correlate with age?
-```{r look at overall relationship}
-# look at relationship with age
-ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
-  geom_point() + theme_minimal()
-
-all_simple <- lm(TT~GW, data=targeted_comparision_filtered) 
-summary(all_simple)
-```
-
-so its not signficant, but the graph clearly supports that males differ from females, so I will separate the groups
-
-```{r separate groups and find a model}
-targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
-
-# fit polynomial regression models up to degree 5 
-linear_model1 <- lm(TT~GW, data=targeted_comparision_males) 
-linear_model2 <- lm(TT~poly(GW,2,raw=TRUE), data=targeted_comparision_males) 
-linear_model3 <- lm(TT~poly(GW,3,raw=TRUE), data=targeted_comparision_males)
-
-# Sort the x values and get corresponding predicted values
-x_axis_sorted <- sort(targeted_comparision_males$GW)
-
-# Base plot - males
-plot(targeted_comparision_males$GW, targeted_comparision_males$TT, main="Polynomial Fits", xlab="GW", ylab="TT")
-
-# Add model lines using sorted x
-lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
-lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
-lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
-
-
-# calculated adjusted R-squared of each model 
-summary(linear_model1)$adj.r.squared 
-summary(linear_model2)$adj.r.squared 
-summary(linear_model3)$adj.r.squared 
-```
-
-```{r run for females}
-#filter for only females
-targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
-
-# fit polynomial regression models up to degree 5 
-linear_model1 <- lm(TT~GW, data=targeted_comparision_females) 
-linear_model2 <- lm(TT~poly(GW,2,raw=TRUE), data=targeted_comparision_females) 
-linear_model3 <- lm(TT~poly(GW,3,raw=TRUE), data=targeted_comparision_females) 
-
-# Sort the x values and get corresponding predicted values
-x_axis_sorted <- sort(targeted_comparision_females$GW)
-
-# Base plot - males
-plot(targeted_comparision_females$GW, targeted_comparision_females$TT, main="Polynomial Fits", xlab="GW", ylab="TT")
-
-# Add model lines using sorted x
-lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
-lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
-lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
-
-
-# calculated adjusted R-squared of each model 
-summary(linear_model1)$adj.r.squared 
-summary(linear_model2)$adj.r.squared 
-summary(linear_model3)$adj.r.squared 
-
-```
-
-```{r run loess instead}
-# try loess
-plot(targeted_comparision_males$GW, targeted_comparision_males$TT, main="Loess Fit", xlab="GW", ylab="TT")
-loess_fit_m <- loess(TT ~ GW, data = targeted_comparision_males, span = 0.85)
-lines(sort(targeted_comparision_males$GW),
-      predict(loess_fit_m, newdata = data.frame(GW = sort(targeted_comparision_males$GW))),
-      col = "dodgerblue", lwd = 2)
-
-plot(targeted_comparision_females$GW, targeted_comparision_females$TT, main="Loess Fit", xlab="GW", ylab="TT")
-loess_fit_f <- loess(TT ~ GW, data = targeted_comparision_females, span = 0.85)
-lines(sort(targeted_comparision_females$GW),
-      predict(loess_fit_f, newdata = data.frame(GW = sort(targeted_comparision_females$GW))),
-      col = "violetred2", lwd = 2)
-
-# Combine male and female data (assuming you already split them)
-targeted_comparision_males$sex <- "male"
-targeted_comparision_females$sex <- "female"
-combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
-
-# Plot with LOESS curves
-ggplot(combined_data, aes(x = GW, y = TT, color = sex, fill = sex)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
-  labs(title = "LOESS Fit by Sex (outlier removed)", x = "Gestational Week (GW)", y = "Testosterone") +
-  scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
-  theme_minimal()
-
-# Save
-ggsave("../../results/TT_loess_graph.png")
-
-```
-
-
-```{r model using best-fitting equation}
-male_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_males)
-summary(male_model) #p-value: 0.01292
-
-female_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_females)
-summary(female_model) #p-value: 0.7959
-
-# Create prediction frame - male
-new_male <- data.frame(GW = seq(min(targeted_comparision_males$GW),
-                                max(targeted_comparision_males$GW), length.out = 100))
-new_male$TT_pred <- predict(lm(TT ~ GW + I(GW^2), data = targeted_comparision_males),
-                            newdata = new_male)
-
-# Create prediction frame - female
-new_female <- data.frame(GW = seq(min(targeted_comparision_females$GW),
-                                max(targeted_comparision_females$GW), length.out = 100))
-new_female$TT_pred <- predict(lm(TT ~ GW + I(GW^2), data = targeted_comparision_females),
-                            newdata = new_female)
-
-# Plot 1
-ggplot(targeted_comparision_males, aes(x = GW, y = TT)) +
-  geom_point(color = "dodgerblue", alpha = 0.6) +
-  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
-  labs(title = "TT ~ GW² Fit in Males", x = "GW", y = "TT") +
-  theme_minimal()
-
-# Plot 2
-ggplot(targeted_comparision_females, aes(x = GW, y = TT)) +
-  geom_point(color = "violetred2", alpha = 0.6) +
-  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² Fit in Females", x = "GW", y = "TT") +
-  theme_minimal()
-
-# Combine information
-ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
-  scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
-  geom_point(alpha = 0.6) +
-  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
-  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", subtitle = "Male p-value: 0.01292\nFemale p-value:0.7959", x = "GW", y = "TT") +
-  theme_minimal()
-
-# move the text
-ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
-  scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
-  geom_point(alpha = 0.6) +
-  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
-  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", x = "Gestational Week (GW)", y = "Testosterone") +
-  annotate("text", x = 16, y = 0.4, label = "Male p-value: 0.01292", color = "dodgerblue4", hjust = 0) +
-  annotate("text", x = 16, y = 0.35, label = "Female p-value: 0.7959", color = "violetred4", hjust = 0) +
-  theme_minimal()
-
-# save new plot
-ggsave("../../results/TT_GW_modelfit.png")
-
-```
-
-
-# Work on understanding expression patterns and hormone/TT level - DO NOT SKIP!
+# Pseudobulk: understanding the realtionship between expression patterns and hormone/TT level
 
 If there is a quadratic equation that explains expression over time, it is possible the relationship between TT and gene expression is also nonlinear. Will start with linear first, since that is more straightforward.
 
@@ -242,11 +80,11 @@ cell_metadata <- cell_metadata %>%
 # Rename cell types for clarity
 cell_metadata$cell_type <- cell_metadata$cluster_call
 
-# remove rows where testosterone is not measured
-cell_metadata <- cell_metadata[!is.na(cell_metadata$TT),]
+# remove rows where testosterone is not measured, commented out because this removes samples from estrogen analysis
+#cell_metadata <- cell_metadata[!is.na(cell_metadata$TT),]
 ```
 
-# Try pseudobulk approach
+# prepare function
 
 ```{r psuedobulk data function}
 pseudobulk_data <- function(seurat_obj, assay = "RNA", layer = "counts", 
@@ -317,7 +155,7 @@ metadata_merged <- pb_metadata %>%
 # Filter out samples with missing sex or too few cells
 metadata_merged <- metadata_merged %>%
   filter(!is.na(Sex)) %>%
-  filter(cell_count >= 10)  # Remove sparse pseudobulks
+  filter(cell_count >= 5)  # Remove sparse pseudobulks
 
 # Subset logcounts and counts to only include valid samples
 pb$logcounts <- pb$logcounts[rownames(pb$logcounts) %in% rownames(metadata_merged), , drop = FALSE]
@@ -356,9 +194,7 @@ rownames(pb$logcounts) <- rownames(metadata_merged)
 stopifnot(identical(rownames(pb$counts), rownames(metadata_merged)))
 ```
 
-
 ## Run limma to model everything, start with testosterone
-
 
 ```{r run limma on TT}
 run_voom_lm <- function(counts, metadata) {
@@ -369,7 +205,7 @@ run_voom_lm <- function(counts, metadata) {
   stopifnot(ncol(counts_t) == nrow(metadata))
 
   # Create design matrix
-  design <- model.matrix(~ TT + cell_count, data = metadata)
+  design <- model.matrix(~ TT + cell_count + GW, data = metadata)
 
   # Run voom
   v <- limma::voom(counts_t, design)
@@ -410,7 +246,7 @@ results_by_group <- purrr::map(split(seq_len(nrow(pb$counts)), metadata_merged$g
   }
 
   # Optional: filter genes with low expression across samples
-  keep_genes <- colSums(counts_sub >= 3) >= 5
+  keep_genes <- colSums(counts_sub >= 2) >= 3
   counts_sub <- counts_sub[, keep_genes, drop = FALSE]
 
   if (ncol(counts_sub) == 0) {
@@ -442,7 +278,7 @@ results_female <- results_all %>%
 write_csv(results_female, "../../results/targeted/res_TT_genes_female.csv")
 
 sig_counts_female <- results_female %>%
-  filter(P.Value < 0.01, abs(logFC) >= 1) %>%
+  filter(adj.P.Val < 0.05) %>%
   count(cell_type, name = "num_sig_genes") %>%
   arrange(desc(num_sig_genes))
 
@@ -450,7 +286,7 @@ ggplot(sig_counts_female, aes(x = cell_type, y = num_sig_genes)) +
   geom_bar(stat = "identity", fill = "violetred3") +
   geom_text(aes(label = num_sig_genes), vjust = -0.5) +
   theme_minimal() +
-  labs(x = "Cell Type", y = "Number of Significant Genes (WARNING - INFLATED)") +
+  labs(x = "Cell Type", y = "Number of Significant Genes") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave("../../results/targeted/sig_TT_genes_female.png")
@@ -462,7 +298,7 @@ results_male <- results_all %>%
 write_csv(results_male, "../../results/targeted/res_TT_genes_male.csv")
 
 sig_counts_male <- results_male %>%
-  filter(P.Value < 0.01, abs(logFC) >= 1) %>%
+  filter(adj.P.Val < 0.05) %>%
   count(cell_type, name = "num_sig_genes") %>%
   arrange(desc(num_sig_genes))
 
@@ -470,7 +306,7 @@ ggplot(sig_counts_male, aes(x = cell_type, y = num_sig_genes)) +
   geom_bar(stat = "identity", fill = "steelblue") +
   geom_text(aes(label = num_sig_genes), vjust = -0.5) +
   theme_minimal() +
-  labs(x = "Cell Type", y = "Number of Significant Genes (P.Value < 0.01)") +
+  labs(x = "Cell Type", y = "Number of Significant Genes") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ggsave("../../results/targeted/sig_TT_genes_male.png")
@@ -481,7 +317,7 @@ pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
 # make log(cpm) matrix for plotting
 log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
 ```
-
+## plot top TT genes for male
 
 ```{r make and save male plots}
 # Get unique male cell types from results
@@ -497,7 +333,7 @@ walk(cell_types, function(group_of_interest) {
   # === Filter for this group ===
   results_subset <- results_male %>%
     filter(cell_type == group_of_interest) %>%
-    arrange(P.Value) %>%
+    arrange(-abs(t)) %>%
     slice_head(n = 6)
   
   # === Subset expression and metadata ===
@@ -549,7 +385,7 @@ clean_name <- gsub("/", "-", group_of_interest)
 
 ```
 
-
+## repeat plotting top TT genes for female
 
 ```{r make and save female plots}
 # Get unique male cell types from results
@@ -565,7 +401,7 @@ walk(cell_types, function(group_of_interest) {
   # === Filter for this group ===
   results_subset <- results_female %>%
     filter(cell_type == group_of_interest) %>%
-    arrange(P.Value) %>%
+    arrange(-abs(t)) %>%
     slice_head(n = 6)
   
   # === Subset expression and metadata ===
@@ -631,7 +467,7 @@ run_voom_lm <- function(counts, metadata) {
   stopifnot(ncol(counts_t) == nrow(metadata))
 
   # Create design matrix
-  design <- model.matrix(~ E2 + cell_count, data = metadata)
+  design <- model.matrix(~ E2 + cell_count + GW, data = metadata)
 
   # Run voom
   v <- limma::voom(counts_t, design)
@@ -672,7 +508,7 @@ results_by_group <- purrr::map(split(seq_len(nrow(pb$counts)), metadata_merged$g
   }
 
   # Optional: filter genes with low expression across samples
-  keep_genes <- colSums(counts_sub >= 3) >= 5
+  keep_genes <- colSums(counts_sub >= 2) >= 3
   counts_sub <- counts_sub[, keep_genes, drop = FALSE]
 
   if (ncol(counts_sub) == 0) {
@@ -743,7 +579,7 @@ pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
 # make log(cpm) matrix for plotting
 log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
 ```
-
+## plot estrogen in males
 
 ```{r make and save male plots}
 # Get unique male cell types from results
@@ -759,7 +595,7 @@ walk(cell_types, function(group_of_interest) {
   # === Filter for this group ===
   results_subset <- results_male %>%
     filter(cell_type == group_of_interest) %>%
-    arrange(P.Value) %>%
+    arrange(-abs(t)) %>%
     slice_head(n = 6)
   
   # === Subset expression and metadata ===
@@ -811,7 +647,7 @@ clean_name <- gsub("/", "-", group_of_interest)
 
 ```
 
-
+## plot top estrogen genes in females
 
 ```{r make and save female plots}
 # Get unique male cell types from results
@@ -827,7 +663,7 @@ walk(cell_types, function(group_of_interest) {
   # === Filter for this group ===
   results_subset <- results_female %>%
     filter(cell_type == group_of_interest) %>%
-    arrange(P.Value) %>%
+    arrange(-abs(t)) %>%
     slice_head(n = 6)
   
   # === Subset expression and metadata ===
@@ -880,7 +716,6 @@ clean_name <- gsub("/", "-", group_of_interest)
 
 ```
 
-
 # Do everything again for progesterone - can make this into better function later
 
 ```{r prepare to run limma}
@@ -892,7 +727,7 @@ run_voom_lm <- function(counts, metadata) {
   stopifnot(ncol(counts_t) == nrow(metadata))
 
   # Create design matrix
-  design <- model.matrix(~ P4 + cell_count, data = metadata)
+  design <- model.matrix(~ P4 + cell_count + GW, data = metadata)
 
   # Run voom
   v <- limma::voom(counts_t, design)
@@ -933,7 +768,7 @@ results_by_group <- purrr::map(split(seq_len(nrow(pb$counts)), metadata_merged$g
   }
 
   # Optional: filter genes with low expression across samples
-  keep_genes <- colSums(counts_sub >= 3) >= 5
+  keep_genes <- colSums(counts_sub >= 2) >= 3
   counts_sub <- counts_sub[, keep_genes, drop = FALSE]
 
   if (ncol(counts_sub) == 0) {
@@ -1004,7 +839,7 @@ pb_counts_filtered <- pb$counts[, colSums(pb$counts) > 0]
 # make log(cpm) matrix for plotting
 log_cpm_mat <- cpm(pb_counts_filtered, log = TRUE, prior.count = 1)
 ```
-
+## plot top P4 genes for males
 
 ```{r make and save male plots}
 # Get unique male cell types from results
@@ -1020,7 +855,7 @@ walk(cell_types, function(group_of_interest) {
   # === Filter for this group ===
   results_subset <- results_male %>%
     filter(cell_type == group_of_interest) %>%
-    arrange(P.Value) %>%
+    arrange(-abs(t)) %>%
     slice_head(n = 6)
   
   # === Subset expression and metadata ===
@@ -1072,10 +907,10 @@ clean_name <- gsub("/", "-", group_of_interest)
 
 ```
 
-
+## plot top P4 genes for females
 
 ```{r make and save female plots}
-# Get unique male cell types from results
+# Get unique female cell types from results
 cell_types <- unique(results_female$cell_type)
 
 # Directory to save plots
@@ -1088,7 +923,7 @@ walk(cell_types, function(group_of_interest) {
   # === Filter for this group ===
   results_subset <- results_female %>%
     filter(cell_type == group_of_interest) %>%
-    arrange(P.Value) %>%
+    arrange(-abs(t)) %>%
     slice_head(n = 6)
   
   # === Subset expression and metadata ===
