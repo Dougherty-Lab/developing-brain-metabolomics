@@ -24,6 +24,7 @@ library(cowplot)
 library(edgeR)
 library(limma)
 library(patchwork)
+library(viridis)
 ```
 
 
@@ -41,7 +42,7 @@ targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xl
 
 ## Examine esrogen and androgen recpetor expression per cell type
 
-```{r make violin plots}
+```{r make violin and other exploratory plots}
 
 DefaultAssay(SSD_data_v5) <- "SCT"
 
@@ -57,6 +58,9 @@ FeaturePlot(SSD_data_v5, "AR")
 FeaturePlot(SSD_data_v5, "ESR1")
 FeaturePlot(SSD_data_v5, "ESR2") # most highly expressed
 FeaturePlot(SSD_data_v5, "PGR")
+
+FeaturePlot(SSD_data_v5, features = c("AR", "ESR1", "ESR2", "PGR"), cols = c("lightgrey", "#440154FF"), alpha = 0.7)
+ggsave("../../results/targeted/hormone_receptors_umap.png", width = 10, height = 6)
 
 DimPlot(SSD_data_v5)
 
@@ -88,6 +92,8 @@ ggplot(percentage_ESR2_by_cell_type_SCT, aes(x = cluster_call, y = percent_ESR2_
          x = "Cell Type",
          y = "Percentage of ESR2-expressing Cells")
 
+ggsave("../../results/targeted/any_esr2_cell_type.png")
+
 # try for "high"
 SSD_data_v5$ESR2_positive_SCT_high <- SSD_data_v5@assays$SCT@data["ESR2",] > 1.5
 
@@ -103,6 +109,8 @@ ggplot(percentage_ESR2_by_cell_type_SCT_high, aes(x = cluster_call, y = percent_
          x = "Cell Type",
          y = "Percentage of ESR2-expressing Cells")
 
+ggsave("../../results/targeted/high_esr2_cell_type.png")
+
 # try for "med"
 SSD_data_v5$ESR2_positive_SCT_med <- SSD_data_v5@assays$SCT@data["ESR2",] > 1
 
@@ -117,6 +125,8 @@ ggplot(percentage_ESR2_by_cell_type_SCT_med, aes(x = cluster_call, y = percent_E
     labs(title = "Percentage of ESR2-expressing Cells (med) by Cell Type",
          x = "Cell Type",
          y = "Percentage of ESR2-expressing Cells")
+
+ggsave("../../results/targeted/med_esr2_cell_type.png")
 
 ```
 
