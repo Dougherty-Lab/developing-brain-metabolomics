@@ -9,15 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from fetal human brain samples.
-
-### Step-by-Step Implementation:
-
-1. **Detect Outliers**: Generate filtered data for each hormone.
-2. **Prepare Metadata**: Prepare the metadata for each hormone.
-3. **Generate Pseudobulk Data**: Generate separate pseudobulk data for each hormone.
-4. **Run Limma Analysis**: Perform the analysis for each hormone.
-5. **Plot Results**: Plot the top genes for each hormone.
+The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from developing human brain samples.
 
 ##Load Packages
 
