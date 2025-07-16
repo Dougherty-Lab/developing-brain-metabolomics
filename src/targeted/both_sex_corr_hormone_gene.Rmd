@@ -1,7 +1,7 @@
 ---
-title: "Correlate Hormones and Gene Expression (Optimized)"
+title: "Rerun limma - not split for sex"
 author: "Emma Jones"
-date: "2025-06-23"
+date: "2025-07-16"
 output: html_document
 ---
 
@@ -9,7 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from developing human brain samples for males and females, separately.
+
+The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from developing human brain samples. Not split for sex!
 
 ##Load Packages
 
@@ -34,12 +35,6 @@ SSD_data_v5 <- subset(SSD_data_v5, subset = Droplet == "SNG")
 targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xlsx")
 ```
 
-## Show Cell Type UMAP
-```{r display umap}
-DimPlot(SSD_data_v5, label = TRUE)
-
-ggsave("../../results/targeted/celltype_umap.png")
-```
 
 ## Remove Outliers
 ```{r remove outliers}
@@ -64,7 +59,7 @@ prepare_metadata_for_analysis <- function(pb_metadata, targeted_comparision_filt
     left_join(targeted_comparision_filtered %>% select(Sample, Sex, TT, `17B-E2`, P4, GW),
               by = c("sample_id" = "Sample")) %>%
     filter(!is.na(Sex), cell_count >= 10) %>%
-    mutate(group = paste(cell_type, Sex, sep = "_")) %>%
+    mutate(group = paste(cell_type, sep = "_")) %>%
     column_to_rownames("pseudobulk_id")
 }
 
@@ -101,9 +96,7 @@ pseudobulk_data <- function(seurat_obj, assay = "RNA", layer = "counts", sample_
 
 ## Generate and Filter Pseudobulk Data
 
-
 ```{r generate and filter pseudobulk data}
-
 generate_and_filter_pseudobulk <- function(seurat_obj, targeted_filtered) {
   seurat_obj$cell_type <- seurat_obj$cluster_call  # ensure column exists
   seurat_obj$sample_id <- seurat_obj$sample        # ensure column exists
@@ -156,9 +149,8 @@ run_voom_lm <- function(counts, metadata, predictor) {
 ## NEW CODE for limma filtering and direct plotting
 
 ```{r test new filtering and plotting functions}
-
 analyze_hormone <- function(pb_counts, metadata_merged, hormone) {
-  split_ids <- split(rownames(metadata_merged), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
+  split_ids <- split(rownames(metadata_merged), metadata_merged$cell_type)
   
   results_by_group <- purrr::map(split_ids, function(ids) {
     counts_sub <- t(pb_counts)[, ids, drop = FALSE] 
@@ -177,7 +169,6 @@ analyze_hormone <- function(pb_counts, metadata_merged, hormone) {
     
     result <- run_voom_lm(counts_sub, metadata_sub, hormone)
     result$cell_type <- metadata_sub$cell_type[1]
-    result$sex <- metadata_sub$Sex[1]
     
     # Return a list containing results AND the filtered data used for modeling
     list(
@@ -248,12 +239,10 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
 
       df <- metadata_sub %>% mutate(expr = expr_vals)
 
-      ggplot(df, aes_string(x = hormone, y = "expr", color = "Sex", fill = "Sex")) +
+      ggplot(df, aes_string(x = hormone, y = "expr")) +
         geom_point(size = 2, alpha = 0.8) +
         geom_smooth(method = "lm", se = TRUE) +
-        scale_color_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
-        scale_fill_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
-        labs(title = paste0(gene, " in ", metadata_sub$cell_type[1], " (", metadata_sub$Sex[1], ")"),
+        labs(title = paste0(gene, " in ", metadata_sub$cell_type[1]),
              x = hormone, y = "log1p(CPM)") +
         theme_minimal(base_size = 14)
     }) %>% compact()
@@ -264,17 +253,15 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
     }
 
     combined_plot <- patchwork::wrap_plots(plotlist = plot_list, ncol = 2)
-    clean_name <- paste0(metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
-    clean_name <- gsub("/", "-", clean_name)
+    clean_name <- gsub("/", "-", metadata_sub$cell_type[1])
 
-    ggsave(file.path(output_dir, paste0(clean_name, "_top_genes.png")),
+    ggsave(file.path(output_dir, paste0(clean_name, "_both_sex_top_genes.png")),
            plot = combined_plot, width = 10, height = 6 + ceiling(length(plot_list)/2), dpi = 300)
     message("  ✅ Saved plot for ", clean_name)
   })
 }
 
 ```
-
 
 # Run analyses
 
@@ -296,28 +283,25 @@ plot_top_genes_from_subsets(res_P4$by_group_data, "../../results/targeted/pseudo
 
 ```
 
-
 ## Summarize and save results
 
 ```{r summarize and save results}
-
 summarize_sig_genes <- function(results, fdr_cutoff = 0.05, logfc_cutoff = 0.25) {
   sig <- results %>% filter(adj.P.Val < fdr_cutoff)
   if (!is.null(logfc_cutoff)) {
     sig <- sig %>% filter(abs(logFC) >= logfc_cutoff)
   }
   sig %>%
-    count(cell_type, sex, name = "num_sig_genes") %>%
+    count(cell_type, name = "num_sig_genes") %>%
     arrange(desc(num_sig_genes))
 }
 
 plot_sig_gene_summary <- function(summary_df, title) {
-  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes, fill = sex)) +
+  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes)) +
     geom_bar(stat = "identity", position = position_dodge()) +
     labs(title = title, x = "Cell Type", y = "# Significant Genes") +
     theme_minimal(base_size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    scale_fill_manual(values = c("M" = "steelblue", "F" = "violetred3"))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
 }
 
 # Summarize
@@ -327,13 +311,12 @@ summary_P4 <- summarize_sig_genes(res_P4$combined_results)
 
 
 # Save CSVs
-write_csv(summary_TT, "../../results/targeted/summary_TT_sig_genes.csv")
-write_csv(summary_E2, "../../results/targeted/summary_E2_sig_genes.csv")
-write_csv(summary_P4, "../../results/targeted/summary_P4_sig_genes.csv")
+write_csv(summary_TT, "../../results/targeted/both_sex_summary_TT_sig_genes.csv")
+write_csv(summary_E2, "../../results/targeted/both_sex_summary_E2_sig_genes.csv")
+write_csv(summary_P4, "../../results/targeted/both_sex_summary_P4_sig_genes.csv")
 
 # Plot and save
-ggsave("../../results/targeted/pseudobulk_testosterone_plots/TT_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_TT, "Testosterone"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_estrogen_plots/E2_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_E2, "Estradiol"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_progesterone_plots/P4_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_P4, "Progesterone"), width = 8, height = 5)
+ggsave("../../results/targeted/pseudobulk_testosterone_plots/both_sex_TT_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_TT, "Testosterone"), width = 8, height = 5)
+ggsave("../../results/targeted/pseudobulk_estrogen_plots/both_sex_E2_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_E2, "Estradiol"), width = 8, height = 5)
+ggsave("../../results/targeted/pseudobulk_progesterone_plots/both_sex_P4_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_P4, "Progesterone"), width = 8, height = 5)
 ```
-

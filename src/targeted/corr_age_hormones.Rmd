@@ -75,7 +75,10 @@ ggplot(targeted_comparision_filtered, aes(x = TT, y = E2, color = GW)) +
   geom_point() + theme_minimal()
 ggplot(targeted_comparision_filtered, aes(x = TT, y = E2, color = Sex)) +
   geom_point() + theme_minimal()
+# Save
+ggsave("../../results/targeted/hormone_hormone_plots/TT_E2_scatter.png")
 
+# linear model
 tt_e2 <- lm(TT~E2, data=targeted_comparision_filtered) 
 summary(tt_e2) #pval is 0.006437
 
@@ -89,7 +92,10 @@ ggplot(targeted_comparision_filtered, aes(x = P4, y = E2, color = GW)) +
   geom_point() + theme_minimal()
 ggplot(targeted_comparision_filtered, aes(x = P4, y = E2, color = Sex)) +
   geom_point() + theme_minimal()
+# Save
+ggsave("../../results/targeted/hormone_hormone_plots/P4_E2_scatter.png")
 
+# linear model
 p4_e2 <- lm(P4~E2, data=targeted_comparision_filtered) 
 summary(p4_e2) #pval is 0.06845
 
@@ -104,7 +110,10 @@ ggplot(targeted_comparision_filtered, aes(x = P4, y = TT, color = GW)) +
   geom_point() + theme_minimal()
 ggplot(targeted_comparision_filtered, aes(x = P4, y = TT, color = Sex)) +
   geom_point() + theme_minimal()
+# Save
+ggsave("../../results/targeted/hormone_hormone_plots/P4_TT_scatter.png")
 
+# linear model
 p4_tt <- lm(P4~TT, data=targeted_comparision_filtered) 
 summary(p4_tt) #pval is 0.4612
 
