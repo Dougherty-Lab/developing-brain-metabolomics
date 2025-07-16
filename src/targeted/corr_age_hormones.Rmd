@@ -5,7 +5,7 @@ date: "2025-06-20"
 output: html_document
 ---
 
-The purpose of this analysis is twofold: 1) to understand the relationship between age (gestational week) and hormone concentration, and 2) to find outliers in the distribution of hormone concentrations. This is important for downstream analyses, to see if GW should be added as a covariate, and if outliers should be removed.
+The purpose of this analysis is threefold: 1) to understand the relationship between age (gestational week) and hormone concentration, 2) to find outliers in the distribution of hormone concentrations, and 3) to determine if the hormones themselves are correlated with each other. This is important for downstream analyses, to see if GW should be added as a covariate, and if outliers should be removed.
 
 
 ```{r setup, include=FALSE}
@@ -42,47 +42,46 @@ targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xl
 targeted_comparision_raw$E2 <- targeted_comparision_raw$`17B-E2`
 
 ```
-
-# testosterone analysis
-
 ## Remove Outliers
 
 The statistical definition of an outlier differs by field, but generally Q3 + 1.5*IQR is accepted as a way to detect outliers
 
 Let's calculate below:
 
-```{r detect and remove female outlier}
-#filter for only females
-targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
+## Remove Outliers
+```{r remove outliers}
+detect_outliers <- function(data, variable) {
+  outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
+  data %>% filter(.data[[variable]] <= outlier_limit)
+}
 
-outlier_limit <- quantile(targeted_comparision_raw$TT)[4] + 1.5*IQR(targeted_comparision_raw$TT)
+targeted_comparision_filtered_TT <- detect_outliers(targeted_comparision_raw, "TT")
+targeted_comparision_filtered_E2 <- detect_outliers(targeted_comparision_raw, "17B-E2")
+targeted_comparision_filtered_P4 <- detect_outliers(targeted_comparision_raw, "P4")
 
-max(targeted_comparision_females$TT) > outlier_limit 
+# save only samples with observations for all 3, will be used for correlations later
+all_obs <- intersect(targeted_comparision_filtered_TT$Sample, targeted_comparision_filtered_E2$Sample)
+all_obs <- intersect(all_obs, targeted_comparision_filtered_P4$Sample)
 
-targeted_comparision_females$TT > outlier_limit
+targeted_comparision_filtered <- subset(targeted_comparision_raw, Sample %in% all_obs)
 ```
 
-So, yes, this is above the typical outlier limit so we can remove from analysis. It is sample number 38, which has an XX Xist genotype and sex_genome_studio asignment of XX as well, so it seems to be a true female sample and not a swap. However, there are other samples that are also outliers by this definition, so we may want to be cautious by how this is represented
-
-```{r remove outlier}
-targeted_comparision_filtered <- targeted_comparision_raw[-34,]
-```
-
+# testosterone analysis
 
 ## how does this correlate with age?
 ```{r look at overall relationship}
 # look at relationship with age
-ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
+ggplot(targeted_comparision_filtered_TT, aes(x = GW, y = TT, color = Sex)) +
   geom_point() + theme_minimal()
 
-all_simple <- lm(TT~GW, data=targeted_comparision_filtered) 
+all_simple <- lm(TT~GW, data=targeted_comparision_filtered_TT) 
 summary(all_simple)
 ```
 
 so its not signficant, but the graph clearly supports that males differ from females, so I will separate the groups
 
 ```{r separate groups and find a model}
-targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+targeted_comparision_males <- targeted_comparision_filtered_TT[targeted_comparision_filtered_TT$Sex == "M",]
 
 # fit polynomial regression models up to degree 5 
 linear_model1 <- lm(TT~GW, data=targeted_comparision_males) 
@@ -108,7 +107,7 @@ summary(linear_model3)$adj.r.squared
 
 ```{r run for females}
 #filter for only females
-targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+targeted_comparision_females <- targeted_comparision_filtered_TT[targeted_comparision_filtered_TT$Sex == "F",]
 
 # fit polynomial regression models up to degree 5 
 linear_model1 <- lm(TT~GW, data=targeted_comparision_females) 
@@ -157,7 +156,7 @@ combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
 ggplot(combined_data, aes(x = GW, y = TT, color = sex, fill = sex)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
-  labs(title = "LOESS Fit by Sex (outlier removed)", x = "Gestational Week (GW)", y = "Testosterone") +
+  labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Testosterone") +
   scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
   theme_minimal()
 
@@ -233,38 +232,22 @@ The statistical definition of an outlier differs by field, but generally Q3 + 1.
 
 Let's calculate below:
 
-```{r detect and remove female outlier}
-#filter for only females and males
-targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
-targeted_comparision_males <- targeted_comparision_raw[targeted_comparision_raw$Sex == "M",]
-
-outlier_limit <- quantile(targeted_comparision_raw$E2)[4] + 1.5*IQR(targeted_comparision_raw$E2)
-
-to_keep <- targeted_comparision_raw$E2 > outlier_limit
-```
-
-So, yes, we have 5 outliers here, but we can remove them all
-
-```{r remove outliers}
-targeted_comparision_filtered <- targeted_comparision_raw[!to_keep,]
-```
-
 ## how does this correlate with age?
 
 ```{r look at overall relationship}
 # look at relationship with age
-ggplot(targeted_comparision_filtered, aes(x = GW, y = E2, color = Sex)) +
+ggplot(targeted_comparision_filtered_E2, aes(x = GW, y = E2, color = Sex)) +
   geom_point() + theme_minimal()
 
-all_simple <- lm(TT~GW, data=targeted_comparision_filtered) 
+all_simple <- lm(E2~GW, data=targeted_comparision_filtered) 
 summary(all_simple)
 ```
 
 im not seeing a strong difference for males or females
 
 ```{r separate groups and find a model}
-targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
-targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+targeted_comparision_females <- targeted_comparision_filtered_E2[targeted_comparision_filtered_E2$Sex == "F",]
+targeted_comparision_males <- targeted_comparision_filtered_E2[targeted_comparision_filtered_E2$Sex == "M",]
 
 # fit polynomial regression models up to degree 5 
 linear_model1 <- lm(E2~GW, data=targeted_comparision_females) 
@@ -340,40 +323,22 @@ The statistical definition of an outlier differs by field, but generally Q3 + 1.
 
 Let's calculate below:
 
-```{r detect and remove female outlier}
-#filter for only females and males
-targeted_comparision_females <- targeted_comparision_raw[targeted_comparision_raw$Sex == "F",]
-targeted_comparision_males <- targeted_comparision_raw[targeted_comparision_raw$Sex == "M",]
-
-outlier_limit <- quantile(targeted_comparision_raw$P4)[4] + 1.5*IQR(targeted_comparision_raw$P4)
-
-to_keep <- targeted_comparision_raw$P4 > outlier_limit
-
-to_keep
-```
-
-So, yes, we have 5 outliers here, but we can remove them all
-
-```{r remove outliers}
-targeted_comparision_filtered <- targeted_comparision_raw[!to_keep,]
-```
-
 ## how does this correlate with age?
 
 ```{r look at overall relationship}
 # look at relationship with age
-ggplot(targeted_comparision_filtered, aes(x = GW, y = P4, color = Sex)) +
+ggplot(targeted_comparision_filtered_P4, aes(x = GW, y = P4, color = Sex)) +
   geom_point() + theme_minimal()
 
-all_simple <- lm(TT~GW, data=targeted_comparision_filtered) 
+all_simple <- lm(P4~GW, data=targeted_comparision_filtered) 
 summary(all_simple)
 ```
 
 im not seeing a strong difference for males or females
 
 ```{r separate groups and find a model}
-targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
-targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+targeted_comparision_females <- targeted_comparision_filtered_P4[targeted_comparision_filtered_P4$Sex == "F",]
+targeted_comparision_males <- targeted_comparision_filtered_P4[targeted_comparision_filtered_P4$Sex == "M",]
 
 # fit polynomial regression models up to degree 5 
 linear_model1 <- lm(P4~GW, data=targeted_comparision_females) 
@@ -420,7 +385,7 @@ combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
 ggplot(combined_data, aes(x = GW, y = P4, color = sex, fill = sex)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
-  labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Estradiol") +
+  labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Progesterone") +
   scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
   theme_minimal()
 
