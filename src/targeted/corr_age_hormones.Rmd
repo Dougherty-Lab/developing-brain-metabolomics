@@ -12,7 +12,6 @@ The purpose of this analysis is threefold: 1) to understand the relationship bet
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 First, we load packages. We might want more later, but for now I know I need the following
 
 ```{r load packages}
@@ -42,13 +41,13 @@ targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xl
 targeted_comparision_raw$E2 <- targeted_comparision_raw$`17B-E2`
 
 ```
+
 ## Remove Outliers
 
 The statistical definition of an outlier differs by field, but generally Q3 + 1.5*IQR is accepted as a way to detect outliers
 
 Let's calculate below:
 
-## Remove Outliers
 ```{r remove outliers}
 detect_outliers <- function(data, variable) {
   outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
@@ -66,10 +65,62 @@ all_obs <- intersect(all_obs, targeted_comparision_filtered_P4$Sample)
 targeted_comparision_filtered <- subset(targeted_comparision_raw, Sample %in% all_obs)
 ```
 
+# Are hormones correlated with each other?
+
+We can make a fairly quick scatterplot for each pairwise relationship
+
+```{r look at overall hormone relationships - tt and e2}
+# look at relationship with tt and e2
+ggplot(targeted_comparision_filtered, aes(x = TT, y = E2, color = GW)) +
+  geom_point() + theme_minimal()
+ggplot(targeted_comparision_filtered, aes(x = TT, y = E2, color = Sex)) +
+  geom_point() + theme_minimal()
+
+tt_e2 <- lm(TT~E2, data=targeted_comparision_filtered) 
+summary(tt_e2) #pval is 0.006437
+
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+tt_e2_m <- lm(TT~E2, data=targeted_comparision_males) 
+summary(tt_e2_m) #pval is 0.2538
+```
+```{r look at overall hormone relationships - p4 and e2}
+# look at relationship with p4 and e2
+ggplot(targeted_comparision_filtered, aes(x = P4, y = E2, color = GW)) +
+  geom_point() + theme_minimal()
+ggplot(targeted_comparision_filtered, aes(x = P4, y = E2, color = Sex)) +
+  geom_point() + theme_minimal()
+
+p4_e2 <- lm(P4~E2, data=targeted_comparision_filtered) 
+summary(p4_e2) #pval is 0.06845
+
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+p4_e2_f <- lm(P4~E2, data=targeted_comparision_females) 
+summary(p4_e2_f) #pval is 0.02831
+```
+
+```{r look at overall hormone relationships - p4 and tt}
+# look at relationship with p4 and tt
+ggplot(targeted_comparision_filtered, aes(x = P4, y = TT, color = GW)) +
+  geom_point() + theme_minimal()
+ggplot(targeted_comparision_filtered, aes(x = P4, y = TT, color = Sex)) +
+  geom_point() + theme_minimal()
+
+p4_tt <- lm(P4~TT, data=targeted_comparision_filtered) 
+summary(p4_tt) #pval is 0.4612
+
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+p4_tt_f <- lm(P4~TT, data=targeted_comparision_females) 
+summary(p4_tt_f) #pval is 0.3497
+
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+p4_tt_m <- lm(P4~TT, data=targeted_comparision_males) 
+summary(p4_tt_m) #pval is 0.5836
+```
+
 # testosterone analysis
 
 ## how does this correlate with age?
-```{r look at overall relationship}
+```{r look at age (gestational week) relationship}
 # look at relationship with age
 ggplot(targeted_comparision_filtered_TT, aes(x = GW, y = TT, color = Sex)) +
   geom_point() + theme_minimal()
@@ -78,7 +129,7 @@ all_simple <- lm(TT~GW, data=targeted_comparision_filtered_TT)
 summary(all_simple)
 ```
 
-so its not signficant, but the graph clearly supports that males differ from females, so I will separate the groups
+so its not significant, but the graph clearly supports that males differ from females, so I will separate the groups
 
 ```{r separate groups and find a model}
 targeted_comparision_males <- targeted_comparision_filtered_TT[targeted_comparision_filtered_TT$Sex == "M",]
@@ -161,14 +212,14 @@ ggplot(combined_data, aes(x = GW, y = TT, color = sex, fill = sex)) +
   theme_minimal()
 
 # Save
-ggsave("../../results/TT_loess_graph.png")
+ggsave("../../results/targeted/hormone_age_plots/TT_loess_graph.png")
 
 ```
 
 
 ```{r model using best-fitting equation}
 male_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_males)
-summary(male_model) #p-value: 0.01292
+summary(male_model) #p-value: 0.002309
 
 female_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_females)
 summary(female_model) #p-value: 0.7959
@@ -215,12 +266,12 @@ ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
   geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
   geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
   labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", x = "Gestational Week (GW)", y = "Testosterone") +
-  annotate("text", x = 16, y = 0.4, label = "Male p-value: 0.01292", color = "dodgerblue4", hjust = 0) +
+  annotate("text", x = 16, y = 0.4, label = "Male p-value: 0.002309", color = "dodgerblue4", hjust = 0) +
   annotate("text", x = 16, y = 0.35, label = "Female p-value: 0.7959", color = "violetred4", hjust = 0) +
   theme_minimal()
 
 # save new plot
-ggsave("../../results/TT_GW_modelfit.png")
+ggsave("../../results/targeted/hormone_age_plots/TT_GW_modelfit.png")
 
 ```
 
@@ -299,7 +350,7 @@ ggplot(combined_data, aes(x = GW, y = E2, color = sex, fill = sex)) +
   theme_minimal()
 
 # Save
-ggsave("../../results/E2_loess_graph.png")
+ggsave("../../results/targeted/hormone_age_plots/E2_loess_graph.png")
 
 ```
 
@@ -390,7 +441,7 @@ ggplot(combined_data, aes(x = GW, y = P4, color = sex, fill = sex)) +
   theme_minimal()
 
 # Save
-ggsave("../../results/P4_loess_graph.png")
+ggsave("../../results/targeted/hormone_age_plots/P4_loess_graph.png")
 
 ```
 
