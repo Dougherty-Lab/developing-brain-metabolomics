@@ -403,7 +403,7 @@ plot_sig_gene_summary <- function(summary_df, title) {
 summary_E2 <- summarize_sig_genes(res_esr2_E2$combined_results)
 
 # Save CSVs
-write_csv(summary_E2, "../../results/targeted/summary_esr2_pos_E2_sig_genes.csv")
+write_csv(res_esr2_E2$combined_results, "../../results/targeted/esr2_pos_E2_results.csv")
 
 # Plot and save
 ggsave("../../results/targeted/esr2_pseudobulk_estrogen_plots/esr2_E2_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_E2, "Estradiol — ESR2-positive cells"), width = 8, height = 5)

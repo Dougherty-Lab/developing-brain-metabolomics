@@ -1,0 +1,43 @@
+---
+title: "SFARI Overlap with TT signficiant DEGs"
+author: "Emma Jones"
+date: "2025-06-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The purpose of his script is to determine is any SFARI genes are included in the signficiant TT genes for males.
+
+##Load Packages
+
+```{r load package}
+library(tidyverse)
+library(Seurat)
+library(readxl)
+library(Signac)
+library(glue)
+library(cowplot)
+library(edgeR)
+library(limma)
+library(patchwork)
+library(Matrix)
+
+set.seed(123)
+```
+
+## Import data
+
+```{r import SFARI gene list and TT results}
+SFARI_Gene <- read_csv("../../doc/targeted/SFARI-Gene_genes_07-08-2025release_07-22-2025export.csv", col_types = cols(status = col_skip()))
+```
+
+
+```{r filter gene list}
+
+SFARI_Gene <- SFARI_Gene %>% dplyr::filter(`gene-score` <= 1)
+```
+
+
