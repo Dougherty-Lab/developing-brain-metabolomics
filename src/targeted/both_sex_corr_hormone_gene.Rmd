@@ -25,6 +25,8 @@ library(edgeR)
 library(limma)
 library(patchwork)
 library(Matrix)
+
+set.seed(123)
 ```
 
 ## Load Data
@@ -117,7 +119,7 @@ pb_E2 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filter
 pb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filtered_P4)
 ```
 
-## Limma analysis
+## Define DE analysis wrapper functions (modified to exclude sex)
 
 ```{r limma anlysis}
 run_voom_lm <- function(counts, metadata, predictor) {
@@ -146,17 +148,17 @@ run_voom_lm <- function(counts, metadata, predictor) {
 
 ```
 
-## NEW CODE for limma filtering and direct plotting
+Note: the default min samples is increased form 8 from single-sex analysis to 10 for both sexes, since including both sexes should increase numbers of samples for each observation. this is a flexible number and can be changed to suit your needs.
 
 ```{r test new filtering and plotting functions}
-analyze_hormone <- function(pb_counts, metadata_merged, hormone) {
+analyze_hormone <- function(pb_counts, metadata_merged, hormone, min_samples = 10) {
   split_ids <- split(rownames(metadata_merged), metadata_merged$cell_type)
   
   results_by_group <- purrr::map(split_ids, function(ids) {
     counts_sub <- t(pb_counts)[, ids, drop = FALSE] 
     metadata_sub <- metadata_merged[ids, , drop = FALSE]
     
-    if (nrow(metadata_sub) < 5) return(NULL)
+    if (nrow(metadata_sub) < min_samples) return(NULL)
     
     # Gene-level filtering
     keep_genes <- colSums(counts_sub >= 2) >= 3
@@ -165,7 +167,7 @@ analyze_hormone <- function(pb_counts, metadata_merged, hormone) {
     
     # HORMONE FILTER: Must come after filtering samples to valid counts_sub columns
     nonzero_hormone_mask <- metadata_sub[[hormone]] != 0 & !is.na(metadata_sub[[hormone]])
-    if (sum(nonzero_hormone_mask) < 5) return(NULL)
+    if (sum(nonzero_hormone_mask) < min_samples) return(NULL)
     
     result <- run_voom_lm(counts_sub, metadata_sub, hormone)
     result$cell_type <- metadata_sub$cell_type[1]
@@ -220,6 +222,7 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
     top_genes <- limma_res %>%
       arrange(-abs(t)) %>%
       slice_head(n = top_n) %>%
+      filter(adj.P.Val < 0.05) %>%
       pull(gene)
 
     message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])

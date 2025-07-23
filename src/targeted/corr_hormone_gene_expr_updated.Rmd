@@ -24,6 +24,8 @@ library(edgeR)
 library(limma)
 library(patchwork)
 library(Matrix)
+
+set.seed(123)
 ```
 
 ## Load Data
@@ -36,9 +38,10 @@ targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xl
 
 ## Show Cell Type UMAP
 ```{r display umap}
-DimPlot(SSD_data_v5, label = TRUE)
+DefaultAssay(SSD_data_v5) <- "SCT"
+DimPlot(SSD_data_v5, label = TRUE, label.box = TRUE, repel = TRUE) + NoLegend()
 
-ggsave("../../results/targeted/celltype_umap.png")
+ggsave("../../results/targeted/celltype_umap.png", width = 7, height = 4)
 ```
 
 ## Remove Outliers
@@ -101,7 +104,6 @@ pseudobulk_data <- function(seurat_obj, assay = "RNA", layer = "counts", sample_
 
 ## Generate and Filter Pseudobulk Data
 
-
 ```{r generate and filter pseudobulk data}
 
 generate_and_filter_pseudobulk <- function(seurat_obj, targeted_filtered) {
@@ -124,7 +126,7 @@ pb_E2 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filter
 pb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filtered_P4)
 ```
 
-## Limma analysis
+## Define DE analysis wrapper functions
 
 ```{r limma anlysis}
 run_voom_lm <- function(counts, metadata, predictor) {
@@ -153,18 +155,16 @@ run_voom_lm <- function(counts, metadata, predictor) {
 
 ```
 
-## NEW CODE for limma filtering and direct plotting
 
 ```{r test new filtering and plotting functions}
-
-analyze_hormone <- function(pb_counts, metadata_merged, hormone) {
+analyze_hormone <- function(pb_counts, metadata_merged, hormone, min_samples = 8) {
   split_ids <- split(rownames(metadata_merged), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
   
   results_by_group <- purrr::map(split_ids, function(ids) {
     counts_sub <- t(pb_counts)[, ids, drop = FALSE] 
     metadata_sub <- metadata_merged[ids, , drop = FALSE]
     
-    if (nrow(metadata_sub) < 5) return(NULL)
+    if (nrow(metadata_sub) < min_samples) return(NULL)
     
     # Gene-level filtering
     keep_genes <- colSums(counts_sub >= 2) >= 3
@@ -173,7 +173,7 @@ analyze_hormone <- function(pb_counts, metadata_merged, hormone) {
     
     # HORMONE FILTER: Must come after filtering samples to valid counts_sub columns
     nonzero_hormone_mask <- metadata_sub[[hormone]] != 0 & !is.na(metadata_sub[[hormone]])
-    if (sum(nonzero_hormone_mask) < 5) return(NULL)
+    if (sum(nonzero_hormone_mask) < min_samples) return(NULL)
     
     result <- run_voom_lm(counts_sub, metadata_sub, hormone)
     result$cell_type <- metadata_sub$cell_type[1]
@@ -229,6 +229,7 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
     top_genes <- limma_res %>%
       arrange(-abs(t)) %>%
       slice_head(n = top_n) %>%
+      filter(adj.P.Val < 0.05) %>%
       pull(gene)
 
     message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
@@ -276,7 +277,7 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
 ```
 
 
-# Run analyses
+# Run DE analyses with limma
 
 ```{r merge metadata and run analyses}
 # TT - Run analysis
@@ -337,3 +338,4 @@ ggsave("../../results/targeted/pseudobulk_estrogen_plots/E2_sig_gene_counts.png"
 ggsave("../../results/targeted/pseudobulk_progesterone_plots/P4_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_P4, "Progesterone"), width = 8, height = 5)
 ```
 
+## End
