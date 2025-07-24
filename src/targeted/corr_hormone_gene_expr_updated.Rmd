@@ -326,9 +326,9 @@ summary_E2 <- summarize_sig_genes(res_E2$combined_results)
 summary_P4 <- summarize_sig_genes(res_P4$combined_results)
 
 # Save CSVs
-write_csv(res_TT$combined_results, "../../results/targeted/summary_TT_sig_genes.csv")
-write_csv(res_E2$combined_results, "../../results/targeted/summary_E2_sig_genes.csv")
-write_csv(res_P4$combined_results, "../../results/targeted/summary_P4_sig_genes.csv")
+write_csv(res_TT$combined_results, "../../results/targeted/TT_results.csv")
+write_csv(res_E2$combined_results, "../../results/targeted/E2_results.csv")
+write_csv(res_P4$combined_results, "../../results/targeted/P4_results.csv")
 
 # Plot and save
 ggsave("../../results/targeted/pseudobulk_testosterone_plots/TT_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_TT, "Testosterone"), width = 8, height = 5)

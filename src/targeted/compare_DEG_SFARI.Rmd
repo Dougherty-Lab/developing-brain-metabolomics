@@ -30,14 +30,417 @@ set.seed(123)
 
 ## Import data
 
-```{r import SFARI gene list and TT results}
+```{r import SFARI gene list, androgen response genes, and TT results}
 SFARI_Gene <- read_csv("../../doc/targeted/SFARI-Gene_genes_07-08-2025release_07-22-2025export.csv", col_types = cols(status = col_skip()))
+
+androgen_response_up <- read_csv("../../doc/targeted/Upregulated_DEGs.csv", col_names = FALSE)
+androgen_response_down <- read_csv("../../doc/targeted/Downregulated_DEGs.csv", col_names = FALSE)
+
+mouse_response <- read_csv("../../doc/targeted/converted_sex_tt_mouse.csv")
+
+TT_results <- read_csv("../../results/targeted/TT_results.csv")
 ```
 
 
-```{r filter gene list}
+```{r filter gene list and TT genes}
+SFARI_Gene_filt <- SFARI_Gene %>% dplyr::filter(`gene-score` <= 2)
 
-SFARI_Gene <- SFARI_Gene %>% dplyr::filter(`gene-score` <= 1)
+TT_sig_results <- TT_results %>%
+  dplyr::filter(sex == "M") %>%
+  dplyr::filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25)
+
+androgen_response_all <- c(androgen_response_up$X1, androgen_response_down$X1)
+
+mouse_response_genes <- mouse_response$symbol_human
 ```
+
+
+```{r check for intersect}
+SFARI_shared_genes <- intersect(SFARI_Gene_filt$`gene-symbol`, TT_sig_results$gene)
+SFARI_shared_genes
+
+SFARI_shared_sig_results <- TT_sig_results %>%
+  dplyr::filter(gene %in% SFARI_shared_genes)
+
+# again for androgen response
+ar_shared_genes <- intersect(androgen_response_all, TT_sig_results$gene)
+ar_shared_genes
+
+# again for androgen response
+mouse_shared_genes <- intersect(mouse_response_genes, TT_sig_results$gene)
+mouse_shared_genes
+```
+
+```{r visualize SFARI genes}
+plot_SFARI_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
+  dir.create(output_dir, showWarnings = FALSE)
+  
+  message("Number of groups to plot: ", length(by_group_data))
+  
+  purrr::walk(by_group_data, function(group_list) {
+    if (is.null(group_list)) {
+      message("  Skipping NULL group")
+      return()
+    }
+    
+    limma_res <- group_list$limma_results
+    counts_sub <- group_list$counts_sub  # genes x samples
+    metadata_sub <- group_list$metadata_sub
+
+    if (nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
+      message("  Skipping empty subset: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+      return()
+    }
+
+    # Compute log1p(CPM)
+    counts_cpm <- edgeR::cpm(counts_sub, log = FALSE)
+    counts_log <- log1p(counts_cpm)
+    
+    # Transpose counts: samples x genes
+    counts_log <- t(counts_log)
+
+    top_genes <- limma_res %>%
+      filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25) %>%
+      filter(gene %in% SFARI_Gene_filt$`gene-symbol`) %>%
+      pull(gene)
+
+    message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    message("  Top genes: ", paste(top_genes, collapse = ", "))
+
+    plot_list <- purrr::map(top_genes, function(gene) {
+      if (!gene %in% colnames(counts_log)) {
+        message("    Gene ", gene, " not in counts — skipping")
+        return(NULL)
+      }
+
+      expr_vals <- counts_log[, gene]
+      if (all(is.na(expr_vals)) || all(expr_vals == 0)) {
+        message("    Gene ", gene, " has all NA or zero expression — skipping")
+        return(NULL)
+      }
+
+      df <- metadata_sub %>% mutate(expr = expr_vals)
+
+      ggplot(df, aes_string(x = hormone, y = "expr", color = "Sex", fill = "Sex")) +
+        geom_point(size = 2, alpha = 0.8) +
+        geom_smooth(method = "lm", se = TRUE) +
+        scale_color_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
+        scale_fill_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
+        labs(title = paste0(gene, " in ", metadata_sub$cell_type[1], " (", metadata_sub$Sex[1], ")"),
+             x = hormone, y = "log1p(CPM)") +
+        theme_minimal(base_size = 14)
+    }) %>% compact()
+
+    if (length(plot_list) == 0) {
+      message("    No valid plots for group")
+      return()
+    }
+
+    combined_plot <- patchwork::wrap_plots(plotlist = plot_list, ncol = 2)
+    clean_name <- paste0(metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    clean_name <- gsub("/", "-", clean_name)
+
+    ggsave(file.path(output_dir, paste0(clean_name, "_top_genes.png")),
+           plot = combined_plot, width = 10, height = 6 + ceiling(length(plot_list)/2), dpi = 300)
+    message("  ✅ Saved plot for ", clean_name)
+  })
+}
+
+plot_SFARI_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/SFARI_testosterone_plots", hormone = "TT")
+
+```
+
+
+```{r show overlap with stacked chart}
+
+plot_SFARI_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
+  dir.create(output_dir, showWarnings = FALSE)
+  
+  message("Number of groups to plot: ", length(by_group_data))
+  
+  purrr::walk(by_group_data, function(group_list) {
+    if (is.null(group_list)) {
+      message("  Skipping NULL group")
+      return()
+    }
+    
+    limma_res <- group_list$limma_results
+    counts_sub <- group_list$counts_sub  # genes x samples
+    metadata_sub <- group_list$metadata_sub
+
+    if (nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
+      message("  Skipping empty subset: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+      return()
+    }
+
+    # Compute log1p(CPM)
+    counts_cpm <- edgeR::cpm(counts_sub, log = FALSE)
+    counts_log <- log1p(counts_cpm)
+    
+    # Transpose counts: samples x genes
+    counts_log <- t(counts_log)
+
+    top_genes <- limma_res %>%
+      filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25) %>%
+      filter(gene %in% SFARI_Gene$`gene-symbol`) %>%
+      pull(gene)
+
+    if (length(top_genes) == 0) {
+      message("  No top genes found—skipping")
+      return()
+    }
+    
+    # Create a data frame for the counts
+    counts_long <- reshape2::melt(counts_cpm)
+    colnames(counts_long) <- c("Gene", "Sample", "CPM")
+
+    # Identify SFARI genes
+    counts_long$SFARI_Status <- ifelse(counts_long$Gene %in% SFARI_Gene$`gene-symbol`, "SFARI", "Other")
+
+    # Aggregate counts (CPM) by gene and SFARI status
+    counts_agg <- counts_long %>%
+      group_by(SFARI_Status, Gene) %>%
+      summarize(Average_CPM = mean(CPM))
+
+    # Sort the genes by average CPM
+    counts_agg_sorted <- counts_agg %>%
+      arrange(desc(Average_CPM)) %>%
+      top_n(top_n, wt = Average_CPM)
+
+    message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    message("  Top genes: ", paste(counts_agg_sorted$Gene, collapse = ", "))
+
+    # Create stacked bar plot
+    stacked_bar_plot <- ggplot(counts_agg_sorted, aes(x = reorder(Gene, Average_CPM), y = Average_CPM, fill = SFARI_Status)) +
+      geom_bar(stat = "identity") +
+      labs(title = paste0("Top ", top_n, " Genes in ", metadata_sub$cell_type[1], " (", metadata_sub$Sex[1], ")"),
+           x = "Gene", y = "Average CPM") +
+      theme_minimal(base_size = 14) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+    clean_name <- paste0(metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    clean_name <- gsub("/", "-", clean_name)
+
+    ggsave(file.path(output_dir, paste0(clean_name, "_stacked_bar_genes.png")),
+           plot = stacked_bar_plot, width = 8, height = 6, dpi = 300)
+    message("  ✅ Saved stacked bar plot for ", clean_name)
+  })
+}
+
+plot_SFARI_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/SFARI_testosterone_plots", hormone = "TT")
+
+```
+
+```{r make stacked bar chart with all cell types}
+
+summarize_sig_genes <- function(results, SFARI_Gene, cell_type, sex, fdr_cutoff = 0.05, logfc_cutoff = 0.25) {
+  required_cols <- c("adj.P.Val", "logFC", "gene")
+  if (!all(required_cols %in% colnames(results))) {
+    warning("Missing required columns in results. Skipping.")
+    return(NULL)
+  }
+  
+  sig <- results %>% filter(adj.P.Val < fdr_cutoff)
+  if (!is.null(logfc_cutoff)) {
+    sig <- sig %>% filter(abs(logFC) >= logfc_cutoff)
+  }
+
+  if (nrow(sig) == 0) return(NULL)
+
+  sig %>%
+    mutate(SFARI_Status = ifelse(gene %in% SFARI_Gene$`gene-symbol`, "SFARI", "Other"),
+           cell_type = cell_type,
+           sex = sex) %>%
+    count(cell_type, sex, SFARI_Status, name = "num_sig_genes") %>%
+    arrange(desc(num_sig_genes))
+}
+
+plot_sig_gene_summary <- function(summary_df, title) {
+  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes, fill = SFARI_Status)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(aes(label = num_sig_genes), 
+              position = position_stack(vjust = 0.5), 
+              color = "white", size = 4) +
+    labs(title = title, x = "Cell Type", y = "# Significant Genes")+
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    scale_fill_manual(values = c("SFARI" = "steelblue", "Other" = "lightblue")) +
+    guides(fill = guide_legend(title = "SFARI Status")) +
+    theme_minimal(base_size = 14) 
+}
+
+
+plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir, hormone, top_n = 6) {
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  message("Number of groups to plot: ", length(by_group_data))
+
+  all_summaries <- map_dfr(by_group_data, function(group_list) {
+    if (is.null(group_list)) {
+      message("  Skipping NULL group")
+      return(NULL)
+    }
+
+    limma_res <- group_list$limma_results
+    counts_sub <- group_list$counts_sub  # genes x samples
+    metadata_sub <- group_list$metadata_sub
+
+    if (is.null(metadata_sub) || is.null(counts_sub) ||
+        nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
+      message("  Skipping empty or malformed subset")
+      return(NULL)
+    }
+
+    if (!all(c("cell_type", "Sex") %in% colnames(metadata_sub))) {
+      warning("  Missing 'cell_type' or 'Sex' in metadata_sub. Skipping group.")
+      return(NULL)
+    }
+
+    if (metadata_sub$Sex[1] != "M") {
+      message("  Skipping non-male group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+      return(NULL)
+    }
+
+    summarize_sig_genes(
+      limma_res,
+      SFARI_Gene,
+      metadata_sub$cell_type[1],
+      metadata_sub$Sex[1]
+    )
+  })
+
+  if (is.null(all_summaries) || nrow(all_summaries) == 0) {
+    message("No significant genes found across male groups")
+    return(NULL)
+  }
+
+  # Plot the combined summary of significant genes for males only
+  plot_title <- paste("Significant Gene Summary Across Male Groups (", hormone, ")", sep = "")
+  summary_plot <- plot_sig_gene_summary(all_summaries, plot_title)
+  ggsave(file.path(output_dir, "combined_sig_gene_summary_male.png"),
+         plot = summary_plot, width = 12, height = 8, dpi = 300)
+  message("  ✅ Saved combined summary plot (male only)")
+}
+
+# Call function — now only for male subsets
+plot_SFARI_genes_from_subsets(
+  by_group_data = res_TT$by_group_data,
+  SFARI_Gene = SFARI_Gene,
+  output_dir = "../../results/targeted/SFARI_testosterone_plots",
+  hormone = "TT"
+)
+
+```
+
+
+```{r join SFARI information}
+summarize_sig_genes <- function(results, SFARI_Gene, cell_type, sex, fdr_cutoff = 0.05, logfc_cutoff = 0.25) {
+  required_cols <- c("adj.P.Val", "logFC", "gene")
+  if (!all(required_cols %in% colnames(results))) {
+    warning("Missing required columns in results. Skipping.")
+    return(NULL)
+  }
+
+  sig <- results %>% filter(adj.P.Val < fdr_cutoff)
+  if (!is.null(logfc_cutoff)) {
+    sig <- sig %>% filter(abs(logFC) >= logfc_cutoff)
+  }
+
+  if (nrow(sig) == 0) return(NULL)
+
+  sig <- sig %>%
+    left_join(SFARI_Gene %>% select(`gene-symbol`, `gene-score`), by = c("gene" = "gene-symbol")) %>%
+    mutate(score_group = ifelse(is.na(`gene-score`), "Not SFARI", as.character(`gene-score`)),
+           cell_type = cell_type,
+           sex = sex)
+
+  sig %>%
+    count(cell_type, sex, score_group, name = "num_sig_genes") %>%
+    arrange(desc(num_sig_genes))
+}
+
+plot_sig_gene_summary <- function(summary_df, title) {
+  # Set factor order for coloring if needed
+  summary_df <- summary_df %>%
+    mutate(score_group = factor(score_group, levels = sort(unique(score_group))))
+
+  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes, fill = score_group)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(aes(label = num_sig_genes),
+              position = position_stack(vjust = 0.5),
+              color = "white", size = 4) +
+    labs(title = title, x = "Cell Type", y = "# Significant Genes", fill = "SFARI Gene Score") +
+    theme_minimal(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    scale_fill_manual(values = c(
+      "1" = "#bdd7e7",  # light blue
+      "2" = "#6baed6",  # medium blue
+      "3" = "#3182bd",  # darker blue
+      "4" = "#08519c",  # darkest blue
+      "Not SFARI" = "gray80"  # non-SFARI genes
+    )) +
+    guides(fill = guide_legend(title = "SFARI Gene Score"))
+}
+
+plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir, hormone, top_n = 6) {
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  message("Number of groups to plot: ", length(by_group_data))
+
+  all_summaries <- map_dfr(by_group_data, function(group_list) {
+    if (is.null(group_list)) {
+      message("  Skipping NULL group")
+      return(NULL)
+    }
+
+    limma_res <- group_list$limma_results
+    counts_sub <- group_list$counts_sub  # genes x samples
+    metadata_sub <- group_list$metadata_sub
+
+    if (is.null(metadata_sub) || is.null(counts_sub) ||
+        nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
+      message("  Skipping empty or malformed subset")
+      return(NULL)
+    }
+
+    if (!all(c("cell_type", "Sex") %in% colnames(metadata_sub))) {
+      warning("  Missing 'cell_type' or 'Sex' in metadata_sub. Skipping group.")
+      return(NULL)
+    }
+
+    if (metadata_sub$Sex[1] != "M") {
+      message("  Skipping non-male group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+      return(NULL)
+    }
+
+    summarize_sig_genes(
+      limma_res,
+      SFARI_Gene,
+      metadata_sub$cell_type[1],
+      metadata_sub$Sex[1]
+    )
+  })
+
+  if (is.null(all_summaries) || nrow(all_summaries) == 0) {
+    message("No significant genes found across male groups")
+    return(NULL)
+  }
+
+  # Plot the combined summary of significant genes for males only
+  plot_title <- paste("Significant Gene Summary Across Male Groups (", hormone, ")", sep = "")
+  summary_plot <- plot_sig_gene_summary(all_summaries, plot_title)
+  ggsave(file.path(output_dir, "combined_SFARI_score_summary_male.png"),
+         plot = summary_plot, width = 12, height = 8, dpi = 300)
+  message("  ✅ Saved combined summary plot (male only)")
+}
+
+plot_SFARI_genes_from_subsets(
+  by_group_data = res_TT$by_group_data,
+  SFARI_Gene = SFARI_Gene,
+  output_dir = "../../results/targeted/SFARI_testosterone_plots",
+  hormone = "TT"
+)
+
+```
+
+
+
 
 
