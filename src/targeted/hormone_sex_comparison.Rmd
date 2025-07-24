@@ -27,6 +27,14 @@ targeted$Sex <- as.factor(targeted$Sex)
 targeted$`TT (ng/mL)`<- as.numeric(targeted$`TT (ng/mL)`)
 targeted$`P4 (ng/mL)`<- as.numeric(targeted$`P4 (ng/mL)`)
 targeted$`17B-E2 (ng/mL)`<- as.numeric(targeted$`17B-E2 (ng/mL)`)
+
+#Load Functions
+detect_outliers <- function(data, variable) {
+  outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
+  outliers <- data %>% filter(.data[[variable]] > outlier_limit)
+  data %>% filter(.data[[variable]] <= outlier_limit)
+  print(outliers)
+}
 ```
 ## Raw Data Distribution
 ```{r visualize_raw, echo=TRUE}
@@ -137,22 +145,14 @@ print(f_shapiro_p4)
 
 ## Outlier Detection
 ```{r outlier, echo=TRUE}
-#calculate z-scores for each hormone and attach to dataset
-targeted$z_scores_tt <- scale(targeted$`TT (ng/mL)`)
-targeted$z_scores_e2 <- scale(targeted$`17B-E2 (ng/mL)`)
-targeted$z_scores_p4 <- scale(targeted$`P4 (ng/mL)`)
-
-# Identify outliers (rows with z-scores > 3 or < -3)
-tt_outliers <- which(abs(targeted$z_scores_tt) > 3)
-e2_outliers <- which(abs(targeted$z_scores_e2) > 3)
-p4_outliers <- which(abs(targeted$z_scores_p4) > 3)
-
-cat("Progesterone Outliers: ", p4_outliers, "\nTestosterone Outliers: ", tt_outliers, "\nEstrogen Outliers: ", e2_outliers)
-# Combine all outliers into a single unique list of row indices
-all_outliers <- unique(c(tt_outliers, e2_outliers, p4_outliers))
+#create clean base 
+clean_targeted <- targeted
 
 # Create a new dataset with outliers removed
-clean_targeted <- targeted[-all_outliers, ]
+detect_outliers(clean_targeted, "TT (ng/mL)")
+detect_outliers(clean_targeted, "17B-E2 (ng/mL)")
+detect_outliers(clean_targeted, "P4 (ng/mL)")
+
 
 #check distribution of hormones for normality
 # Plot the distribution of TT (ng/mL) for the entire dataset
