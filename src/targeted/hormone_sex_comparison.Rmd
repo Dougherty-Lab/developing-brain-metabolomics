@@ -262,16 +262,16 @@ print(clean_f_shapiro_p4)
 if (all_shapiro_tt$p.value > 0.05) {
   # Perform t-test
   tt_t_test <- t.test(`TT (ng/mL)` ~ Sex, data = targeted)
-  test_type <- "t-test"
-  test_statistic <- tt_t_test$statistic
-  p_value <- tt_t_test$p.value
+  tt_test_type <- "t-test"
+  tt_test_statistic <- tt_t_test$statistic
+  tt_p_value <- tt_t_test$p.value
   print(tt_t_test)
 } else {
   # Perform Wilcoxon rank-sum test
   tt_wilcox_test <- wilcox.test(`TT (ng/mL)` ~ Sex, data = targeted)
-  test_type <- "Wilcoxon rank-sum test"
-  test_statistic <- tt_wilcox_test$statistic
-  p_value <- tt_wilcox_test$p.value
+  tt_test_type <- "Wilcoxon rank-sum test"
+  tt_test_statistic <- tt_wilcox_test$statistic
+  tt_p_value <- tt_wilcox_test$p.value
   print(tt_wilcox_test)
 }
 
@@ -280,8 +280,7 @@ ggboxplot(targeted, x = "Sex", y = "`TT (ng/mL)`",
           color = "Sex", 
           ylab = "TT (ng/mL)", xlab = "Sex",
           add = "jitter") +
-  stat_compare_means(method = ifelse(all_shapiro_tt$p.value > 0.05, "t.test", "wilcox.test"),label = "p.format") +
-  labs(title = paste(test_type, ": statistic =", round(test_statistic, 2)))
+  labs(title = paste(tt_test_type, ": statistic =", round(tt_test_statistic, 2), ": pvalue =", formatC(tt_p_value, format = "e", digits = 2)))
 ggsave("tt_statistics_sex.svg", path = svg_path)
 
 # Check the p-values
@@ -291,16 +290,16 @@ ggsave("tt_statistics_sex.svg", path = svg_path)
 if (clean_all_shapiro_tt$p.value > 0.05) {
   # Perform t-test
   clean_tt_t_test <- t.test(`TT (ng/mL)` ~ Sex, data = clean_targeted)
-  test_type <- "t-test"
-  test_statistic <- clean_tt_t_test$statistic
-  p_value <- clean_tt_t_test$p.value
+  clean_tt_test_type <- "t-test"
+  clean_tt_test_statistic <- clean_tt_t_test$statistic
+  clean_tt_p_value <- clean_tt_t_test$p.value
   print(clean_tt_t_test)
 } else {
   # Perform Wilcoxon rank-sum test
   clean_tt_wilcox_test <- wilcox.test(`TT (ng/mL)` ~ Sex, data = clean_targeted)
-  test_type <- "Wilcoxon rank-sum test"
-  test_statistic <- clean_tt_wilcox_test$statistic
-  p_value <- clean_tt_wilcox_test$p.value
+  clean_tt_test_type <- "Wilcoxon rank-sum test"
+  clean_tt_test_statistic <- clean_tt_wilcox_test$statistic
+  clean_tt_p_value <- clean_tt_wilcox_test$p.value
   print(clean_tt_wilcox_test)
 }
 
@@ -308,9 +307,9 @@ if (clean_all_shapiro_tt$p.value > 0.05) {
 ggboxplot(clean_targeted, x = "Sex", y = "`TT (ng/mL)`",
           color = "Sex", 
           ylab = "TT (ng/mL)", xlab = "Sex",
-          add = "jitter") +
-  stat_compare_means(method = ifelse(clean_all_shapiro_tt$p.value > 0.05, "t.test", "wilcox.test"),label = "p.format") +
-  labs(title = paste(test_type, ": statistic =", round(test_statistic, 2)))
+          add = "jitter") + 
+  labs(title = paste(clean_tt_test_type, ": statistic =", round(clean_tt_test_statistic, 2), ": pvalue =", formatC(clean_tt_p_value, format = "e", digits = 2)))
+
 ggsave("clean_tt_statistics_sex.svg", path = svg_path)
 
 ```
@@ -324,16 +323,16 @@ ggsave("clean_tt_statistics_sex.svg", path = svg_path)
 if (all_shapiro_e2$p.value > 0.05) {
   # Perform t-test
   e2_t_test <- t.test(`17B-E2 (ng/mL)` ~ Sex, data = targeted)
-  test_type <- "t-test"
-  test_statistic <- e2_t_test$statistic
-  p_value <- e2_t_test$p.value
+  e2_test_type <- "t-test"
+  e2_test_statistic <- e2_t_test$statistic
+  e2_p_value <- e2_t_test$p.value
   print(e2_t_test)
 } else {
   # Perform Wilcoxon rank-sum test
   e2_wilcox_test <- wilcox.test(`17B-E2 (ng/mL)` ~ Sex, data = targeted)
-  test_type <- "Wilcoxon rank-sum test"
-  test_statistic <- e2_wilcox_test$statistic
-  p_value <- e2_wilcox_test$p.value
+  e2_test_type <- "Wilcoxon rank-sum test"
+  e2_test_statistic <- e2_wilcox_test$statistic
+  e2_p_value <- e2_wilcox_test$p.value
   print(e2_wilcox_test)
 }
 
@@ -342,8 +341,7 @@ ggboxplot(targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
           color = "Sex", 
           ylab = "17B-E2 (ng/mL)", xlab = "Sex",
           add = "jitter") +
-  stat_compare_means(method = ifelse(all_shapiro_e2$p.value > 0.05, "t.test", "wilcox.test"),label = "p.format") +
-  labs(title = paste(test_type, ": statistic =", round(test_statistic, 2)))
+  labs(title = paste(e2_test_type, ": statistic =", round(e2_test_statistic, 2), ": pvalue =", formatC(e2_p_value, format = "e", digits = 2)))
 ggsave("e2_statistics_sex.svg", path = svg_path)
 
 # Check the p-values
@@ -353,16 +351,16 @@ ggsave("e2_statistics_sex.svg", path = svg_path)
 if (clean_all_shapiro_e2$p.value > 0.05) {
   # Perform t-test
   clean_e2_t_test <- t.test(`17B-E2 (ng/mL)` ~ Sex, data = clean_targeted)
-  test_type <- "t-test"
-  test_statistic <- clean_e2_t_test$statistic
-  p_value <- clean_e2_t_test$p.value
+  clean_e2_test_type <- "t-test"
+  clean_e2_test_statistic <- clean_e2_t_test$statistic
+  clean_e2_p_value <- clean_e2_t_test$p.value
   print(clean_e2_t_test)
 } else {
   # Perform Wilcoxon rank-sum test
   clean_e2_wilcox_test <- wilcox.test(`17B-E2 (ng/mL)` ~ Sex, data = clean_targeted)
-  test_type <- "Wilcoxon rank-sum test"
-  test_statistic <- clean_e2_wilcox_test$statistic
-  p_value <- clean_e2_wilcox_test$p.value
+  clean_e2_test_type <- "Wilcoxon rank-sum test"
+  clean_e2_test_statistic <- clean_e2_wilcox_test$statistic
+  clean_e2_p_value <- clean_e2_wilcox_test$p.value
   print(clean_e2_wilcox_test)
 }
 
@@ -371,8 +369,7 @@ ggboxplot(clean_targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
           color = "Sex", 
           ylab = "17B-E2 (ng/mL)", xlab = "Sex",
           add = "jitter") +
-  stat_compare_means(method = ifelse(clean_all_shapiro_e2$p.value > 0.05, "t.test", "wilcox.test"),label = "p.format") +
-  labs(title = paste(test_type, ": statistic =", round(test_statistic, 2)))
+  labs(title = paste(clean_e2_test_type, ": statistic =", round(clean_e2_test_statistic, 2), ": pvalue =", formatC(clean_e2_p_value, format = "e", digits = 2)))
 ggsave("clean_e2_statistics_sex.svg", path = svg_path)
 ```
 
@@ -386,16 +383,16 @@ Progesterone
 if (all_shapiro_p4$p.value > 0.05) {
   # Perform t-test
   p4_t_test <- t.test(`P4 (ng/mL)` ~ Sex, data = targeted)
-  test_type <- "t-test"
-  test_statistic <- p4_t_test$statistic
-  p_value <- p4_t_test$p.value
+  p4_test_type <- "t-test"
+  p4_test_statistic <- p4_t_test$statistic
+  p4_p_value <- p4_t_test$p.value
   print(p4_t_test)
 } else {
   # Perform Wilcoxon rank-sum test
   p4_wilcox_test <- wilcox.test(`P4 (ng/mL)` ~ Sex, data = targeted)
-  test_type <- "Wilcoxon rank-sum test"
-  test_statistic <- p4_wilcox_test$statistic
-  p_value <- p4_wilcox_test$p.value
+  p4_test_type <- "Wilcoxon rank-sum test"
+  p4_test_statistic <- p4_wilcox_test$statistic
+  p4_p_value <- p4_wilcox_test$p.value
   print(p4_wilcox_test)
 }
 
@@ -404,8 +401,7 @@ ggboxplot(targeted, x = "Sex", y = "`P4 (ng/mL)`",
           color = "Sex", 
           ylab = "P4 (ng/mL)", xlab = "Sex",
           add = "jitter") +
-  stat_compare_means(method = ifelse(all_shapiro_p4$p.value > 0.05, "t.test", "wilcox.test"),label = "p.format") +
-  labs(title = paste(test_type, ": statistic =", round(test_statistic, 2)))
+  labs(title = paste(p4_test_type, ": statistic =", round(p4_test_statistic, 2), ": pvalue =", formatC(p4_p_value, format = "e", digits = 2)))
 ggsave("p4_statistics_sex.svg", path = svg_path)
 
 # Check the p-values
@@ -415,16 +411,16 @@ ggsave("p4_statistics_sex.svg", path = svg_path)
 if (clean_all_shapiro_p4$p.value > 0.05) {
   # Perform t-test
   clean_p4_t_test <- t.test(`P4 (ng/mL)` ~ Sex, data = clean_targeted)
-  test_type <- "t-test"
-  test_statistic <- clean_p4_t_test$statistic
-  p_value <- clean_p4_t_test$p.value
+  clean_p4_test_type <- "t-test"
+  clean_p4_test_statistic <- clean_p4_t_test$statistic
+  clean_p4_p_value <- clean_p4_t_test$p.value
   print(clean_p4_t_test)
 } else {
   # Perform Wilcoxon rank-sum test
   clean_p4_wilcox_test <- wilcox.test(`P4 (ng/mL)` ~ Sex, data = clean_targeted)
-  test_type <- "Wilcoxon rank-sum test"
-  test_statistic <- clean_p4_wilcox_test$statistic
-  p_value <- clean_p4_wilcox_test$p.value
+  clean_p4_test_type <- "Wilcoxon rank-sum test"
+  clean_p4_test_statistic <- clean_p4_wilcox_test$statistic
+  clean_p4_p_value <- clean_p4_wilcox_test$p.value
   print(clean_p4_wilcox_test)
 }
 
@@ -433,8 +429,7 @@ ggboxplot(clean_targeted, x = "Sex", y = "`P4 (ng/mL)`",
           color = "Sex", 
           ylab = "P4 (ng/mL)", xlab = "Sex",
           add = "jitter") +
-  stat_compare_means(method = ifelse(clean_all_shapiro_p4$p.value > 0.05, "t.test", "wilcox.test"),label = "p.format") +
-  labs(title = paste(test_type, ": statistic =", round(test_statistic, 2)))
+  labs(title = paste(clean_p4_test_type, ": statistic =", round(clean_p4_test_statistic, 2), ": pvalue =", formatC(clean_p4_p_value, format = "e", digits = 2)))
 ggsave("clean_p4_statistics_sex.svg", path = svg_path)
 
 ```
