@@ -39,7 +39,7 @@ targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xl
 ## Show Cell Type UMAP
 ```{r display umap}
 DefaultAssay(SSD_data_v5) <- "SCT"
-DimPlot(SSD_data_v5, label = TRUE, label.box = TRUE, repel = TRUE) + NoLegend()
+DimPlot(SSD_data_v5, label = TRUE, label.box = TRUE, repel = TRUE, label.color = "white", label.size = 5) + NoLegend()
 
 ggsave("../../results/targeted/celltype_umap.png", width = 7, height = 4)
 ```

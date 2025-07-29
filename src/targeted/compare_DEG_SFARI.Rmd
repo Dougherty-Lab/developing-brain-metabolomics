@@ -9,7 +9,11 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The purpose of his script is to determine is any SFARI genes are included in the signficiant TT genes for males.
+The purpose of his script is to determine if any SFARI genes (https://gene.sfari.org/database/human-gene/) are included in the significant TT genes for males. I also comapres out TT-response gene to known gene lists of TT response genes. The papers for the following gene lists are as folows:
+
+human brain organoid androgen response paper: https://www.nature.com/articles/s41586-021-04330-4
+sex-specific mouse Embryonic Neural Stem/Progenitor Cells response paper: https://www.nature.com/articles/srep36916 
+single cell, 17 tissue androgen mouse paper: https://www.nature.com/articles/s41586-024-07291-6 
 
 ##Load Packages
 
@@ -24,6 +28,7 @@ library(edgeR)
 library(limma)
 library(patchwork)
 library(Matrix)
+library(readxl)
 
 set.seed(123)
 ```
@@ -36,7 +41,9 @@ SFARI_Gene <- read_csv("../../doc/targeted/SFARI-Gene_genes_07-08-2025release_07
 androgen_response_up <- read_csv("../../doc/targeted/Upregulated_DEGs.csv", col_names = FALSE)
 androgen_response_down <- read_csv("../../doc/targeted/Downregulated_DEGs.csv", col_names = FALSE)
 
-mouse_response <- read_csv("../../doc/targeted/converted_sex_tt_mouse.csv")
+mouse_response <- read_csv("../../doc/targeted/converted_sex_tt_mouse.csv") #already converted by a web app, and values were copied form pdf manually
+
+singlecell_response <- read_xlsx("../../doc/targeted/li_2024_sex_diff_degs.xlsx", sheet = "AASB-DEGs", skip = 1) # these are still mouse symbols
 
 TT_results <- read_csv("../../results/targeted/TT_results.csv")
 ```
@@ -48,31 +55,18 @@ SFARI_Gene_filt <- SFARI_Gene %>% dplyr::filter(`gene-score` <= 2)
 TT_sig_results <- TT_results %>%
   dplyr::filter(sex == "M") %>%
   dplyr::filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25)
-
-androgen_response_all <- c(androgen_response_up$X1, androgen_response_down$X1)
-
-mouse_response_genes <- mouse_response$symbol_human
 ```
 
-
-```{r check for intersect}
+```{r check for SFARI intersect}
 SFARI_shared_genes <- intersect(SFARI_Gene_filt$`gene-symbol`, TT_sig_results$gene)
 SFARI_shared_genes
 
 SFARI_shared_sig_results <- TT_sig_results %>%
   dplyr::filter(gene %in% SFARI_shared_genes)
-
-# again for androgen response
-ar_shared_genes <- intersect(androgen_response_all, TT_sig_results$gene)
-ar_shared_genes
-
-# again for androgen response
-mouse_shared_genes <- intersect(mouse_response_genes, TT_sig_results$gene)
-mouse_shared_genes
 ```
 
 ```{r visualize SFARI genes}
-plot_SFARI_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
+plot_SFARI_genes <- function(by_group_data, output_dir, hormone, top_n = 6) {
   dir.create(output_dir, showWarnings = FALSE)
   
   message("Number of groups to plot: ", length(by_group_data))
@@ -146,90 +140,11 @@ plot_SFARI_genes_from_subsets <- function(by_group_data, output_dir, hormone, to
   })
 }
 
-plot_SFARI_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/SFARI_testosterone_plots", hormone = "TT")
+plot_SFARI_genes(res_TT$by_group_data, "../../results/targeted/SFARI_testosterone_plots", hormone = "TT")
 
 ```
 
 
-```{r show overlap with stacked chart}
-
-plot_SFARI_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
-  dir.create(output_dir, showWarnings = FALSE)
-  
-  message("Number of groups to plot: ", length(by_group_data))
-  
-  purrr::walk(by_group_data, function(group_list) {
-    if (is.null(group_list)) {
-      message("  Skipping NULL group")
-      return()
-    }
-    
-    limma_res <- group_list$limma_results
-    counts_sub <- group_list$counts_sub  # genes x samples
-    metadata_sub <- group_list$metadata_sub
-
-    if (nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
-      message("  Skipping empty subset: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
-      return()
-    }
-
-    # Compute log1p(CPM)
-    counts_cpm <- edgeR::cpm(counts_sub, log = FALSE)
-    counts_log <- log1p(counts_cpm)
-    
-    # Transpose counts: samples x genes
-    counts_log <- t(counts_log)
-
-    top_genes <- limma_res %>%
-      filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25) %>%
-      filter(gene %in% SFARI_Gene$`gene-symbol`) %>%
-      pull(gene)
-
-    if (length(top_genes) == 0) {
-      message("  No top genes found—skipping")
-      return()
-    }
-    
-    # Create a data frame for the counts
-    counts_long <- reshape2::melt(counts_cpm)
-    colnames(counts_long) <- c("Gene", "Sample", "CPM")
-
-    # Identify SFARI genes
-    counts_long$SFARI_Status <- ifelse(counts_long$Gene %in% SFARI_Gene$`gene-symbol`, "SFARI", "Other")
-
-    # Aggregate counts (CPM) by gene and SFARI status
-    counts_agg <- counts_long %>%
-      group_by(SFARI_Status, Gene) %>%
-      summarize(Average_CPM = mean(CPM))
-
-    # Sort the genes by average CPM
-    counts_agg_sorted <- counts_agg %>%
-      arrange(desc(Average_CPM)) %>%
-      top_n(top_n, wt = Average_CPM)
-
-    message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
-    message("  Top genes: ", paste(counts_agg_sorted$Gene, collapse = ", "))
-
-    # Create stacked bar plot
-    stacked_bar_plot <- ggplot(counts_agg_sorted, aes(x = reorder(Gene, Average_CPM), y = Average_CPM, fill = SFARI_Status)) +
-      geom_bar(stat = "identity") +
-      labs(title = paste0("Top ", top_n, " Genes in ", metadata_sub$cell_type[1], " (", metadata_sub$Sex[1], ")"),
-           x = "Gene", y = "Average CPM") +
-      theme_minimal(base_size = 14) +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-    clean_name <- paste0(metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
-    clean_name <- gsub("/", "-", clean_name)
-
-    ggsave(file.path(output_dir, paste0(clean_name, "_stacked_bar_genes.png")),
-           plot = stacked_bar_plot, width = 8, height = 6, dpi = 300)
-    message("  ✅ Saved stacked bar plot for ", clean_name)
-  })
-}
-
-plot_SFARI_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/SFARI_testosterone_plots", hormone = "TT")
-
-```
 
 ```{r make stacked bar chart with all cell types}
 
@@ -255,13 +170,13 @@ summarize_sig_genes <- function(results, SFARI_Gene, cell_type, sex, fdr_cutoff 
     arrange(desc(num_sig_genes))
 }
 
-plot_sig_gene_summary <- function(summary_df, title) {
+plot_sig_gene_summary <- function(summary_df) {
   ggplot(summary_df, aes(x = cell_type, y = num_sig_genes, fill = SFARI_Status)) +
     geom_bar(stat = "identity", position = "stack") +
     geom_text(aes(label = num_sig_genes), 
               position = position_stack(vjust = 0.5), 
               color = "white", size = 4) +
-    labs(title = title, x = "Cell Type", y = "# Significant Genes")+
+    labs(x = "Cell Type", y = "# Significant Genes")+
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     scale_fill_manual(values = c("SFARI" = "steelblue", "Other" = "lightblue")) +
     guides(fill = guide_legend(title = "SFARI Status")) +
@@ -314,7 +229,7 @@ plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir,
 
   # Plot the combined summary of significant genes for males only
   plot_title <- paste("Significant Gene Summary Across Male Groups (", hormone, ")", sep = "")
-  summary_plot <- plot_sig_gene_summary(all_summaries, plot_title)
+  summary_plot <- plot_sig_gene_summary(all_summaries)
   ggsave(file.path(output_dir, "combined_sig_gene_summary_male.png"),
          plot = summary_plot, width = 12, height = 8, dpi = 300)
   message("  ✅ Saved combined summary plot (male only)")
@@ -357,7 +272,7 @@ summarize_sig_genes <- function(results, SFARI_Gene, cell_type, sex, fdr_cutoff 
     arrange(desc(num_sig_genes))
 }
 
-plot_sig_gene_summary <- function(summary_df, title) {
+plot_sig_gene_summary <- function(summary_df) {
   # Set factor order for coloring if needed
   summary_df <- summary_df %>%
     mutate(score_group = factor(score_group, levels = sort(unique(score_group))))
@@ -367,7 +282,7 @@ plot_sig_gene_summary <- function(summary_df, title) {
     geom_text(aes(label = num_sig_genes),
               position = position_stack(vjust = 0.5),
               color = "white", size = 4) +
-    labs(title = title, x = "Cell Type", y = "# Significant Genes", fill = "SFARI Gene Score") +
+    labs(x = "Cell Type", y = "# Significant Genes", fill = "SFARI Gene Score") +
     theme_minimal(base_size = 14) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     scale_fill_manual(values = c(
@@ -425,7 +340,7 @@ plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir,
 
   # Plot the combined summary of significant genes for males only
   plot_title <- paste("Significant Gene Summary Across Male Groups (", hormone, ")", sep = "")
-  summary_plot <- plot_sig_gene_summary(all_summaries, plot_title)
+  summary_plot <- plot_sig_gene_summary(all_summaries)
   ggsave(file.path(output_dir, "combined_SFARI_score_summary_male.png"),
          plot = summary_plot, width = 12, height = 8, dpi = 300)
   message("  ✅ Saved combined summary plot (male only)")
@@ -440,7 +355,89 @@ plot_SFARI_genes_from_subsets(
 
 ```
 
+## Check other datasets for overlap
 
+Make sure you run this code after plotting, biomaRt and annotationDBI mess up some tidyverse functions (like select)
+
+```{r prepare other data}
+androgen_response_all <- c(androgen_response_up$X1, androgen_response_down$X1)
+
+mouse_response_genes <- mouse_response$symbol_human
+
+singlecell_needs_converting <- singlecell_response$Gene_symbol
+```
+
+
+```{r convert genes from mouse to human symbols}
+library(biomaRt)
+library(AnnotationDbi)
+library(org.Mm.eg.db)
+library(org.Hs.eg.db)
+
+# Load the file with fread
+url <- "https://ftp.ensembl.org/pub/current_tsv/ensembl-compara/homologies/mus_musculus/Compara.114.protein_default.homologies.tsv.gz"
+orthologs <- fread(url)
+
+# Check the column names
+head(colnames(orthologs))
+
+orthologs <- as.data.frame(orthologs)
+
+# Filter for human orthologs only
+mouse2human <- orthologs %>%
+  filter(homology_species == "homo_sapiens")
+
+# Optional: keep only 1:1 orthologs
+mouse2human_1to1 <- filter(mouse2human, homology_type == "ortholog_one2one")
+
+# Step 3: Map mouse Ensembl gene IDs to symbols
+mouse_symbols <- mapIds(
+  org.Mm.eg.db,
+  keys = mouse2human_1to1$gene_stable_id,
+  column = "SYMBOL",
+  keytype = "ENSEMBL",
+  multiVals = "first"
+)
+
+# Step 4: Map human Ensembl gene IDs to symbols
+human_symbols <- mapIds(
+  org.Hs.eg.db,
+  keys = mouse2human_1to1$homology_gene_stable_id,
+  column = "SYMBOL",
+  keytype = "ENSEMBL",
+  multiVals = "first"
+)
+
+# Step 5: Attach symbols to the table
+mouse2human_1to1$mouse_symbol <- mouse_symbols
+mouse2human_1to1$human_symbol <- human_symbols
+
+# Step 7: Subset to your gene list
+mouse_genes <- singlecell_needs_converting
+converted <- mouse2human_1to1 %>%
+  filter(mouse_symbol %in% mouse_genes)
+
+# Optional: just get human symbols
+converted_human_genes <- unique(converted$human_symbol)
+
+```
+
+
+```{r check for overlap}
+
+# again for androgen response
+ar_shared_genes <- intersect(androgen_response_all, TT_sig_results$gene)
+ar_shared_genes
+
+# again for mouse stem cells
+mouse_shared_genes <- intersect(mouse_response_genes, TT_sig_results$gene)
+mouse_shared_genes
+
+# again for single cell mouse data
+converted_human_genes_shared <- intersect(converted_human_genes, TT_sig_results$gene)
+converted_human_genes_shared
+
+```
 
 
 
