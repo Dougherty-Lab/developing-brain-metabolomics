@@ -1,7 +1,7 @@
 ---
 title: "Untargeted_Analysis"
 author: "Sneha Michaela Chaturvedi"
-date: "05-21-2025"
+date: "July 29, 2025"
 output: 
   html_document:
     toc: TRUE
@@ -14,7 +14,7 @@ if (!require("pacman")) {
   install.packages("pacman")
   library(pacman)
 } 
-p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggfortify,ggrepel,limma,Biobase,ComplexHeatmap)
+p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggfortify,ggrepel,limma,Biobase,ComplexHeatmap, svglite)
 
 #Functions
 #function to convert to numeric
@@ -44,7 +44,7 @@ calculate_missingness <- function(data) {
   return(missing_df)
 }
 
-png_path <- "../../results/targeted/"
+svg_path <- "../../results/"
 ```
 
 # Load Dataset
@@ -789,6 +789,17 @@ ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
        y = "Log10 Intensity") +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
+# Plot the violin plot with median line
+
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_violin(fill = "darkorange", color = "black") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggsave("sample_violin.svg", path = svg_path)
+
 
 # Calculate number of peaks per sample
   peak_count_full <- colSums(!is.na(clean_annotated_dataset[, 4:27]))
@@ -800,6 +811,7 @@ ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
   labs(title = "Number of Unique Metabolites per Sample",
        x = "Sample", y = "Metabolite Count")
+ggsave("unique_metabolites.svg", path = svg_path)
 
 #Run function for percentage of peaks missing across samples
  missing_stats_full <- calculate_missingness(clean_annotated_dataset)
