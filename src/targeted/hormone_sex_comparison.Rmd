@@ -277,7 +277,7 @@ if (all_shapiro_tt$p.value > 0.05) {
 
 # Visualize results with boxplot
 ggboxplot(targeted, x = "Sex", y = "`TT (ng/mL)`",
-          color = "Sex", 
+          color = "Sex", width = 0.5,
           ylab = "TT (ng/mL)", xlab = "Sex",
           add = "jitter") +
   labs(title = paste(tt_test_type, ": statistic =", round(tt_test_statistic, 2), ": pvalue =", formatC(tt_p_value, format = "e", digits = 2)))
@@ -305,7 +305,7 @@ if (clean_all_shapiro_tt$p.value > 0.05) {
 
 # Visualize results with boxplot
 ggboxplot(clean_targeted, x = "Sex", y = "`TT (ng/mL)`",
-          color = "Sex", 
+          color = "Sex", width = 0.5, 
           ylab = "TT (ng/mL)", xlab = "Sex",
           add = "jitter") + 
   labs(title = paste(clean_tt_test_type, ": statistic =", round(clean_tt_test_statistic, 2), ": pvalue =", formatC(clean_tt_p_value, format = "e", digits = 2)))
@@ -338,7 +338,7 @@ if (all_shapiro_e2$p.value > 0.05) {
 
 # Visualize results with boxplot
 ggboxplot(targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
-          color = "Sex", 
+          color = "Sex", width = 0.5,
           ylab = "17B-E2 (ng/mL)", xlab = "Sex",
           add = "jitter") +
   labs(title = paste(e2_test_type, ": statistic =", round(e2_test_statistic, 2), ": pvalue =", formatC(e2_p_value, format = "e", digits = 2)))
@@ -366,7 +366,7 @@ if (clean_all_shapiro_e2$p.value > 0.05) {
 
 # Visualize results with boxplot
 ggboxplot(clean_targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
-          color = "Sex", 
+          color = "Sex", width = 0.5,
           ylab = "17B-E2 (ng/mL)", xlab = "Sex",
           add = "jitter") +
   labs(title = paste(clean_e2_test_type, ": statistic =", round(clean_e2_test_statistic, 2), ": pvalue =", formatC(clean_e2_p_value, format = "e", digits = 2)))
@@ -398,7 +398,7 @@ if (all_shapiro_p4$p.value > 0.05) {
 
 # Visualize results with boxplot
 ggboxplot(targeted, x = "Sex", y = "`P4 (ng/mL)`",
-          color = "Sex", 
+          color = "Sex", width = 0.5,
           ylab = "P4 (ng/mL)", xlab = "Sex",
           add = "jitter") +
   labs(title = paste(p4_test_type, ": statistic =", round(p4_test_statistic, 2), ": pvalue =", formatC(p4_p_value, format = "e", digits = 2)))
@@ -426,7 +426,7 @@ if (clean_all_shapiro_p4$p.value > 0.05) {
 
 # Visualize results with boxplot
 ggboxplot(clean_targeted, x = "Sex", y = "`P4 (ng/mL)`",
-          color = "Sex", 
+          color = "Sex", width = 0.5,
           ylab = "P4 (ng/mL)", xlab = "Sex",
           add = "jitter") +
   labs(title = paste(clean_p4_test_type, ": statistic =", round(clean_p4_test_statistic, 2), ": pvalue =", formatC(clean_p4_p_value, format = "e", digits = 2)))

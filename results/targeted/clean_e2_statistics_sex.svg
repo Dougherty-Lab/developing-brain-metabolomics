@@ -37,12 +37,12 @@
 <rect x='48.81' y='66.47' width='449.22' height='256.95' style='stroke-width: 1.16; stroke: none; fill: #FFFFFF;' />
 <line x1='171.32' y1='267.95' x2='171.32' y2='237.21' style='stroke-width: 1.07; stroke: #F8766D; stroke-linecap: butt;' />
 <line x1='171.32' y1='304.27' x2='171.32' y2='310.63' style='stroke-width: 1.07; stroke: #F8766D; stroke-linecap: butt;' />
-<polygon points='99.85,267.95 99.85,304.27 242.79,304.27 242.79,267.95 99.85,267.95 ' style='stroke-width: 1.07; stroke: #F8766D; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFFFFF;' />
-<line x1='99.85' y1='291.74' x2='242.79' y2='291.74' style='stroke-width: 2.13; stroke: #F8766D; stroke-linecap: butt; stroke-linejoin: miter;' />
+<polygon points='120.27,267.95 120.27,304.27 222.37,304.27 222.37,267.95 120.27,267.95 ' style='stroke-width: 1.07; stroke: #F8766D; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFFFFF;' />
+<line x1='120.27' y1='291.74' x2='222.37' y2='291.74' style='stroke-width: 2.13; stroke: #F8766D; stroke-linecap: butt; stroke-linejoin: miter;' />
 <line x1='375.51' y1='282.67' x2='375.51' y2='255.56' style='stroke-width: 1.07; stroke: #00BFC4; stroke-linecap: butt;' />
 <line x1='375.51' y1='303.62' x2='375.51' y2='311.74' style='stroke-width: 1.07; stroke: #00BFC4; stroke-linecap: butt;' />
-<polygon points='304.04,282.67 304.04,303.62 446.98,303.62 446.98,282.67 304.04,282.67 ' style='stroke-width: 1.07; stroke: #00BFC4; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFFFFF;' />
-<line x1='304.04' y1='293.55' x2='446.98' y2='293.55' style='stroke-width: 2.13; stroke: #00BFC4; stroke-linecap: butt; stroke-linejoin: miter;' />
+<polygon points='324.46,282.67 324.46,303.62 426.56,303.62 426.56,282.67 324.46,282.67 ' style='stroke-width: 1.07; stroke: #00BFC4; stroke-linecap: butt; stroke-linejoin: miter; fill: #FFFFFF;' />
+<line x1='324.46' y1='293.55' x2='426.56' y2='293.55' style='stroke-width: 2.13; stroke: #00BFC4; stroke-linecap: butt; stroke-linejoin: miter;' />
 <circle cx='153.97' cy='302.10' r='1.95' style='stroke-width: 0.71; stroke: #F8766D; fill: #F8766D;' />
 <circle cx='194.87' cy='286.14' r='1.95' style='stroke-width: 0.71; stroke: #F8766D; fill: #F8766D;' />
 <circle cx='163.89' cy='286.52' r='1.95' style='stroke-width: 0.71; stroke: #F8766D; fill: #F8766D;' />
