@@ -99,7 +99,7 @@
 <text x='171.32' y='337.40' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='375.51' y='337.40' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='10.00px' lengthAdjust='spacingAndGlyphs'>M</text>
 <text x='273.41' y='351.50' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='20.67px' lengthAdjust='spacingAndGlyphs'>Sex</text>
-<text transform='translate(14.57,194.95) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='59.11px' lengthAdjust='spacingAndGlyphs'>TT (ng/mL)</text>
+<text transform='translate(14.57,194.95) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-family: "Arial";' textLength='98.91px' lengthAdjust='spacingAndGlyphs'>Log 10 TT (ng/mL)</text>
 <rect x='220.94' y='25.28' width='104.94' height='29.24' style='stroke-width: 1.16; stroke: none; fill: #FFFFFF;' />
 <text x='226.92' y='44.20' style='font-size: 12.00px; font-family: "Arial";' textLength='20.67px' lengthAdjust='spacingAndGlyphs'>Sex</text>
 <polyline points='262.21,46.81 262.21,44.22 ' style='stroke-width: 1.07; stroke: #F8766D; stroke-linecap: butt; stroke-linejoin: miter;' />

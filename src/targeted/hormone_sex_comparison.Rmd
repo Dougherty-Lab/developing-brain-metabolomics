@@ -13,14 +13,18 @@ if (!require("pacman")) {
   install.packages("pacman")
   library(pacman)
 } 
-p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggpubr,svglite)
+p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggpubr,svglite,knitr)
 
 svg_path <- "../../results/targeted/"
 ```
 
 # Set Up
 ```{r LoadDataset, echo=TRUE}
+#Load Dataset
 targeted = read_excel('../../doc/targeted/targeted_hormones.xlsx',sheet="DATA",range=NULL)
+#Create separate datasets by sex
+female_targeted <- filter(targeted, Sex == 'F')
+male_targeted <- filter(targeted, Sex == 'M')
 
 #convert sex column to factor
 targeted$Sex <- as.factor(targeted$Sex)
@@ -29,13 +33,22 @@ targeted$`P4 (ng/mL)`<- as.numeric(targeted$`P4 (ng/mL)`)
 targeted$`17B-E2 (ng/mL)`<- as.numeric(targeted$`17B-E2 (ng/mL)`)
 
 #Load Functions
-detect_outliers <- function(data, variable) {
+detect_outliers <- function(data, variables) {
+  for (variable in variables) {
+  #Calculate the outlier limit
   outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
+  #Find outliers
   outliers <- data %>% filter(.data[[variable]] > outlier_limit)
-  data %>% filter(.data[[variable]] <= outlier_limit)
+  #Print out outliers
+  print(paste("Outliers for:", variable))
   print(outliers)
+  #Create dataframe with outliers removed
+  filtered_data <- data %>% filter(.data[[variable]] <= outlier_limit)
+  }
+  return(filtered_data)
 }
 ```
+# QC
 ## Raw Data Distribution
 ```{r visualize_raw, echo=TRUE}
 #convert sex column to factor and ensure hormone values are numeric
@@ -44,7 +57,6 @@ targeted$`TT (ng/mL)`<- as.numeric(targeted$`TT (ng/mL)`)
 targeted$`P4 (ng/mL)`<- as.numeric(targeted$`P4 (ng/mL)`)
 targeted$`17B-E2 (ng/mL)`<- as.numeric(targeted$`17B-E2 (ng/mL)`)
 
-#check distribution of hormones for normality
 # Plot the distribution of TT (ng/mL) for the entire dataset
 ggplot(targeted, aes(x = `TT (ng/mL)`)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30, fill = 'blue') +
@@ -53,7 +65,12 @@ ggplot(targeted, aes(x = `TT (ng/mL)`)) +
   ylab('Count')
 ggsave("tt_distribution.svg", path = svg_path)
 
-# Check the distribution of TT (ng/mL) for normality by Sex
+# QQ plot for total distribution
+ggqqplot(targeted$`TT (ng/mL)`) +
+  labs(title = "QQ Plot of TT (ng/mL) - Total")
+ggsave("tt_QQ.svg", path = svg_path)
+
+# Plot the distribution of TT (ng/mL) by Sex
 ggplot(targeted, aes(x = `TT (ng/mL)`, fill = Sex)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30) +
   facet_wrap(~ Sex) +
@@ -62,10 +79,6 @@ ggplot(targeted, aes(x = `TT (ng/mL)`, fill = Sex)) +
   ylab('Count')
 ggsave("tt_distribution_sex.svg", path = svg_path)
 
-# Generate QQ plots
-# QQ plot for total distribution
-ggqqplot(targeted$`TT (ng/mL)`, ggtitle = "QQ Plot of TT (ng/mL) - Total")
-ggsave("tt_QQ.svg", path = svg_path)
 
 # Plot the distribution of 17B-E2 (ng/mL) for the entire dataset
 ggplot(targeted, aes(x = `17B-E2 (ng/mL)`)) +
@@ -75,7 +88,13 @@ ggplot(targeted, aes(x = `17B-E2 (ng/mL)`)) +
   ylab('Count')
 ggsave("e2_distribution.svg", path = svg_path)
 
-# Check the distribution of 17B-E2 (ng/mL) for normality by Sex
+# Generate QQ plots
+# QQ plot for total distribution
+ggqqplot(targeted$`17B-E2 (ng/mL)`) +
+  labs(title = "QQ Plot of 17B-E2 (ng/mL) - Total")
+ggsave("e2_QQ.svg", path = svg_path)
+
+# Check the distribution of 17B-E2 (ng/mL) by Sex
 ggplot(targeted, aes(x = `17B-E2 (ng/mL)`, fill = Sex)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30) +
   facet_wrap(~ Sex) +
@@ -84,10 +103,6 @@ ggplot(targeted, aes(x = `17B-E2 (ng/mL)`, fill = Sex)) +
   ylab('Count')
 ggsave("e2_distribution_sex.svg", path = svg_path)
 
-# Generate QQ plots
-# QQ plot for total distribution
-ggqqplot(targeted$`17B-E2 (ng/mL)`, ggtitle = "QQ Plot of 17B-E2 (ng/mL) - Total")
-ggsave("e2_QQ.svg", path = svg_path)
 
 # Plot the distribution of P4 (ng/mL) for the entire dataset
 ggplot(targeted, aes(x = `P4 (ng/mL)`)) +
@@ -97,7 +112,13 @@ ggplot(targeted, aes(x = `P4 (ng/mL)`)) +
   ylab('Count')
 ggsave("p4_distribution.svg", path = svg_path)
 
-# Check the distribution of P4 (ng/mL) for normality by Sex
+# Generate QQ plots
+# QQ plot for total distribution
+ggqqplot(targeted$`P4 (ng/mL)`) +
+  labs(title = "QQ Plot of P4 (ng/mL) - Total")
+ggsave("p4_QQ.svg", path = svg_path)
+
+# Check the distribution of P4 (ng/mL) by Sex
 ggplot(targeted, aes(x = `P4 (ng/mL)`, fill = Sex)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30) +
   facet_wrap(~ Sex) +
@@ -105,56 +126,46 @@ ggplot(targeted, aes(x = `P4 (ng/mL)`, fill = Sex)) +
   xlab('P4 (ng/mL)') +
   ylab('Count')
 ggsave("p4_distribution_sex.svg", path = svg_path)
+```
 
-# Generate QQ plots
-# QQ plot for total distribution
-ggqqplot(targeted$`P4 (ng/mL)`, ggtitle = "QQ Plot of P4 (ng/mL) - Total")
-ggsave("p4_QQ.svg", path = svg_path)
-
-#Create separate datasets by sex
-female_targeted <- filter(targeted, Sex == 'F')
-male_targeted <- filter(targeted, Sex == 'M')
-
+## Tests of Normality
+```{r Normality, echo=TRUE}
 # Perform Shapiro-Wilk normality test for each sex group
   all_shapiro_tt <- shapiro.test(targeted$`TT (ng/mL)`)
   m_shapiro_tt <- shapiro.test(male_targeted$`TT (ng/mL)`)
   f_shapiro_tt <- shapiro.test(female_targeted$`TT (ng/mL)`)
   
-print(all_shapiro_tt)
-print(m_shapiro_tt)
-print(f_shapiro_tt)
-
 all_shapiro_e2 <- shapiro.test(targeted$`17B-E2 (ng/mL)`)
   m_shapiro_e2 <- shapiro.test(male_targeted$`17B-E2 (ng/mL)`)
   f_shapiro_e2 <- shapiro.test(female_targeted$`17B-E2 (ng/mL)`)
-  
-print(all_shapiro_e2)
-print(m_shapiro_e2)
-print(f_shapiro_e2)
 
 all_shapiro_p4 <- shapiro.test(targeted$`P4 (ng/mL)`)
   m_shapiro_p4 <- shapiro.test(male_targeted$`P4 (ng/mL)`)
   f_shapiro_p4 <- shapiro.test(female_targeted$`P4 (ng/mL)`)
   
-print(all_shapiro_p4)
-print(m_shapiro_p4)
-print(f_shapiro_p4)
+
+# Create a summary data frame with the results
+shapiro_results <- data.frame(
+  Group = c('All', 'Male', 'Female'),
+  TT_p_value = formatC(c(all_shapiro_tt$p.value, m_shapiro_tt$p.value, f_shapiro_tt$p.value), format = "e", digits = 2),
+  E2_p_value = formatC(c(all_shapiro_e2$p.value, m_shapiro_e2$p.value, f_shapiro_e2$p.value), format = "e", digits = 2),
+  P4_p_value = formatC(c(all_shapiro_p4$p.value, m_shapiro_p4$p.value, f_shapiro_p4$p.value), format = "e", digits = 2)
+)
+
+# Print the results in a table
+kable(shapiro_results, caption = "Shapiro-Wilk Normality Test Results (Raw)")
 
 ```
 # Data Filtering and Clean Up
 
-## Outlier Detection
+## Outlier Detection + Removal
 ```{r outlier, echo=TRUE}
-#create clean base 
-clean_targeted <- targeted
-
 # Create a new dataset with outliers removed
-detect_outliers(clean_targeted, "TT (ng/mL)")
-detect_outliers(clean_targeted, "17B-E2 (ng/mL)")
-detect_outliers(clean_targeted, "P4 (ng/mL)")
+hormones <- c("TT (ng/mL)", "17B-E2 (ng/mL)", "P4 (ng/mL)")
+clean_targeted <- detect_outliers(targeted, hormones)
+```
 
-
-#check distribution of hormones for normality
+```{r re-visualize, echo=TRUE}
 # Plot the distribution of TT (ng/mL) for the entire dataset
 ggplot(clean_targeted, aes(x = `TT (ng/mL)`)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30, fill = 'blue') +
@@ -163,7 +174,12 @@ ggplot(clean_targeted, aes(x = `TT (ng/mL)`)) +
   ylab('Count')
 ggsave("clean_tt_distribution.svg", path = svg_path)
 
-# Check the distribution of TT (ng/mL) for normality by Sex
+# QQ plot for total distribution
+ggqqplot(clean_targeted$`TT (ng/mL)`) +
+  labs(title = "QQ Plot of TT (ng/mL) - Total")
+ggsave("clean_tt_QQ.svg", path = svg_path)
+
+# Check the distribution of TT (ng/mL) by Sex
 ggplot(clean_targeted, aes(x = `TT (ng/mL)`, fill = Sex)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30) +
   facet_wrap(~ Sex) +
@@ -172,10 +188,6 @@ ggplot(clean_targeted, aes(x = `TT (ng/mL)`, fill = Sex)) +
   ylab('Count')
 ggsave("clean_tt_distribution_sex.svg", path = svg_path)
 
-# Generate QQ plots
-# QQ plot for total distribution
-ggqqplot(clean_targeted$`TT (ng/mL)`, ggtitle = "QQ Plot of TT (ng/mL) - Total")
-ggsave("clean_tt_QQ.svg", path = svg_path)
 
 # Plot the distribution of 17B-E2 (ng/mL) for the entire dataset
 ggplot(clean_targeted, aes(x = `17B-E2 (ng/mL)`)) +
@@ -185,7 +197,12 @@ ggplot(clean_targeted, aes(x = `17B-E2 (ng/mL)`)) +
   ylab('Count')
 ggsave("clean_e2_distribution.svg", path = svg_path)
 
-# Check the distribution of 17B-E2 (ng/mL) for normality by Sex
+# QQ plot for total distribution
+ggqqplot(clean_targeted$`17B-E2 (ng/mL)`) +
+  labs(title = "QQ Plot of 17B-E2 (ng/mL) - Total")
+ggsave("clean_e2_QQ.svg", path = svg_path)
+
+# Check the distribution of 17B-E2 (ng/mL) Sex
 ggplot(clean_targeted, aes(x = `17B-E2 (ng/mL)`, fill = Sex)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30) +
   facet_wrap(~ Sex) +
@@ -193,11 +210,6 @@ ggplot(clean_targeted, aes(x = `17B-E2 (ng/mL)`, fill = Sex)) +
   xlab('17B-E2 (ng/mL)') +
   ylab('Count')
 ggsave("clean_e2_distribution_sex.svg", path = svg_path)
-
-# Generate QQ plots
-# QQ plot for total distribution
-ggqqplot(clean_targeted$`17B-E2 (ng/mL)`, ggtitle = "QQ Plot of 17B-E2 (ng/mL) - Total")
-ggsave("clean_e2_QQ.svg", path = svg_path)
 
 # Plot the distribution of P4 (ng/mL) for the entire dataset
 ggplot(clean_targeted, aes(x = `P4 (ng/mL)`)) +
@@ -207,7 +219,12 @@ ggplot(clean_targeted, aes(x = `P4 (ng/mL)`)) +
   ylab('Count')
 ggsave("clean_p4_distribution.svg", path = svg_path)
 
-# Check the distribution of P4 (ng/mL) for normality by Sex
+# QQ plot for total distribution
+ggqqplot(clean_targeted$`P4 (ng/mL)`) +
+  labs(title = "QQ Plot of P4 (ng/mL) - Total")
+ggsave("clean_p4_QQ.svg", path = svg_path)
+
+# Check the distribution of P4 (ng/mL) by Sex
 ggplot(clean_targeted, aes(x = `P4 (ng/mL)`, fill = Sex)) +
   geom_histogram(alpha = 0.7, position = 'identity', bins = 30) +
   facet_wrap(~ Sex) +
@@ -215,12 +232,9 @@ ggplot(clean_targeted, aes(x = `P4 (ng/mL)`, fill = Sex)) +
   xlab('P4 (ng/mL)') +
   ylab('Count')
 ggsave("clean_p4_distribution_sex.svg", path = svg_path)
+```
 
-# Generate QQ plots
-# QQ plot for total distribution
-ggqqplot(clean_targeted$`P4 (ng/mL)`, ggtitle = "QQ Plot of P4 (ng/mL) - Total")
-ggsave("clean_p4_QQ.svg", path = svg_path)
-
+```{r re-normality, echo = TRUE}
 #Create separate datasets by sex
 female_clean_targeted <- filter(clean_targeted, Sex == 'F')
 male_clean_targeted <- filter(clean_targeted, Sex == 'M')
@@ -229,26 +243,27 @@ male_clean_targeted <- filter(clean_targeted, Sex == 'M')
   clean_all_shapiro_tt <- shapiro.test(clean_targeted$`TT (ng/mL)`)
   clean_m_shapiro_tt <- shapiro.test(male_clean_targeted$`TT (ng/mL)`)
   clean_f_shapiro_tt <- shapiro.test(female_clean_targeted$`TT (ng/mL)`)
-  
-print(clean_all_shapiro_tt)
-print(clean_m_shapiro_tt)
-print(clean_f_shapiro_tt)
 
 clean_all_shapiro_e2 <- shapiro.test(clean_targeted$`17B-E2 (ng/mL)`)
 clean_m_shapiro_e2 <- shapiro.test(male_clean_targeted$`17B-E2 (ng/mL)`)
 clean_f_shapiro_e2 <- shapiro.test(female_clean_targeted$`17B-E2 (ng/mL)`)
-  
-print(clean_all_shapiro_e2)
-print(clean_m_shapiro_e2)
-print(clean_f_shapiro_e2)
 
 clean_all_shapiro_p4 <- shapiro.test(clean_targeted$`P4 (ng/mL)`)
 clean_m_shapiro_p4 <- shapiro.test(male_clean_targeted$`P4 (ng/mL)`)
 clean_f_shapiro_p4 <- shapiro.test(female_clean_targeted$`P4 (ng/mL)`)
   
-print(clean_all_shapiro_p4)
-print(clean_m_shapiro_p4)
-print(clean_f_shapiro_p4)
+
+# Create a summary data frame with the results
+clean_shapiro_results <- data.frame(
+  Group = c('All', 'Male', 'Female'),
+  TT_p_value = formatC(c(clean_all_shapiro_tt$p.value, clean_m_shapiro_tt$p.value, clean_f_shapiro_tt$p.value), format = "e", digits = 2),
+  E2_p_value = formatC(c(clean_all_shapiro_e2$p.value, clean_m_shapiro_e2$p.value, clean_f_shapiro_e2$p.value), format = "e", digits = 2),
+  P4_p_value = formatC(c(clean_all_shapiro_p4$p.value, clean_m_shapiro_p4$p.value, clean_f_shapiro_p4$p.value), format = "e", digits = 2)
+)
+
+# Print the results in a table
+kable(clean_shapiro_results, caption = "Shapiro-Wilk Normality Test Results (Clean)")
+
 
 ```
 
@@ -283,6 +298,15 @@ ggboxplot(targeted, x = "Sex", y = "`TT (ng/mL)`",
   labs(title = paste(tt_test_type, ": statistic =", round(tt_test_statistic, 2), ": pvalue =", formatC(tt_p_value, format = "e", digits = 2)))
 ggsave("tt_statistics_sex.svg", path = svg_path)
 
+# Visualize results with boxplot + log y scale
+ggboxplot(targeted, x = "Sex", y = "`TT (ng/mL)`",
+          color = "Sex", width = 0.5,
+          ylab = "Log 10 TT (ng/mL)", xlab = "Sex",
+          add = "jitter") +
+  scale_y_log10() +
+  labs(title = paste(tt_test_type, ": statistic =", round(tt_test_statistic, 2), ": pvalue =", formatC(tt_p_value, format = "e", digits = 2)))
+ggsave("log_tt_statistics_sex.svg", path = svg_path)
+
 # Check the p-values
 # If  > 0.05, we assume normality and can use a parametric test (t-test)
 # Otherwise, use a non-parametric test (Wilcoxon rank-sum test)
@@ -310,7 +334,15 @@ ggboxplot(clean_targeted, x = "Sex", y = "`TT (ng/mL)`",
           add = "jitter") + 
   labs(title = paste(clean_tt_test_type, ": statistic =", round(clean_tt_test_statistic, 2), ": pvalue =", formatC(clean_tt_p_value, format = "e", digits = 2)))
 
-ggsave("clean_tt_statistics_sex.svg", path = svg_path)
+# Visualize results with boxplot
+ggboxplot(clean_targeted, x = "Sex", y = "`TT (ng/mL)`",
+          color = "Sex", width = 0.5, 
+          ylab = "Log 10 TT (ng/mL)", xlab = "Sex",
+          add = "jitter") + 
+  scale_y_log10() +
+  labs(title = paste(clean_tt_test_type, ": statistic =", round(clean_tt_test_statistic, 2), ": pvalue =", formatC(clean_tt_p_value, format = "e", digits = 2)))
+
+ggsave("log_clean_tt_statistics_sex.svg", path = svg_path)
 
 ```
 
@@ -344,6 +376,14 @@ ggboxplot(targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
   labs(title = paste(e2_test_type, ": statistic =", round(e2_test_statistic, 2), ": pvalue =", formatC(e2_p_value, format = "e", digits = 2)))
 ggsave("e2_statistics_sex.svg", path = svg_path)
 
+ggboxplot(targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
+          color = "Sex", width = 0.5,
+          ylab = "Log 10 17B-E2 (ng/mL)", xlab = "Sex",
+          add = "jitter") +
+  scale_y_log10() +
+  labs(title = paste(e2_test_type, ": statistic =", round(e2_test_statistic, 2), ": pvalue =", formatC(e2_p_value, format = "e", digits = 2)))
+ggsave("log_e2_statistics_sex.svg", path = svg_path)
+
 # Check the p-values
 # If  > 0.05, we assume normality and can use a parametric test (t-test)
 # Otherwise, use a non-parametric test (Wilcoxon rank-sum test)
@@ -371,6 +411,15 @@ ggboxplot(clean_targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
           add = "jitter") +
   labs(title = paste(clean_e2_test_type, ": statistic =", round(clean_e2_test_statistic, 2), ": pvalue =", formatC(clean_e2_p_value, format = "e", digits = 2)))
 ggsave("clean_e2_statistics_sex.svg", path = svg_path)
+
+
+ggboxplot(clean_targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
+          color = "Sex", width = 0.5,
+          ylab = "Log 10 17B-E2 (ng/mL)", xlab = "Sex",
+          add = "jitter") +
+  scale_y_log10() +
+  labs(title = paste(clean_e2_test_type, ": statistic =", round(clean_e2_test_statistic, 2), ": pvalue =", formatC(clean_e2_p_value, format = "e", digits = 2)))
+ggsave("log_clean_e2_statistics_sex.svg", path = svg_path)
 ```
 
 Progesterone
@@ -404,6 +453,14 @@ ggboxplot(targeted, x = "Sex", y = "`P4 (ng/mL)`",
   labs(title = paste(p4_test_type, ": statistic =", round(p4_test_statistic, 2), ": pvalue =", formatC(p4_p_value, format = "e", digits = 2)))
 ggsave("p4_statistics_sex.svg", path = svg_path)
 
+ggboxplot(targeted, x = "Sex", y = "`P4 (ng/mL)`",
+          color = "Sex", width = 0.5,
+          ylab = "Log 10 P4 (ng/mL)", xlab = "Sex",
+          add = "jitter") +
+  scale_y_log10() +
+  labs(title = paste(p4_test_type, ": statistic =", round(p4_test_statistic, 2), ": pvalue =", formatC(p4_p_value, format = "e", digits = 2)))
+ggsave("log_p4_statistics_sex.svg", path = svg_path)
+
 # Check the p-values
 # If  > 0.05, we assume normality and can use a parametric test (t-test)
 # Otherwise, use a non-parametric test (Wilcoxon rank-sum test)
@@ -431,5 +488,13 @@ ggboxplot(clean_targeted, x = "Sex", y = "`P4 (ng/mL)`",
           add = "jitter") +
   labs(title = paste(clean_p4_test_type, ": statistic =", round(clean_p4_test_statistic, 2), ": pvalue =", formatC(clean_p4_p_value, format = "e", digits = 2)))
 ggsave("clean_p4_statistics_sex.svg", path = svg_path)
+
+ggboxplot(clean_targeted, x = "Sex", y = "`P4 (ng/mL)`",
+          color = "Sex", width = 0.5,
+          ylab = "Log 10 P4 (ng/mL)", xlab = "Sex",
+          add = "jitter") +
+  scale_y_log10() +
+  labs(title = paste(clean_p4_test_type, ": statistic =", round(clean_p4_test_statistic, 2), ": pvalue =", formatC(clean_p4_p_value, format = "e", digits = 2)))
+ggsave("log_clean_p4_statistics_sex.svg", path = svg_path)
 
 ```
