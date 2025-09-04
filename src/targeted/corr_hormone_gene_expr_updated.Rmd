@@ -1,0 +1,339 @@
+---
+title: "Correlate Hormones and Gene Expression (Optimized)"
+author: "Emma Jones"
+date: "2025-06-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from developing human brain samples for males and females, separately.
+
+##Load Packages
+
+```{r load package}
+library(tidyverse)
+library(Seurat)
+library(readxl)
+library(Signac)
+library(glue)
+library(cowplot)
+library(edgeR)
+library(limma)
+library(patchwork)
+library(Matrix)
+
+set.seed(123)
+```
+
+## Load Data
+```{r load data}
+SSD_data_v5 <- readRDS("../../data/SSD_data_v5.rds")
+SSD_data_v5 <- subset(SSD_data_v5, subset = Droplet == "SNG")
+
+targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xlsx")
+```
+
+## Show Cell Type UMAP
+```{r display umap}
+DefaultAssay(SSD_data_v5) <- "SCT"
+DimPlot(SSD_data_v5, label = TRUE, label.box = TRUE, repel = TRUE, label.color = "white", label.size = 5) + NoLegend()
+
+ggsave("../../results/targeted/celltype_umap.png", width = 7, height = 4)
+```
+
+## Remove Outliers
+```{r remove outliers}
+detect_outliers <- function(data, variable) {
+  outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
+  data %>% filter(.data[[variable]] <= outlier_limit)
+}
+
+targeted_comparision_filtered_TT <- detect_outliers(targeted_comparision_raw, "TT")
+targeted_comparision_filtered_E2 <- detect_outliers(targeted_comparision_raw, "17B-E2")
+targeted_comparision_filtered_P4 <- detect_outliers(targeted_comparision_raw, "P4")
+```
+
+## Metadata and Pseudobulk Functions
+
+```{r metadata and pseudobulk}
+prepare_metadata_for_analysis <- function(pb_metadata, targeted_comparision_filtered) {
+  targeted_comparision_filtered$Sample <- paste0("tissue", targeted_comparision_filtered$Sample)
+  pb_metadata %>%
+    as.data.frame() %>%
+    rownames_to_column("pseudobulk_id") %>%
+    left_join(targeted_comparision_filtered %>% select(Sample, Sex, TT, `17B-E2`, P4, GW),
+              by = c("sample_id" = "Sample")) %>%
+    filter(!is.na(Sex), cell_count >= 10) %>%
+    mutate(group = paste(cell_type, Sex, sep = "_")) %>%
+    column_to_rownames("pseudobulk_id")
+}
+
+pseudobulk_data <- function(seurat_obj, assay = "RNA", layer = "counts", sample_col = "sample_id", celltype_col = "cell_type") {
+  counts <- GetAssayData(seurat_obj, assay = assay, slot = layer)
+  meta <- seurat_obj@meta.data
+  meta$cell_type <- meta$cluster_call
+  group_ids <- interaction(meta[[sample_col]], meta[[celltype_col]], drop = TRUE)
+  group_levels <- levels(group_ids)
+  aggregated_list <- list()
+  metadata_list <- list()
+  
+  for (gid in group_levels) {
+  group_cells <- which(group_ids == gid)
+  if (length(group_cells) < 1) next
+  group_counts <- Matrix::rowSums(counts[, group_cells, drop = FALSE])
+  aggregated_list[[gid]] <- group_counts
+    metadata_list[[gid]] <- data.frame(
+      sample_id = meta[[sample_col]][group_cells[1]],
+      cell_type = meta[[celltype_col]][group_cells[1]],
+      cell_count = length(group_cells),
+      row.names = gid
+    )
+  }
+  
+  pseudobulk_mat <- do.call(rbind, aggregated_list)
+  metadata_df <- do.call(rbind, metadata_list)
+  
+  pseudobulk_mat_log <- log1p(as.matrix(pseudobulk_mat))
+  
+  list(counts = pseudobulk_mat, logcounts = pseudobulk_mat_log, metadata = metadata_df)
+}
+```
+
+## Generate and Filter Pseudobulk Data
+
+```{r generate and filter pseudobulk data}
+
+generate_and_filter_pseudobulk <- function(seurat_obj, targeted_filtered) {
+  seurat_obj$cell_type <- seurat_obj$cluster_call  # ensure column exists
+  seurat_obj$sample_id <- seurat_obj$sample        # ensure column exists
+  
+  pb <- pseudobulk_data(seurat_obj)
+  pb_metadata <- prepare_metadata_for_analysis(pb$metadata, targeted_filtered)
+  
+  common_ids <- intersect(rownames(pb$logcounts), rownames(pb_metadata))
+  pb$logcounts <- pb$logcounts[common_ids, , drop = FALSE]
+  pb$counts <- pb$counts[common_ids, , drop = FALSE]
+  pb$metadata <- pb_metadata[common_ids, , drop = FALSE]
+  
+  list(pb = pb, metadata = pb_metadata)
+}
+
+pb_TT <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filtered_TT)
+pb_E2 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filtered_E2)
+pb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparision_filtered_P4)
+```
+
+## Define DE analysis wrapper functions
+
+```{r limma anlysis}
+run_voom_lm <- function(counts, metadata, predictor) {
+  stopifnot(ncol(counts) == nrow(metadata))
+  if (!"GW" %in% colnames(metadata)) metadata$GW <- NA
+
+  # Safely quote variables for formula
+  safe_vars <- function(x) {
+    ifelse(make.names(x) != x, paste0("`", x, "`"), x)
+  }
+
+  # Build model matrix
+  formula_vars <- safe_vars(c(predictor, "cell_count", "GW"))
+  design <- model.matrix(reformulate(formula_vars), data = metadata)
+
+  # Fit voom-limma model
+  v <- limma::voom(counts, design)
+  fit <- limma::lmFit(v, design)
+  fit <- limma::eBayes(fit)
+
+  # Figure out correct coefficient name or index
+  predictor_col <- colnames(design)[2]  # assumes predictor is 1st after intercept
+  limma::topTable(fit, coef = predictor_col, number = Inf, sort.by = "none") %>%
+    rownames_to_column("gene")
+}
+
+```
+
+
+```{r test new filtering and plotting functions}
+analyze_hormone <- function(pb_counts, metadata_merged, hormone, min_samples = 8) {
+  split_ids <- split(rownames(metadata_merged), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
+  
+  results_by_group <- purrr::map(split_ids, function(ids) {
+    counts_sub <- t(pb_counts)[, ids, drop = FALSE] 
+    metadata_sub <- metadata_merged[ids, , drop = FALSE]
+    
+    if (nrow(metadata_sub) < min_samples) return(NULL)
+    
+    # Gene-level filtering
+    keep_genes <- colSums(counts_sub >= 2) >= 3
+    counts_sub <- counts_sub[, keep_genes, drop = FALSE]
+    if (ncol(counts_sub) == 0) return(NULL)
+    
+    # HORMONE FILTER: Must come after filtering samples to valid counts_sub columns
+    nonzero_hormone_mask <- metadata_sub[[hormone]] != 0 & !is.na(metadata_sub[[hormone]])
+    if (sum(nonzero_hormone_mask) < min_samples) return(NULL)
+    
+    result <- run_voom_lm(counts_sub, metadata_sub, hormone)
+    result$cell_type <- metadata_sub$cell_type[1]
+    result$sex <- metadata_sub$Sex[1]
+    
+    # Return a list containing results AND the filtered data used for modeling
+    list(
+      limma_results = result,
+      counts_sub = counts_sub,
+      metadata_sub = metadata_sub
+    )
+  })
+  
+  # Remove NULL groups
+  results_by_group <- results_by_group[!sapply(results_by_group, is.null)]
+  
+  # Combine all limma results into one data.frame
+  combined_results <- purrr::map_dfr(results_by_group, ~ .x$limma_results)
+  
+  list(
+    combined_results = combined_results,
+    by_group_data = results_by_group
+  )
+}
+
+plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
+  dir.create(output_dir, showWarnings = FALSE)
+  
+  message("Number of groups to plot: ", length(by_group_data))
+  
+  purrr::walk(by_group_data, function(group_list) {
+    if (is.null(group_list)) {
+      message("  Skipping NULL group")
+      return()
+    }
+    
+    limma_res <- group_list$limma_results
+    counts_sub <- group_list$counts_sub  # genes x samples
+    metadata_sub <- group_list$metadata_sub
+
+    if (nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
+      message("  Skipping empty subset: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+      return()
+    }
+
+    # Compute log1p(CPM)
+    counts_cpm <- edgeR::cpm(counts_sub, log = FALSE)
+    counts_log <- log1p(counts_cpm)
+    
+    # Transpose counts: samples x genes
+    counts_log <- t(counts_log)
+
+    top_genes <- limma_res %>%
+      arrange(-abs(t)) %>%
+      slice_head(n = top_n) %>%
+      filter(adj.P.Val < 0.05) %>%
+      pull(gene)
+
+    message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    message("  Top genes: ", paste(top_genes, collapse = ", "))
+
+    plot_list <- purrr::map(top_genes, function(gene) {
+      if (!gene %in% colnames(counts_log)) {
+        message("    Gene ", gene, " not in counts — skipping")
+        return(NULL)
+      }
+
+      expr_vals <- counts_log[, gene]
+      if (all(is.na(expr_vals)) || all(expr_vals == 0)) {
+        message("    Gene ", gene, " has all NA or zero expression — skipping")
+        return(NULL)
+      }
+
+      df <- metadata_sub %>% mutate(expr = expr_vals)
+
+      ggplot(df, aes_string(x = hormone, y = "expr", color = "Sex", fill = "Sex")) +
+        geom_point(size = 2, alpha = 0.8) +
+        geom_smooth(method = "lm", se = TRUE) +
+        scale_color_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
+        scale_fill_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
+        labs(title = paste0(gene, " in ", metadata_sub$cell_type[1], " (", metadata_sub$Sex[1], ")"),
+             x = hormone, y = "log1p(CPM)") +
+        theme_minimal(base_size = 14)
+    }) %>% compact()
+
+    if (length(plot_list) == 0) {
+      message("    No valid plots for group")
+      return()
+    }
+
+    combined_plot <- patchwork::wrap_plots(plotlist = plot_list, ncol = 2)
+    clean_name <- paste0(metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    clean_name <- gsub("/", "-", clean_name)
+
+    ggsave(file.path(output_dir, paste0(clean_name, "_top_genes.png")),
+           plot = combined_plot, width = 10, height = 6 + ceiling(length(plot_list)/2), dpi = 300)
+    message("  ✅ Saved plot for ", clean_name)
+  })
+}
+
+```
+
+
+# Run DE analyses with limma
+
+```{r merge metadata and run analyses}
+# TT - Run analysis
+res_TT <- analyze_hormone(pb_TT$pb$counts, pb_TT$metadata, hormone = "TT")
+# TT - Plot top genes
+plot_top_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/pseudobulk_testosterone_plots", hormone = "TT")
+
+# E2
+res_E2 <- analyze_hormone(pb_E2$pb$counts, pb_E2$metadata, hormone = "17B-E2")
+# E2 - Plot top genes
+plot_top_genes_from_subsets(res_E2$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots", hormone = "`17B-E2`")
+
+# P4
+res_P4 <- analyze_hormone(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4")
+# P4 - Plot top genes
+plot_top_genes_from_subsets(res_P4$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots", hormone = "P4")
+
+```
+
+## Summarize and save results
+
+```{r summarize and save results}
+
+summarize_sig_genes <- function(results, fdr_cutoff = 0.05, logfc_cutoff = 0.25) {
+  sig <- results %>% filter(adj.P.Val < fdr_cutoff)
+  if (!is.null(logfc_cutoff)) {
+    sig <- sig %>% filter(abs(logFC) >= logfc_cutoff)
+  }
+  sig %>%
+    count(cell_type, sex, name = "num_sig_genes") %>%
+    arrange(desc(num_sig_genes))
+}
+
+plot_sig_gene_summary <- function(summary_df, title) {
+  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes, fill = sex)) +
+    geom_bar(stat = "identity", position = position_dodge()) +
+    labs(title = title, x = "Cell Type", y = "# Significant Genes") +
+    theme_minimal(base_size = 14) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    scale_fill_manual(values = c("M" = "steelblue", "F" = "violetred3"))
+}
+
+# Summarize
+summary_TT <- summarize_sig_genes(res_TT$combined_results)
+summary_E2 <- summarize_sig_genes(res_E2$combined_results)
+summary_P4 <- summarize_sig_genes(res_P4$combined_results)
+
+# Save CSVs
+write_csv(res_TT$combined_results, "../../results/targeted/TT_results.csv")
+write_csv(res_E2$combined_results, "../../results/targeted/E2_results.csv")
+write_csv(res_P4$combined_results, "../../results/targeted/P4_results.csv")
+
+# Plot and save
+ggsave("../../results/targeted/pseudobulk_testosterone_plots/TT_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_TT, "Testosterone"), width = 8, height = 5)
+ggsave("../../results/targeted/pseudobulk_estrogen_plots/E2_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_E2, "Estradiol"), width = 8, height = 5)
+ggsave("../../results/targeted/pseudobulk_progesterone_plots/P4_sig_gene_counts.png", plot = plot_sig_gene_summary(summary_P4, "Progesterone"), width = 8, height = 5)
+```
+
+## End
