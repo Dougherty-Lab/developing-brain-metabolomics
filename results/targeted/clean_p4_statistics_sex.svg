@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 504 360">
+  <!-- Generator: Adobe Illustrator 29.7.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 8)  -->
+  <defs>
+    <style>
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8 {
+        fill: none;
+      }
+
+      .st9, .st1, .st2, .st5, .st6, .st10 {
+        stroke-miterlimit: 10;
+      }
+
+      .st9, .st1, .st2, .st11, .st7 {
+        stroke: #f8766d;
+      }
+
+      .st9, .st1, .st3, .st5, .st10, .st7, .st8 {
+        stroke-width: 1.1px;
+      }
+
+      .st9, .st12, .st10 {
+        fill: #fff;
+      }
+
+      .st2, .st6 {
+        stroke-width: 2.1px;
+      }
+
+      .st13 {
+        font-size: 12px;
+      }
+
+      .st13, .st14, .st15 {
+        font-family: ArialMT, Arial;
+        isolation: isolate;
+      }
+
+      .st3, .st4 {
+        stroke: #000;
+      }
+
+      .st3, .st4, .st16, .st11, .st7, .st8 {
+        stroke-linejoin: round;
+      }
+
+      .st4 {
+        stroke-width: 1.2px;
+      }
+
+      .st17 {
+        clip-path: url(#clippath-1);
+      }
+
+      .st5, .st16, .st6, .st10, .st8 {
+        stroke: #00bfc4;
+      }
+
+      .st16 {
+        fill: #00bfc4;
+      }
+
+      .st16, .st11 {
+        stroke-linecap: round;
+        stroke-width: .7px;
+      }
+
+      .st14 {
+        font-size: 14.4px;
+      }
+
+      .st11 {
+        fill: #f8766d;
+      }
+
+      .st15 {
+        font-size: 9.6px;
+      }
+
+      .st18 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="st0" x="38.8" y="66.5" width="459.2" height="257"/>
+    </clipPath>
+    <clipPath id="clippath-1">
+      <rect class="st0" width="504" height="360"/>
+    </clipPath>
+  </defs>
+  <g class="st18">
+    <g>
+      <line class="st7" x1="99.1" y1="218" x2="99.1" y2="182.9"/>
+      <line class="st7" x1="99.1" y1="264.1" x2="99.1" y2="311.7"/>
+      <polygon class="st9" points="46.9 218 46.9 264.1 151.2 264.1 151.2 218 46.9 218"/>
+      <line class="st2" x1="46.9" y1="230.8" x2="151.2" y2="230.8"/>
+      <line class="st8" x1="222.8" y1="186.1" x2="222.8" y2="78.2"/>
+      <line class="st8" x1="222.8" y1="284" x2="222.8" y2="300.9"/>
+      <polygon class="st10" points="170.6 186.1 170.6 284 275 284 275 186.1 170.6 186.1"/>
+      <line class="st6" x1="170.6" y1="268.1" x2="275" y2="268.1"/>
+      <circle class="st11" cx="81.3" cy="218.3" r="1.9"/>
+      <circle class="st11" cx="123.1" cy="222.9" r="1.9"/>
+      <circle class="st11" cx="91.4" cy="183" r="1.9"/>
+      <circle class="st16" cx="254.8" cy="254.3" r="2"/>
+      <circle class="st16" cx="259.6" cy="270.8" r="2"/>
+      <circle class="st11" cx="61.1" cy="257.8" r="2"/>
+      <circle class="st16" cx="225.1" cy="78.2" r="2"/>
+      <circle class="st11" cx="131.8" cy="222.1" r="1.9"/>
+      <circle class="st11" cx="103.3" cy="185.1" r="1.9"/>
+      <circle class="st16" cx="219.2" cy="277.7" r="2"/>
+      <circle class="st16" cx="260.9" cy="268.1" r="2"/>
+      <circle class="st11" cx="95.1" cy="263.4" r="2"/>
+      <circle class="st11" cx="113.9" cy="264.4" r="2"/>
+      <circle class="st16" cx="228.9" cy="274.5" r="2"/>
+      <circle class="st11" cx="65.9" cy="233.4" r="1.9"/>
+      <circle class="st16" cx="256.2" cy="210.4" r="2"/>
+      <circle class="st11" cx="77.9" cy="303.1" r="2"/>
+      <circle class="st11" cx="60.8" cy="278.8" r="2"/>
+      <circle class="st16" cx="208.4" cy="287.4" r="2"/>
+      <circle class="st16" cx="260.7" cy="298.8" r="2"/>
+      <circle class="st11" cx="131.6" cy="203.8" r="1.9"/>
+      <circle class="st16" cx="238.9" cy="284.2" r="2"/>
+      <circle class="st16" cx="234.5" cy="225.4" r="2"/>
+      <circle class="st16" cx="264" cy="110" r="2"/>
+      <circle class="st16" cx="235.8" cy="185.7" r="2"/>
+      <circle class="st16" cx="240.2" cy="298.5" r="2"/>
+      <circle class="st16" cx="226.5" cy="148.6" r="2"/>
+      <circle class="st11" cx="106.9" cy="253.5" r="1.9"/>
+      <circle class="st16" cx="205.2" cy="289.7" r="2"/>
+      <circle class="st11" cx="69.6" cy="143" r="1.9"/>
+      <circle class="st11" cx="137.7" cy="311.7" r="2"/>
+      <circle class="st16" cx="256.4" cy="283.7" r="2"/>
+      <circle class="st11" cx="115" cy="270" r="2"/>
+      <circle class="st11" cx="123.7" cy="217.9" r="1.9"/>
+      <circle class="st16" cx="183.1" cy="186.6" r="2"/>
+      <circle class="st16" cx="220.9" cy="107.5" r="2"/>
+      <circle class="st16" cx="244.4" cy="276.9" r="2"/>
+      <circle class="st16" cx="199.1" cy="300.9" r="2"/>
+      <circle class="st11" cx="83.9" cy="228.4" r="1.9"/>
+      <circle class="st16" cx="200.4" cy="261.5" r="2"/>
+      <circle class="st16" cx="193" cy="183.6" r="2"/>
+    </g>
+  </g>
+  <g class="st17">
+    <g>
+      <line class="st3" x1="38.8" y1="323.4" x2="38.8" y2="66.5"/>
+      <text class="st13" transform="translate(20.1 251.6)"><tspan x="0" y="0">10</tspan></text>
+      <text class="st13" transform="translate(20.1 166.1)"><tspan x="0" y="0">20</tspan></text>
+      <text class="st13" transform="translate(20.1 80.6)"><tspan x="0" y="0">30</tspan></text>
+      <line class="st4" x1="35.8" y1="247.3" x2="38.8" y2="247.3"/>
+      <line class="st4" x1="35.8" y1="161.8" x2="38.8" y2="161.8"/>
+      <line class="st4" x1="35.8" y1="76.3" x2="38.8" y2="76.3"/>
+      <line class="st3" x1="38.8" y1="323.4" x2="290.8" y2="323.4"/>
+      <line class="st4" x1="99.1" y1="326.4" x2="99.1" y2="323.4"/>
+      <line class="st4" x1="222.8" y1="326.4" x2="222.8" y2="323.4"/>
+      <text class="st13" transform="translate(95.4 337.4)"><tspan x="0" y="0">F</tspan></text>
+      <text class="st13" transform="translate(217.8 337.4)"><tspan x="0" y="0">M</tspan></text>
+      <text class="st13" transform="translate(151.1 351.5)"><tspan x="0" y="0">Sex</tspan></text>
+      <text class="st13" transform="translate(14.6 224.6) rotate(-90)"><tspan x="0" y="0">P4 (ng/mL)</tspan></text>
+      <rect class="st12" x="215.9" y="25.3" width="104.9" height="29.2"/>
+      <text class="st13" transform="translate(221.9 44.2)"><tspan x="0" y="0">Sex</tspan></text>
+      <line class="st1" x1="257.2" y1="46.8" x2="257.2" y2="44.2"/>
+      <line class="st1" x1="257.2" y1="35.6" x2="257.2" y2="33"/>
+      <rect class="st9" x="250.7" y="35.6" width="13" height="8.6"/>
+      <line class="st1" x1="250.7" y1="39.9" x2="263.7" y2="39.9"/>
+      <circle class="st11" cx="257.2" cy="39.9" r="2" transform="translate(159.3 281.1) rotate(-76.7)"/>
+      <line class="st5" x1="292.3" y1="46.8" x2="292.3" y2="44.2"/>
+      <line class="st5" x1="292.3" y1="35.6" x2="292.3" y2="33"/>
+      <rect class="st10" x="285.8" y="35.6" width="13" height="8.6"/>
+      <line class="st5" x1="285.8" y1="39.9" x2="298.8" y2="39.9"/>
+      <circle class="st16" cx="292.3" cy="39.9" r="2"/>
+      <text class="st15" transform="translate(271.8 43.3)"><tspan x="0" y="0">F</tspan></text>
+      <text class="st15" transform="translate(306.9 43.3)"><tspan x="0" y="0">M</tspan></text>
+      <text class="st14" transform="translate(38.8 16.3)"><tspan x="0" y="0">Wilcoxon rank-sum test : statistic = 230 : pvalue = 5.58e-01</tspan></text>
+    </g>
+  </g>
+</svg>
