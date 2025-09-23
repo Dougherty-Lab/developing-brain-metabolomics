@@ -13,7 +13,7 @@ if (!require("pacman")) {
   install.packages("pacman")
   library(pacman)
 } 
-p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggpubr,svglite,knitr)
+p_load(tidyverse,readxl,stats,ggpubr,svglite,knitr)
 
 svg_path <- "../../results/targeted/"
 ```
