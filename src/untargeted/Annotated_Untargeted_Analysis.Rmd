@@ -1848,9 +1848,6 @@ plot_metabolite <- function(dataset, metabolite_id) {
   print(p)
 }
 
-# Example usage: Plot Metabolite 'C3' across samples
-plot_metabolite(unique_dataset, "Methamphetamine")
-
 
 # Function to plot metabolite intensity by sex
 plot_metabolite_sex <- function(dataset, sample_metadata, metabolite_id) {
@@ -1891,8 +1888,11 @@ plot_metabolite_gw <- function(dataset, sample_metadata, metabolite_id) {
   
   print(p_gw)
 }
-
-plot_metabolite_sex(unique_dataset, sample_metadata, "Methamphetamine")
-plot_metabolite_gw(unique_dataset, sample_metadata, "Methamphetamine")
+```
+``` {r metabolite-plotting, echo=TRUE}
+# Example usage: Plot Metabolite 'C3' across samples
+plot_metabolite(unique_dataset, "7α-Hydroxytestosterone")
+plot_metabolite_sex(unique_dataset, sample_metadata, "7α-Hydroxytestosterone")
+plot_metabolite_gw(unique_dataset, sample_metadata, "7α-Hydroxytestosterone")
 
 ```
