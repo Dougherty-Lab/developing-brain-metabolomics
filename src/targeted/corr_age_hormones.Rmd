@@ -19,8 +19,8 @@ if (!require("pacman")) {
 } 
 p_load(tidyverse,readxl,stats,ggpubr,svglite,knitr)
 
-svg_path_age <- "../../results/targeted/age"
-svg_path_correlation <- "../../results/targeted/correlation"
+svg_path_age <- "../../results/targeted/age_analysis_plots"
+svg_path_correlation <- "../../results/targeted/hormone_hormone_correlation_plots"
 ```
 
 ## Load data

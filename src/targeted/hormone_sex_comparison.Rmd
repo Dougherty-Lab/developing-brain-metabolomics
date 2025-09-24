@@ -1,11 +1,13 @@
 ---
-title: "Targeted Hormone Analysis"
+title: "Targeted Hormone Sex Comparison"
 author: "Sneha Chaturvedi"
-date: "July 16, 2025"
+date: "Most recent. update 9.23.25"
 output: 
   html_document:
     toc: TRUE
 ---
+
+The purpose of this analysis is to 1) to find outliers in the distribution of hormone concentrations and 2) compare concentrations between males and females for significant differences. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -15,7 +17,7 @@ if (!require("pacman")) {
 } 
 p_load(tidyverse,readxl,stats,ggpubr,svglite,knitr)
 
-svg_path <- "../../results/targeted/"
+svg_path <- "../../results/targeted/sex_comparison_plots"
 ```
 
 # Set Up
@@ -267,7 +269,7 @@ kable(clean_shapiro_results, caption = "Shapiro-Wilk Normality Test Results (Cle
 
 ```
 
-# Testosterone Analysis
+# Testosterone 
 ```{r TT_SexComparison}
 
 # Check the p-values
@@ -422,7 +424,7 @@ ggboxplot(clean_targeted, x = "Sex", y = "`17B-E2 (ng/mL)`",
 ggsave("log_clean_e2_statistics_sex.svg", path = svg_path)
 ```
 
-Progesterone
+# Progesterone
 
 ```{r Progesterone, echo=TRUE}
 # Check the p-values
