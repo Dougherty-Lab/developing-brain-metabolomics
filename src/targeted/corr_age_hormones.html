@@ -383,13 +383,13 @@ Analysis</a>
 Sex</a></li>
 <li><a href="#separate-sex-1" id="toc-separate-sex-1">Separate
 Sex</a></li>
+</ul></li>
 <li><a href="#progesterone" id="toc-progesterone">Progesterone</a>
 <ul>
 <li><a href="#combined-sex-2" id="toc-combined-sex-2">Combined
 Sex</a></li>
 <li><a href="#separate-sex-2" id="toc-separate-sex-2">Separate
 Sex</a></li>
-</ul></li>
 </ul></li>
 </ul>
 </div>
@@ -830,6 +830,44 @@ summary(female_model) #p-value: 0.7959</code></pre>
 ## Residual standard error: 0.07486 on 12 degrees of freedom
 ## Multiple R-squared:  0.03622,    Adjusted R-squared:  -0.1244 
 ## F-statistic: 0.2255 on 2 and 12 DF,  p-value: 0.8014</code></pre>
+<pre class="r"><code>male_model &lt;- lm(`TT (ng/mL)` ~ GW, data = subset_data_males)
+summary(male_model) #p-value: 0.002309</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = `TT (ng/mL)` ~ GW, data = subset_data_males)
+## 
+## Residuals:
+##       Min        1Q    Median        3Q       Max 
+## -0.084766 -0.025071  0.003001  0.028184  0.065846 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)  
+## (Intercept)  0.372475   0.147137   2.531   0.0222 *
+## GW          -0.011464   0.006845  -1.675   0.1134  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.04244 on 16 degrees of freedom
+## Multiple R-squared:  0.1491, Adjusted R-squared:  0.09597 
+## F-statistic: 2.805 on 1 and 16 DF,  p-value: 0.1134</code></pre>
+<pre class="r"><code>female_model &lt;- lm(`TT (ng/mL)` ~ GW, data = subset_data_females)
+summary(female_model) #p-value: 0.7959</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = `TT (ng/mL)` ~ GW, data = subset_data_females)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.03566 -0.02873 -0.02734 -0.02276  0.19546 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) -0.028113   0.317367  -0.089    0.931
+## GW           0.002773   0.015280   0.181    0.859
+## 
+## Residual standard error: 0.07317 on 13 degrees of freedom
+## Multiple R-squared:  0.002526,   Adjusted R-squared:  -0.0742 
+## F-statistic: 0.03293 on 1 and 13 DF,  p-value: 0.8588</code></pre>
 </div>
 </div>
 </div>
@@ -933,10 +971,11 @@ summary(female_model) #p-value: 0.6758</code></pre>
 ## Multiple R-squared:  0.02999,    Adjusted R-squared:  -0.1086 
 ## F-statistic: 0.2164 on 2 and 14 DF,  p-value: 0.808</code></pre>
 </div>
-<div id="progesterone" class="section level2">
-<h2>Progesterone</h2>
-<div id="combined-sex-2" class="section level3">
-<h3>Combined Sex</h3>
+</div>
+<div id="progesterone" class="section level1">
+<h1>Progesterone</h1>
+<div id="combined-sex-2" class="section level2">
+<h2>Combined Sex</h2>
 <pre class="r"><code># look at relationship with age
 ggplot(targeted_comparision_filtered_P4, aes(x = GW, y = `P4 (ng/mL)`, color = Sex)) +
   geom_point() + theme_minimal()</code></pre>
@@ -962,8 +1001,8 @@ summary(all_simple)</code></pre>
 ## Multiple R-squared:  0.01455,    Adjusted R-squared:  -0.01283 
 ## F-statistic: 0.5314 on 1 and 36 DF,  p-value: 0.4707</code></pre>
 </div>
-<div id="separate-sex-2" class="section level3">
-<h3>Separate Sex</h3>
+<div id="separate-sex-2" class="section level2">
+<h2>Separate Sex</h2>
 <pre class="r"><code># loess
 plot(targeted_comparision_males$GW, targeted_comparision_males$`P4 (ng/mL)`, main=&quot;Loess Fit&quot;, xlab=&quot;GW&quot;, ylab=&quot;`P4 (ng/mL)`&quot;)
 loess_fit_m &lt;- loess(`P4 (ng/mL)` ~ GW, data = targeted_comparision_males, span = 0.85)
@@ -1032,7 +1071,6 @@ summary(female_model) #p-value: 0.6672</code></pre>
 ## Residual standard error: 4.584 on 14 degrees of freedom
 ## Multiple R-squared:  0.04062,    Adjusted R-squared:  -0.09644 
 ## F-statistic: 0.2964 on 2 and 14 DF,  p-value: 0.7481</code></pre>
-</div>
 </div>
 </div>
 
