@@ -1,44 +1,36 @@
 ---
-title: "Correlate Age and Metabolite Concentrations"
-author: "Emma Jones"
-date: "2025-06-20"
-output: html_document
+title: "Calculate Relationship Between Age and Gonadal Hormone Concentrations"
+author: "Emma Jones, Sneha Chaturvedi"
+date: "Most recent update 9.23.25"
+output: 
+  html_document: 
+    toc: TRUE
 ---
 
-The purpose of this analysis is threefold: 1) to understand the relationship between age (gestational week) and hormone concentration, 2) to find outliers in the distribution of hormone concentrations, and 3) to determine if the hormones themselves are correlated with each other. This is important for downstream analyses, to see if GW should be added as a covariate, and if outliers should be removed.
+The purpose of this analysis is threefold: 1) to find outliers in the distribution of hormone concentrations, 2) to understand the relationship between age (gestational week) and hormone concentration, and 3) to determine if the hormones themselves are correlated with each other. This is important for downstream analyses, to see if GW should be added as a co-variate, and if outliers should be removed.
 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-First, we load packages. We might want more later, but for now I know I need the following
+if (!require("pacman")) {
+  install.packages("pacman")
+  library(pacman)
+} 
+p_load(tidyverse,readxl,stats,ggpubr,svglite,knitr)
 
-```{r load packages}
-library(tidyverse)
-library(Seurat)
-library(readxl)
-library(Signac)
-library(glue)
-library(cowplot)
-library(edgeR)
-library(limma)
-library(patchwork)
+svg_path_age <- "../../results/targeted/age_analysis_plots"
+svg_path_correlation <- "../../results/targeted/hormone_hormone_correlation_plots"
 ```
 
 ## Load data
 
 ```{r load seurat object and excel spreadsheet}
-# load 10x multiome data
-SSD_data_v5 <- readRDS("../../data/SSD_data_v5.rds")
-# remove doublets
-SSD_data_v5 <- subset(SSD_data_v5, subset = Droplet == "SNG")
-
 # load hormone metabolomics data
-targeted_comparision_raw <- read_xlsx("../../doc/targeted/Targeted Comparison.xlsx")
+targeted_comparision_raw <- read_xlsx("../../doc/targeted/targeted_hormones.xlsx")
 
-#rename estrogen
-targeted_comparision_raw$E2 <- targeted_comparision_raw$`17B-E2`
+#create new column for estradiol labeled E2 to prevent future coding difficulties with a column label starting with a number
+targeted_comparision_raw$`E2 (ng/mL)`<- targeted_comparision_raw$`17B-E2 (ng/mL)`
 
 ```
 
@@ -54,9 +46,9 @@ detect_outliers <- function(data, variable) {
   data %>% filter(.data[[variable]] <= outlier_limit)
 }
 
-targeted_comparision_filtered_TT <- detect_outliers(targeted_comparision_raw, "TT")
-targeted_comparision_filtered_E2 <- detect_outliers(targeted_comparision_raw, "17B-E2")
-targeted_comparision_filtered_P4 <- detect_outliers(targeted_comparision_raw, "P4")
+targeted_comparision_filtered_TT <- detect_outliers(targeted_comparision_raw, "TT (ng/mL)")
+targeted_comparision_filtered_E2 <- detect_outliers(targeted_comparision_raw, "E2 (ng/mL)")
+targeted_comparision_filtered_P4 <- detect_outliers(targeted_comparision_raw, "P4 (ng/mL)")
 
 # save only samples with observations for all 3, will be used for correlations later
 all_obs <- intersect(targeted_comparision_filtered_TT$Sample, targeted_comparision_filtered_E2$Sample)
@@ -65,144 +57,103 @@ all_obs <- intersect(all_obs, targeted_comparision_filtered_P4$Sample)
 targeted_comparision_filtered <- subset(targeted_comparision_raw, Sample %in% all_obs)
 ```
 
-# Are hormones correlated with each other?
-
-We can make a fairly quick scatterplot for each pairwise relationship
-
+# Hormone Correlations
+## Testosterone and Estradiol
 ```{r look at overall hormone relationships - tt and e2}
 # look at relationship with tt and e2
-ggplot(targeted_comparision_filtered, aes(x = TT, y = E2, color = GW)) +
+ggplot(targeted_comparision_filtered, aes(x = `TT (ng/mL)` , y = `E2 (ng/mL)` , color = GW)) +
+  geom_point() + 
+  theme_minimal() 
+ggsave("TT_E2_scatter_gw.svg", path = svg_path_correlation)
+
+ggplot(targeted_comparision_filtered, aes(x = `TT (ng/mL)`, y = `E2 (ng/mL)`, color = Sex)) +
   geom_point() + theme_minimal()
-ggplot(targeted_comparision_filtered, aes(x = TT, y = E2, color = Sex)) +
-  geom_point() + theme_minimal()
-# Save
-ggsave("../../results/targeted/hormone_hormone_plots/TT_E2_scatter.png")
+ggsave("TT_E2_scatter_sex.svg", path = svg_path_correlation)
 
 # linear model
-tt_e2 <- lm(TT~E2, data=targeted_comparision_filtered) 
-summary(tt_e2) #pval is 0.006437
+tt_e2 <- lm(`TT (ng/mL)`~`E2 (ng/mL)`, data=targeted_comparision_filtered) 
+summary(tt_e2)
 
 targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
-tt_e2_m <- lm(TT~E2, data=targeted_comparision_males) 
-summary(tt_e2_m) #pval is 0.2538
+tt_e2_m <- lm(`TT (ng/mL)`~`E2 (ng/mL)`, data=targeted_comparision_males) 
+summary(tt_e2_m) 
 ```
+
+## Progesterone and Estradiol
 ```{r look at overall hormone relationships - p4 and e2}
 # look at relationship with p4 and e2
-ggplot(targeted_comparision_filtered, aes(x = P4, y = E2, color = GW)) +
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `E2 (ng/mL)`, color = GW)) +
   geom_point() + theme_minimal()
-ggplot(targeted_comparision_filtered, aes(x = P4, y = E2, color = Sex)) +
+ggsave("P4_E2_scatter_gw.svg", path = svg_path_correlation)
+
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `E2 (ng/mL)`, color = Sex)) +
   geom_point() + theme_minimal()
-# Save
-ggsave("../../results/targeted/hormone_hormone_plots/P4_E2_scatter.png")
+ggsave("P4_E2_scatter_sex.svg", path = svg_path_correlation)
 
 # linear model
-p4_e2 <- lm(P4~E2, data=targeted_comparision_filtered) 
-summary(p4_e2) #pval is 0.06845
+p4_e2 <- lm(`P4 (ng/mL)`~`E2 (ng/mL)`, data=targeted_comparision_filtered) 
+summary(p4_e2) 
 
 targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
-p4_e2_f <- lm(P4~E2, data=targeted_comparision_females) 
-summary(p4_e2_f) #pval is 0.02831
-```
-
-```{r look at overall hormone relationships - p4 and tt}
-# look at relationship with p4 and tt
-ggplot(targeted_comparision_filtered, aes(x = P4, y = TT, color = GW)) +
-  geom_point() + theme_minimal()
-ggplot(targeted_comparision_filtered, aes(x = P4, y = TT, color = Sex)) +
-  geom_point() + theme_minimal()
-# Save
-ggsave("../../results/targeted/hormone_hormone_plots/P4_TT_scatter.png")
-
-# linear model
-p4_tt <- lm(P4~TT, data=targeted_comparision_filtered) 
-summary(p4_tt) #pval is 0.4612
-
-targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
-p4_tt_f <- lm(P4~TT, data=targeted_comparision_females) 
-summary(p4_tt_f) #pval is 0.3497
+p4_e2_f <- lm(`P4 (ng/mL)`~`E2 (ng/mL)`, data=targeted_comparision_females) 
+summary(p4_e2_f)
 
 targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
-p4_tt_m <- lm(P4~TT, data=targeted_comparision_males) 
-summary(p4_tt_m) #pval is 0.5836
+p4_e2_m <- lm(`P4 (ng/mL)`~`E2 (ng/mL)`, data=targeted_comparision_males) 
+summary(p4_e2_m)
 ```
 
-# testosterone analysis
+## Progesterone and Testosterone
+```{r look at overall hormone relationships - p4 and tt}
+# look at relationship with p4 and tt
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `TT (ng/mL)`, color = GW)) +
+  geom_point() + theme_minimal()
+ggsave("P4_TT_scatter_gw.svg", path = svg_path_correlation)
 
-## how does this correlate with age?
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `TT (ng/mL)`, color = Sex)) +
+  geom_point() + theme_minimal()
+ggsave("P4_TT_scatter_gw.svg", path = svg_path_correlation)
+
+# linear model
+p4_tt <- lm(`P4 (ng/mL)`~`TT (ng/mL)`, data=targeted_comparision_filtered) 
+summary(p4_tt) 
+
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+p4_tt_f <- lm(`P4 (ng/mL)`~`TT (ng/mL)`, data=targeted_comparision_females) 
+summary(p4_tt_f) 
+
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+p4_tt_m <- lm(`P4 (ng/mL)`~`TT (ng/mL)`, data=targeted_comparision_males) 
+summary(p4_tt_m) 
+```
+
+# Hormone/Gestational Week Analysis 
+
+## Testosterone
+### Combined sex
 ```{r look at age (gestational week) relationship}
 # look at relationship with age
-ggplot(targeted_comparision_filtered_TT, aes(x = GW, y = TT, color = Sex)) +
+ggplot(targeted_comparision_filtered_TT, aes(x = GW, y = `TT (ng/mL)`, color = Sex)) +
   geom_point() + theme_minimal()
+ggsave("TT_gw.svg", path = svg_path_age)
 
-all_simple <- lm(TT~GW, data=targeted_comparision_filtered_TT) 
+all_simple <- lm(`TT (ng/mL)`~GW, data=targeted_comparision_filtered_TT) 
 summary(all_simple)
 ```
 
-so its not significant, but the graph clearly supports that males differ from females, so I will separate the groups
+Not significant with males and females combined, but the graph visually supports  males differ from females.
 
-```{r separate groups and find a model}
-targeted_comparision_males <- targeted_comparision_filtered_TT[targeted_comparision_filtered_TT$Sex == "M",]
-
-# fit polynomial regression models up to degree 5 
-linear_model1 <- lm(TT~GW, data=targeted_comparision_males) 
-linear_model2 <- lm(TT~poly(GW,2,raw=TRUE), data=targeted_comparision_males) 
-linear_model3 <- lm(TT~poly(GW,3,raw=TRUE), data=targeted_comparision_males)
-
-# Sort the x values and get corresponding predicted values
-x_axis_sorted <- sort(targeted_comparision_males$GW)
-
-# Base plot - males
-plot(targeted_comparision_males$GW, targeted_comparision_males$TT, main="Polynomial Fits", xlab="GW", ylab="TT")
-
-# Add model lines using sorted x
-lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
-lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
-lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
-
-# calculated adjusted R-squared of each model 
-summary(linear_model1)$adj.r.squared 
-summary(linear_model2)$adj.r.squared 
-summary(linear_model3)$adj.r.squared 
-```
-
-```{r run for females}
-#filter for only females
-targeted_comparision_females <- targeted_comparision_filtered_TT[targeted_comparision_filtered_TT$Sex == "F",]
-
-# fit polynomial regression models up to degree 5 
-linear_model1 <- lm(TT~GW, data=targeted_comparision_females) 
-linear_model2 <- lm(TT~poly(GW,2,raw=TRUE), data=targeted_comparision_females) 
-linear_model3 <- lm(TT~poly(GW,3,raw=TRUE), data=targeted_comparision_females) 
-
-# Sort the x values and get corresponding predicted values
-x_axis_sorted <- sort(targeted_comparision_females$GW)
-
-# Base plot - males
-plot(targeted_comparision_females$GW, targeted_comparision_females$TT, main="Polynomial Fits", xlab="GW", ylab="TT")
-
-# Add model lines using sorted x
-lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
-lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
-lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
-
-
-# calculated adjusted R-squared of each model 
-summary(linear_model1)$adj.r.squared 
-summary(linear_model2)$adj.r.squared 
-summary(linear_model3)$adj.r.squared 
-
-```
-
-```{r run loess instead}
-# try loess
-plot(targeted_comparision_males$GW, targeted_comparision_males$TT, main="Loess Fit", xlab="GW", ylab="TT")
-loess_fit_m <- loess(TT ~ GW, data = targeted_comparision_males, span = 0.85)
+### Separate Sex
+```{r loess - tt}
+# LOESS (Locally Estimated Scatterplot Smoothing)
+plot(targeted_comparision_males$GW, targeted_comparision_males$`TT (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`TT (ng/mL)`")
+loess_fit_m <- loess(`TT (ng/mL)` ~ GW, data = targeted_comparision_males, span = 0.85)
 lines(sort(targeted_comparision_males$GW),
       predict(loess_fit_m, newdata = data.frame(GW = sort(targeted_comparision_males$GW))),
       col = "dodgerblue", lwd = 2)
 
-plot(targeted_comparision_females$GW, targeted_comparision_females$TT, main="Loess Fit", xlab="GW", ylab="TT")
-loess_fit_f <- loess(TT ~ GW, data = targeted_comparision_females, span = 0.85)
+plot(targeted_comparision_females$GW, targeted_comparision_females$`TT (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`TT (ng/mL)`")
+loess_fit_f <- loess(`TT (ng/mL)` ~ GW, data = targeted_comparision_females, span = 0.85)
 lines(sort(targeted_comparision_females$GW),
       predict(loess_fit_f, newdata = data.frame(GW = sort(targeted_comparision_females$GW))),
       col = "violetred2", lwd = 2)
@@ -213,134 +164,92 @@ targeted_comparision_females$sex <- "female"
 combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
 
 # Plot with LOESS curves
-ggplot(combined_data, aes(x = GW, y = TT, color = sex, fill = sex)) +
+ggplot(combined_data, aes(x = GW, y = `TT (ng/mL)`, color = sex, fill = sex)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
   labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Testosterone") +
   scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
   theme_minimal()
-
-# Save
-ggsave("../../results/targeted/hormone_age_plots/TT_loess_graph.png")
+ggsave("TT_Loess_GW.svg", path = svg_path_age)
 
 ```
-
-
-```{r model using best-fitting equation}
-male_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_males)
+```{r model using best-fitting equation - tt}
+male_model <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = targeted_comparision_males)
 summary(male_model) #p-value: 0.002309
 
-female_model <- lm(TT ~ GW + I(GW^2), data = targeted_comparision_females)
+female_model <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = targeted_comparision_females)
 summary(female_model) #p-value: 0.7959
-
-# Create prediction frame - male
-new_male <- data.frame(GW = seq(min(targeted_comparision_males$GW),
-                                max(targeted_comparision_males$GW), length.out = 100))
-new_male$TT_pred <- predict(lm(TT ~ GW + I(GW^2), data = targeted_comparision_males),
-                            newdata = new_male)
-
-# Create prediction frame - female
-new_female <- data.frame(GW = seq(min(targeted_comparision_females$GW),
-                                max(targeted_comparision_females$GW), length.out = 100))
-new_female$TT_pred <- predict(lm(TT ~ GW + I(GW^2), data = targeted_comparision_females),
-                            newdata = new_female)
-
-# Plot 1
-ggplot(targeted_comparision_males, aes(x = GW, y = TT)) +
-  geom_point(color = "dodgerblue", alpha = 0.6) +
-  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
-  labs(title = "TT ~ GW² Fit in Males", x = "GW", y = "TT") +
-  theme_minimal()
-
-# Plot 2
-ggplot(targeted_comparision_females, aes(x = GW, y = TT)) +
-  geom_point(color = "violetred2", alpha = 0.6) +
-  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² Fit in Females", x = "GW", y = "TT") +
-  theme_minimal()
-
-# Combine information
-ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
-  scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
-  geom_point(alpha = 0.6) +
-  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
-  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", subtitle = "Male p-value: 0.01292\nFemale p-value:0.7959", x = "GW", y = "TT") +
-  theme_minimal()
-
-# move the text
-ggplot(targeted_comparision_filtered, aes(x = GW, y = TT, color = Sex)) +
-  scale_color_manual(values = c("F" = "violetred2", "M" = "dodgerblue")) +
-  geom_point(alpha = 0.6) +
-  geom_line(data = new_male, aes(x = GW, y = TT_pred), color = "dodgerblue4", size = 1.2) +
-  geom_line(data = new_female, aes(x = GW, y = TT_pred), color = "violetred4", size = 1.2) +
-  labs(title = "TT ~ GW² + I(GW²) Fit in Males and Females", x = "Gestational Week (GW)", y = "Testosterone") +
-  annotate("text", x = 16, y = 0.4, label = "Male p-value: 0.002309", color = "dodgerblue4", hjust = 0) +
-  annotate("text", x = 16, y = 0.35, label = "Female p-value: 0.7959", color = "violetred4", hjust = 0) +
-  theme_minimal()
-
-# save new plot
-ggsave("../../results/targeted/hormone_age_plots/TT_GW_modelfit.png")
-
 ```
 
-# do again for estrogen
+Re-run with time points with n < 3 removed
+```{r loess-subset}
+#create subset of data
+subset_data <- targeted_comparision_filtered %>%
+  group_by(GW) %>%
+  filter(n() >= 3) %>%
+  ungroup()
 
-## Detect Outliers
+subset_data_males <- subset_data[subset_data$Sex == "M",]
+subset_data_females <- subset_data[subset_data$Sex == "F",]
 
-The statistical definition of an outlier differs by field, but generally Q3 + 1.5*IQR is accepted as a way to detect outliers
+# LOESS 
+plot(subset_data_males$GW, subset_data_males$`TT (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`TT (ng/mL)`")
+loess_fit_m <- loess(`TT (ng/mL)` ~ GW, data = subset_data_males, span = 0.85)
+lines(sort(subset_data_males$GW),
+      predict(loess_fit_m, newdata = data.frame(GW = sort(subset_data_males$GW))),
+      col = "dodgerblue", lwd = 2)
 
-Let's calculate below:
+plot(subset_data_females$GW, subset_data_females$`TT (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`TT (ng/mL)`")
+loess_fit_f <- loess(`TT (ng/mL)` ~ GW, data = subset_data_females, span = 0.85)
+lines(sort(subset_data_females$GW),
+      predict(loess_fit_f, newdata = data.frame(GW = sort(subset_data_females$GW))),
+      col = "violetred2", lwd = 2)
 
-## how does this correlate with age?
+# Combine male and female data (assuming you already split them)
+subset_data_males$sex <- "male"
+subset_data_females$sex <- "female"
+combined_data <- rbind(subset_data_males, subset_data_females)
 
-```{r look at overall relationship}
+# Plot with LOESS curves
+ggplot(combined_data, aes(x = GW, y = `TT (ng/mL)`, color = sex, fill = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
+  labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Testosterone") +
+  scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
+  theme_minimal()
+ggsave("subset_TT_Loess_GW.svg", path = svg_path_age)
+
+```
+```{r model using best-fitting equation - tt subset}
+male_model <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = subset_data_males)
+summary(male_model) #p-value: 0.002309
+
+female_model <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = subset_data_females)
+summary(female_model) #p-value: 0.7959
+```
+# Estrogen
+### Combined Sex
+
+```{r look at overall relationship - e2}
 # look at relationship with age
-ggplot(targeted_comparision_filtered_E2, aes(x = GW, y = E2, color = Sex)) +
+ggplot(targeted_comparision_filtered_E2, aes(x = GW, y = `E2 (ng/mL)`, color = Sex)) +
   geom_point() + theme_minimal()
+ggsave("E2_gw.svg", path = svg_path_age)
 
-all_simple <- lm(E2~GW, data=targeted_comparision_filtered) 
+all_simple <- lm(`E2 (ng/mL)`~GW, data=targeted_comparision_filtered) 
 summary(all_simple)
 ```
-
-im not seeing a strong difference for males or females
-
-```{r separate groups and find a model}
-targeted_comparision_females <- targeted_comparision_filtered_E2[targeted_comparision_filtered_E2$Sex == "F",]
-targeted_comparision_males <- targeted_comparision_filtered_E2[targeted_comparision_filtered_E2$Sex == "M",]
-
-# fit polynomial regression models up to degree 5 
-linear_model1 <- lm(E2~GW, data=targeted_comparision_females) 
-linear_model2 <- lm(E2~poly(GW,2,raw=TRUE), data=targeted_comparision_females) 
-linear_model3 <- lm(E2~poly(GW,3,raw=TRUE), data=targeted_comparision_females)
-
-# Sort the x values and get corresponding predicted values
-x_axis_sorted <- sort(targeted_comparision_females$GW)
-
-# Base plot - males
-plot(targeted_comparision_females$GW, targeted_comparision_females$E2, main="Polynomial Fits", xlab="GW", ylab="E2")
-
-# Add model lines using sorted x
-lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
-lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
-lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
-
-# calculated adjusted R-squared of each model 
-summary(linear_model1)$adj.r.squared 
-summary(linear_model2)$adj.r.squared 
-summary(linear_model3)$adj.r.squared 
-```
-
-```{r run loess instead}
-# try loess
-plot(targeted_comparision_males$GW, targeted_comparision_males$E2, main="Loess Fit", xlab="GW", ylab="E2")
-loess_fit_m <- loess(E2 ~ GW, data = targeted_comparision_males, span = 0.85)
+### Separate Sex
+```{r loess - e2}
+# LOESS
+plot(targeted_comparision_males$GW, targeted_comparision_males$`E2 (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`E2 (ng/mL)`")
+loess_fit_m <- loess(`E2 (ng/mL)` ~ GW, data = targeted_comparision_males, span = 0.85)
 lines(sort(targeted_comparision_males$GW),
       predict(loess_fit_m, newdata = data.frame(GW = sort(targeted_comparision_males$GW))),
       col = "dodgerblue", lwd = 2)
 
-plot(targeted_comparision_females$GW, targeted_comparision_females$E2, main="Loess Fit", xlab="GW", ylab="E2")
-loess_fit_f <- loess(E2 ~ GW, data = targeted_comparision_females, span = 0.85)
+plot(targeted_comparision_females$GW, targeted_comparision_females$`E2 (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`E2 (ng/mL)`")
+loess_fit_f <- loess(`E2 (ng/mL)` ~ GW, data = targeted_comparision_females, span = 0.85)
 lines(sort(targeted_comparision_females$GW),
       predict(loess_fit_f, newdata = data.frame(GW = sort(targeted_comparision_females$GW))),
       col = "violetred2", lwd = 2)
@@ -351,87 +260,52 @@ targeted_comparision_females$sex <- "female"
 combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
 
 # Plot with LOESS curves
-ggplot(combined_data, aes(x = GW, y = E2, color = sex, fill = sex)) +
+ggplot(combined_data, aes(x = GW, y = `E2 (ng/mL)`, color = sex, fill = sex)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
   labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Estradiol") +
   scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
   theme_minimal()
-
-# Save
-ggsave("../../results/targeted/hormone_age_plots/E2_loess_graph.png")
+ggsave("E2_Loess_GW.svg", path = svg_path_age)
 
 ```
 
 
-```{r model using best-fitting equation}
-male_model <- lm(E2 ~ GW + I(GW^2), data = targeted_comparision_males)
+```{r model using best-fitting equation - e2}
+male_model <- lm(`E2 (ng/mL)` ~ GW + I(GW^2), data = targeted_comparision_males)
 summary(male_model) #p-value: 0.2672
 
-female_model <- lm(E2 ~ GW + I(GW^2), data = targeted_comparision_females)
+female_model <- lm(`E2 (ng/mL)` ~ GW + I(GW^2), data = targeted_comparision_females)
 summary(female_model) #p-value: 0.6758
 
 ```
 
-There seems to be no significant relationship with estrogen and age, but the high outliers (5) might be influencing other analyses. I should also run outlier analysis on progesterone.
 
-# Progesterone outlier analysis!!!
+## Progesterone
 
-## Detect Outliers
+### Combined Sex 
 
-The statistical definition of an outlier differs by field, but generally Q3 + 1.5*IQR is accepted as a way to detect outliers
-
-Let's calculate below:
-
-## how does this correlate with age?
-
-```{r look at overall relationship}
+```{r look at overall relationship - p4}
 # look at relationship with age
-ggplot(targeted_comparision_filtered_P4, aes(x = GW, y = P4, color = Sex)) +
+ggplot(targeted_comparision_filtered_P4, aes(x = GW, y = `P4 (ng/mL)`, color = Sex)) +
   geom_point() + theme_minimal()
+ggsave("P4_gw.svg", path = svg_path_age)
 
-all_simple <- lm(P4~GW, data=targeted_comparision_filtered) 
+all_simple <- lm(`P4 (ng/mL)`~GW, data=targeted_comparision_filtered) 
 summary(all_simple)
 ```
 
-im not seeing a strong difference for males or females
-
-```{r separate groups and find a model}
-targeted_comparision_females <- targeted_comparision_filtered_P4[targeted_comparision_filtered_P4$Sex == "F",]
-targeted_comparision_males <- targeted_comparision_filtered_P4[targeted_comparision_filtered_P4$Sex == "M",]
-
-# fit polynomial regression models up to degree 5 
-linear_model1 <- lm(P4~GW, data=targeted_comparision_females) 
-linear_model2 <- lm(P4~poly(GW,2,raw=TRUE), data=targeted_comparision_females) 
-linear_model3 <- lm(P4~poly(GW,3,raw=TRUE), data=targeted_comparision_females)
-
-# Sort the x values and get corresponding predicted values
-x_axis_sorted <- sort(targeted_comparision_females$GW)
-
-# Base plot - males
-plot(targeted_comparision_females$GW, targeted_comparision_females$P4, main="Polynomial Fits", xlab="GW", ylab="P4")
-
-# Add model lines using sorted x
-lines(x_axis_sorted, predict(linear_model1, data.frame(GW=x_axis_sorted)), col='green') 
-lines(x_axis_sorted, predict(linear_model2, data.frame(GW=x_axis_sorted)), col='red') 
-lines(x_axis_sorted, predict(linear_model3, data.frame(GW=x_axis_sorted)), col='purple') 
-
-# calculated adjusted R-squared of each model 
-summary(linear_model1)$adj.r.squared 
-summary(linear_model2)$adj.r.squared 
-summary(linear_model3)$adj.r.squared 
-```
-
-```{r run loess instead}
-# try loess
-plot(targeted_comparision_males$GW, targeted_comparision_males$P4, main="Loess Fit", xlab="GW", ylab="P4")
-loess_fit_m <- loess(P4 ~ GW, data = targeted_comparision_males, span = 0.85)
+### Separate Sex
+```{r loess - p4}
+# loess
+plot(targeted_comparision_males$GW, targeted_comparision_males$`P4 (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`P4 (ng/mL)`")
+loess_fit_m <- loess(`P4 (ng/mL)` ~ GW, data = targeted_comparision_males, span = 0.85)
 lines(sort(targeted_comparision_males$GW),
       predict(loess_fit_m, newdata = data.frame(GW = sort(targeted_comparision_males$GW))),
       col = "dodgerblue", lwd = 2)
 
-plot(targeted_comparision_females$GW, targeted_comparision_females$P4, main="Loess Fit", xlab="GW", ylab="P4")
-loess_fit_f <- loess(P4 ~ GW, data = targeted_comparision_females, span = 0.85)
+plot(targeted_comparision_females$GW, targeted_comparision_females$`P4 (ng/mL)`, main="Loess Fit", xlab="GW", ylab="P4")
+loess_fit_f <- loess(`P4 (ng/mL)` ~ GW, data = targeted_comparision_females, span = 0.85)
 lines(sort(targeted_comparision_females$GW),
       predict(loess_fit_f, newdata = data.frame(GW = sort(targeted_comparision_females$GW))),
       col = "violetred2", lwd = 2)
@@ -442,24 +316,22 @@ targeted_comparision_females$sex <- "female"
 combined_data <- rbind(targeted_comparision_males, targeted_comparision_females)
 
 # Plot with LOESS curves
-ggplot(combined_data, aes(x = GW, y = P4, color = sex, fill = sex)) +
+ggplot(combined_data, aes(x = GW, y = `P4 (ng/mL)`, color = sex, fill = sex)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
   labs(title = "LOESS Fit by Sex (outliers removed)", x = "Gestational Week (GW)", y = "Progesterone") +
   scale_color_manual(values = c("male" = "dodgerblue", "female" = "violetred2")) +
   theme_minimal()
-
-# Save
-ggsave("../../results/targeted/hormone_age_plots/P4_loess_graph.png")
+ggsave("P4_Loess_GW.svg", path = svg_path_age)
 
 ```
 
 
-```{r model using best-fitting equation}
-male_model <- lm(P4 ~ GW + I(GW^2), data = targeted_comparision_males)
+```{r model using best-fitting equation - p4}
+male_model <- lm(`P4 (ng/mL)` ~ GW + I(GW^2), data = targeted_comparision_males)
 summary(male_model) #p-value: 0.3699
 
-female_model <- lm(P4 ~ GW + I(GW^2), data = targeted_comparision_females)
+female_model <- lm(`P4 (ng/mL)` ~ GW + I(GW^2), data = targeted_comparision_females)
 summary(female_model) #p-value: 0.6672
 
 ```
