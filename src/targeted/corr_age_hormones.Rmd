@@ -227,6 +227,16 @@ summary(male_model) #p-value: 0.002309
 female_model <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = subset_data_females)
 summary(female_model) #p-value: 0.7959
 ```
+
+
+```{r model using linear equation - tt subset, echo=TRUE}
+male_model <- lm(`TT (ng/mL)` ~ GW, data = subset_data_males)
+summary(male_model) #p-value: 0.002309
+
+female_model <- lm(`TT (ng/mL)` ~ GW, data = subset_data_females)
+summary(female_model) #p-value: 0.7959
+```
+
 # Estrogen
 ### Combined Sex
 
@@ -280,10 +290,9 @@ summary(female_model) #p-value: 0.6758
 
 ```
 
+# Progesterone
 
-## Progesterone
-
-### Combined Sex 
+## Combined Sex 
 
 ```{r look at overall relationship - p4}
 # look at relationship with age
@@ -295,7 +304,7 @@ all_simple <- lm(`P4 (ng/mL)`~GW, data=targeted_comparision_filtered)
 summary(all_simple)
 ```
 
-### Separate Sex
+## Separate Sex
 ```{r loess - p4}
 # loess
 plot(targeted_comparision_males$GW, targeted_comparision_males$`P4 (ng/mL)`, main="Loess Fit", xlab="GW", ylab="`P4 (ng/mL)`")
