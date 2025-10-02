@@ -1,32 +1,26 @@
 ---
-title: "Correlate Hormones and Gene Expression (Optimized)"
-author: "Emma Jones"
-date: "2025-06-23"
-output: html_document
+title: "Gonadal Hormone and Gene Expression Relationship Analysis"
+author: "Emma Jones, Sneha Chaturvedi"
+date: "Last updated 9.29.25"
+output: 
+  html_document:
+    toc: TRUE
 ---
 
+# Set Up
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
 
-The purpose of his script is to explore single cell RNA-seq results (and potentially scATAC), and correlate these levels with testosterone, progesterone, and estradiol concentrations from developing human brain samples for males and females, separately.
+Packages <- c("tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot", "edgeR", "limma", "patchwork", "svglite", "Matrix")
 
-##Load Packages
-
-```{r load package}
-library(tidyverse)
-library(Seurat)
-library(readxl)
-library(Signac)
-library(glue)
-library(cowplot)
-library(edgeR)
-library(limma)
-library(patchwork)
-library(Matrix)
+lapply(Packages, library, character.only=TRUE)
 
 set.seed(123)
+svg_path <- "../../results/targeted/hormone-gene-plots"
+csv_path <- "../../results/targeted/hormone-gene-csv"
 ```
+
+The purpose of this script is to 1) explore single cell RNA-seq results and 2) analyze for relationships between gene expression and testosterone, progesterone, and estradiol concentrations from developing human brain samples. This script analyzes males and females separately. 
 
 ## Load Data
 ```{r load data}
@@ -44,7 +38,7 @@ targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
 DefaultAssay(SSD_data_v5) <- "SCT"
 DimPlot(SSD_data_v5, label = TRUE, label.box = TRUE, repel = TRUE, label.color = "white", label.size = 5) + NoLegend()
 
-ggsave("../../results/targeted/celltype_umap.png", width = 7, height = 4)
+ggsave("../../results/targeted/single_cell_plots/celltype_umap.png", width = 7, height = 4)
 ```
 
 ## Remove Outliers
@@ -59,6 +53,7 @@ targeted_comparison_filtered_E2 <- detect_outliers(targeted_comparison_raw, "E2"
 targeted_comparison_filtered_P4 <- detect_outliers(targeted_comparison_raw, "P4")
 ```
 
+# Pseudobulk
 ## Metadata and Pseudobulk Functions
 
 ```{r metadata and pseudobulk}
@@ -128,7 +123,7 @@ pb_TT <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtere
 pb_E2 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtered_E2)
 pb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtered_P4)
 ```
-
+# Differential Gene Expression Analysis
 ## Define DE analysis wrapper functions
 
 ```{r limma anlysis}
@@ -159,49 +154,112 @@ run_voom_lm <- function(counts, metadata, predictor) {
 ```
 
 
-```{r test new filtering and plotting functions}
-analyze_hormone <- function(pb_counts, metadata_merged, hormone, min_samples = 8) {
+## Define Filtering and Plotting Functions
+```{r filtering and plotting functions}
+analyze_hormone <- function(pb_counts, metadata_merged, hormone, overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3) {
+  # Split the metadata based on cell type and Sex
   split_ids <- split(rownames(metadata_merged), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
   
-  results_by_group <- purrr::map(split_ids, function(ids) {
-    counts_sub <- t(pb_counts)[, ids, drop = FALSE] 
+  results_by_group <- purrr::map(names(split_ids), function(group_name) {
+    ids <- split_ids[[group_name]]
+    
+    # Subset counts and metadata based on ids
+    counts_sub <- t(pb_counts)[, ids, drop = FALSE]
     metadata_sub <- metadata_merged[ids, , drop = FALSE]
     
-    if (nrow(metadata_sub) < min_samples) return(NULL)
+    initial_sample_size <- nrow(metadata_sub)
+    cat("\nGroup:", group_name, "\n")
+    cat("Initial number of samples:", initial_sample_size, "\n")
     
-    # Gene-level filtering
-    keep_genes <- colSums(counts_sub >= 2) >= 3
+    # Check if the group has a minimum number of samples
+    if (nrow(metadata_sub) < overall_min_samples) {
+      cat("Group removed: insufficient samples", nrow(metadata_sub), "\n")
+      return(NULL)
+    }
+    
+    # Gene-level filtering to retain genes with counts above certain thresholds
+    keep_genes <- colSums(counts_sub >= count_threshold) >= gene_sample_threshold
     counts_sub <- counts_sub[, keep_genes, drop = FALSE]
-    if (ncol(counts_sub) == 0) return(NULL)
     
-    # HORMONE FILTER: Must come after filtering samples to valid counts_sub columns
-    nonzero_hormone_mask <- metadata_sub[[hormone]] != 0 & !is.na(metadata_sub[[hormone]])
-    if (sum(nonzero_hormone_mask) < min_samples) return(NULL)
+    # Check if any genes remain after filtering
+    if (ncol(counts_sub) == 0) {
+      cat("Group removed: no genes passed the filtering threshold\n")
+      return(NULL)
+    }
     
-    result <- run_voom_lm(counts_sub, metadata_sub, hormone)
-    result$cell_type <- metadata_sub$cell_type[1]
-    result$sex <- metadata_sub$Sex[1]
+    # Calculate the outlier threshold based on hormone values
+    outlier_concentration <- quantile(metadata_sub[[hormone]], 0.75, na.rm = TRUE) + 1.5 * IQR(metadata_sub[[hormone]], na.rm = TRUE)
+    cat("Outlier concentration threshold:", outlier_concentration, "\n")
     
-    # Return a list containing results AND the filtered data used for modeling
+    # Filter out the outliers based on hormone concentration
+    non_outliers <- metadata_sub[[hormone]] < outlier_concentration
+    counts_sub_non_outliers <- counts_sub[, non_outliers, drop = FALSE]
+    metadata_sub_non_outliers <- metadata_sub[non_outliers, , drop = FALSE]
+    
+    cat("Samples after outlier removal:", nrow(metadata_sub_non_outliers), "\n")
+    
+    # Check if enough samples remain after removing outliers
+    if (nrow(metadata_sub_non_outliers) < overall_min_samples) {
+      cat("Group removed: insufficient samples after outlier removal", nrow(metadata_sub_non_outliers), "\n")
+      return(NULL)
+    }
+    
+    # Mask for non-zero and non-NA hormone values
+    nonzero_hormone_mask <- metadata_sub_non_outliers[[hormone]] != 0 & !is.na(metadata_sub_non_outliers[[hormone]])
+    cat("Samples with non-zero hormone:", sum(nonzero_hormone_mask), "\n")
+    
+    # Check if enough samples have non-zero hormone values
+    if (sum(nonzero_hormone_mask) < overall_min_samples) {
+      cat("Group removed: insufficient non-zero hormone values", sum(nonzero_hormone_mask), "\n")
+      return(NULL)
+    }
+    
+    # Subset counts and metadata to only those with non-zero hormone values
+    final_counts_sub <- counts_sub_non_outliers[, nonzero_hormone_mask, drop = FALSE]
+    final_metadata_sub <- metadata_sub_non_outliers[nonzero_hormone_mask, , drop = FALSE]
+    
+    cat("Final sample size:", nrow(final_metadata_sub), "\n")
+    
+    # Run the modeling function
+    result <- run_voom_lm(final_counts_sub, final_metadata_sub, hormone)
+    
+    # Verify if the result is NULL
+    if (is.null(result)) {
+      cat("Model returned NULL result\n")
+      return(NULL)
+    }
+    
+    # Append additional metadata to the result
+    result$cell_type <- final_metadata_sub$cell_type[1]
+    result$sex <- final_metadata_sub$Sex[1]
+    
+    # Return the result including the filtered data used for modeling
     list(
       limma_results = result,
-      counts_sub = counts_sub,
-      metadata_sub = metadata_sub
+      counts_sub = final_counts_sub,
+      metadata_sub = final_metadata_sub
     )
   })
   
-  # Remove NULL groups
+  # Remove NULL groups from results_by_group
   results_by_group <- results_by_group[!sapply(results_by_group, is.null)]
   
   # Combine all limma results into one data.frame
   combined_results <- purrr::map_dfr(results_by_group, ~ .x$limma_results)
   
+  # Check if combined results are empty
+  if (nrow(combined_results) == 0) {
+    cat("No significant results found\n")
+  }
+  
+  # Return the combined results and data by group
   list(
     combined_results = combined_results,
     by_group_data = results_by_group
   )
 }
-
+```
+```{r plotting-function, echo = TRUE}
 plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
   dir.create(output_dir, showWarnings = FALSE)
   
@@ -279,17 +337,16 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
 
 ```
 
-
-# Run DE analyses with limma
+# Run DE analyses with limma and filtering parameters
 
 ```{r merge metadata and run analyses}
 # TT - Run analysis
-res_TT <- analyze_hormone(pb_TT$pb$counts, pb_TT$metadata, hormone = "TT")
+res_TT <- analyze_hormone(pb_TT$pb$counts, pb_TT$metadata, hormone = "TT", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3)
 # TT - Plot top genes
 plot_top_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/pseudobulk_testosterone_plots", hormone = "TT")
 
 # E2
-res_E2 <- analyze_hormone(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2")
+res_E2 <- analyze_hormone(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3)
 # E2 - Plot top genes
 plot_top_genes_from_subsets(res_E2$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots", hormone = "E2")
 

@@ -25,7 +25,7 @@ singularity exec \
    -B /tmp:/var/lib/rstudio-server \
    -B /tmp:/var/run/rstudio-server \
    -B /scratch/jdlab/sneha/developing-brain-metabolomics \
-   developing-brain-metabolomics_1.0.1.sif \
+   developing-brain-metabolomics_1.0.3.sif \
    rserver \
      --server-user=$USER
 
