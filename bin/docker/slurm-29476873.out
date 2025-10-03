@@ -1,8 +1,0 @@
-
-        SSH tunnel to n204
-        ssh sneha.chaturvedi@login.htcf.wustl.edu -N -L 8787:n204:8787
-
-        Open in browser: http://localhost:8787
-
-INFO:    Converting SIF file to temporary sandbox...
-slurmstepd: error: *** JOB 29476873 ON n204 CANCELLED AT 2025-10-01T14:56:38 DUE TO TIME LIMIT ***

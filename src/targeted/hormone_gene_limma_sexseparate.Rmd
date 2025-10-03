@@ -126,7 +126,7 @@ pb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtere
 # Differential Gene Expression Analysis
 ## Define DE analysis wrapper functions
 
-```{r limma anlysis}
+```{r limma analysis}
 run_voom_lm <- function(counts, metadata, predictor) {
   stopifnot(ncol(counts) == nrow(metadata))
   if (!"GW" %in% colnames(metadata)) metadata$GW <- NA
@@ -351,7 +351,7 @@ res_E2 <- analyze_hormone(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overa
 plot_top_genes_from_subsets(res_E2$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots", hormone = "E2")
 
 # P4
-res_P4 <- analyze_hormone(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4")
+res_P4 <- analyze_hormone(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3)
 # P4 - Plot top genes
 plot_top_genes_from_subsets(res_P4$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots", hormone = "P4")
 
