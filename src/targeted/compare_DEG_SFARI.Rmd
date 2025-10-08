@@ -49,20 +49,38 @@ TT_results <- read_csv("../../results/targeted/TT_results.csv")
 ```
 
 
-```{r filter gene list and TT genes}
+```{r filter gene list and genes}
 SFARI_Gene_filt <- SFARI_Gene %>% dplyr::filter(`gene-score` <= 2)
 
-TT_sig_results <- TT_results %>%
+TT_sig_results <- res_TT$combined_results %>%
   dplyr::filter(sex == "M") %>%
   dplyr::filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25)
+
+E2_sig_results <- res_E2$combined_results %>%
+  dplyr::filter(sex == "M") %>%
+  dplyr::filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25)
+
+P4_sig_results <- res_P4$combined_results %>%
+  dplyr::filter(sex == "M") %>%
+  dplyr::filter(adj.P.Val < 0.05 & abs(logFC) >= 0.25)
+
 ```
 
 ```{r check for SFARI intersect}
-SFARI_shared_genes <- intersect(SFARI_Gene_filt$`gene-symbol`, TT_sig_results$gene)
-SFARI_shared_genes
+TT_SFARI_shared_genes <- intersect(SFARI_Gene_filt$`gene-symbol`, TT_sig_results$gene)
 
-SFARI_shared_sig_results <- TT_sig_results %>%
-  dplyr::filter(gene %in% SFARI_shared_genes)
+TT_SFARI_shared_sig_results <- TT_sig_results %>%
+  dplyr::filter(gene %in% TT_SFARI_shared_genes)
+
+E2_SFARI_shared_genes <- intersect(SFARI_Gene_filt$`gene-symbol`, E2_sig_results$gene)
+
+E2_SFARI_shared_sig_results <- E2_sig_results %>%
+  dplyr::filter(gene %in% E2_SFARI_shared_genes)
+
+P4_SFARI_shared_genes <- intersect(SFARI_Gene_filt$`gene-symbol`, P4_sig_results$gene)
+
+P4_SFARI_shared_sig_results <- P4_sig_results %>%
+  dplyr::filter(gene %in% P4_SFARI_shared_genes)
 ```
 
 ```{r visualize SFARI genes}
@@ -142,8 +160,11 @@ plot_SFARI_genes <- function(by_group_data, output_dir, hormone, top_n = 6) {
 
 plot_SFARI_genes(res_TT$by_group_data, "../../results/targeted/SFARI_testosterone_plots", hormone = "TT")
 
-```
+plot_SFARI_genes(res_E2$by_group_data, "../../results/targeted/SFARI_estradiol_plots", hormone = "E2")
 
+plot_SFARI_genes(res_P4$by_group_data, "../../results/targeted/SFARI_progesterone_plots", hormone = "P4")
+
+```
 
 
 ```{r make stacked bar chart with all cell types}
@@ -184,13 +205,14 @@ plot_sig_gene_summary <- function(summary_df) {
 }
 
 
+
 plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir, hormone, top_n = 6) {
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   message("Number of groups to plot: ", length(by_group_data))
 
   all_summaries <- map_dfr(by_group_data, function(group_list) {
     if (is.null(group_list)) {
-      message("  Skipping NULL group")
+      message("Skipping NULL group")
       return(NULL)
     }
 
@@ -209,39 +231,72 @@ plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir,
       return(NULL)
     }
 
-    if (metadata_sub$Sex[1] != "M") {
-      message("  Skipping non-male group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
-      return(NULL)
-    }
-
-    summarize_sig_genes(
+    result_df <- summarize_sig_genes(
       limma_res,
       SFARI_Gene,
       metadata_sub$cell_type[1],
       metadata_sub$Sex[1]
     )
+    
+    print(head(result_df))  # Debugging output
+    return(result_df)
   })
+  
 
-  if (is.null(all_summaries) || nrow(all_summaries) == 0) {
+  # Debug 'Sex' column added correctly
+  print(head(all_summaries))
+      
+  male_summaries <- all_summaries %>%
+    filter(Sex == "M")
+  
+  female_summaries <- all_summaries %>%
+    filter(Sex == "F")
+  
+  if (is.null(male_summaries) || nrow(male_summaries) == 0) {
     message("No significant genes found across male groups")
-    return(NULL)
+  } else {
+    plot_title_male <- paste("Significant Gene Summary Across Male Groups (", hormone, ")", sep = "")
+    summary_plot_male <- plot_sig_gene_summary(male_summaries)
+    ggsave(file.path(output_dir, "combined_sig_gene_summary_male.png"),
+           plot = summary_plot_male, width = 12, height = 8, dpi = 300)
+    message("  ✅ Saved combined summary plot (male only)")
   }
 
-  # Plot the combined summary of significant genes for males only
-  plot_title <- paste("Significant Gene Summary Across Male Groups (", hormone, ")", sep = "")
-  summary_plot <- plot_sig_gene_summary(all_summaries)
-  ggsave(file.path(output_dir, "combined_sig_gene_summary_male.png"),
-         plot = summary_plot, width = 12, height = 8, dpi = 300)
-  message("  ✅ Saved combined summary plot (male only)")
+  if (is.null(female_summaries) || nrow(female_summaries) == 0) {
+    message("No significant genes found across female groups")
+  } else {
+    plot_title_female <- paste("Significant Gene Summary Across Female Groups (", hormone, ")", sep = "")
+    summary_plot_female <- plot_sig_gene_summary(female_summaries)
+    ggsave(file.path(output_dir, "combined_sig_gene_summary_female.png"),
+           plot = summary_plot_female, width = 12, height = 8, dpi = 300)
+    message("  ✅ Saved combined summary plot (female only)")
+  }
 }
 
-# Call function — now only for male subsets
+# Call function 
 plot_SFARI_genes_from_subsets(
   by_group_data = res_TT$by_group_data,
   SFARI_Gene = SFARI_Gene,
   output_dir = "../../results/targeted/SFARI_testosterone_plots",
   hormone = "TT"
 )
+
+# Call function 
+plot_SFARI_genes_from_subsets(
+  by_group_data = res_E2$by_group_data,
+  SFARI_Gene = SFARI_Gene,
+  output_dir = "../../results/targeted/SFARI_estradiol_plots",
+  hormone = "E2"
+)
+
+# Call function 
+plot_SFARI_genes_from_subsets(
+  by_group_data = res_P4$by_group_data,
+  SFARI_Gene = SFARI_Gene,
+  output_dir = "../../results/targeted/SFARI_progesterone_plots",
+  hormone = "P4"
+)
+
 
 ```
 
@@ -345,6 +400,15 @@ plot_SFARI_genes_from_subsets <- function(by_group_data, SFARI_Gene, output_dir,
          plot = summary_plot, width = 12, height = 8, dpi = 300)
   message("  ✅ Saved combined summary plot (male only)")
 }
+
+# Plot the combined summary of significant genes for females only
+  plot_title <- paste("Significant Gene Summary Across Female Groups (", hormone, ")", sep = "")
+  summary_plot <- plot_sig_gene_summary(all_summaries)
+  ggsave(file.path(output_dir, "combined_SFARI_score_summary_male.png"),
+         plot = summary_plot, width = 12, height = 8, dpi = 300)
+  message("  ✅ Saved combined summary plot (male only)")
+}
+
 
 plot_SFARI_genes_from_subsets(
   by_group_data = res_TT$by_group_data,

@@ -55,6 +55,8 @@ targeted_comparision_filtered_P4 <- detect_outliers(targeted_comparision_raw, "P
 
 ```{r make violin and other exploratory plots}
 
+receptor_genes <- c("ESR1", "ESR2", "PGR", "AR", "FSHR", "LHCGR", "GNRHR", "PTGER1", "PTGER2", "PTGER3", "PTGER4", "THRA", "THRB", "PAQR7", "PAQR8", "PAQR5", "PGRMC1", "PGRMC2")
+
 DefaultAssay(SSD_data_v5) <- "SCT"
 
 VlnPlot(SSD_data_v5, "AR")
@@ -70,8 +72,8 @@ FeaturePlot(SSD_data_v5, "ESR1")
 FeaturePlot(SSD_data_v5, "ESR2") # most highly expressed
 FeaturePlot(SSD_data_v5, "PGR")
 
-FeaturePlot(SSD_data_v5, features = c("AR", "ESR1", "ESR2", "PGR"), cols = c("lightgrey", "#440154FF"), alpha = 0.7)
-ggsave("../../results/targeted/hormone_receptors_umap.png", width = 10, height = 6)
+FeaturePlot(SSD_data_v5, features = receptor_genes, cols = c("lightgrey", "#440154FF"), alpha = 0.7)
+ggsave("../../results/targeted/single_cell_plots/hormone_receptors_umap.png", width = 20, height = 10)
 
 DimPlot(SSD_data_v5)
 
