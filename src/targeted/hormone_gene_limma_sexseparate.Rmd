@@ -1,7 +1,7 @@
 ---
 title: "Gonadal Hormone and Gene Expression Relationship Analysis - Seperate by Chromosomal Sex"
 author: "Emma Jones, Sneha Chaturvedi"
-date: "Last updated 10.7.25"
+date: "Last updated 10.13.25"
 output: 
   html_document:
     toc: TRUE
@@ -11,7 +11,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-Packages <- c("tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot", "edgeR", "limma", "patchwork", "svglite", "Matrix")
+Packages <- c("tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot", "edgeR", "limma", "patchwork", "svglite", "Matrix", "ggpubr")
 
 lapply(Packages, library, character.only=TRUE)
 
@@ -105,7 +105,7 @@ pseudobulk_data <- function(seurat_obj, assay = "RNA", layer = "counts", sample_
 
 ## Generate and Filter Pseudobulk Data
 
-```{r generate and filter pseudobulk data}
+```{r generate and filter pseudobulk data, warnings = FALSE}
 
 generate_and_filter_pseudobulk <- function(seurat_obj, targeted_filtered) {
   seurat_obj$cell_type <- seurat_obj$cluster_call  # ensure column exists
@@ -126,11 +126,12 @@ pb_TT <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtere
 pb_E2 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtered_E2)
 pb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtered_P4)
 ```
-# Differential Gene Expression Analysis
-## Define DE analysis wrapper functions
 
+# Differential Gene Expression Analysis
+
+## Define DE analysis wrapper functions
 ```{r limma analysis}
-run_voom_lm <- function(counts, metadata, predictor) {
+run_voom_lm_cc <- function(counts, metadata, predictor) {
   stopifnot(ncol(counts) == nrow(metadata))
 
   # Safely quote variables for formula
@@ -153,7 +154,7 @@ run_voom_lm <- function(counts, metadata, predictor) {
     rownames_to_column("gene")
 }
 
-run_voom_lm_gw <- function(counts, metadata, predictor) {
+run_voom_lm_gw_cc <- function(counts, metadata, predictor) {
   stopifnot(ncol(counts) == nrow(metadata))
   if (!"GW" %in% colnames(metadata)) metadata$GW <- NA
 
@@ -177,13 +178,36 @@ run_voom_lm_gw <- function(counts, metadata, predictor) {
     rownames_to_column("gene")
 }
 
+run_voom_lm <- function(counts, metadata, predictor) {
+  stopifnot(ncol(counts) == nrow(metadata))
+
+  # Safely quote variables for formula
+  safe_vars <- function(x) {
+    ifelse(make.names(x) != x, paste0("`", x, "`"), x)
+  }
+
+  # Build model matrix
+  formula_vars <- safe_vars(c(predictor))
+  design <- model.matrix(reformulate(formula_vars), data = metadata)
+
+  # Fit voom-limma model
+  v <- limma::voom(counts, design)
+  fit <- limma::lmFit(v, design)
+  fit <- limma::eBayes(fit)
+
+  # Figure out correct coefficient name or index
+  predictor_col <- colnames(design)[2]  # assumes predictor is 1st after intercept
+  limma::topTable(fit, coef = predictor_col, number = Inf, sort.by = "none") %>%
+    rownames_to_column("gene")
+}
+
 ```
 
 
 ## Define Filtering and Plotting Functions
-```{r filtering and plotting functions}
-analyze_hormone <- function(pb_counts, metadata_merged, hormone, overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm) {
-  # Split the metadata based on cell type and Sex
+```{r filtering functions}
+analyze_hormone <- function(pb_counts, metadata_merged, hormone, overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, slope_threshold = 0.2, model = run_voom_lm) {
+  # Split the metadata based on cell type and sex
   split_ids <- split(rownames(metadata_merged), interaction(metadata_merged$cell_type, metadata_merged$Sex, drop = TRUE))
   
   results_by_group <- purrr::map(names(split_ids), function(group_name) {
@@ -205,8 +229,30 @@ analyze_hormone <- function(pb_counts, metadata_merged, hormone, overall_min_sam
     
     # Gene-level filtering to retain genes with counts above certain thresholds
     keep_genes <- colSums(counts_sub >= count_threshold) >= gene_sample_threshold
-    counts_sub <- counts_sub[, keep_genes, drop = FALSE]
     
+    # Calculate log fold changes across hormone values for each gene
+    calculate_slope <- function(expression) {
+      # Only consider non-NA hormone and expression values
+      valid_indices <- !is.na(hormone_values) & !is.na(expression)
+      if (sum(valid_indices) < 2) {
+        return(NA)  # Not enough data to calculate slope
+      }
+
+      lm_fit <- lm(expression[valid_indices] ~ hormone_values[valid_indices])
+      slope <- coef(lm_fit)[["hormone_values[valid_indices]"]]
+      return(slope)
+    }
+
+    slopes <- apply(counts_sub, 2, calculate_slope)
+
+    # Filter genes based on the slope threshold
+    keep_slope <- abs(slopes) >= slope_threshold
+
+    # Combine the count and slope filters
+    keep_genes <- keep_genes & keep_slope
+
+    counts_sub <- counts_sub[, keep_genes, drop = FALSE]
+
     # Check if any genes remain after filtering
     if (ncol(counts_sub) == 0) {
       cat("Group removed: no genes passed the filtering threshold\n")
@@ -285,7 +331,9 @@ analyze_hormone <- function(pb_counts, metadata_merged, hormone, overall_min_sam
   )
 }
 ```
-```{r plotting-function, echo = TRUE}
+
+```{r plotting-function, echo = TRUE, message = FALSE}
+## `geom_smooth()` using formula = 'y ~ x'
 plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_n = 6) {
   dir.create(output_dir, showWarnings = FALSE)
   
@@ -293,7 +341,7 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
   
   purrr::walk(by_group_data, function(group_list) {
     if (is.null(group_list)) {
-      message("  Skipping NULL group")
+      message("- Skipping NULL group")
       return()
     }
     
@@ -302,7 +350,7 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
     metadata_sub <- group_list$metadata_sub
 
     if (nrow(metadata_sub) < 1 || ncol(counts_sub) < 1) {
-      message("  Skipping empty subset: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+      message("- Skipping empty subset: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
       return()
     }
 
@@ -319,8 +367,8 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
       filter(adj.P.Val < 0.05) %>%
       pull(gene)
 
-    message("  Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
-    message("  Top genes: ", paste(top_genes, collapse = ", "))
+    message(" Plotting group: ", metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
+    message("- Top genes: ", paste(top_genes, collapse = ", "))
 
     plot_list <- purrr::map(top_genes, function(gene) {
       if (!gene %in% colnames(counts_log)) {
@@ -336,18 +384,21 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
 
       df <- metadata_sub %>% mutate(expr = expr_vals)
 
-      ggplot(df, aes_string(x = hormone, y = "expr", color = "Sex", fill = "Sex")) +
+      p <- ggplot(df, aes(x = !!sym(hormone), y = expr, color = cell_count, shape = Sex)) +
         geom_point(size = 2, alpha = 0.8) +
         geom_smooth(method = "lm", se = TRUE) +
-        scale_color_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
-        scale_fill_manual(values = c("M" = "steelblue", "F" = "violetred3")) +
+        scale_color_viridis_c() +
+        scale_shape_manual(values = c("M" = 16, "F" = 17)) +
         labs(title = paste0(gene, " in ", metadata_sub$cell_type[1], " (", metadata_sub$Sex[1], ")"),
              x = hormone, y = "log1p(CPM)") +
         theme_minimal(base_size = 14)
+      stat_cor(method = "pearson", label.x.npc = "left", label.y.npc = "top", size = 5)
+      
+      p
     }) %>% compact()
 
     if (length(plot_list) == 0) {
-      message("    No valid plots for group")
+      message("No valid plots for group")
       return()
     }
 
@@ -367,17 +418,17 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone, top_
 
 ```{r merge metadata and run analyses}
 # TT - Run analysis
-res_TT <- analyze_hormone(pb_TT$pb$counts, pb_TT$metadata, hormone = "TT", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm_gw)
+res_TT <- analyze_hormone(pb_TT$pb$counts, pb_TT$metadata, hormone = "TT", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, log_fold_change_threshold = 1.5, model = run_voom_lm)
 # TT - Plot top genes
 plot_top_genes_from_subsets(res_TT$by_group_data, "../../results/targeted/pseudobulk_testosterone_plots", hormone = "TT")
 
 # E2
-res_E2 <- analyze_hormone(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
+res_E2 <- analyze_hormone(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, log_fold_change_threshold = 1.5, model = run_voom_lm)
 # E2 - Plot top genes
 plot_top_genes_from_subsets(res_E2$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots", hormone = "E2")
 
 # P4
-res_P4 <- analyze_hormone(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
+res_P4 <- analyze_hormone(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, log_fold_change_threshold = 1.5, model = run_voom_lm)
 # P4 - Plot top genes
 plot_top_genes_from_subsets(res_P4$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots", hormone = "P4")
 

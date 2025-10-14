@@ -1,6 +1,7 @@
 cell_type,sex,num_sig_genes
-IN-MGE,F,26
-L6/SP,F,9
-IN-MGE,M,3
-L4,F,3
-L5,M,1
+IPC,M,233
+RG,F,133
+IN-MGE,F,44
+IPC,F,18
+IN-CGE,F,6
+L6/SP,F,3
