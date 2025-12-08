@@ -1,7 +1,7 @@
 ---
 title: "Gonadal Hormone and Gene Expression Relationship Analysis - Seperate by Chromosomal Sex"
 author: "Emma Jones, Sneha Chaturvedi"
-date: "Last updated 10.22.25"
+date: "Last updated 10.28.25"
 output: 
   html_document:
     toc: TRUE
@@ -17,8 +17,6 @@ Packages <- c("tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot", "edg
 lapply(Packages, library, character.only=TRUE)
 
 set.seed(123)
-svg_path <- "../../results/targeted/hormone-gene-plots"
-csv_path <- "../../results/targeted/hormone-gene-csv"
 ```
 
 ## Load Data
@@ -32,14 +30,6 @@ targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
 targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
 ```
 
-## Show Cell Type UMAP
-```{r display umap}
-DefaultAssay(SSD_data_v5) <- "SCT"
-DimPlot(SSD_data_v5, label = TRUE, label.box = TRUE, repel = TRUE, label.color = "white", label.size = 5) + NoLegend()
-
-ggsave("../../results/targeted/single_cell_plots/celltype_umap.png", width = 7, height = 4)
-```
-
 ## Remove Outliers
 ```{r remove outliers}
 detect_outliers <- function(data, variable) {
@@ -51,6 +41,7 @@ targeted_comparison_filtered_TT <- detect_outliers(targeted_comparison_raw, "TT"
 targeted_comparison_filtered_E2 <- detect_outliers(targeted_comparison_raw, "E2")
 targeted_comparison_filtered_P4 <- detect_outliers(targeted_comparison_raw, "P4")
 ```
+
 
 # Pseudobulk
 ## Metadata and Pseudobulk Functions

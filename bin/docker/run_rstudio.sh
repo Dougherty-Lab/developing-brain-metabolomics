@@ -2,7 +2,7 @@
 #SBATCH --job-name=rstudio
 #SBATCH --mem=100GB
 #SBATCH --cpus-per-task=2
-#SBATCH --time=2-00:00:00
+#SBATCH --time=1-00:00:00
 
 
 # configure spack

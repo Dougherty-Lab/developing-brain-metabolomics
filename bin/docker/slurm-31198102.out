@@ -1,0 +1,8 @@
+
+        SSH tunnel to n129
+        ssh sneha.chaturvedi@login.htcf.wustl.edu -N -L 8787:n129:8787
+
+        Open in browser: http://localhost:8787
+
+INFO:    Converting SIF file to temporary sandbox...
+[2025-11-07T08:29:50.030] error: *** JOB 31198102 ON n129 CANCELLED AT 2025-11-07T08:29:50 DUE TO TIME LIMIT ***

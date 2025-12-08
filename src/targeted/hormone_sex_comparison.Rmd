@@ -1,7 +1,7 @@
 ---
 title: "Targeted Hormone Sex Comparison"
 author: "Sneha Chaturvedi"
-date: "Most recent. update 9.23.25"
+date: "Updated 11.6.25"
 output: 
   html_document:
     toc: TRUE
@@ -11,12 +11,9 @@ The purpose of this analysis is to 1) to find outliers in the distribution of ho
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-if (!require("pacman")) {
-  install.packages("pacman")
-  library(pacman)
-} 
-p_load(tidyverse,readxl,stats,ggpubr,svglite,knitr)
+Packages <- c("tidyverse", "readxl", "stats", "ggpubr", "svglite", "knitr")
 
+lapply(Packages, library, character.only=TRUE)
 svg_path <- "../../results/targeted/sex_comparison_plots"
 ```
 
@@ -50,7 +47,7 @@ detect_outliers <- function(data, variables) {
   return(filtered_data)
 }
 ```
-# QC
+# Hormone QC
 ## Raw Data Distribution
 ```{r visualize_raw, echo=TRUE}
 #convert sex column to factor and ensure hormone values are numeric
@@ -499,4 +496,61 @@ ggboxplot(clean_targeted, x = "Sex", y = "`P4 (ng/mL)`",
   labs(title = paste(clean_p4_test_type, ": statistic =", round(clean_p4_test_statistic, 2), ": pvalue =", formatC(clean_p4_p_value, format = "e", digits = 2)))
 ggsave("log_clean_p4_statistics_sex.svg", path = svg_path)
 
+```
+# Summary Table
+``` {r summary_table}
+# Enhanced statistics table with descriptive stats (outlier-removed only)
+stats_summary_enhanced <- data.frame(
+  Hormone = c("`TT (ng/mL)`", "`17B-E2 (ng/mL)`", "`P4 (ng/mL)`"),
+  N_Female = c(
+    sum(clean_targeted$Sex == "F"),
+    sum(clean_targeted$Sex == "F"),
+    sum(clean_targeted$Sex == "F")
+  ),
+  N_Male = c(
+    sum(clean_targeted$Sex == "M"),
+    sum(clean_targeted$Sex == "M"),
+    sum(clean_targeted$Sex == "M")
+  ),
+  Mean_Female = c(
+    mean(clean_targeted$`TT (ng/mL)`[clean_targeted$Sex == "F"], na.rm = TRUE),
+    mean(clean_targeted$`17B-E2 (ng/mL)`[clean_targeted$Sex == "F"], na.rm = TRUE),
+    mean(clean_targeted$`P4 (ng/mL)`[clean_targeted$Sex == "F"], na.rm = TRUE)
+  ),
+  Mean_Male = c(
+    mean(clean_targeted$`TT (ng/mL)`[clean_targeted$Sex == "M"], na.rm = TRUE),
+    mean(clean_targeted$`17B-E2 (ng/mL)`[clean_targeted$Sex == "M"], na.rm = TRUE),
+    mean(clean_targeted$`P4 (ng/mL)`[clean_targeted$Sex == "M"], na.rm = TRUE)
+  ),
+  Test_Type = c(
+    clean_tt_test_type,
+    clean_e2_test_type,
+    clean_p4_test_type
+  ),
+  Test_Statistic = c(
+    clean_tt_test_statistic,
+    clean_e2_test_statistic,
+    clean_p4_test_statistic
+  ),
+  P_Value = c(
+    clean_tt_p_value,
+    clean_e2_p_value,
+    clean_p4_p_value
+  ),
+  Significant = c(
+    clean_tt_p_value < 0.05,
+    clean_e2_p_value < 0.05,
+    clean_p4_p_value < 0.05
+  )
+)
+
+# Round numeric columns
+stats_summary_enhanced$Mean_Female <- round(stats_summary_enhanced$Mean_Female, 4)
+stats_summary_enhanced$Mean_Male <- round(stats_summary_enhanced$Mean_Male, 4)
+stats_summary_enhanced$Test_Statistic <- round(stats_summary_enhanced$Test_Statistic, 3)
+stats_summary_enhanced$P_Value <- formatC(stats_summary_enhanced$P_Value, format = "e", digits = 3)
+
+# Print and save
+print(stats_summary_enhanced)
+write.csv(stats_summary_enhanced, "../../results/targeted/hormone_csv/hormone_sex_comparison_stats_detailed.csv", row.names = FALSE)
 ```
