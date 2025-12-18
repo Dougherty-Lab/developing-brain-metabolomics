@@ -1,20 +1,19 @@
 ---
-title: "Annotated_Untargeted_Analysis"
-author: "Sneha Michaela Chaturvedi"
-date: "July 29, 2025"
+title: "Metabolomics Visualization"
+author: "Sneha M. Chaturvedi"
+date: "Last Updated December 9, 2025"
 output: 
   html_document:
     toc: TRUE
 ---
 
 # Set Up
-```{r setup, echo=TRUE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-if (!require("pacman")) {
-  install.packages("pacman")
-  library(pacman)
-} 
-p_load(tidyverse,readxl,dplyr,stats,ggplot2,ggfortify,ggrepel,limma,Biobase,ComplexHeatmap, svglite)
+ 
+Packages <- c("tidyverse", "readxl", "stats", "ggfortify", "ggrepel", "svglite")
+
+lapply(Packages, library, character.only=TRUE)
 
 #Functions
 #function to convert to numeric
@@ -44,14 +43,20 @@ calculate_missingness <- function(data) {
   return(missing_df)
 }
 
-svg_path <- "../../results/untargeted/"
+svg_path <- "../../results/untargeted/Batch 2"
 ```
 
 ## Load Dataset
 ```{r LoadDataset, echo=TRUE}
-full_dataset = read_excel('../../doc/untargeted/32_untargeted_developing_2025.xlsx',sheet="Area",range=NULL)
-sample_metadata = read_excel('../../doc/untargeted/32_metadata.xlsx',sheet="metadata",range=NULL)
-# Rename SampleName to Sample in metadata if needed
+#Peak Area Values
+full_dataset = read_excel('../../doc/untargeted/24_untargeted_developing_2025.xlsx',sheet="Area",range=NULL)
+
+#Metabolite Annotations
+compound_annotation = read_excel('../../doc/untargeted/24_untargeted_developing_2025.xlsx',sheet="Annotation", range=NULL)
+
+#Sample Metadata
+sample_metadata = read_excel('../../doc/untargeted/24_metadata.xlsx',sheet="metadata",range=NULL)
+#Rename SampleName to Sample in metadata if needed
 sample_metadata <- sample_metadata %>%
   rename(Sample = SampleName)
 ```
@@ -71,6 +76,10 @@ full_dataset <- full_dataset %>%
   mutate(across(4:ncol(.), convert_to_numeric)) %>%
   filter(if_any(4:ncol(.), ~!is.na(.)))
 
+compound_annotation <- compound_annotation %>%
+  # First clean names with asterisks
+  mutate(Name = gsub("\\*$", "", Name))
+
 #create complete numeric data set for functions by replacing N/A with NaN
 full_dataset <- cbind(full_dataset[1:3], full_dataset[,(4:27)] %>% replace(is.na(.), NaN))
 
@@ -82,11 +91,10 @@ new_col_names <- names(full_dataset)[4:27] %>%
 names(full_dataset)[4:27] <- new_col_names
 ```
 
-# QC
-
-## Data Visualization
+# Data Visualization and QC
 ```{r Distribution_Plots_One}
-#peak scatter plot
+
+#Peak Intensity Histogram Across Samples
 # Reshape the data
 data_long <- full_dataset %>% 
   pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
@@ -99,6 +107,14 @@ data_long <- data_long %>%
 data_long <- data_long %>%
   mutate(log10 = log10(Intensity))
 
+# Merge metadata with peak data for stratified analyses
+sample_metadata_filtered <- sample_metadata %>%
+  filter(Sample %in% names(full_dataset)[4:27])
+
+# Add metadata to long format data
+data_long <- data_long %>%
+  left_join(sample_metadata_filtered %>% select(Sample, Sex, GW), by = "Sample")
+
 # Plot intensity histogram
 ggplot(data_long, aes(x = log10)) +
   geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
@@ -108,6 +124,7 @@ ggplot(data_long, aes(x = log10)) +
        y = "Number of Peaks")
 ggsave("raw_intensity_histogram.svg", path = svg_path)
 
+#Peak Intensity Violin Plot per Sample
 # Plot the violin plot
 ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
   geom_violin(fill = "darkorange", color = "black") +
@@ -143,6 +160,223 @@ ggplot(missing_stats_full, aes(x = missing_proportion)) +
   scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
   geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
 ggsave("raw_missing_histogram.svg", path = svg_path)
+
+# MOST ABUNDANT METABOLITES
+# Calculate mean intensity across all samples for each metabolite
+metabolite_abundance <- full_dataset %>%
+  mutate(mean_intensity = rowMeans(select(., starts_with("Sample")), na.rm = TRUE)) %>%
+  select(Compound.ID, Name, Formula, mean_intensity) %>%
+  arrange(desc(mean_intensity)) %>%
+  # Create display name: use Name if available, otherwise ID
+  mutate(display_name = ifelse(is.na(Name) | Name == "", Compound.ID, Name))
+
+# Top 20 most abundant metabolites
+top20_metabolites <- metabolite_abundance %>%
+  slice_head(n = 20)
+
+# Print table
+print("Top 20 Most Abundant Metabolites:")
+print(top20_metabolites %>% select(display_name, mean_intensity, Formula))
+
+# Visualize top 20
+ggplot(top20_metabolites, aes(x = reorder(display_name, mean_intensity), y = mean_intensity)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Top 20 Most Abundant Metabolites",
+       x = "Metabolite",
+       y = "Mean Peak Intensity") +
+  theme(axis.text.y = element_text(size = 8))
+ggsave("top20_abundant_metabolites.svg", path = svg_path, width = 10, height = 8)
+
+# Summary statistics
+cat("\nSummary of metabolite annotations:\n")
+cat("Total metabolites:", nrow(full_dataset), "\n")
+cat("Named metabolites:", sum(!is.na(full_dataset$Name) & full_dataset$Name != ""), "\n")
+cat("Unannotated (ID only):", sum(is.na(full_dataset$Name) | full_dataset$Name == ""), "\n")
+
+# Export top metabolites table
+write.csv(metabolite_abundance %>% select(Compound.ID, Name, Formula, mean_intensity, display_name), 
+          file.path(svg_path, "metabolite_abundance_ranking.csv"), 
+          row.names = FALSE)
+```
+
+## Sex Stratified
+```{r sex-stratified-visualization, echo=TRUE}
+# SEX-STRATIFIED VISUALIZATIONS
+#Peak Intensity Histogram by Sex
+ggplot(data_long, aes(x = log10, fill = Sex)) +
+  geom_histogram(binwidth = 0.4, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Peak Intensity by Sex",
+       x = "Log10 Intensity",
+       y = "Number of Peaks") +
+  facet_wrap(~Sex, ncol = 1)
+ggsave("raw_intensity_histogram_by_sex.svg", path = svg_path)
+
+#Peak Intensity Violin Plot per Sample colored by Sex
+ggplot(data_long, aes(x = as.factor(Sample), y = log10, fill = Sex)) +
+  geom_violin(color = "black") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample by Sex",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggsave("raw_intensity_violin_by_sex.svg", path = svg_path)
+
+# Peak count by sex
+peak_count_by_sex <- peak_count_full %>%
+  left_join(sample_metadata_filtered %>% select(Sample, Sex), by = "Sample")
+
+ggplot(data = peak_count_by_sex, aes(x = Sample, y = Count, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Distinct Peaks per Sample by Sex",
+       x = "Sample", y = "Peak Count")
+ggsave("raw_peak_count_by_sex.svg", path = svg_path)
+
+# GESTATIONAL WEEK RELATIONSHIPS
+# Calculate mean intensity per sample
+mean_intensity_per_sample <- data_long %>%
+  group_by(Sample, Sex, GW) %>%
+  summarise(mean_log10_intensity = mean(log10, na.rm = TRUE),
+            .groups = "drop")
+
+# Peak intensity vs GW
+ggplot(mean_intensity_per_sample, aes(x = GW, y = mean_log10_intensity, color = Sex)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  theme_minimal() +
+  labs(title = "Mean Peak Intensity vs Gestational Week",
+       x = "Gestational Week",
+       y = "Mean Log10 Intensity")
+ggsave("intensity_vs_GW.svg", path = svg_path)
+
+# Peak count vs GW
+peak_count_with_metadata <- peak_count_full %>%
+  left_join(sample_metadata_filtered %>% select(Sample, Sex, GW), by = "Sample")
+
+ggplot(peak_count_with_metadata, aes(x = GW, y = Count, color = Sex)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+  theme_minimal() +
+  labs(title = "Peak Count vs Gestational Week",
+       x = "Gestational Week",
+       y = "Number of Distinct Peaks")
+ggsave("peak_count_vs_GW.svg", path = svg_path)
+
+#ABUNDANT METABOLITES
+# Calculate mean intensity per metabolite by sex
+metabolite_abundance_by_sex <- data_long %>%
+  group_by(Compound.ID, Name, Sex) %>%
+  summarise(mean_intensity = mean(Intensity, na.rm = TRUE),
+            .groups = "drop") %>%
+  # Merge with formula from full_dataset
+  left_join(full_dataset %>% select(Compound.ID, Formula), by = "Compound.ID") %>%
+  # Create display name
+  mutate(display_name = ifelse(is.na(Name) | Name == "", Compound.ID, Name)) %>%
+  arrange(Sex, desc(mean_intensity))
+
+# Get top 20 for each sex
+top20_by_sex <- metabolite_abundance_by_sex %>%
+  group_by(Sex) %>%
+  slice_head(n = 20) %>%
+  ungroup()
+
+# Visualize top 20 by sex (faceted)
+ggplot(top20_by_sex, aes(x = reorder(display_name, mean_intensity), y = mean_intensity, fill = Sex)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~Sex, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Top 20 Most Abundant Metabolites by Sex",
+       x = "Metabolite",
+       y = "Mean Peak Intensity") +
+  theme(axis.text.y = element_text(size = 7),
+        strip.text = element_text(size = 12, face = "bold"))
+ggsave("top20_abundant_metabolites_by_sex.svg", path = svg_path, width = 12, height = 10)
+
+# Print tables for each sex
+cat("\nTop 20 Most Abundant Metabolites - Female:\n")
+print(top20_by_sex %>% filter(Sex == "F") %>% select(display_name, mean_intensity, Formula))
+
+cat("\nTop 20 Most Abundant Metabolites - Male:\n")
+print(top20_by_sex %>% filter(Sex == "M") %>% select(display_name, mean_intensity, Formula))
+
+# Export sex-stratified rankings
+write.csv(metabolite_abundance_by_sex %>% select(Compound.ID, Name, Formula, Sex, mean_intensity, display_name), 
+          file.path(svg_path, "metabolite_abundance_ranking_by_sex.csv"), 
+          row.names = FALSE)
+```
+
+## GW Buckets
+```{r GW_buckets, echo=TRUE}
+# Create GW buckets in metadata
+sample_metadata_filtered <- sample_metadata_filtered %>%
+  mutate(GW_bucket = case_when(
+    GW >= 16 & GW <= 18 ~ "16-18",
+    GW >= 19 & GW <= 21 ~ "19-21",
+    GW >= 22 & GW <= 24 ~ "22-24",
+    TRUE ~ NA_character_
+  ))
+
+# Add GW_bucket to long format data
+data_long <- data_long %>%
+  left_join(sample_metadata_filtered %>% select(Sample, GW_bucket), by = "Sample")
+
+# Calculate mean intensity per metabolite by GW bucket
+metabolite_abundance_by_GW <- data_long %>%
+  filter(!is.na(GW_bucket)) %>%
+  group_by(Compound.ID, Name, GW_bucket) %>%
+  summarise(mean_intensity = mean(Intensity, na.rm = TRUE),
+            .groups = "drop") %>%
+  # Merge with formula from full_dataset
+  left_join(full_dataset %>% select(Compound.ID, Formula), by = "Compound.ID") %>%
+  # Create display name
+  mutate(display_name = ifelse(is.na(Name) | Name == "", Compound.ID, Name)) %>%
+  arrange(GW_bucket, desc(mean_intensity))
+
+# Get top 20 for each GW bucket
+top20_by_GW <- metabolite_abundance_by_GW %>%
+  group_by(GW_bucket) %>%
+  slice_head(n = 20) %>%
+  ungroup()
+
+# Visualize top 20 by GW bucket (faceted)
+ggplot(top20_by_GW, aes(x = reorder(display_name, mean_intensity), y = mean_intensity, fill = GW_bucket)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  facet_wrap(~GW_bucket, scales = "free", ncol = 3) +
+  theme_minimal() +
+  labs(title = "Top 20 Most Abundant Metabolites by Gestational Week",
+       x = "Metabolite",
+       y = "Mean Peak Intensity") +
+  theme(axis.text.y = element_text(size = 6),
+        strip.text = element_text(size = 11, face = "bold"),
+        plot.margin = margin(10, 10, 10, 10))
+ggsave("top20_abundant_metabolites_by_GW.svg", path = svg_path, width = 18, height = 10)
+
+# Print tables for each GW bucket
+cat("\nTop 20 Most Abundant Metabolites - GW 16-18:\n")
+print(top20_by_GW %>% filter(GW_bucket == "16-18") %>% select(display_name, mean_intensity, Formula))
+
+cat("\nTop 20 Most Abundant Metabolites - GW 19-21:\n")
+print(top20_by_GW %>% filter(GW_bucket == "19-21") %>% select(display_name, mean_intensity, Formula))
+
+cat("\nTop 20 Most Abundant Metabolites - GW 22-24:\n")
+print(top20_by_GW %>% filter(GW_bucket == "22-24") %>% select(display_name, mean_intensity, Formula))
+
+# Export GW-stratified rankings
+write.csv(metabolite_abundance_by_GW %>% select(Compound.ID, Name, Formula, GW_bucket, mean_intensity, display_name), 
+          file.path(svg_path, "metabolite_abundance_ranking_by_GW.csv"), 
+          row.names = FALSE)
+
+# Summary of samples per GW bucket
+cat("\nSamples per GW bucket:\n")
+print(sample_metadata_filtered %>% 
+        count(GW_bucket) %>% 
+        arrange(GW_bucket))
 ```
 
 ## Initial PCA
