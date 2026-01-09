@@ -1,0 +1,1599 @@
+---
+title: "Metabolomics_Filtering"
+author: "Sneha Michaela Chaturvedi"
+date: "2026-01-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Outlier Removal
+```{r OutlierSamples, echo=TRUE}
+identify_outlier_samples <- function(data, threshold = 3, i = c(4:27)) {
+  # Calculate total intensity per sample
+  sample_sums <- colSums(data[,i], na.rm = TRUE)
+  
+  # Calculate z-scores for sample intensities
+  z_scores <- scale(sample_sums)
+  
+  # Identify outliers (samples with z-scores above threshold)
+  outliers <- which(abs(z_scores) > threshold)
+  
+  return(list(
+    outlier_indices = outliers,
+    sample_sums = sample_sums,
+    z_scores = z_scores
+  ))
+}
+
+# Run function and save output
+outliers_info <- identify_outlier_samples(full_dataset)
+
+# Convert outlier indices to actual column names
+outlier_columns <- colnames(full_dataset)[outliers_info$outlier_indices + 3] # Adjusted for the correct indexing
+print(outlier_columns)
+
+# Remove the outliers from the data set
+clean_dataset <- full_dataset %>% select(-all_of(outlier_columns))
+```
+
+## Outlier Visualization
+
+```{r Distribution_Plots_Two, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- clean_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
+
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Peaks")
+ggsave("outlier_intensity_histogram.svg", path = svg_path)
+
+# Plot the violin plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_violin(fill = "darkorange", color = "black") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggsave("outlier_intensity_violin.svg", path = svg_path)
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(clean_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Distinct Peaks per Sample",
+       x = "Sample", y = "Peak Count")
+ggsave("outlier_peak_count.svg", path = svg_path)
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(clean_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Peaks Across Samples",
+       x = "Percentage of Samples Missing Peak",
+       y = "Peak Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+ggsave("outlier_missing_histogram.svg", path = svg_path)  
+```
+## Outlier PCA
+```{r PCA_Two, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- clean_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Merge sample scores with metadata
+sample_scores <- sample_scores %>%
+  left_join(sample_metadata, by = "Sample")
+
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained by Samples") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_sample_elbow.svg", path = svg_path)
+
+# Sex PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_sample_pca1x2_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_sample_pca2x3_sex.svg", path = svg_path)
+
+# GW PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_sample_pca1x2_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_sample_pca2x3_gw.svg", path = svg_path)
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- clean_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Compound.ID <- clean_dataset$Compound.ID
+
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained by Metabolites") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_metabolite_elbow.svg", path = svg_path)
+
+# Calculate distance from origin for each metabolite
+metabolite_scores <- metabolite_scores %>%
+  mutate(distance = sqrt(PC1^2 + PC2^2))
+
+# Define a threshold for labeling outliers.
+# This threshold can be adjusted based on the spread of your data.
+threshold <- quantile(metabolite_scores$distance, 0.99)
+
+# Create a logical column to indicate if the metabolite is an outlier
+metabolite_scores <- metabolite_scores %>%
+  mutate(is_outlier = distance > threshold)
+
+# Plot PCA for metabolites with outlier labels
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(is_outlier, Compound.ID, "")), vjust = -1, hjust = -0.1, size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+       title = "PCA of Metabolite Variation") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_metabolite_pca1x2.svg", path = svg_path)
+
+ggplot(metabolite_scores, aes(x = PC2, y = PC3)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(is_outlier, Compound.ID, "")), vjust = -1, hjust = -0.1, size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_metabolites[3]), 
+       title = "PCA of Metabolite Variation") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("outlier_metabolite_pca2x3.svg", path = svg_path)
+```
+  
+# Data Split
+```{r Dataframe_Split}
+annotated_dataset <- clean_dataset[!is.na(clean_dataset$Name) & clean_dataset$Name != "", ]
+unannotated_dataset <- clean_dataset[is.na(clean_dataset$Name) | clean_dataset$Name == "", ]
+```
+
+## Annotated Visualization
+```{r Distribution_Plots_Annotated, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- annotated_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
+
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Annotated Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Annotated Peaks")
+ggsave("annotated_intensity_histogram.svg", path = svg_path)
+
+# Plot the violin plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_violin(fill = "darkorange", color = "black") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggsave("annotated_intensity_violin.svg", path = svg_path)
+
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(annotated_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Distinct Annotated Peaks per Sample",
+       x = "Sample", y = "Peak Count")
+ggsave("annotated_peak_count.svg", path = svg_path)
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(annotated_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Annotated Peaks Across Samples",
+       x = "Percentage of Samples Missing Annotated Peak",
+       y = "Annotated Peak Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+ggsave("annotated_missing_histogram.svg", path = svg_path)
+  
+```
+## Annotated PCA
+```{r PCA_Annotated, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- annotated_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Merge sample scores with metadata
+sample_scores <- sample_scores %>%
+  left_join(sample_metadata, by = "Sample")
+
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_elbow.svg", path = svg_path)
+
+# Sex PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_pca1x2_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_pca2x3_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC3, y = PC4, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       y = sprintf("PC4 (%.1f%%)", var_explained_samples[4]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_pca3x4_sex.svg", path = svg_path)
+
+# GW PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_pca1x2_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_pca2x3_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC3, y = PC4, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       y = sprintf("PC4 (%.1f%%)", var_explained_samples[4]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_sample_pca3x4_gw.svg", path = svg_path)
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- annotated_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Name <- annotated_dataset$Name
+
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_metabolite_elbow.svg", path = svg_path)
+
+# Calculate distance from origin for each metabolite
+metabolite_scores <- metabolite_scores %>%
+  mutate(distance = sqrt(PC1^2 + PC2^2))
+
+# Define a threshold for labeling outliers.
+# This threshold can be adjusted based on the spread of your data.
+threshold <- quantile(metabolite_scores$distance, 0.99)
+
+# Create a logical column to indicate if the metabolite is an outlier
+metabolite_scores <- metabolite_scores %>%
+  mutate(is_outlier = distance > threshold)
+
+# Plot PCA for metabolites with outlier labels
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(is_outlier, Name, "")), vjust = -1, hjust = -0.1, size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+       title = "PCA of Metabolite Variation") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_metabolite_pca1x2.svg", path = svg_path)
+
+ggplot(metabolite_scores, aes(x = PC2, y = PC3)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(is_outlier, Name, "")), vjust = -1, hjust = -0.1, size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_metabolites[3]), 
+       title = "PCA of Metabolite Variation") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("annotated_metabolite_pca2x3.svg", path = svg_path)
+
+```
+
+##Unannotated Visualization
+```{r Distribution_Plots_Unannotated, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- unannotated_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
+
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Annotated Peak Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Annotated Peaks")
+ggsave("unannotated_intensity_histogram.svg", path = svg_path)
+
+# Plot the violin plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_violin(fill = "darkorange", color = "black") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggsave("unannotated_intensity_violin.svg", path = svg_path)
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(unannotated_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Distinct Unannotated Peaks per Sample",
+       x = "Sample", y = "Peak Count")
+ggsave("unannotated_peak_count.svg", path = svg_path)
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(unannotated_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Unannotated Peaks Across Samples",
+       x = "Percentage of Samples Missing Unannotated Peak",
+       y = "Unannotated Peak Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+ggsave("unannotated_missing_histogram.svg", path = svg_path)  
+```
+
+## Unannotated PCA
+```{r PCA_Unannotated, echo = TRUE}
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- unannotated_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Merge sample scores with metadata
+sample_scores <- sample_scores %>%
+  left_join(sample_metadata, by = "Sample")
+
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_elbow.svg", path = svg_path)
+
+# Sex PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_pca1x2_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_pca2x3_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC3, y = PC4, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       y = sprintf("PC4 (%.1f%%)", var_explained_samples[4]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_pca3x4_sex.svg", path = svg_path)
+
+# GW PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_pca1x2_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_pca2x3_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC3, y = PC4, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       y = sprintf("PC4 (%.1f%%)", var_explained_samples[4]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_sample_pca3x4_gw.svg", path = svg_path)
+
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- unannotated_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Name <- unannotated_dataset$Compound.ID
+
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_metabolite_elbow.svg", path = svg_path)
+
+# Calculate distance from origin for each metabolite
+metabolite_scores <- metabolite_scores %>%
+  mutate(distance = sqrt(PC1^2 + PC2^2))
+
+# Define a threshold for labeling outliers.
+# This threshold can be adjusted based on the spread of your data.
+threshold <- quantile(metabolite_scores$distance, 0.99)
+
+# Create a logical column to indicate if the metabolite is an outlier
+metabolite_scores <- metabolite_scores %>%
+  mutate(is_outlier = distance > threshold)
+
+# Plot PCA for metabolites with outlier labels
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(is_outlier, Name, "")), vjust = -1, hjust = -0.1, size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+       title = "PCA of Metabolite Variation") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unannotated_metabolite_pca1x2.svg", path = svg_path)
+```
+
+# Duplicate Removal
+## Load Annotation
+
+```{r LoadAnnotation, echo=TRUE}
+compound_annotation = read_excel('../../doc/untargeted/32_untargeted_developing_2025.xlsx',sheet="Annotation", range=NULL)
+
+compound_annotation <- compound_annotation %>%
+  # First clean names with asterisks
+  mutate(Name = gsub("\\*$", "", Name))
+
+# split file
+annotated_compounds <- compound_annotation[!is.na(compound_annotation$InChiKey) & compound_annotation$InChiKey != "", ]
+unannotated_compounds <- compound_annotation[is.na(compound_annotation$InChiKey) | compound_annotation$InChiKey == "", ]
+```
+
+## Identify Duplicates
+```{r Duplicate_Identification}
+
+# Find duplicate names in the column "InChiKey"
+duplicates <- annotated_compounds %>%
+  group_by(InChiKey) %>%
+  filter(n() > 1) %>%
+  arrange(Name)
+
+# Calculate the count of occurrences for each duplicate name
+duplicate_counts <- duplicates %>%
+  group_by(InChiKey) %>%
+  summarise(count = n())
+
+# Create a histogram
+ggplot(duplicate_counts, aes(x = count)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  ggtitle("Histogram of Duplicate InChiKey") +
+  xlab("Count of Duplicates") +
+  ylab("Frequency")
+ggsave("duplicate_histogram.svg", path = svg_path)
+```
+## Compare Duplicate Types
+```{r Compare_Duplicates, echo=TRUE}
+
+# Calculate for each row - RSD, STD Dev, highest intensity, median intensity, mean value
+annotated_dataset <- annotated_dataset %>%
+  rowwise() %>%
+  mutate(
+    mean_value = mean(c_across(4:27), na.rm = TRUE),
+    std_dev = sd(c_across(4:27), na.rm = TRUE),
+    percent_RSD = (std_dev / mean_value) * 100,
+    highest_intensity = max(c_across(4:27), na.rm = TRUE),
+    median_intensity = median(c_across(4:27), na.rm = TRUE),
+  ) %>%
+  ungroup()
+
+annotated_dataset <- annotated_dataset %>%
+  left_join(annotated_compounds %>% select(Compound.ID, InChiKey, Super.Class, Class, Sub.Class, Pathways, CID, CHEBI, HMDB, KEGG, CAS, Molecular.Weight, Best.Match, Library.Name, Library.ID, 'Annot.DeltaMass[ppm]', 'm/z', 'RT[min]', Background, Reference.Ion, Smiles), by = "Compound.ID")
+
+duplicates <- duplicates %>%
+  left_join(annotated_dataset %>% select(Compound.ID, mean_value, std_dev, percent_RSD, highest_intensity, median_intensity), by = "Compound.ID")
+
+# Add columns for liquid chromatography and ionization
+duplicates <- duplicates %>%
+  mutate(
+    LC_column = str_extract(Compound.ID, "^[^\\-]+"),
+    ionization = str_extract(Compound.ID, "(?<=\\-)[^\\-]+(?=\\-)")
+  )
+
+#Identify duplicates
+duplicates  <- duplicates %>%
+  group_by(InChiKey) %>%
+  filter(n() > 1) %>%
+  mutate(same_column = if_else(n_distinct(LC_column, ionization) > 1, 1, 0)) %>%
+  ungroup()
+
+write.csv(duplicates, "../../results/untargeted/duplicate_metabolites.csv", row.names = FALSE)
+
+# Filter duplicates with same_column == 0
+filtered_duplicates <- duplicates %>%
+  filter(same_column == 0)
+
+# Calculate the count of occurrences for each duplicate name
+same_duplicate_counts <- filtered_duplicates %>%
+  group_by(InChiKey) %>%
+  summarise(count = n())
+
+# Create a histogram
+ggplot(same_duplicate_counts, aes(x = count)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  ggtitle("Histogram of Duplicate InChiKey on Same Column") +
+  xlab("Count of Duplicates") +
+  ylab("Frequency")
+ggsave("same_column_duplicate_histogram.svg", path = svg_path)
+
+# Determine the duplicates with the lowest % RSD, ensuring ties are handled by selecting the first occurrence
+lowest_RSD_duplicates <- filtered_duplicates %>%
+  group_by(InChiKey) %>%
+  arrange(percent_RSD) %>%
+  slice(1) %>%
+  ungroup()
+
+# Determine the duplicates with the highest metabolite intensity, ensuring ties are handled by selecting the first occurrence
+highest_intensity_duplicates <- filtered_duplicates %>%
+  group_by(InChiKey) %>%
+  arrange(desc(highest_intensity)) %>%
+  slice(1) %>%
+  ungroup()
+
+# Compare lowest % RSD and highest metabolite intensity to see if they overlap
+overlapping_duplicates <- inner_join(lowest_RSD_duplicates, highest_intensity_duplicates, by = c("Compound.ID", "InChiKey", "Name"))
+
+
+write.csv(lowest_RSD_duplicates, "../../results/untargeted/lowest_RSD_duplicates.csv", row.names = FALSE)
+write.csv(highest_intensity_duplicates, "../../results/untargeted/highest_intensity_duplicates.csv", row.names = FALSE)
+write.csv(overlapping_duplicates, "../../results/untargeted/overlapping_duplicates.csv", row.names = FALSE)
+
+```
+
+### Same Column
+```{r TieredDuplicateRemoval, echo=TRUE}
+#Tiered Duplicate Selection for Metabolites on Same Column
+## First step: Resolve duplicates by highest median_intensity
+first_step <- filtered_duplicates %>%
+  group_by(InChiKey) %>%
+  arrange(desc(median_intensity)) %>%
+  slice(1) %>%
+  ungroup()
+
+resolved_first_step <- first_step %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+remaining_first_step <- filtered_duplicates %>%
+  filter(!InChiKey %in% first_step$InChiKey) %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+print(paste("Resolved after first step (highest median_intensity):", resolved_first_step))
+print(paste("Remaining duplicates after first step:", remaining_first_step))
+
+# Second step: Resolve remaining duplicates by lowest % RSD
+second_step <- filtered_duplicates %>%
+  filter(!InChiKey %in% first_step$InChiKey) %>%
+  group_by(InChiKey) %>%
+  arrange(percent_RSD) %>%
+  slice(1) %>%
+  ungroup()
+
+resolved_second_step <- second_step %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+remaining_second_step <- filtered_duplicates %>%
+  filter(!InChiKey %in% c(first_step$InChiKey, second_step$InChiKey)) %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+print(paste("Resolved after second step (lowest % RSD):", resolved_second_step))
+print(paste("Remaining duplicates after second step:", remaining_second_step))
+
+# Combine resolved duplicates
+resolved_duplicates <- bind_rows(first_step, second_step) %>%
+  distinct(Compound.ID, .keep_all = TRUE)
+
+
+# View the results
+print("Resolved duplicates by tiers:")
+print(resolved_duplicates)
+
+# Optionally, save the results to CSV files
+write.csv(resolved_duplicates, "../../results/untargeted/resolved_duplicates_by_tiers.csv", row.names = FALSE)
+
+```
+
+## Same Column Duplicate Removal
+```{r UniqueDataframeCreation, echo = TRUE}
+resolved_same_column_0 <- duplicates %>%
+  filter(same_column == 0) %>%
+  group_by(InChiKey) %>%
+  arrange(desc(median_intensity)) %>%
+  slice(1) %>%
+  ungroup()
+
+#Keep duplicates with same_column == 1
+same_column_1 <- duplicates %>%
+  filter(same_column == 1)
+
+# Extract InChiKeys of all duplicates for filtering non-duplicates
+duplicate_inchikeys <- unique(duplicates$InChiKey)
+
+# Combine resolved duplicates (same_column == 0) and non-duplicates
+non_duplicates <- annotated_dataset %>%
+  filter(!InChiKey %in% duplicate_inchikeys)
+
+almost_unique_dataset <- bind_rows(non_duplicates, resolved_same_column_0, same_column_1)
+
+#save the final dataset to CSV files
+write.csv(almost_unique_dataset, "../../results/untargeted/almost_unique_dataset.csv", row.names = FALSE)
+
+```
+
+## Different Column
+
+```{r DifferentColumn, echo = TRUE}
+# Filter duplicates with same_column == 1
+different_column_duplicates <- duplicates %>%
+  filter(same_column == 1)
+
+# Calculate the count of occurrences for each duplicate name
+different_duplicate_counts <- different_column_duplicates %>%
+  group_by(InChiKey) %>%
+  summarise(count = n())
+
+# Create a histogram
+ggplot(different_duplicate_counts, aes(x = count)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  ggtitle("Histogram of Duplicate InChiKey on Different Columns") +
+  xlab("Count of Duplicates") +
+  ylab("Frequency")
+ggsave("different_column_duplicate_histogram.svg", path = svg_path)
+```
+## Different Column Duplicate Removal
+
+```{r DifferentDuplicate, echo = TRUE}
+#Tiered Duplicate Selection for Metabolites on Different Columns
+## First step: Resolve duplicates by highest median_intensity
+first_step <- different_column_duplicates %>%
+  group_by(InChiKey) %>%
+  arrange(desc(median_intensity)) %>%
+  slice(1) %>%
+  ungroup()
+
+resolved_first_step <- first_step %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+remaining_first_step <- different_column_duplicates %>%
+  filter(!InChiKey %in% first_step$InChiKey) %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+print(paste("Resolved after first step (highest median_intensity):", resolved_first_step))
+print(paste("Remaining duplicates after first step:", remaining_first_step))
+
+# Second step: Resolve remaining duplicates by lowest % RSD
+second_step <- different_column_duplicates %>%
+  filter(!InChiKey %in% first_step$InChiKey) %>%
+  group_by(InChiKey) %>%
+  arrange(percent_RSD) %>%
+  slice(1) %>%
+  ungroup()
+
+resolved_second_step <- second_step %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+remaining_second_step <- different_column_duplicates %>%
+  filter(!InChiKey %in% c(first_step$InChiKey, second_step$InChiKey)) %>%
+  distinct(InChiKey) %>%
+  nrow()
+
+print(paste("Resolved after second step (lowest % RSD):", resolved_second_step))
+print(paste("Remaining duplicates after second step:", remaining_second_step))
+
+# Combine resolved duplicates
+different_resolved_duplicates <- bind_rows(first_step, second_step) %>%
+  distinct(Compound.ID, .keep_all = TRUE)
+
+
+# View the results
+print("Resolved duplicates by tiers:")
+print(different_resolved_duplicates)
+
+# Optionally, save the results to CSV files
+write.csv(different_resolved_duplicates, "../../results/untargeted/different_resolved_duplicates_by_tiers.csv", row.names = FALSE)
+
+#do it based on median intensity for now
+resolved_different_column_0 <- duplicates %>%
+  filter(same_column == 1) %>%
+  group_by(InChiKey) %>%
+  arrange(desc(median_intensity)) %>%
+  slice(1) %>%
+  ungroup()
+
+# Extract InChiKeys of all duplicates for filtering non-duplicates
+duplicate_inchikeys <- unique(duplicates$InChiKey)
+
+# Combine resolved duplicates (same_column == 1) and non-duplicates
+non_duplicates <- almost_unique_dataset %>%
+  filter(!InChiKey %in% duplicate_inchikeys)
+
+unique_dataset <- bind_rows(non_duplicates, resolved_different_column_0)
+
+#save the final dataset to CSV files
+write.csv(unique_dataset, "../../results/untargeted/almost_unique_dataset.csv", row.names = FALSE)
+```
+# Final Dataset
+
+## Unique Visualization
+
+```{r Distribution_Plots_Unique_Annotated, echo=TRUE}
+#peak scatter plot
+# Reshape the data
+data_long <- unique_dataset %>% 
+  pivot_longer(cols = starts_with("Sample"), names_to = "Sample", values_to = "Intensity")
+
+#Remove non-finite values
+data_long <- data_long %>%
+  filter(is.finite(Intensity))
+
+# Log-transform the metabolite values
+data_long <- data_long %>%
+  mutate(log10 = log10(Intensity))
+
+# Plot intensity histogram
+ggplot(data_long, aes(x = log10)) +
+  geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Unique Metabolite Intensity",
+       x = "Log10 Intensity",
+       y = "Number of Unique Metablites")
+ggsave("unique_intensity_histogram.svg", path = svg_path)
+
+# Plot the violin plot
+ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
+  geom_violin(fill = "darkorange", color = "black") +
+  theme_minimal() +
+  labs(title = "Peak Intensity per Sample",
+       x = "Sample",
+       y = "Log10 Intensity") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggsave("unique_intensity_violin.svg", path = svg_path)
+
+# Calculate number of peaks per sample
+  peak_count_full <- colSums(!is.na(unique_dataset[, 4:27]))
+  peak_count_full <- data.frame(Sample = names(peak_count_full), Count = peak_count_full)
+
+#Graph
+ggplot(data = peak_count_full, aes(x = Sample, y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Number of Unique Metabolites per Sample",
+       x = "Sample", y = "Metabolite Count")
+ggsave("unique_peak_count.svg", path = svg_path)
+
+#Run function for percentage of peaks missing across samples
+ missing_stats_full <- calculate_missingness(unique_dataset)
+
+#Plot
+ggplot(missing_stats_full, aes(x = missing_proportion)) +
+  geom_histogram(bins = 25, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Missing Metabolites Across Samples",
+       x = "Percentage of Samples Missing Metabolite",
+       y = "Unique Metabolite Count") +
+  scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-1.5, color="black", size=3.5, position = position_stack(vjust = 0.5))
+ggsave("unique_missing_histogram.svg", path = svg_path)
+  
+```
+
+## Unique PCA
+```{r PCA_Unique_Annotated, echo = TRUE}
+
+# PCA of sample variation
+# Prepare data for PCA (samples as rows, metabolites as columns)
+samples_matrix <- unique_dataset %>%
+  select(starts_with("Sample")) %>%
+  t()
+
+# 1/5th min value imputation
+samples_matrix <- apply(samples_matrix, 2, min_value_impute)
+
+variable_columns <- apply(samples_matrix, 2, function(x) length(unique(x)) > 1)
+samples_matrix <- samples_matrix[, variable_columns]
+
+# Perform PCA
+pca_samples <- prcomp(samples_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add Sample labels
+sample_scores <- as.data.frame(pca_samples$x)
+sample_scores$Sample <- rownames(sample_scores)
+
+# Merge sample scores with metadata
+sample_scores <- sample_scores %>%
+  left_join(sample_metadata, by = "Sample")
+
+# Calculate variance explained
+var_explained_samples <- pca_samples$sdev^2 / sum(pca_samples$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_samples),
+  VarExp = var_explained_samples
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_elbow.svg", path = svg_path)
+
+# Sex PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_pca1x2_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_pca2x3_sex.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC3, y = PC4, color = Sex, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       y = sprintf("PC4 (%.1f%%)", var_explained_samples[4]),
+       title = "Sample PCA by Sex") +
+  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_pca3x4_sex.svg", path = svg_path)
+
+# GW PCA
+ggplot(sample_scores, aes(x = PC1, y = PC2, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_pca1x2_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_pca2x3_gw.svg", path = svg_path)
+
+ggplot(sample_scores, aes(x = PC3, y = PC4, color = GW, label = Sample)) +
+  geom_point(size = 3) +
+  geom_text_repel(size = 3, max.overlaps = 10) +
+  theme_minimal() +
+  labs(x = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+       y = sprintf("PC4 (%.1f%%)", var_explained_samples[4]),
+       title = "Sample PCA by Gestational Week") +
+  scale_color_viridis_c() +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_sample_pca3x4_gw.svg", path = svg_path)
+
+# PCA of metabolite variation
+# Prepare data for PCA (metabolites as rows, samples as columns)
+metabolites_matrix <- unique_dataset %>%
+  select(starts_with("Sample"))
+
+metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
+
+# Perform PCA
+pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
+
+# Convert PCA results to data frame and add metabolite labels
+metabolite_scores <- as.data.frame(pca_metabolites$x)
+metabolite_scores$Name <- unique_dataset$Name
+
+# Calculate variance explained
+var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
+
+# Create Elbow Plot
+elbow_data <- data.frame(
+  PC = 1:length(var_explained_metabolites),
+  VarExp = var_explained_metabolites
+)
+
+ggplot(elbow_data, aes(x = PC, y = VarExp)) +
+  geom_line() +
+  geom_point() +
+  theme_minimal() +
+  labs(x = "Principal Component",
+       y = "Variance Explained (%)",
+       title = "Scree Plot of PCA Variance Explained") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_metabolite_elbow.svg", path = svg_path)
+
+# Calculate distance from origin for each metabolite
+metabolite_scores <- metabolite_scores %>%
+  mutate(distance = sqrt(PC1^2 + PC2^2))
+
+# Define a threshold for labeling outliers.
+# This threshold can be adjusted based on the spread of your data.
+threshold <- quantile(metabolite_scores$distance, 0.99)
+
+# Create a logical column to indicate if the metabolite is an outlier
+metabolite_scores <- metabolite_scores %>%
+  mutate(is_outlier = distance > threshold)
+
+# Plot PCA for metabolites with outlier labels
+ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
+  geom_point() +
+  geom_text(aes(label = ifelse(is_outlier, Name, "")), vjust = -1, hjust = -0.1, size = 3) +
+  theme_minimal() +
+  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
+       title = "PCA of Metabolite Variation") +
+  theme(plot.title = element_text(hjust = 0.5))
+ggsave("unique_metabolite_pca1x2.svg", path = svg_path)
+
+```
+
+# Assign Metadata
+```{r Metadata, echo=TRUE}
+# Convert metabolites data to matrix format
+final_matrix <- unique_dataset %>%
+  select(starts_with("Sample"))
+  
+metabolite_names <- unique_dataset$InChiKey
+final_matrix <- apply(final_matrix, 2, as.numeric)
+rownames(final_matrix) <- metabolite_names
+
+# Filter `annotated_compounds` to contain only rows from `unique_dataset`
+unique_annotated_compounds <- annotated_compounds %>%
+  filter(Compound.ID %in% unique_dataset$Compound.ID)
+
+# Ensure final_matrix rows match metabolite metadata
+metabolite_metadata_filtered <- unique_annotated_compounds %>%
+  filter(InChiKey %in% rownames(final_matrix)) %>%
+  arrange(match(InChiKey, rownames(final_matrix)))
+
+# Create the metabolite metadata dataframe
+metabolite_metadata_df <- as.data.frame(metabolite_metadata_filtered)
+rownames(metabolite_metadata_df) <- metabolite_metadata_df$InChiKey
+
+# Ensure sample_metadata matches the columns of final_matrix
+sample_metadata_filtered <- sample_metadata %>%
+  filter(Sample %in% colnames(final_matrix)) %>%
+  arrange(match(Sample, colnames(final_matrix)))
+
+# Create the metadata dataframe
+sample_metadata_df <- as.data.frame(sample_metadata_filtered)
+rownames(sample_metadata_df) <- sample_metadata_df$Sample
+
+# Create Biobase AnnotatedDataFrame objects
+sample_phenoData <- AnnotatedDataFrame(sample_metadata_df)
+metabolite_featureData <- AnnotatedDataFrame(metabolite_metadata_df)
+
+# Create the ExpressionSet object, ensuring rownames match between assayData and featureData
+final_annotated_df <- ExpressionSet(
+  assayData = final_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+
+#Create Biobase ExpressionSet with imputed values for PCA
+imputed_matrix <- apply(final_matrix, 2, min_value_impute)
+imputed_annotated_df <- ExpressionSet(
+  assayData = imputed_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+```
+
+## Imputed Correlation for statistical testing
+```{r Metabolite_Correlations, echo=TRUE}
+# Calculate correlations and p-values between metabolites and metadata
+metadata <- pData(imputed_annotated_df)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+GW <- metadata$GW
+
+# Function to calculate correlation and p-value
+correlation_test <- function(x, y) {
+  result <- cor.test(x, y)
+  c(correlation = result$estimate, p_value = result$p.value)
+}
+
+# Calculate correlations and p-values for each metabolite
+metabolite_samplemetadata_stats <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey,
+  Name = fData(imputed_annotated_df)$Name,
+  GW_corr_pval = t(apply(exprs(imputed_annotated_df), 1, function(x) correlation_test(x, GW)))
+)
+
+metabolite_samplemetadata_stats <- metabolite_samplemetadata_stats %>%
+  mutate(
+    GW_FDR = p.adjust(GW_corr_pval.p_value, method = "fdr")
+  )
+
+# Scatter plot for significant GW correlations
+significant_GW <- metabolite_samplemetadata_stats %>% filter(GW_FDR < 0.05)
+scatter_GW <- ggplot(significant_GW, aes(x = reorder(Name, GW_corr_pval.correlation.cor), y = GW_corr_pval.correlation.cor)) +
+  geom_point(aes(size = -log10(GW_corr_pval.p_value), color = GW_corr_pval.correlation.cor)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Correlation with GW",
+       title = "Significant Metabolite Correlations with Gestational Weeks (GW)") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+ggsave("GW_correlation.svg", path = svg_path)
+
+# Heatmap of correlations
+correlation_matrix <- metabolite_samplemetadata_stats %>%
+  select( GW_corr_pval.correlation.cor) %>%
+  as.matrix()
+
+rownames(correlation_matrix) <- metabolite_samplemetadata_stats$Name
+colnames(correlation_matrix) <- c("GW")
+
+heatmap_plot <- Heatmap(correlation_matrix, name = "Correlation",
+                        show_row_names = F, show_column_names = T)
+
+# Plot the results
+print(scatter_GW)
+heatmap_plot
+
+# Print top correlations with significance details
+top_GW_correlations <- metabolite_samplemetadata_stats %>%
+  arrange(desc(abs(GW_corr_pval.correlation.cor))) %>%
+  head(10) %>%
+  select(Name, GW_corr_pval.correlation.cor, GW_corr_pval.p_value, GW_FDR)
+print(top_GW_correlations)
+```
+
+
+## Sex Differential Analysis
+# Univariate Testing for Sex Differences with Volcano Plots
+```{r Univariate_Testing, echo=TRUE, message=FALSE, warning=FALSE}
+
+# Calculate p-values for sex differences using the Wilcoxon rank-sum test
+metadata <- pData(final_annotated_df)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+
+# Function to calculate Wilcoxon rank-sum test p-value
+wilcoxon_test <- function(x, sex) {
+  result <- wilcox.test(x[sex == 0], x[sex == 1], exact = FALSE)
+  c(statistic = result$statistic, p_value = result$p.value)
+}
+
+# Perform Wilcoxon rank-sum test for each metabolite
+metabolite_sex_stats <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey[apply(exprs(imputed_annotated_df), 1, function(x) all(is.finite(x)))],
+  Name = fData(imputed_annotated_df)$Name[apply(exprs(imputed_annotated_df), 1, function(x) all(is.finite(x)))],
+  Wilcoxon_stat_pval = t(apply(imputed_annotated_df, 1, function(x) wilcoxon_test(x, sex_numeric)))
+)
+
+# Calculate log fold changes for volcano plot
+metabolite_sex_stats <- metabolite_sex_stats %>%
+  mutate(
+    logFC = log2(apply(imputed_annotated_df[, sex_numeric == 1], 1, mean) / apply(imputed_annotated_df[, sex_numeric == 0], 1, mean)),
+    FDR = p.adjust(Wilcoxon_stat_pval.p_value, method = "fdr"),
+    Bonferroni = p.adjust(Wilcoxon_stat_pval.p_value, method = "bonferroni")
+  )
+
+# Volcano plot with FDR correction
+volcano_FDR <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(Wilcoxon_stat_pval.p_value))) +
+  geom_point(aes(color = FDR < 0.05, size = -log10(Wilcoxon_stat_pval.p_value))) +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change",
+       y = "-log10(p-value)",
+       title = "Volcano Plot with FDR Correction") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+
+# Volcano plot with Bonferroni correction
+volcano_Bonferroni <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(Wilcoxon_stat_pval.p_value))) +
+  geom_point(aes(color = Bonferroni < 0.05, size = -log10(Wilcoxon_stat_pval.p_value))) +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change",
+       y = "-log10(p-value)",
+       title = "Volcano Plot with Bonferroni Correction") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+
+# Plot the results
+print(volcano_FDR)
+print(volcano_Bonferroni)
+
+# Print top metabolites with significance details
+top_metabolites <- metabolite_sex_stats %>%
+  arrange(desc(-log10(Wilcoxon_stat_pval.p_value))) %>%
+  head(10) %>%
+  select(Name, logFC, Wilcoxon_stat_pval.p_value, FDR, Bonferroni)
+print(top_metabolites)
+
+```
+# Multivariate testing
+```{r Multivariate_Model, echo=TRUE}
+metadata <- pData(final_annotated_df)
+metadata$Sex <- as.factor(metadata$Sex)
+sex_numeric <- as.numeric(metadata$Sex == "M")  # Convert sex to numeric (0=F, 1=M)
+GW <- metadata$GW
+
+metabolite_matrix <- exprs(final_annotated_df)
+
+# Fit linear model and collect coefficients and p-values
+lm_results <- lapply(1:nrow(metabolite_matrix), function(i) {
+  metabolite <- metabolite_matrix[i, ]
+  tryCatch({
+    model <- lm(metabolite ~ Sex + GW, data = metadata)
+    summary(model)
+  }, error = function(e) {
+    warning_message <- paste("Model fitting failed for row", i, "due to error:", e$message)
+    message(warning_message)
+    NULL
+  })
+})
+
+# Extract coefficients and p-values
+coefficients_list <- lapply(lm_results, function(res) {
+  if (is.null(res) || !inherits(res, "summary.lm")) {
+    return(c(Sex_estimate = NA, Sex_p_value = NA, GW_estimate = NA, GW_p_value = NA))
+  }
+  coef_table <- res$coefficients
+  if (all(c("SexM", "GW") %in% rownames(coef_table))) {
+    c(Sex_estimate = coef_table["SexM", "Estimate"],
+      Sex_p_value = coef_table["SexM", "Pr(>|t|)"],
+      GW_estimate = coef_table["GW", "Estimate"],
+      GW_p_value = coef_table["GW", "Pr(>|t|)"])
+  } else {
+    c(Sex_estimate = NA, Sex_p_value = NA, GW_estimate = NA, GW_p_value = NA)
+  }
+})
+
+coefficients_df <- do.call(rbind, coefficients_list)
+metabolite_lm_stats <- data.frame(
+  InChiKey = fData(imputed_annotated_df)$InChiKey[1:nrow(coefficients_df)],
+  Name = fData(imputed_annotated_df)$Name[1:nrow(coefficients_df)],
+  coefficients_df
+)
+
+# Adjust p-values for multiple testing
+metabolite_lm_stats <- metabolite_lm_stats %>%
+  mutate(
+    Sex_FDR = p.adjust(Sex_p_value, method = "fdr"),
+    GW_FDR = p.adjust(GW_p_value, method = "fdr"),
+    Sex_Bonferroni = p.adjust(Sex_p_value, method = "bonferroni"),
+    GW_Bonferroni = p.adjust(GW_p_value, method = "bonferroni")
+  )
+
+# Scatter plot for significant Sex effects
+significant_sex <- metabolite_lm_stats %>% filter(Sex_FDR < 0.05)
+scatter_sex <- ggplot(significant_sex, aes(x = reorder(Name, Sex_estimate), y = Sex_estimate)) +
+  geom_point(aes(size = -log10(Sex_p_value), color = Sex_FDR < 0.05)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Effect Size of Sex",
+       title = "Significant Metabolite Effects due to Sex") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+# Scatter plot for significant GW effects
+significant_GW <- metabolite_lm_stats %>% filter(GW_FDR < 0.05)
+scatter_GW <- ggplot(significant_GW, aes(x = reorder(Name, GW_estimate), y = GW_estimate)) +
+  geom_point(aes(size = -log10(GW_p_value), color = GW_FDR < 0.05)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Effect Size of GW",
+       title = "Significant Metabolite Effects due to Gestational Weeks (GW)") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+# Plot the results
+print(scatter_sex)
+print(scatter_GW)
+
+# Print top metabolites with significance details
+top_sex_metabolites <- metabolite_lm_stats %>%
+  arrange(Sex_p_value) %>%
+  head(10) %>%
+  select(Name, Sex_estimate, Sex_p_value, Sex_FDR, Sex_Bonferroni)
+print(top_sex_metabolites)
+
+top_GW_metabolites <- metabolite_lm_stats %>%
+  arrange(GW_p_value) %>%
+  head(10) %>%
+  select(Name, GW_estimate, GW_p_value, GW_FDR, GW_Bonferroni)
+print(top_GW_metabolites)
+```
+
+```{r MetaboliteGraphs, echo = TRUE}
+# Function to plot metabolite concentration across samples
+plot_metabolite <- function(dataset, metabolite_id) {
+  # Filter data for the selected metabolite
+  metabolite_data <- dataset %>%
+    filter(Name == metabolite_id) %>%
+    select(starts_with("Sample"))
+  
+  # Gather data into long format for ggplot2
+  metabolite_data_long <- metabolite_data %>%
+    gather(Sample, Concentration)
+  
+  # Create the plot
+  p <- ggplot(metabolite_data_long, aes(x = Sample, y = Concentration, group = 1)) +
+    geom_point() +
+    geom_line() +
+    labs(title = paste("Concentration of Metabolite", metabolite_id, "across Samples"),
+         x = "Sample",
+         y = "Concentration") +
+    theme_minimal()
+  
+  print(p)
+}
+
+
+# Function to plot metabolite intensity by sex
+plot_metabolite_sex <- function(dataset, sample_metadata, metabolite_id) {
+  # Filter data for the selected metabolite
+  metabolite_data <- dataset %>%
+    filter(Name == metabolite_id) %>%
+    select(starts_with("Sample")) %>%
+    gather(Sample, Intensity) %>%
+    left_join(sample_metadata, by = "Sample")
+  
+  # Create the plot
+  p_sex <- ggplot(metabolite_data, aes(x = Sex, y = Intensity, fill = Sex)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = paste("Intensity of Metabolite", metabolite_id, "by Sex"),
+         x = "Sex",
+         y = "Intensity") +
+    theme_minimal()
+  
+  print(p_sex)
+}
+
+# Function to plot metabolite intensity by gestational weeks
+plot_metabolite_gw <- function(dataset, sample_metadata, metabolite_id) {
+  # Filter data for the selected metabolite
+  metabolite_data <- dataset %>%
+    filter(Name == metabolite_id) %>%
+    select(starts_with("Sample")) %>%
+    gather(Sample, Intensity) %>%
+    left_join(sample_metadata, by = "Sample")
+  
+  # Create the plot
+  p_gw <- ggplot(metabolite_data, aes(x = factor(GW), y = Intensity, fill = factor(GW))) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(title = paste("Intensity of Metabolite", metabolite_id, "by Gestational Weeks"),
+         x = "Gestational Weeks",
+         y = "Intensity") +
+    theme_minimal()
+  
+  print(p_gw)
+}
+```
+``` {r metabolite-plotting, echo=TRUE}
+# Example usage: Plot Metabolite 'C3' across samples
+plot_metabolite(unique_dataset, "7α-Hydroxytestosterone")
+plot_metabolite_sex(unique_dataset, sample_metadata, "7α-Hydroxytestosterone")
+plot_metabolite_gw(unique_dataset, sample_metadata, "7α-Hydroxytestosterone")
+
+```
