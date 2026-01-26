@@ -1,0 +1,555 @@
+---
+title: "Covariate Testing"
+author: "Sneha Michaela Chaturvedi"
+date: "2026-01-26"
+output: html_document
+---
+## Covariate Testing
+Does gestational week predict gene expression? 
+
+``` {r covariate testing}
+# Linear regression: gestational week predicts gene expression
+perform_gw_regression <- function(pb_object, analysis_name = "Pseudobulk") {
+  
+  # Extract components
+  logcounts <- pb_object$pb$logcounts
+  metadata <- pb_object$metadata
+  
+  # Ensure GW column exists
+  if (!"GW" %in% colnames(metadata)) {
+    stop("GW (gestational week) column not found in metadata")
+  }
+  
+  # Initialize results data frame
+  results <- data.frame(
+    gene = character(),
+    estimate = numeric(),
+    std_error = numeric(),
+    t_value = numeric(),
+    p_value = numeric(),
+    adj_p_value = numeric(),
+    r_squared = numeric(),
+    n_samples = integer(),
+    stringsAsFactors = FALSE
+  )
+  
+  # Get all genes
+  genes <- colnames(logcounts)
+  
+  # Progress tracking
+  cat(sprintf("Running linear regression for %d genes in %s...\n", 
+              length(genes), analysis_name))
+  
+  # Loop through each gene
+  for (i in seq_along(genes)) {
+    gene <- genes[i]
+    
+    # Progress indicator
+    if (i %% 500 == 0) {
+      cat(sprintf("  Processed %d / %d genes (%.1f%%)\n", 
+                  i, length(genes), 100 * i / length(genes)))
+    }
+    
+    # Prepare data for regression
+    gene_expr <- logcounts[, gene]
+    
+    # Remove NA values
+    valid_idx <- !is.na(gene_expr) & !is.na(metadata$GW)
+    
+    if (sum(valid_idx) < 3) {
+      next  # Skip if too few samples
+    }
+    
+    expr_valid <- gene_expr[valid_idx]
+    gw_valid <- metadata$GW[valid_idx]
+    
+    # Fit linear model
+    tryCatch({
+      model <- lm(expr_valid ~ gw_valid)
+      model_summary <- summary(model)
+      
+      # Extract coefficients for GW (slope)
+      coef_table <- coef(model_summary)
+      gw_coef <- coef_table["gw_valid", ]
+      
+      # Store results
+      results <- rbind(results, data.frame(
+        gene = gene,
+        estimate = gw_coef["Estimate"],
+        std_error = gw_coef["Std. Error"],
+        t_value = gw_coef["t value"],
+        p_value = gw_coef["Pr(>|t|)"],
+        adj_p_value = NA,
+        r_squared = model_summary$r.squared,
+        n_samples = sum(valid_idx),
+        stringsAsFactors = FALSE
+      ))
+      
+    }, error = function(e) {
+      return(NULL)
+    })
+  }
+  
+  # Adjust p-values for multiple testing (FDR correction)
+  if (nrow(results) > 0) {
+    results$adj_p_value <- p.adjust(results$p_value, method = "fdr")
+    results <- results[order(results$adj_p_value), ]
+    rownames(results) <- NULL
+  }
+  
+  cat(sprintf("Completed! Found %d genes with valid results.\n", nrow(results)))
+  
+  return(results)
+}
+
+# Run analysis on the single pseudobulk
+cat("\n=== Running GW regression analysis ===\n\n")
+
+results_gw_regression <- perform_gw_regression(pb_total)
+
+# Summary function
+summarize_gw_results <- function(results, alpha = 0.05) {
+  cat(sprintf("\n=== SUMMARY ===\n"))
+  cat(sprintf("Total genes tested: %d\n", nrow(results)))
+  cat(sprintf("Significant genes (adj. p < %.2f): %d\n", 
+              alpha, sum(results$adj_p_value < alpha, na.rm = TRUE)))
+  cat(sprintf("Positive associations: %d\n", 
+              sum(results$adj_p_value < alpha & results$estimate > 0, na.rm = TRUE)))
+  cat(sprintf("Negative associations: %d\n", 
+              sum(results$adj_p_value < alpha & results$estimate < 0, na.rm = TRUE)))
+  cat("\nTop 10 most significant genes:\n")
+  
+  top_results <- head(results[, c("gene", "estimate", "p_value", "adj_p_value", "r_squared")], 10)
+  
+  cat(sprintf("%-15s %12s %12s %12s %10s\n", 
+              "Gene", "Estimate", "P-value", "Adj.P-value", "R-squared"))
+  cat(paste(rep("-", 70), collapse = ""), "\n")
+  
+  for (i in 1:nrow(top_results)) {
+    cat(sprintf("%-15s %12.6f %12.2e %12.2e %10.4f\n",
+                top_results$gene[i],
+                top_results$estimate[i],
+                top_results$p_value[i],
+                top_results$adj_p_value[i],
+                top_results$r_squared[i]))
+  }
+  cat("\n")
+}
+
+# Print summary
+cat("\n=== GW Regression ===")
+summarize_gw_results(results_gw_regression)
+
+# SUMMARY FIGURE: Effect of GW across genes
+plot_gw_summary <- function(results, alpha = 0.05, output_file = NULL) {
+  
+  if (!is.null(output_file)) {
+    svg(output_file, width = 10, height = 7)
+  }
+  
+  par(mfrow = c(2, 2), mar = c(4, 4, 3, 1), oma = c(0, 0, 2, 0))
+  
+  # 1. Volcano plot
+  plot(results$estimate, -log10(results$p_value),
+       xlab = "Effect Size (GW coefficient)",
+       ylab = "-log10(p-value)",
+       main = "Volcano Plot",
+       pch = 16, cex = 0.5, col = rgb(0, 0, 0, 0.3))
+  
+  sig_idx <- results$adj_p_value < alpha
+  points(results$estimate[sig_idx], -log10(results$p_value[sig_idx]),
+         pch = 16, cex = 0.6, col = "red")
+  
+  abline(h = -log10(0.05), lty = 2, col = "blue")
+  abline(v = 0, lty = 1, col = "gray50")
+  
+  legend("topright", 
+         legend = c(sprintf("Sig. (FDR < %.2f)", alpha), "Non-sig."),
+         col = c("red", rgb(0, 0, 0, 0.3)),
+         pch = 16, cex = 0.8, bty = "n")
+  
+  # 2. Distribution of effect sizes
+  hist(results$estimate, breaks = 50,
+       xlab = "Effect Size (GW coefficient)",
+       ylab = "Number of Genes",
+       main = "Effect Size Distribution",
+       col = "lightblue", border = "white")
+  abline(v = 0, lty = 2, col = "red", lwd = 2)
+  
+  mean_effect <- mean(results$estimate, na.rm = TRUE)
+  abline(v = mean_effect, lty = 2, col = "darkblue", lwd = 2)
+  legend("topright",
+         legend = c(sprintf("Mean = %.4f", mean_effect),
+                   sprintf("Positive = %d", sum(results$estimate > 0)),
+                   sprintf("Negative = %d", sum(results$estimate < 0))),
+         bty = "n", cex = 0.8)
+  
+  # 3. P-value distribution
+  hist(results$p_value, breaks = 50,
+       xlab = "P-value",
+       ylab = "Number of Genes",
+       main = "P-value Distribution",
+       col = "lightgreen", border = "white")
+  abline(v = 0.05, lty = 2, col = "red", lwd = 2)
+  
+  # 4. R-squared distribution
+  hist(results$r_squared, breaks = 50,
+       xlab = "R²",
+       ylab = "Number of Genes",
+       main = "R² Distribution",
+       col = "lightyellow", border = "white")
+  
+  median_r2 <- median(results$r_squared, na.rm = TRUE)
+  abline(v = median_r2, lty = 2, col = "darkgreen", lwd = 2)
+  legend("topright",
+         legend = sprintf("Median R² = %.3f", median_r2),
+         bty = "n", cex = 0.8)
+  
+  mtext("Gestational Week Effect on Gene Expression", 
+        outer = TRUE, cex = 1.3, font = 2)
+  
+  if (!is.null(output_file)) {
+    dev.off()
+    cat(sprintf("\nSummary figure saved to: %s\n", output_file))
+  }
+}
+
+# Generate summary figure
+plot_gw_summary(results_gw_regression, alpha = 0.05, 
+                output_file = "../../results/targeted/gene_expression_plots/GW_regression_summary_pseudobulk.svg")
+
+# Plot top genes
+plot_top_genes <- function(pb_object, results, n_genes = 6, output_file = NULL) {
+  
+  top_genes <- head(results$gene, n_genes)
+  
+  if (!is.null(output_file)) {
+    svg(output_file, width = 12, height = 8)
+  }
+  
+  par(mfrow = c(2, 3), mar = c(4, 4, 3, 1), oma = c(0, 0, 2, 0))
+  
+  for (gene in top_genes) {
+    logcounts <- pb_object$pb$logcounts
+    metadata <- pb_object$metadata
+    
+    expr <- logcounts[, gene]
+    gw <- metadata$GW
+    
+    valid_idx <- !is.na(expr) & !is.na(gw)
+    expr <- expr[valid_idx]
+    gw <- gw[valid_idx]
+    
+    plot(gw, expr, 
+         xlab = "Gestational Week", 
+         ylab = "Log Expression",
+         main = gene,
+         pch = 16, col = rgb(0, 0, 0, 0.5), cex = 1.2)
+    
+    model <- lm(expr ~ gw)
+    abline(model, col = "red", lwd = 2)
+    
+    gene_res <- results[results$gene == gene, ]
+    legend("topleft", 
+           legend = c(sprintf("R² = %.3f", gene_res$r_squared),
+                     sprintf("p = %.2e", gene_res$adj_p_value),
+                     sprintf("n = %d", gene_res$n_samples)),
+           bty = "n", cex = 0.9)
+  }
+  
+  mtext("Top Genes Associated with Gestational Week", 
+        outer = TRUE, cex = 1.2, font = 2)
+  
+  if (!is.null(output_file)) {
+    dev.off()
+    cat(sprintf("\nTop genes figure saved to: %s\n", output_file))
+  }
+}
+
+plot_top_genes(pb_total, results_gw_regression, n_genes = 6,
+               output_file = "../../results/targeted/gene_expression_plots/GW_top_genes_pseudobulk.svg")
+
+cat("\n=== Pseudobulk GW Analysis Complete ===\n")
+
+# Export results to CSV
+write.csv(results_gw_regression, "../../results/targeted/gene_hormone_csv/gwreg_results_pseudobulk.csv", row.names = FALSE)
+
+```
+Does cell count predict gene expression? 
+``` {r cell count regression}
+# Linear regression: cell count predicts gene expression
+# Working on pseudobulked data (single pseudobulk, no conditions)
+
+perform_cellcount_regression <- function(pb_object, analysis_name = "Pseudobulk", 
+                                         cellcount_column = "cell_count") {
+  
+  # Extract components
+  logcounts <- pb_object$pb$logcounts
+  metadata <- pb_object$metadata
+  
+  # Ensure cell_count column exists
+  if (!cellcount_column %in% colnames(metadata)) {
+    stop(sprintf("%s column not found in metadata", cellcount_column))
+  }
+  
+  # Initialize results data frame
+  results <- data.frame(
+    gene = character(),
+    estimate = numeric(),
+    std_error = numeric(),
+    t_value = numeric(),
+    p_value = numeric(),
+    adj_p_value = numeric(),
+    r_squared = numeric(),
+    n_samples = integer(),
+    stringsAsFactors = FALSE
+  )
+  
+  # Get all genes
+  genes <- colnames(logcounts)
+  
+  # Progress tracking
+  cat(sprintf("Running cell count regression for %d genes in %s...\n", 
+              length(genes), analysis_name))
+  
+  # Loop through each gene
+  for (i in seq_along(genes)) {
+    gene <- genes[i]
+    
+    # Progress indicator
+    if (i %% 500 == 0) {
+      cat(sprintf("  Processed %d / %d genes (%.1f%%)\n", 
+                  i, length(genes), 100 * i / length(genes)))
+    }
+    
+    # Prepare data for regression
+    gene_expr <- logcounts[, gene]
+    
+    # Remove NA values
+    valid_idx <- !is.na(gene_expr) & !is.na(metadata[[cellcount_column]])
+    
+    if (sum(valid_idx) < 3) {
+      next  # Skip if too few samples
+    }
+    
+    expr_valid <- gene_expr[valid_idx]
+    cellcount_valid <- metadata[[cellcount_column]][valid_idx]
+    
+    # Fit linear model
+    tryCatch({
+      model <- lm(expr_valid ~ cellcount_valid)
+      model_summary <- summary(model)
+      
+      # Extract coefficients for cell count (slope)
+      coef_table <- coef(model_summary)
+      cc_coef <- coef_table["cellcount_valid", ]
+      
+      # Store results
+      results <- rbind(results, data.frame(
+        gene = gene,
+        estimate = cc_coef["Estimate"],
+        std_error = cc_coef["Std. Error"],
+        t_value = cc_coef["t value"],
+        p_value = cc_coef["Pr(>|t|)"],
+        adj_p_value = NA,
+        r_squared = model_summary$r.squared,
+        n_samples = sum(valid_idx),
+        stringsAsFactors = FALSE
+      ))
+      
+    }, error = function(e) {
+      return(NULL)
+    })
+  }
+  
+  # Adjust p-values for multiple testing (FDR correction)
+  if (nrow(results) > 0) {
+    results$adj_p_value <- p.adjust(results$p_value, method = "fdr")
+    results <- results[order(results$adj_p_value), ]
+    rownames(results) <- NULL
+  }
+  
+  cat(sprintf("Completed! Found %d genes with valid results.\n", nrow(results)))
+  
+  return(results)
+}
+
+# Check what cell count column exists in your pseudobulk metadata
+cat("Available metadata columns:\n")
+print(colnames(pb_total$metadata))
+
+# Run analysis on the single pseudobulk
+# Adjust cellcount_column parameter to match your metadata column name
+cat("\n=== Running Cell Count regression analysis ===\n\n")
+
+results_cellcount_regression <- perform_cellcount_regression(pb_total, cellcount_column = "cell_count")
+
+# Summary function
+summarize_cellcount_results <- function(results, alpha = 0.05) {
+  cat(sprintf("\n=== SUMMARY ===\n"))
+  cat(sprintf("Total genes tested: %d\n", nrow(results)))
+  cat(sprintf("Significant genes (adj. p < %.2f): %d\n", 
+              alpha, sum(results$adj_p_value < alpha, na.rm = TRUE)))
+  cat(sprintf("Positive associations: %d\n", 
+              sum(results$adj_p_value < alpha & results$estimate > 0, na.rm = TRUE)))
+  cat(sprintf("Negative associations: %d\n", 
+              sum(results$adj_p_value < alpha & results$estimate < 0, na.rm = TRUE)))
+  cat("\nTop 10 most significant genes:\n")
+  
+  top_results <- head(results[, c("gene", "estimate", "p_value", "adj_p_value", "r_squared")], 10)
+  
+  cat(sprintf("%-15s %12s %12s %12s %10s\n", 
+              "Gene", "Estimate", "P-value", "Adj.P-value", "R-squared"))
+  cat(paste(rep("-", 70), collapse = ""), "\n")
+  
+  for (i in 1:nrow(top_results)) {
+    cat(sprintf("%-15s %12.6f %12.2e %12.2e %10.4f\n",
+                top_results$gene[i],
+                top_results$estimate[i],
+                top_results$p_value[i],
+                top_results$adj_p_value[i],
+                top_results$r_squared[i]))
+  }
+  cat("\n")
+}
+
+# Print summary
+cat("\n=== Cell Count Regression ===")
+summarize_cellcount_results(results_cellcount_regression)
+
+# SUMMARY FIGURE: Effect of cell count across genes
+plot_cellcount_summary <- function(results, alpha = 0.05, output_file = NULL) {
+  
+  if (!is.null(output_file)) {
+    svg(output_file, width = 10, height = 7)
+  }
+  
+  par(mfrow = c(2, 2), mar = c(4, 4, 3, 1), oma = c(0, 0, 2, 0))
+  
+  # 1. Volcano plot
+  plot(results$estimate, -log10(results$p_value),
+       xlab = "Effect Size (Cell Count coefficient)",
+       ylab = "-log10(p-value)",
+       main = "Volcano Plot",
+       pch = 16, cex = 0.5, col = rgb(0, 0, 0, 0.3))
+  
+  sig_idx <- results$adj_p_value < alpha
+  points(results$estimate[sig_idx], -log10(results$p_value[sig_idx]),
+         pch = 16, cex = 0.6, col = "red")
+  
+  abline(h = -log10(0.05), lty = 2, col = "blue")
+  abline(v = 0, lty = 1, col = "gray50")
+  
+  legend("topright", 
+         legend = c(sprintf("Sig. (FDR < %.2f)", alpha), "Non-sig."),
+         col = c("red", rgb(0, 0, 0, 0.3)),
+         pch = 16, cex = 0.8, bty = "n")
+  
+  # 2. Distribution of effect sizes
+  hist(results$estimate, breaks = 50,
+       xlab = "Effect Size (Cell Count coefficient)",
+       ylab = "Number of Genes",
+       main = "Effect Size Distribution",
+       col = "lightblue", border = "white")
+  abline(v = 0, lty = 2, col = "red", lwd = 2)
+  
+  mean_effect <- mean(results$estimate, na.rm = TRUE)
+  abline(v = mean_effect, lty = 2, col = "darkblue", lwd = 2)
+  legend("topright",
+         legend = c(sprintf("Mean = %.4f", mean_effect),
+                   sprintf("Positive = %d", sum(results$estimate > 0)),
+                   sprintf("Negative = %d", sum(results$estimate < 0))),
+         bty = "n", cex = 0.8)
+  
+  # 3. P-value distribution
+  hist(results$p_value, breaks = 50,
+       xlab = "P-value",
+       ylab = "Number of Genes",
+       main = "P-value Distribution",
+       col = "lightgreen", border = "white")
+  abline(v = 0.05, lty = 2, col = "red", lwd = 2)
+  
+  # 4. R-squared distribution
+  hist(results$r_squared, breaks = 50,
+       xlab = "R²",
+       ylab = "Number of Genes",
+       main = "R² Distribution",
+       col = "lightyellow", border = "white")
+  
+  median_r2 <- median(results$r_squared, na.rm = TRUE)
+  abline(v = median_r2, lty = 2, col = "darkgreen", lwd = 2)
+  legend("topright",
+         legend = sprintf("Median R² = %.3f", median_r2),
+         bty = "n", cex = 0.8)
+  
+  mtext("Cell Count Effect on Gene Expression", 
+        outer = TRUE, cex = 1.3, font = 2)
+  
+  if (!is.null(output_file)) {
+    dev.off()
+    cat(sprintf("\nSummary figure saved to: %s\n", output_file))
+  }
+}
+
+# Generate summary figure
+plot_cellcount_summary(results_cellcount_regression, alpha = 0.05, 
+                       output_file = "../../results/targeted/gene_expression_plots/CellCount_regression_summary_pseudobulk.svg")
+
+# Plot top genes
+plot_top_genes_cellcount <- function(pb_object, results, n_genes = 6, 
+                                     output_file = NULL, cellcount_column = "cell_count") {
+  
+  top_genes <- head(results$gene, n_genes)
+  
+  if (!is.null(output_file)) {
+    svg(output_file, width = 12, height = 8)
+  }
+  
+  par(mfrow = c(2, 3), mar = c(4, 4, 3, 1), oma = c(0, 0, 2, 0))
+  
+  for (gene in top_genes) {
+    logcounts <- pb_object$pb$logcounts
+    metadata <- pb_object$metadata
+    
+    expr <- logcounts[, gene]
+    cellcount <- metadata[[cellcount_column]]
+    
+    valid_idx <- !is.na(expr) & !is.na(cellcount)
+    expr <- expr[valid_idx]
+    cellcount <- cellcount[valid_idx]
+    
+    plot(cellcount, expr, 
+         xlab = "Cell Count", 
+         ylab = "Log Expression",
+         main = gene,
+         pch = 16, col = rgb(0, 0, 0, 0.5), cex = 1.2)
+    
+    model <- lm(expr ~ cellcount)
+    abline(model, col = "red", lwd = 2)
+    
+    gene_res <- results[results$gene == gene, ]
+    legend("topleft", 
+           legend = c(sprintf("R² = %.3f", gene_res$r_squared),
+                     sprintf("p = %.2e", gene_res$adj_p_value),
+                     sprintf("n = %d", gene_res$n_samples)),
+           bty = "n", cex = 0.9)
+  }
+  
+  mtext("Top Genes Associated with Cell Count", 
+        outer = TRUE, cex = 1.2, font = 2)
+  
+  if (!is.null(output_file)) {
+    dev.off()
+    cat(sprintf("\nTop genes figure saved to: %s\n", output_file))
+  }
+}
+
+plot_top_genes_cellcount(pb_total, results_cellcount_regression, n_genes = 6,
+                         output_file = "../../results/targeted/gene_expression_plots/CellCount_top_genes_pseudobulk.svg",
+                         cellcount_column = "cell_count")
+
+cat("\n=== Pseudobulk Cell Count Analysis Complete ===\n")
+
+# Export results to CSV
+write.csv(results_cellcount_regression, "../../results/targeted/gene_hormone_csv/cellcount_results_pseudobulk.csv", row.names = FALSE)
+```
