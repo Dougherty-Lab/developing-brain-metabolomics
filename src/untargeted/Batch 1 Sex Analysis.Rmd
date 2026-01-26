@@ -1,0 +1,515 @@
+---
+title: "Batch 1 Sex and GW Metabolomics Analysis"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated January 25, 2026"
+output: 
+  html_document:
+    toc: true
+---
+
+# Set Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+ 
+Packages <- c("tidyverse", "readxl", "stats", "ggfortify", "ggrepel", "svglite", "Biobase", "ComplexHeatmap")
+
+lapply(Packages, library, character.only=TRUE)
+```
+
+```{r source_function, include=FALSE}
+#Source Functions
+source("functions.R")
+source("missingness_visualization_functions.R")
+```
+
+```{r set_path, include=FALSE}
+png_path <- "../../results/untargeted/batch1_clean"
+svg_path <- "../../results/untargeted/batch1_clean/svg"
+csv_path <- "../../results/untargeted/batch1_clean/csv"
+```
+
+## Load Dataset(s)
+
+```{r LoadDataset, include=FALSE}
+#Peak Area Values
+batch1_peak_area = read_csv('../../results/untargeted/Batch1_peak_area_values.csv', show_col_types = FALSE)
+
+#Metabolite Annotations
+
+batch1_compound_annotation = read_csv('../../results/untargeted/Batch1_metabolite_annotations.csv', show_col_types = FALSE)
+
+#Sample Metadata
+
+batch1_sample_metadata = read_csv('../../results/untargeted/Batch1_sample_metadata.csv', show_col_types = FALSE)
+
+```
+
+
+``` {r prep_dataframe}
+# Convert metabolites data to matrix format
+final_matrix <- batch1_peak_area %>%
+  select(starts_with("Sample"))
+  
+# Filter annotation to only include compounds present in peak area
+compounds_in_peak <- unique(batch1_peak_area$Compound.ID)
+
+batch1_compound_annotation <- batch1_compound_annotation %>%
+  filter(Compound.ID %in% compounds_in_peak) %>%
+  arrange(match(Name, rownames(final_matrix)))
+
+
+metabolite_names <- batch1_compound_annotation$Name
+final_matrix <- apply(final_matrix, 2, as.numeric)
+rownames(final_matrix) <- metabolite_names
+
+# Filter metadata to match metabolites samples
+batch1_sample_metadata <- batch1_sample_metadata %>%
+  filter(Sample %in% colnames(final_matrix)) %>%
+  # Ensure the order matches the metabolites data
+  arrange(match(Sample, colnames(final_matrix)))
+
+# Create the metadata dataframe
+sample_metadata_df <- as.data.frame(batch1_sample_metadata)
+rownames(sample_metadata_df) <- sample_metadata_df$Sample
+
+# Create Biobase ExpressionSet with the matched data
+sample_phenoData <- AnnotatedDataFrame(sample_metadata_df)
+
+# Create the metabolite metadata dataframe
+metabolite_metadata_df <- as.data.frame(batch1_compound_annotation)
+rownames(metabolite_metadata_df) <- metabolite_metadata_df$Name
+
+metabolite_featureData <- AnnotatedDataFrame(metabolite_metadata_df)
+
+# Create the ExpressionSet with both phenodata and featuredata
+batch1_metabolomics <- ExpressionSet(
+  assayData = final_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+```
+
+```{r gw_correlation}
+# Calculate correlations and p-values between metabolites and metadata
+metadata <- pData(batch1_metabolomics)
+GW <- metadata$GW
+
+# Function to calculate correlation and p-value
+correlation_test <- function(x, y) {
+  result <- cor.test(x, y)
+  c(correlation = result$estimate, p_value = result$p.value)
+}
+
+# Calculate correlations and p-values for each metabolite
+metabolite_samplemetadata_stats <- data.frame(
+  Name = fData(batch1_metabolomics)$Name,
+  GW_corr_pval = t(apply(exprs(batch1_metabolomics), 1, function(x) correlation_test(x, GW)))
+)
+
+metabolite_samplemetadata_stats <- metabolite_samplemetadata_stats %>%
+  mutate(
+    GW_FDR = p.adjust(GW_corr_pval.p_value, method = "fdr")
+  )
+
+
+# For GW
+# Scatter plot for significant GW correlations
+significant_GW <- metabolite_samplemetadata_stats %>% filter(GW_FDR < 0.05)
+
+scatter_GW <- ggplot(significant_GW, aes(x = reorder(Name, GW_corr_pval.correlation.cor), y = GW_corr_pval.correlation.cor)) +
+  geom_point(aes(size = -log10(GW_corr_pval.p_value), color = GW_corr_pval.correlation.cor)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite",
+       y = "Correlation with GW",
+       title = "Significant Metabolite Correlations with Gestational Weeks (GW)") +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+save_dual_format(scatter_GW, "significant_GW", png_path = png_path, svg_path =  svg_path)
+
+print(scatter_GW)
+
+# Print top correlations
+top_GW_correlations <- metabolite_samplemetadata_stats %>%
+  arrange(desc(abs(GW_corr_pval.correlation.cor))) %>%
+  head(10) %>%
+  select(Name, GW_corr_pval.correlation.cor, GW_corr_pval.p_value, GW_FDR)
+
+print(top_GW_correlations)
+```
+
+## Sex Differential Analysis
+# Univariate Testing for Sex Differences with Volcano Plots
+```{r sex_analysis}
+# Calculate p-values for sex differences using the Wilcoxon rank-sum test
+metadata <- pData(batch1_metabolomics)
+sex_groups <- metadata$Sex
+
+# Function to calculate Wilcoxon rank-sum test p-value and statistic
+wilcoxon_test <- function(x, sex) {
+  # Remove missing values
+  valid_idx <- !is.na(x)
+  x_clean <- x[valid_idx]
+  sex_clean <- sex[valid_idx]
+  
+  # Only test if we have both groups
+  if(length(unique(sex_clean)) < 2) {
+    return(c(statistic = NA, p_value = NA))
+  }
+  
+  result <- wilcox.test(x_clean[sex_clean == "F"], 
+                       x_clean[sex_clean == "M"], 
+                       exact = FALSE)
+  c(statistic = as.numeric(result$statistic), p_value = result$p.value)
+}
+
+# Perform Wilcoxon rank-sum test for each metabolite
+wilcoxon_results <- t(apply(exprs(batch1_metabolomics), 1, wilcoxon_test, sex = sex_groups))
+
+# Ensure column names are set
+colnames(wilcoxon_results) <- c("statistic", "p_value")
+
+# Calculate mean values by sex for fold change calculation
+mean_male <- apply(exprs(batch1_metabolomics)[, sex_groups == "M"], 1, mean, na.rm = TRUE)
+mean_female <- apply(exprs(batch1_metabolomics)[, sex_groups == "F"], 1, mean, na.rm = TRUE)
+
+# Create comprehensive statistics data frame
+metabolite_sex_stats <- data.frame(
+  Name = fData(batch1_metabolomics)$Name,
+  Compound.ID = fData(batch1_metabolomics)$Compound.ID,
+  Wilcoxon_statistic = wilcoxon_results[, "statistic"],
+  p_value = wilcoxon_results[, "p_value"],
+  Mean_Female = mean_female,
+  Mean_Male = mean_male,
+  logFC = log2(mean_male / mean_female)
+) %>%
+  mutate(
+    FDR = p.adjust(p_value, method = "fdr"),
+    Bonferroni = p.adjust(p_value, method = "bonferroni"),
+    Significant_FDR = FDR < 0.05,
+    Significant_Bonferroni = Bonferroni < 0.05,
+    Direction = case_when(
+      logFC > 0 ~ "Higher in Males",
+      logFC < 0 ~ "Higher in Females",
+      TRUE ~ "No difference"
+    )
+  )
+
+# Volcano plot with FDR correction - NO bubble size
+volcano_FDR <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(p_value))) +
+  geom_point(aes(color = Significant_FDR), alpha = 0.6) +
+  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red"),
+                    name = "FDR < 0.05") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change (Male/Female)",
+       y = "-log10(p-value)",
+       title = "Sex Differential Analysis - Volcano Plot (FDR)") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+
+save_dual_format(volcano_FDR, "sex_volcano_FDR", png_path = png_path, svg_path = svg_path)
+print(volcano_FDR)
+
+# Volcano plot with Bonferroni correction - NO bubble size
+volcano_Bonferroni <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(p_value))) +
+  geom_point(aes(color = Significant_Bonferroni), alpha = 0.6) +
+  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red"),
+                    name = "Bonferroni < 0.05") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change (Male/Female)",
+       y = "-log10(p-value)",
+       title = "Sex Differential Analysis - Volcano Plot (Bonferroni)") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "right")
+
+save_dual_format(volcano_Bonferroni, "sex_volcano_Bonferroni", png_path = png_path, svg_path = svg_path)
+print(volcano_Bonferroni)
+
+# Summary statistics
+cat("\n=== Sex Differential Analysis Summary ===\n")
+cat("Total metabolites analyzed:", nrow(metabolite_sex_stats), "\n")
+cat("Significant at FDR < 0.05:", sum(metabolite_sex_stats$Significant_FDR, na.rm = TRUE), "\n")
+cat("Significant at Bonferroni < 0.05:", sum(metabolite_sex_stats$Significant_Bonferroni, na.rm = TRUE), "\n")
+
+# Direction summary
+cat("\nAmong FDR-significant metabolites:\n")
+direction_summary <- metabolite_sex_stats %>%
+  filter(Significant_FDR) %>%
+  count(Direction)
+print(direction_summary)
+
+# Top metabolites by significance
+cat("\n=== Top 10 Most Significant Metabolites ===\n")
+top_metabolites <- metabolite_sex_stats %>%
+  arrange(p_value) %>%
+  head(10) %>%
+  select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Bonferroni, Direction)
+print(top_metabolites)
+
+# Top metabolites with largest fold changes (FDR significant only)
+cat("\n=== Top 10 Largest Fold Changes (FDR < 0.05) ===\n")
+top_FC <- metabolite_sex_stats %>%
+  filter(Significant_FDR) %>%
+  arrange(desc(abs(logFC))) %>%
+  head(10) %>%
+  select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Direction)
+print(top_FC)
+
+# Save results to CSV
+write_csv(metabolite_sex_stats, 
+          file.path(csv_path, "batch1_sex_differential_analysis.csv"))
+
+cat("\nResults saved to:", file.path(csv_path, "batch1_sex_differential_analysis.csv"), "\n")
+```
+#By Annotationa Group
+```{r group_sex_analysis}
+# Function to collapse metabolites by annotation category
+collapse_metabolites_by_group <- function(eset, group_col) {
+  # Get expression data and annotations
+  expr_data <- exprs(eset)
+  annotations <- fData(eset)
+  
+  # Check if column exists
+  if(!group_col %in% colnames(annotations)) {
+    warning(paste("Column", group_col, "not found in annotations"))
+    return(NULL)
+  }
+  
+  # Remove rows with missing group information
+  valid_idx <- !is.na(annotations[[group_col]]) & 
+                annotations[[group_col]] != "" & 
+                annotations[[group_col]] != "NA" &
+                !is.na(annotations[[group_col]])
+  
+  expr_data_clean <- expr_data[valid_idx, ]
+  groups <- annotations[[group_col]][valid_idx]
+  
+  cat("  Valid metabolites with", group_col, "annotation:", sum(valid_idx), "\n")
+  
+  # Collapse by taking median of each group
+  unique_groups <- unique(groups)
+  collapsed_data <- matrix(NA, nrow = length(unique_groups), ncol = ncol(expr_data))
+  rownames(collapsed_data) <- unique_groups
+  colnames(collapsed_data) <- colnames(expr_data)
+  
+  for(i in seq_along(unique_groups)) {
+    group_idx <- groups == unique_groups[i]
+    if(sum(group_idx) == 1) {
+      collapsed_data[i, ] <- expr_data_clean[group_idx, ]
+    } else {
+      collapsed_data[i, ] <- apply(expr_data_clean[group_idx, , drop = FALSE], 2, median, na.rm = TRUE)
+    }
+  }
+  
+  # Create summary annotation
+  collapsed_annotation <- data.frame(
+    Group = unique_groups,
+    N_metabolites = as.numeric(table(groups)[unique_groups]),
+    Category = group_col
+  )
+  rownames(collapsed_annotation) <- unique_groups
+  
+  # Create new ExpressionSet
+  collapsed_phenoData <- phenoData(eset)
+  collapsed_featureData <- AnnotatedDataFrame(collapsed_annotation)
+  
+  collapsed_eset <- ExpressionSet(
+    assayData = collapsed_data,
+    phenoData = collapsed_phenoData,
+    featureData = collapsed_featureData
+  )
+  
+  return(collapsed_eset)
+}
+
+# Function to perform sex analysis on collapsed data
+perform_collapsed_sex_analysis <- function(eset, category_name) {
+  metadata <- pData(eset)
+  sex_groups <- metadata$Sex
+  
+  # Wilcoxon test function
+  wilcoxon_test <- function(x, sex) {
+    valid_idx <- !is.na(x)
+    x_clean <- x[valid_idx]
+    sex_clean <- sex[valid_idx]
+    
+    if(length(unique(sex_clean)) < 2) {
+      return(c(statistic = NA, p_value = NA))
+    }
+    
+    result <- wilcox.test(x_clean[sex_clean == "F"], 
+                         x_clean[sex_clean == "M"], 
+                         exact = FALSE)
+    c(statistic = as.numeric(result$statistic), p_value = result$p.value)
+  }
+  
+  # Perform tests
+  wilcoxon_results <- t(apply(exprs(eset), 1, wilcoxon_test, sex = sex_groups))
+  colnames(wilcoxon_results) <- c("statistic", "p_value")
+  
+  # Calculate means
+  mean_male <- apply(exprs(eset)[, sex_groups == "M"], 1, mean, na.rm = TRUE)
+  mean_female <- apply(exprs(eset)[, sex_groups == "F"], 1, mean, na.rm = TRUE)
+  
+  # Create results data frame
+  results <- data.frame(
+    Group = fData(eset)$Group,
+    N_metabolites = fData(eset)$N_metabolites,
+    Category = category_name,
+    Wilcoxon_statistic = wilcoxon_results[, "statistic"],
+    p_value = wilcoxon_results[, "p_value"],
+    Mean_Female = mean_female,
+    Mean_Male = mean_male,
+    logFC = log2(mean_male / mean_female)
+  ) %>%
+    mutate(
+      FDR = p.adjust(p_value, method = "fdr"),
+      Bonferroni = p.adjust(p_value, method = "bonferroni"),
+      Significant_FDR = FDR < 0.05,
+      Significant_Bonferroni = Bonferroni < 0.05,
+      Significant_nominal = p_value < 0.05,
+      Direction = case_when(
+        logFC > 0 ~ "Higher in Males",
+        logFC < 0 ~ "Higher in Females",
+        TRUE ~ "No difference"
+      )
+    ) %>%
+    arrange(p_value)
+  
+  return(results)
+}
+
+# Analyze each available grouping category
+grouping_cols <- c("Super.Class", "Class", "Sub.Class", "Pathways")
+
+all_collapsed_results <- list()
+
+for(group_col in grouping_cols) {
+  cat("\n", rep("=", 80), "\n", sep = "")
+  cat("Analyzing by", group_col, "\n")
+  cat(rep("=", 80), "\n\n", sep = "")
+  
+  # Collapse metabolites
+  collapsed_eset <- collapse_metabolites_by_group(batch1_metabolomics, group_col)
+  
+  if(!is.null(collapsed_eset)) {
+    cat("  Number of", group_col, "groups:", nrow(collapsed_eset), "\n\n")
+    
+    # Perform sex analysis
+    results <- perform_collapsed_sex_analysis(collapsed_eset, group_col)
+    all_collapsed_results[[group_col]] <- results
+    
+    # Print summary
+    cat("Summary:\n")
+    cat("  Total groups:", nrow(results), "\n")
+    cat("  Significant at p < 0.05:", sum(results$Significant_nominal, na.rm = TRUE), "\n")
+    cat("  Significant at FDR < 0.05:", sum(results$Significant_FDR, na.rm = TRUE), "\n")
+    cat("  Significant at Bonferroni < 0.05:", sum(results$Significant_Bonferroni, na.rm = TRUE), "\n\n")
+    
+    # Print top results
+    cat("Top 10 groups by p-value:\n")
+    print(results %>% 
+            head(10) %>% 
+            select(Group, N_metabolites, logFC, p_value, FDR, Direction))
+    cat("\n")
+    
+    # Create volcano plot - SIZE = N_metabolites
+    volcano_plot <- ggplot(results, aes(x = logFC, y = -log10(p_value))) +
+      geom_point(aes(color = Significant_FDR, size = N_metabolites), alpha = 0.6) +
+      geom_text_repel(data = results %>% filter(p_value < 0.05), 
+                      aes(label = Group), 
+                      size = 3, max.overlaps = 15) +
+      scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red"),
+                        name = "FDR < 0.05") +
+      geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+      theme_minimal() +
+      labs(x = "Log2 Fold Change (Male/Female)",
+           y = "-log10(p-value)",
+           title = paste("Sex Differences by", group_col),
+           size = "N Metabolites") +
+      theme(plot.title = element_text(hjust = 0.5),
+            legend.position = "right")
+    
+    save_dual_format(volcano_plot, 
+                    paste0("sex_volcano_", tolower(gsub("\\.", "_", group_col))), 
+                    png_path = png_path, 
+                    svg_path = svg_path)
+    print(volcano_plot)
+    
+    # Save results
+    write_csv(results, 
+              file.path(csv_path, paste0("batch1_sex_analysis_by_", tolower(gsub("\\.", "_", group_col)), ".csv")))
+  }
+}
+```
+```{r combine_results}
+# Combine all results for overview
+if(length(all_collapsed_results) > 0) {
+  combined_results <- bind_rows(all_collapsed_results)
+  
+  # Summary plot across all categories
+  summary_sig <- combined_results %>%
+    group_by(Category) %>%
+    summarise(
+      Total = n(),
+      Nominal_sig = sum(Significant_nominal, na.rm = TRUE),
+      FDR_sig = sum(Significant_FDR, na.rm = TRUE),
+      Bonferroni_sig = sum(Significant_Bonferroni, na.rm = TRUE)
+    ) %>%
+    pivot_longer(cols = c(Nominal_sig, FDR_sig, Bonferroni_sig),
+                 names_to = "Significance_Level",
+                 values_to = "Count") %>%
+    mutate(Significance_Level = factor(Significance_Level,
+                                      levels = c("Nominal_sig", "FDR_sig", "Bonferroni_sig"),
+                                      labels = c("p < 0.05", "FDR < 0.05", "Bonferroni < 0.05")))
+  
+  summary_plot <- ggplot(summary_sig, aes(x = Category, y = Count, fill = Significance_Level)) +
+    geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
+    geom_text(aes(label = Count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
+    theme_minimal() +
+    labs(title = "Significant Sex Differences by Annotation Category",
+         x = "Annotation Category",
+         y = "Number of Significant Groups",
+         fill = "Significance Level") +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  save_dual_format(summary_plot, "sex_collapsed_summary", png_path = png_path, svg_path = svg_path)
+  print(summary_plot)
+  
+  # Save combined results
+  write_csv(combined_results, 
+            file.path(csv_path, "batch1_sex_analysis_all_collapsed.csv"))
+  
+  # Print overall summary
+  cat("\n", rep("=", 80), "\n", sep = "")
+  cat("OVERALL SUMMARY\n")
+  cat(rep("=", 80), "\n\n", sep = "")
+  
+  overall_summary <- combined_results %>%
+    group_by(Category) %>%
+    summarise(
+      Total_Groups = n(),
+      Groups_with_nominal_sig = sum(Significant_nominal, na.rm = TRUE),
+      Groups_with_FDR_sig = sum(Significant_FDR, na.rm = TRUE),
+      Groups_with_Bonferroni_sig = sum(Significant_Bonferroni, na.rm = TRUE),
+      Median_logFC = median(abs(logFC), na.rm = TRUE)
+    )
+  
+  print(overall_summary)
+  
+  # Most significant groups across all categories
+  cat("\n\nTop 20 Most Significant Groups (all categories combined):\n")
+  top_overall <- combined_results %>%
+    arrange(p_value) %>%
+    head(20) %>%
+    select(Category, Group, N_metabolites, logFC, p_value, FDR, Bonferroni, Direction)
+  print(top_overall)
+}
+
+```

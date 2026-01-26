@@ -1,0 +1,64 @@
+---
+title: "Metabolomics Standards"
+author: "Sneha Michaela Chaturvedi"
+date: "2026-01-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Standards
+```{r standards}
+#Filter Batch2_Annotated_Dataset for Standards
+# Define Mix 1 standard names
+mix1_standards <- c(
+  "L-Alanine",
+  "1,4-Butanediamine",
+  "Creatinine",
+  "Ethanolamine.HCl",
+  "Guanosine.2H2O",
+  "Hypoxanthine",
+  "L-Leucine",
+  "L-Phenylalanine",
+  "Thymine",
+  "L-Tryptophan",
+  "L-Tyrosine",
+  "Vitamin B3"
+)
+
+# Filter the main dataset for Mix 1 standards
+Batch2_annotated_dataset_mix1 <- Batch2_annotated_dataset_RT_filtered %>%
+  filter(Name %in% mix1_standards)
+
+# Also filter the long format if you have it
+Batch2_annotated_dataset_long_mix1 <- Batch2_annotated_dataset_long_RT_filtered %>%
+  filter(Name %in% mix1_standards)
+
+# Check which standards were found
+found_standards <- unique(Batch2_annotated_dataset_mix1$Name)
+missing_standards <- setdiff(mix1_standards, found_standards)
+
+cat("Found", length(found_standards), "out of", length(mix1_standards), "Mix 1 standards\n")
+cat("\nFound standards:\n")
+print(found_standards)
+
+if(length(missing_standards) > 0) {
+  cat("\nMissing standards (may need to search by Compound Formula):\n")
+  print(missing_standards)
+}
+
+# Show summary of filtered dataset
+cat("\nFiltered dataset dimensions:\n")
+cat("Rows:", nrow(Batch2_annotated_dataset_mix1), "\n")
+cat("Unique compounds:", length(unique(Batch2_annotated_dataset_mix1$Compound.ID)), "\n")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

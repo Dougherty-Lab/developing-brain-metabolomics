@@ -1,0 +1,896 @@
+---
+title: "Batch1 Metabolomics Filtering"
+author: "Sneha M. Chaturvedi"
+date: "Last Updated January 24, 2026"
+output: 
+  html_document:
+    toc: TRUE
+---
+
+Made w/ assistance from Claude Haiku 4.5. Output checked and validated by author. 
+
+# Set Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+ 
+Packages <- c("tidyverse", "readxl", "stats", "ggfortify", "ggrepel", "svglite", "pheatmap","pracma")
+
+lapply(Packages, library, character.only=TRUE)
+```
+
+```{r source_function}
+#Source Functions
+source("functions.R")
+source("filtering_functions.R")
+```
+
+```{r set_path}
+png_path <- "../../results/untargeted/batch1_filtering"
+csv_path <- "../../results/untargeted/batch1_filtering/csv"
+svg_path <- "../../results/untargeted/batch1_filtering/svg"
+```
+## Load Dataset
+
+```{r LoadDataset, echo=TRUE}
+#Peak Area Values
+full_dataset = read_excel('../../doc/untargeted/8_untargeted_developing_2025.xlsx',sheet="Area",range=NULL)
+
+#Metabolite Annotations
+compound_annotation = read_excel('../../doc/untargeted/8_untargeted_developing_2025.xlsx',sheet="Annotation", range=NULL)
+
+#Sample Metadata
+sample_metadata = read_excel('../../doc/untargeted/8_metadata.xlsx',sheet="metadata",range=NULL)
+#Rename SampleName to Sample in metadata if needed
+sample_metadata <- sample_metadata %>%
+  rename(Sample = SampleName)
+```
+
+## Format Datafile
+```{r data_format, echo=TRUE}
+# Clean the data
+clean_metabolomics_data(full_dataset, sample_metadata, compound_annotation, dataset_name = "Batch1_Untargeted_Raw")
+```
+
+# Outlier Removal
+
+## Remove Sample Outliers
+Remove Samples with outlier mean metabolite intensity defined by z score threshold
+```{r outlier_removal_1, echo=TRUE}
+# Remove samples with outlier mean metabolite intensity
+outlier_removal_1_results <- remove_intensity_outliers(
+  data = Batch1_Untargeted_Raw_peak_data,
+  metadata = sample_metadata,
+  threshold = 3,
+  save_plot = TRUE,
+  output_prefix = "01_intensity_outliers",
+  png_path = png_path,
+  csv_path = csv_path
+)
+
+# Extract filtered data
+outlier_removal_1 <- outlier_removal_1_results$filtered_data
+
+# Save filtered dataset
+saveRDS(outlier_removal_1, file.path(csv_path, "outlier_removal_1.rds"))
+write.csv(outlier_removal_1, file.path(csv_path, "outlier_removal_1.csv"), row.names = FALSE)
+```
+
+Remove Samples with outlier number of detected peaks 
+with data file called outlier_removal_2
+
+```{r outlier_removal_2, echo=TRUE}
+# Remove samples with outlier number of detected peaks
+outlier_removal_2_results <- remove_detection_outliers(
+  data = outlier_removal_1,  # Use output from step 1
+  metadata = sample_metadata,
+  threshold = 3,
+  na_threshold = 0,
+  save_plot = TRUE,
+  output_prefix = "02_detection_outliers",
+  png_path = png_path,
+  csv_path = csv_path
+)
+
+# Extract filtered data
+outlier_removal_2 <- outlier_removal_2_results$filtered_data
+
+# Save filtered dataset
+saveRDS(outlier_removal_2, file.path(csv_path, "outlier_removal_2.rds"))
+write.csv(outlier_removal_2, file.path(csv_path, "outlier_removal_2.csv"), row.names = FALSE)
+```
+
+#Metabolite Filtering
+
+
+## Remove Unannotated Metabolites
+Create new dataframe with only annotated metabolites
+```{r Dataframe_Split}
+Batch1_annotated_dataset <- outlier_removal_2[!is.na(outlier_removal_2$Name) & outlier_removal_2$Name != "", ]
+Batch1_unannotated_dataset <- outlier_removal_2[is.na(outlier_removal_2$Name) | outlier_removal_2$Name == "", ]
+```
+
+## Duplicate Check
+```{r first_duplicate_check}
+# Full duplicate detection with CSV output
+dup_results <- detect_metabolite_duplicates(
+  dataset = Batch1_annotated_dataset,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation,
+  name_column = "Name",
+  csv_path = csv_path,
+  verbose = TRUE
+)
+
+```
+
+## Filter By Retention Time
+Filter metabolites with a low retention time, found in compound annotations under RT[min]
+
+Create visualizations to determine RT thresholds
+```{r long_format}
+Batch1_annotated_dataset_long <- prepare_long_data(Batch1_annotated_dataset, Batch1_Untargeted_Raw_sample_metadata)
+```
+### Display Retention Time
+```{r retention_time}
+## RETENTION TIME ANALYSIS ##
+
+#Calculate metabolite abundance
+metabolite_abundance <- calculate_metabolite_abundance(
+  dataset = Batch1_annotated_dataset,
+  sample_cols = 4:11,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation
+)
+
+metabolite_abundance_by_sex <- calculate_metabolite_abundance_by_group(
+  data_long = Batch1_annotated_dataset_long,
+  group_by = "Sex",
+  dataset = Batch1_annotated_dataset,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation
+)
+
+metabolite_abundance_by_gw <- calculate_metabolite_abundance_by_group(
+  data_long = Batch1_annotated_dataset_long,
+  group_by = "GW_bucket",
+  dataset = Batch1_annotated_dataset,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation
+)
+
+# Add retention time to metabolite abundance data
+metabolite_abundance_with_RT <- metabolite_abundance %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+# Distribution of retention time across samples - Histogram
+RT_distribution_histogram <- ggplot(metabolite_abundance_with_RT, aes(x = RT)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time Across Metabolites",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  theme(plot.margin = margin(10, 10, 10, 10))
+
+save_dual_format(RT_distribution_histogram, "RT_distribution_histogram", png_path = png_path, svg_path = svg_path)
+
+# By Sex
+metabolite_abundance_by_sex_with_RT <- metabolite_abundance_by_sex %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+RT_distribution_by_sex <- ggplot(metabolite_abundance_by_sex_with_RT, aes(x = RT, fill = Sex)) +
+  geom_histogram(binwidth = 0.5, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time by Sex",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  facet_wrap(~Sex, ncol = 1)
+
+save_dual_format(RT_distribution_by_sex, "RT_distribution_by_sex", png_path = png_path, svg_path = svg_path)
+
+# By Gestational Week Bucket
+metabolite_abundance_by_GW_with_RT <- metabolite_abundance_by_gw %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+RT_distribution_by_GW <- ggplot(metabolite_abundance_by_GW_with_RT, aes(x = RT, fill = GW_bucket)) +
+  geom_histogram(binwidth = 0.5, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time by GW Bucket",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  facet_wrap(~GW_bucket, ncol = 1)
+
+save_dual_format(RT_distribution_by_GW, "RT_distribution_by_GW", png_path = png_path, svg_path = svg_path)
+
+# Time x Intensity Scatter plot per column for Super.Class
+# Create dataset with metabolite with known Super.Class and extract column from Compound.ID
+metabolite_RT_intensity_superclass <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Super.Class) & Super.Class != "" & !is.na(RT)) %>%
+  mutate(log10 = log10(mean_intensity)) %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID))  %>% # Extract column from Compound.ID 
+  mutate(Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID))
+
+
+
+RT_intensity_column_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~Column, scales = "free") +
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right",axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_superclass, "RT_intensity_column_superclass", png_path = png_path, svg_path = svg_path)
+
+RT_intensity_column_mode_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~ Column + Mode, scales = "free") +
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column and Mode",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right",axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_mode_superclass, "RT_intensity_column_mode_superclass", png_path = png_path, svg_path = svg_path)
+
+# Zoomed version: 0-5 minutes with 30-second intervals
+RT_intensity_column_mode_superclass_zoomed <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~ Column + Mode, scales = "free_y") +  # Changed to free_y only, so x-axis is consistent
+  scale_x_continuous(breaks = seq(0, 5, by = 0.5), limits = c(0, 5)) +  # Add this line for zoom and tick marks
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column and Mode (0-5 min)",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right", axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_mode_superclass_zoomed, "RT_intensity_column_mode_superclass_zoomed_0-5min", png_path = png_path, svg_path = svg_path)
+
+```
+### Display Column Composition
+```{r column_composition}
+## BAR GRAPHS: METABOLITE COUNTS BY CLASSIFICATION AND COLUMN-MODE ##
+
+# 1. Super.Class counts by Column-Mode
+superclass_counts <- metabolite_RT_intensity_superclass %>%
+  group_by(Column, Mode, Super.Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+superclass_barplot <- ggplot(superclass_counts, aes(x = Super.Class, y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  facet_wrap(~Column, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Metabolite Count by Super.Class and Column-Mode",
+       x = "Super.Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        legend.position = "bottom")
+
+save_dual_format(superclass_barplot, "metabolite_counts_by_superclass_column_mode", png_path = png_path, svg_path = svg_path)
+
+# 2. Class counts by Column-Mode
+# Need to use metabolite_abundance_with_RT since Class isn't in the superclass-filtered dataset
+class_counts <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Class) & Class != "") %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode, Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+# show top 20 per column-mode
+top_classes <- class_counts %>%
+  group_by(Column, Mode) %>%
+  slice_max(order_by = n_metabolites, n = 20) %>%
+  ungroup()
+
+
+class_barplot <- ggplot(top_classes, aes(x = reorder(Class, n_metabolites), y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~Column, scales = "free") +
+  coord_flip() +  # Flip for readability
+  theme_minimal() +
+  labs(title = "Top 20 Classes by Metabolite Count (by Column-Mode)",
+       x = "Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.y = element_text(size = 7),
+        legend.position = "bottom")
+
+save_dual_format(class_barplot, "metabolite_counts_by_class_column_mode_top20", png_path = png_path, svg_path = svg_path)
+
+# 3. Sub.Class counts by Column-Mode
+subclass_counts <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Sub.Class) & Sub.Class != "") %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode, Sub.Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+# Sub.Class might have many categories, so let's show top 20 per column-mode
+top_subclasses <- subclass_counts %>%
+  group_by(Column, Mode) %>%
+  slice_max(order_by = n_metabolites, n = 20) %>%
+  ungroup()
+
+subclass_barplot <- ggplot(top_subclasses, aes(x = reorder(Sub.Class, n_metabolites), y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~Column, scales = "free") +
+  coord_flip() +  # Flip for readability
+  theme_minimal() +
+  labs(title = "Top 20 Sub.Classes by Metabolite Count (by Column-Mode)",
+       x = "Sub.Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.y = element_text(size = 7),
+        legend.position = "bottom")
+
+save_dual_format(subclass_barplot, "metabolite_counts_by_subclass_column_mode_top20", png_path = png_path, svg_path = svg_path)
+
+# 4. Summary table by Column-Mode
+summary_by_column_mode <- metabolite_abundance_with_RT %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode) %>%
+  summarise(
+    total_metabolites = n(),
+    n_superclasses = n_distinct(Super.Class[!is.na(Super.Class) & Super.Class != ""]),
+    n_classes = n_distinct(Class[!is.na(Class) & Class != ""]),
+    n_subclasses = n_distinct(Sub.Class[!is.na(Sub.Class) & Sub.Class != ""]),
+    .groups = "drop"
+  )
+
+print("Summary of metabolite diversity by Column-Mode:")
+print(summary_by_column_mode)
+
+# 5. Alternative: Stacked bar showing all column-modes side by side for each Super.Class
+superclass_stacked <- ggplot(superclass_counts, aes(x = Column_Mode, y = n_metabolites, fill = Super.Class)) +
+  geom_bar(stat = "identity", color = "black") +
+  theme_minimal() +
+  labs(title = "Metabolite Distribution by Super.Class across Column-Mode Combinations",
+       x = "Column-Mode Combination",
+       y = "Number of Metabolites") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right")
+
+save_dual_format(superclass_stacked, "metabolite_counts_superclass_stacked_by_column_mode", png_path = png_path, svg_path = svg_path)
+```
+### Determine RT Threshold + Filter
+```{r RT_threshold_determination}
+threshold_results <- detect_rt_threshold_from_density(
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation,
+  png_path = "../../results/untargeted/batch1_filtering/",
+  svg_path = "../../results/untargeted/batch1_filtering/svg",
+  csv_path = "../../results/untargeted/batch1_filtering/csv"
+)
+
+#View recommended thresholds
+threshold_results$recommended_thresholds
+
+# Apply to your dataset
+filtering_results <- apply_density_detected_thresholds(
+  dataset = Batch1_annotated_dataset,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation,
+  threshold_results = threshold_results
+)
+ 
+# Use filtered dataset
+Batch1_annotated_dataset_RT_filtered <- filtering_results$filtered_dataset
+
+#create long version
+prepare_long_data(Batch1_annotated_dataset_RT_filtered, Batch1_Untargeted_Raw_sample_metadata, data_name = "Batch1_annotated_dataset_long_RT_filtered" )
+
+```
+### Post RT Filter Duplicate Check
+```{r post_RT_check}
+check_duplicates(Batch1_annotated_dataset_RT_filtered)
+```
+
+### Check RT Post Filtering
+Re-check column composition after filtering:
+```{r RT_distribution_filtered}
+
+#Calculate metabolite abundance
+metabolite_abundance <- calculate_metabolite_abundance(
+  dataset = Batch1_annotated_dataset_RT_filtered,
+  sample_cols = 4:11,
+  compound_annotation = compound_annotation
+)
+
+metabolite_abundance_by_sex <- calculate_metabolite_abundance_by_group(
+  data_long = Batch1_annotated_dataset_long_RT_filtered,
+  group_by = "Sex",
+  dataset = Batch1_annotated_dataset_RT_filtered,
+  compound_annotation = compound_annotation
+)
+
+metabolite_abundance_by_gw <- calculate_metabolite_abundance_by_group(
+  data_long = Batch1_annotated_dataset_long_RT_filtered,
+  group_by = "GW_bucket",
+  dataset = Batch1_annotated_dataset_RT_filtered,
+  compound_annotation = compound_annotation
+)
+
+# Add retention time to metabolite abundance data
+metabolite_abundance_with_RT <- metabolite_abundance %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+# Distribution of retention time across samples - Histogram
+RT_distribution_histogram <- ggplot(metabolite_abundance_with_RT, aes(x = RT)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time Across Metabolites",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  theme(plot.margin = margin(10, 10, 10, 10))
+
+save_dual_format(RT_distribution_histogram, "Filtered_RT_distribution_histogram", png_path = png_path, svg_path = svg_path)
+
+# By Sex
+metabolite_abundance_by_sex_with_RT <- metabolite_abundance_by_sex %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+RT_distribution_by_sex <- ggplot(metabolite_abundance_by_sex_with_RT, aes(x = RT, fill = Sex)) +
+  geom_histogram(binwidth = 0.5, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time by Sex",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  facet_wrap(~Sex, ncol = 1)
+
+save_dual_format(RT_distribution_by_sex, "Filtered_RT_distribution_by_sex", png_path = png_path, svg_path = svg_path)
+
+# By Gestational Week Bucket
+metabolite_abundance_by_GW_with_RT <- metabolite_abundance_by_gw %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+RT_distribution_by_GW <- ggplot(metabolite_abundance_by_GW_with_RT, aes(x = RT, fill = GW_bucket)) +
+  geom_histogram(binwidth = 0.5, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time by GW Bucket",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  facet_wrap(~GW_bucket, ncol = 1)
+
+save_dual_format(RT_distribution_by_GW, "Filtered_RT_distribution_by_GW", png_path = png_path, svg_path = svg_path)
+
+# Time x Intensity Scatter plot per column for Super.Class
+# Create dataset with metabolite with known Super.Class and extract column from Compound.ID
+metabolite_RT_intensity_superclass <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Super.Class) & Super.Class != "" & !is.na(RT)) %>%
+  mutate(log10 = log10(mean_intensity)) %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID))  %>% # Extract column from Compound.ID 
+  mutate(Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID))
+
+
+
+RT_intensity_column_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~Column, scales = "free") +
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right",axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_superclass, "Filtered_RT_intensity_column_superclass", png_path = png_path, svg_path = svg_path)
+
+RT_intensity_column_mode_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~ Column + Mode, scales = "free") +
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column and Mode",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right",axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_mode_superclass, "Filtered_RT_intensity_column_mode_superclass", png_path = png_path, svg_path = svg_path)
+
+```
+### Check Column Composition Post Filtering
+```{r filtered_column_composition}
+## BAR GRAPHS: METABOLITE COUNTS BY CLASSIFICATION AND COLUMN-MODE ##
+
+# 1. Super.Class counts by Column-Mode
+superclass_counts <- metabolite_RT_intensity_superclass %>%
+  group_by(Column, Mode, Super.Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+superclass_barplot <- ggplot(superclass_counts, aes(x = Super.Class, y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  facet_wrap(~Column, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Metabolite Count by Super.Class and Column-Mode",
+       x = "Super.Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        legend.position = "bottom")
+
+save_dual_format(superclass_barplot, "Filtered_metabolite_counts_by_superclass_column_mode", png_path = png_path, svg_path = svg_path)
+
+# 2. Class counts by Column-Mode
+# Need to use metabolite_abundance_with_RT since Class isn't in the superclass-filtered dataset
+class_counts <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Class) & Class != "") %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode, Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+# show top 20 per column-mode
+top_classes <- class_counts %>%
+  group_by(Column, Mode) %>%
+  slice_max(order_by = n_metabolites, n = 20) %>%
+  ungroup()
+
+
+class_barplot <- ggplot(top_classes, aes(x = reorder(Class, n_metabolites), y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~Column, scales = "free") +
+  coord_flip() +  # Flip for readability
+  theme_minimal() +
+  labs(title = "Top 20 Classes by Metabolite Count (by Column-Mode)",
+       x = "Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.y = element_text(size = 7),
+        legend.position = "bottom")
+
+save_dual_format(class_barplot, "Filtered_metabolite_counts_by_class_column_mode_top20", png_path = png_path, svg_path = svg_path)
+
+# 3. Sub.Class counts by Column-Mode
+subclass_counts <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Sub.Class) & Sub.Class != "") %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode, Sub.Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+# Sub.Class might have many categories, so let's show top 20 per column-mode
+top_subclasses <- subclass_counts %>%
+  group_by(Column, Mode) %>%
+  slice_max(order_by = n_metabolites, n = 20) %>%
+  ungroup()
+
+subclass_barplot <- ggplot(top_subclasses, aes(x = reorder(Sub.Class, n_metabolites), y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~Column, scales = "free") +
+  coord_flip() +  # Flip for readability
+  theme_minimal() +
+  labs(title = "Top 20 Sub.Classes by Metabolite Count (by Column-Mode)",
+       x = "Sub.Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.y = element_text(size = 7),
+        legend.position = "bottom")
+
+save_dual_format(subclass_barplot, "Filtered_metabolite_counts_by_subclass_column_mode_top20", png_path = png_path, svg_path = svg_path)
+
+# 4. Summary table by Column-Mode
+summary_by_column_mode <- metabolite_abundance_with_RT %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode) %>%
+  summarise(
+    total_metabolites = n(),
+    n_superclasses = n_distinct(Super.Class[!is.na(Super.Class) & Super.Class != ""]),
+    n_classes = n_distinct(Class[!is.na(Class) & Class != ""]),
+    n_subclasses = n_distinct(Sub.Class[!is.na(Sub.Class) & Sub.Class != ""]),
+    .groups = "drop"
+  )
+
+print("Summary of metabolite diversity by Column-Mode:")
+print(summary_by_column_mode)
+
+# 5. Alternative: Stacked bar showing all column-modes side by side for each Super.Class
+superclass_stacked <- ggplot(superclass_counts, aes(x = Column_Mode, y = n_metabolites, fill = Super.Class)) +
+  geom_bar(stat = "identity", color = "black") +
+  theme_minimal() +
+  labs(title = "Metabolite Distribution by Super.Class across Column-Mode Combinations",
+       x = "Column-Mode Combination",
+       y = "Number of Metabolites") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right")
+
+save_dual_format(superclass_stacked, "Filtered_metabolite_counts_superclass_stacked_by_column_mode", png_path = png_path, svg_path = svg_path)
+```
+## Filter by Metabolite Missingness
+Filter out metabolites present in fewer than 75% of samples. 
+
+```{r missing_filter}
+# Filter metabolites
+missingness_results <- filter_metabolites_by_missingness(
+  dataset = Batch1_annotated_dataset_RT_filtered,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation,
+  detection_threshold = 0.75,
+  verbose = TRUE
+)
+
+# Assign the filtered dataset
+Batch1_annotated_dataset_missingness_filtered <- missingness_results$filtered_dataset
+
+# Plot with separate paths
+p_missingness <- plot_missingness_distribution(
+  missingness_stats = missingness_results$missingness_stats,
+  detection_threshold = 0.75,
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+```
+
+### Post Missingness Filter Duplicate Check
+```{r post_missing_check}
+check_duplicates(Batch1_annotated_dataset_missingness_filtered)
+```
+
+## Remove Duplicates
+Select metabolite with highest intensity across samples
+
+```{r duplicate_removal}
+dedup_results <- remove_duplicates_by_intensity(
+  dataset = Batch1_annotated_dataset_missingness_filtered,
+  compound_annotation = Batch1_Untargeted_Raw_compound_annotation,
+  name_column = "Name",
+  verbose = TRUE
+)
+
+Batch1_annotated_dataset_final <- dedup_results$filtered_dataset
+
+
+#create long version
+prepare_long_data(Batch1_annotated_dataset_final, Batch1_Untargeted_Raw_sample_metadata, data_name = "Batch1_annotated_dataset_final_long" )
+
+# Quick check
+quick_dedup(Batch1_annotated_dataset_missingness_filtered, 
+            compound_annotation = Batch1_Untargeted_Raw_compound_annotation)
+```
+### Check RT Post Filtering
+Re-check column composition after filtering:
+```{r final_RT_distribution_filtered}
+
+#Calculate metabolite abundance
+metabolite_abundance <- calculate_metabolite_abundance(
+  dataset = Batch1_annotated_dataset_final,
+  sample_cols = 4:11,
+  compound_annotation = compound_annotation
+)
+
+metabolite_abundance_by_sex <- calculate_metabolite_abundance_by_group(
+  data_long = Batch1_annotated_dataset_final_long,
+  group_by = "Sex",
+  dataset = Batch1_annotated_dataset_final,
+  compound_annotation = compound_annotation
+)
+
+metabolite_abundance_by_gw <- calculate_metabolite_abundance_by_group(
+  data_long = Batch1_annotated_dataset_final_long,
+  group_by = "GW_bucket",
+  dataset = Batch1_annotated_dataset_final,
+  compound_annotation = compound_annotation
+)
+
+# Add retention time to metabolite abundance data
+metabolite_abundance_with_RT <- metabolite_abundance %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+# Distribution of retention time across samples - Histogram
+RT_distribution_histogram <- ggplot(metabolite_abundance_with_RT, aes(x = RT)) +
+  geom_histogram(binwidth = 0.5, fill = "steelblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time Across Metabolites",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  theme(plot.margin = margin(10, 10, 10, 10))
+
+save_dual_format(RT_distribution_histogram, "Final_RT_distribution_histogram", png_path = png_path, svg_path = svg_path)
+
+# By Sex
+metabolite_abundance_by_sex_with_RT <- metabolite_abundance_by_sex %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+RT_distribution_by_sex <- ggplot(metabolite_abundance_by_sex_with_RT, aes(x = RT, fill = Sex)) +
+  geom_histogram(binwidth = 0.5, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time by Sex",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  facet_wrap(~Sex, ncol = 1)
+
+save_dual_format(RT_distribution_by_sex, "Final_RT_distribution_by_sex", png_path = png_path, svg_path = svg_path)
+
+# By Gestational Week Bucket
+metabolite_abundance_by_GW_with_RT <- metabolite_abundance_by_gw %>%
+  left_join(compound_annotation %>% select(Compound.ID, `RT[min]`), by = "Compound.ID") %>%
+  rename(RT = `RT[min]`)
+
+RT_distribution_by_GW <- ggplot(metabolite_abundance_by_GW_with_RT, aes(x = RT, fill = GW_bucket)) +
+  geom_histogram(binwidth = 0.5, color = "black", position = "identity", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Distribution of Retention Time by GW Bucket",
+       x = "Retention Time (min)",
+       y = "Metabolite Count") +
+  facet_wrap(~GW_bucket, ncol = 1)
+
+save_dual_format(RT_distribution_by_GW, "Final_RT_distribution_by_GW", png_path = png_path, svg_path = svg_path)
+
+# Time x Intensity Scatter plot per column for Super.Class
+# Create dataset with metabolite with known Super.Class and extract column from Compound.ID
+metabolite_RT_intensity_superclass <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Super.Class) & Super.Class != "" & !is.na(RT)) %>%
+  mutate(log10 = log10(mean_intensity)) %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID))  %>% # Extract column from Compound.ID 
+  mutate(Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID))
+
+
+
+RT_intensity_column_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~Column, scales = "free") +
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right",axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_superclass, "Final_RT_intensity_column_superclass", png_path = png_path, svg_path = svg_path)
+
+RT_intensity_column_mode_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
+  geom_point(alpha = 0.6, size = 2) +
+  facet_wrap(~ Column + Mode, scales = "free") +
+  theme_minimal() +
+  labs(title = "Retention Time vs Intensity by Column and Mode",
+       x = "Retention Time (min)",
+       y = "Log10 Mean Peak Intensity") +
+  theme(legend.position = "right",axis.text.x = element_text(angle = 45, hjust = 1))
+
+save_dual_format(RT_intensity_column_mode_superclass, "Final_RT_intensity_column_mode_superclass", png_path = png_path, svg_path = svg_path)
+
+```
+### Check Column Composition Post Filtering
+```{r final_filtered_column_composition}
+## BAR GRAPHS: METABOLITE COUNTS BY CLASSIFICATION AND COLUMN-MODE ##
+
+# 1. Super.Class counts by Column-Mode
+superclass_counts <- metabolite_RT_intensity_superclass %>%
+  group_by(Column, Mode, Super.Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+superclass_barplot <- ggplot(superclass_counts, aes(x = Super.Class, y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", position = "dodge", color = "black") +
+  facet_wrap(~Column, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Metabolite Count by Super.Class and Column-Mode",
+       x = "Super.Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+        legend.position = "bottom")
+
+save_dual_format(superclass_barplot, "Final_metabolite_counts_by_superclass_column_mode", png_path = png_path, svg_path = svg_path)
+
+# 2. Class counts by Column-Mode
+# Need to use metabolite_abundance_with_RT since Class isn't in the superclass-filtered dataset
+class_counts <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Class) & Class != "") %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode, Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+# show top 20 per column-mode
+top_classes <- class_counts %>%
+  group_by(Column, Mode) %>%
+  slice_max(order_by = n_metabolites, n = 20) %>%
+  ungroup()
+
+
+class_barplot <- ggplot(top_classes, aes(x = reorder(Class, n_metabolites), y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~Column, scales = "free") +
+  coord_flip() +  # Flip for readability
+  theme_minimal() +
+  labs(title = "Top 20 Classes by Metabolite Count (by Column-Mode)",
+       x = "Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.y = element_text(size = 7),
+        legend.position = "bottom")
+
+save_dual_format(class_barplot, "Final_metabolite_counts_by_class_column_mode_top20", png_path = png_path, svg_path = svg_path)
+
+# 3. Sub.Class counts by Column-Mode
+subclass_counts <- metabolite_abundance_with_RT %>%
+  filter(!is.na(Sub.Class) & Sub.Class != "") %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode, Sub.Class) %>%
+  summarise(n_metabolites = n(), .groups = "drop") %>%
+  mutate(Column_Mode = paste(Column, Mode, sep = "_"))
+
+# Sub.Class might have many categories, so let's show top 20 per column-mode
+top_subclasses <- subclass_counts %>%
+  group_by(Column, Mode) %>%
+  slice_max(order_by = n_metabolites, n = 20) %>%
+  ungroup()
+
+subclass_barplot <- ggplot(top_subclasses, aes(x = reorder(Sub.Class, n_metabolites), y = n_metabolites, fill = Mode)) +
+  geom_bar(stat = "identity", color = "black") +
+  facet_wrap(~Column, scales = "free") +
+  coord_flip() +  # Flip for readability
+  theme_minimal() +
+  labs(title = "Top 20 Sub.Classes by Metabolite Count (by Column-Mode)",
+       x = "Sub.Class",
+       y = "Number of Metabolites") +
+  theme(axis.text.y = element_text(size = 7),
+        legend.position = "bottom")
+
+save_dual_format(subclass_barplot, "Final_metabolite_counts_by_subclass_column_mode_top20", png_path = png_path, svg_path = svg_path)
+
+# 4. Summary table by Column-Mode
+summary_by_column_mode <- metabolite_abundance_with_RT %>%
+  mutate(Column = sub("-[^-]+-[0-9]+$", "", Compound.ID),
+         Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID)) %>%
+  filter(!is.na(Column) & !is.na(Mode)) %>%
+  group_by(Column, Mode) %>%
+  summarise(
+    total_metabolites = n(),
+    n_superclasses = n_distinct(Super.Class[!is.na(Super.Class) & Super.Class != ""]),
+    n_classes = n_distinct(Class[!is.na(Class) & Class != ""]),
+    n_subclasses = n_distinct(Sub.Class[!is.na(Sub.Class) & Sub.Class != ""]),
+    .groups = "drop"
+  )
+
+print("Summary of metabolite diversity by Column-Mode:")
+print(summary_by_column_mode)
+
+# 5. Alternative: Stacked bar showing all column-modes side by side for each Super.Class
+superclass_stacked <- ggplot(superclass_counts, aes(x = Column_Mode, y = n_metabolites, fill = Super.Class)) +
+  geom_bar(stat = "identity", color = "black") +
+  theme_minimal() +
+  labs(title = "Metabolite Distribution by Super.Class across Column-Mode Combinations",
+       x = "Column-Mode Combination",
+       y = "Number of Metabolites") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right")
+
+save_dual_format(superclass_stacked, "Final_metabolite_counts_superclass_stacked_by_column_mode", png_path = png_path, svg_path = svg_path)
+```
+# Save Final Files
+
+```{r save_files}
+# Save final datasets to CSV
+
+output_dir <- "../../results/untargeted"
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+# Save peak area values
+write.csv(Batch1_annotated_dataset_final, 
+          file.path(output_dir, "Batch1_peak_area_values.csv"), 
+          row.names = FALSE)
+
+# Save metabolite annotations
+write.csv(Batch1_Untargeted_Raw_compound_annotation, 
+          file.path(output_dir, "Batch1_metabolite_annotations.csv"), 
+          row.names = FALSE)
+
+# Save sample metadata
+write.csv(sample_metadata, 
+          file.path(output_dir, "Batch1_sample_metadata.csv"), 
+          row.names = FALSE)
+
+cat("Files saved to:", output_dir, "\n")
+```

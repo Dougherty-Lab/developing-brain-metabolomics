@@ -1,0 +1,253 @@
+---
+title: "Combine Datasets"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated January 25, 2026"
+output:
+  html_document:
+    toc: TRUE
+---
+
+Made w/ assistance from Claude Sonnet 4.5. Output checked and validated by author. 
+
+# Set Up
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+ 
+Packages <- c("tidyverse")
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r set_path}
+png_path <- "../../results/untargeted/combined_datasets"
+csv_path <- "../../results/untargeted/combined_datasets/csv"
+svg_path <- "../../results/untargeted/combined_datasets/svg"
+data_path <- "../../data"
+```
+
+# Load Data
+
+## Batch 1
+```{r load-batch1}
+# Peak Area Values
+batch1_peak_area <- read_csv('../../results/untargeted/Batch1_peak_area_values.csv',
+                              show_col_types = FALSE)
+
+# Metabolite Annotations
+batch1_metabolite_annotations <- read_csv('../../results/untargeted/Batch1_metabolite_annotations.csv',
+                                          show_col_types = FALSE)
+
+# Sample Metadata
+batch1_sample_metadata <- read_csv('../../results/untargeted/Batch1_sample_metadata.csv',
+                                   show_col_types = FALSE)
+```
+
+## Batch 2
+```{r load-batch2}
+# Peak Area Values
+batch2_peak_area <- read_csv('../../results/untargeted/Batch2_peak_area_values.csv',
+                              show_col_types = FALSE)
+
+# Metabolite Annotations
+batch2_metabolite_annotations <- read_csv('../../results/untargeted/Batch2_metabolite_annotations.csv',
+                                          show_col_types = FALSE)
+
+# Sample Metadata
+batch2_sample_metadata <- read_csv('../../results/untargeted/Batch2_sample_metadata.csv',
+                                   show_col_types = FALSE)
+```
+
+# Data Inspection
+```{r inspect-dimensions}
+# Check dimensions
+cat("Batch 1 Peak Data:", nrow(batch1_peak_area), "metabolites x", 
+    ncol(batch1_peak_area) - 3, "samples\n")
+cat("Batch 2 Peak Data:", nrow(batch2_peak_area), "metabolites x", 
+    ncol(batch2_peak_area) - 3, "samples\n")
+
+# Check for overlapping metabolites by Name
+batch1_metabolites <- batch1_peak_area$Name
+batch2_metabolites <- batch2_peak_area$Name
+
+overlap <- intersect(batch1_metabolites, batch2_metabolites)
+cat("\nOverlapping metabolites (by Name):", length(overlap), "\n")
+cat("Batch 1 unique:", length(setdiff(batch1_metabolites, batch2_metabolites)), "\n")
+cat("Batch 2 unique:", length(setdiff(batch2_metabolites, batch1_metabolites)), "\n")
+
+# Show example overlapping metabolites
+if (length(overlap) > 0) {
+  cat("\nExample overlapping metabolites:\n")
+  print(head(overlap, 10))
+}
+```
+# Prepare Data for Combining
+`````{r prepare-data}
+# Add batch identifier to Compound.IDs for trace-ability
+batch1_peak_area <- batch1_peak_area %>%
+  mutate(Compound.ID_Batch1 = Compound.ID) %>%
+  select(Name, Compound.ID_Batch1, everything(), -Compound.ID, -Formula)
+
+batch2_peak_area <- batch2_peak_area %>%
+  mutate(Compound.ID_Batch2 = Compound.ID) %>%
+  select(Name, Compound.ID_Batch2, everything(), -Compound.ID, -Formula)
+`````
+
+# Combine Peak Area Data
+````{r combine-peak-area}
+# Full join on Name to merge same metabolites regardless of Compound.ID
+combined_peak_area <- batch1_peak_area %>%
+  full_join(batch2_peak_area, 
+            by = "Name")
+
+# Get all column names
+all_cols <- colnames(combined_peak_area)
+
+# Identify which columns got .x and .y suffixes
+x_cols <- grep("\\.x$", all_cols, value = TRUE)
+y_cols <- grep("\\.y$", all_cols, value = TRUE)
+
+cat("Columns with .x suffix:", length(x_cols), "\n")
+cat("Columns with .y suffix:", length(y_cols), "\n")
+
+# For Compound.ID columns, keep both with proper names
+if ("Compound.ID_Batch1.x" %in% all_cols) {
+  combined_peak_area <- combined_peak_area %>%
+    rename(Compound.ID_Batch1 = Compound.ID_Batch1.x)
+}
+
+if ("Compound.ID_Batch1.y" %in% all_cols) {
+  combined_peak_area <- combined_peak_area %>%
+    mutate(Compound.ID_Batch1 = coalesce(Compound.ID_Batch1, Compound.ID_Batch1.y)) %>%
+    select(-Compound.ID_Batch1.y)
+}
+
+if ("Compound.ID_Batch2.x" %in% all_cols) {
+  combined_peak_area <- combined_peak_area %>%
+    rename(temp_b2 = Compound.ID_Batch2.x)
+  if ("Compound.ID_Batch2.y" %in% colnames(combined_peak_area)) {
+    combined_peak_area <- combined_peak_area %>%
+      mutate(Compound.ID_Batch2 = coalesce(temp_b2, Compound.ID_Batch2.y)) %>%
+      select(-temp_b2, -Compound.ID_Batch2.y)
+  } else {
+    combined_peak_area <- combined_peak_area %>%
+      rename(Compound.ID_Batch2 = temp_b2)
+  }
+}
+
+if ("Compound.ID_Batch2.y" %in% all_cols & !"Compound.ID_Batch2" %in% colnames(combined_peak_area)) {
+  combined_peak_area <- combined_peak_area %>%
+    rename(Compound.ID_Batch2 = Compound.ID_Batch2.y)
+}
+
+# For sample columns (which should not have duplicates since samples are unique to each batch)
+# Remove .x and .y suffixes
+combined_peak_area <- combined_peak_area %>%
+  rename_with(~str_remove(., "\\.x$"), ends_with(".x")) %>%
+  rename_with(~str_remove(., "\\.y$"), ends_with(".y"))
+
+# Reorder columns
+combined_peak_area <- combined_peak_area %>%
+  select(Name, 
+         starts_with("Compound.ID_Batch"), 
+         everything())
+
+# Add batch detection flags
+combined_peak_area <- combined_peak_area %>%
+  mutate(
+    Detected_Batch1 = !is.na(Compound.ID_Batch1),
+    Detected_Batch2 = !is.na(Compound.ID_Batch2),
+    Detected_Both = Detected_Batch1 & Detected_Batch2
+  )
+
+# Get actual sample columns (exclude Name, Compound.IDs, and detection flags)
+sample_cols <- colnames(combined_peak_area)[!colnames(combined_peak_area) %in% 
+                c("Name", "Compound.ID_Batch1", "Compound.ID_Batch2",
+                  "Detected_Batch1", "Detected_Batch2", "Detected_Both")]
+
+cat("\nCombined peak data:", nrow(combined_peak_area), "metabolites x", 
+    length(sample_cols), "samples\n")
+````
+# Combine Metabolite Annotations
+```{r combine-annotations}
+# Add batch identifier to Compound.IDs
+batch1_metabolite_annotations <- batch1_metabolite_annotations %>%
+  mutate(Compound.ID_Batch1 = Compound.ID,
+         Batch = "Batch1") %>%
+  select(-Compound.ID)
+
+batch2_metabolite_annotations <- batch2_metabolite_annotations %>%
+  mutate(Compound.ID_Batch2 = Compound.ID,
+         Batch = "Batch2") %>%
+  select(-Compound.ID)
+
+# Stack them on top of each other
+combined_annotations <- bind_rows(batch1_metabolite_annotations,
+                                  batch2_metabolite_annotations)
+
+# Filter to only include compounds present in combined peak area
+compounds_in_peak <- unique(c(
+  combined_peak_area$Compound.ID_Batch1[!is.na(combined_peak_area$Compound.ID_Batch1)],
+  combined_peak_area$Compound.ID_Batch2[!is.na(combined_peak_area$Compound.ID_Batch2)]
+))
+
+combined_annotations <- combined_annotations %>%
+  filter(
+    (Batch == "Batch1" & Compound.ID_Batch1 %in% compounds_in_peak) |
+    (Batch == "Batch2" & Compound.ID_Batch2 %in% compounds_in_peak)
+  ) %>%
+  arrange(Name)
+
+# Reorder columns - Compound.IDs and Batch first
+combined_annotations <- combined_annotations %>%
+  select(Compound.ID_Batch1, Compound.ID_Batch2, Batch, everything())
+
+cat("Combined annotations:", nrow(combined_annotations), "rows\n")
+cat("Batch 1 annotations:", sum(combined_annotations$Batch == "Batch1"), "\n")
+cat("Batch 2 annotations:", sum(combined_annotations$Batch == "Batch2"), "\n")
+```
+
+# Combine Sample Metadata
+```{r combine-metadata}
+# Add batch identifier to metadata
+batch1_sample_metadata <- batch1_sample_metadata %>%
+  mutate(Batch = "Batch1")
+
+batch2_sample_metadata <- batch2_sample_metadata %>%
+  mutate(Batch = "Batch2")
+
+# Combine metadata by stacking
+combined_sample_metadata <- bind_rows(
+  batch1_sample_metadata,
+  batch2_sample_metadata
+) %>%
+  select(Sample, Batch, GW, Sex)  # Reorder with Batch after Sample
+
+cat("Combined samples:", nrow(combined_sample_metadata), "\n")
+cat("Batch 1 samples:", sum(combined_sample_metadata$Batch == "Batch1"), "\n")
+cat("Batch 2 samples:", sum(combined_sample_metadata$Batch == "Batch2"), "\n")
+
+# Summary by sex and batch
+cat("\nSample distribution:\n")
+print(combined_sample_metadata %>%
+        group_by(Batch, Sex) %>%
+        summarise(Count = n(), .groups = "drop"))
+```
+# Save Combined Data
+```{r save-combined}
+# Save combined datasets with "full dataset" naming
+write_csv(combined_peak_area, 
+          file.path(data_path, 'full_dataset_peak_area_values.csv'))
+
+write_csv(combined_annotations, 
+          file.path(data_path, 'full_dataset_metabolite_annotations.csv'))
+
+write_csv(combined_sample_metadata, 
+          file.path(data_path, 'full_dataset_sample_metadata.csv'))
+
+cat("\nAll combined datasets saved successfully to:", data_path, "\n")
+cat("Files saved:\n")
+cat("  - full_dataset_peak_area_values.csv\n")
+cat("  - full_dataset_metabolite_annotations.csv\n")
+cat("  - full_dataset_sample_metadata.csv\n")
+```
+
+

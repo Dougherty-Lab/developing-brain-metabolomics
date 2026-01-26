@@ -350,7 +350,7 @@ save_dual_format <- function(plot, filename, png_path = NULL, svg_path = NULL,
       width = width,
       height = height,
       dpi = dpi,
-      bg = "white"
+      bg = "transparent"
     )
   }
   
@@ -855,6 +855,16 @@ test_peak_features <- function(dataset,
   metric_labels <- c("Detected Peaks", "Detection Rate", "Mean Intensity", 
                      "Missing Proportion", "Missing Count")
   
+  # Check GW variation
+  unique_gw <- n_distinct(sample_metrics$GW)
+  gw_sufficient <- unique_gw > 2
+  
+  if (!gw_sufficient) {
+    cat("\nWARNING: Only ", unique_gw, " unique gestational week value(s) detected.\n")
+    cat("GW-based models require >2 factor levels. Skipping GW-related analyses.\n")
+    cat("Running Sex-only models.\n\n")
+  }
+  
   # Initialize results list
   all_models <- list()
   summary_results <- data.frame()
@@ -866,52 +876,81 @@ test_peak_features <- function(dataset,
     
     cat("\n=== ", toupper(label), " ANALYSIS ===\n", sep = "")
     
-    # Continuous GW model
-    formula_cont <- as.formula(paste(metric, "~ Sex * GW"))
-    model_cont <- lm(formula_cont, data = sample_metrics)
-    
-    cat("\nLinear Model (continuous GW):\n")
-    print(summary(model_cont))
-    cat("\nANOVA:\n")
-    print(anova(model_cont))
-    
-    # GW bins model
-    formula_bins <- as.formula(paste(metric, "~ Sex * GW_bucket"))
-    model_bins <- lm(formula_bins, data = sample_metrics)
-    
-    cat("\nLinear Model (GW bins):\n")
-    print(summary(model_bins))
-    cat("\nANOVA:\n")
-    print(anova(model_bins))
-    
-    # Store models
-    all_models[[paste0(metric, "_continuous")]] <- model_cont
-    all_models[[paste0(metric, "_bins")]] <- model_bins
-    
-    # Extract p-values for summary table
-    # Continuous model
-    coef_cont <- summary(model_cont)$coefficients
-    p_sex_cont <- if ("SexM" %in% rownames(coef_cont)) coef_cont["SexM", "Pr(>|t|)"] else NA
-    p_gw_cont <- if ("GW" %in% rownames(coef_cont)) coef_cont["GW", "Pr(>|t|)"] else NA
-    p_int_cont <- if ("SexM:GW" %in% rownames(coef_cont)) coef_cont["SexM:GW", "Pr(>|t|)"] else NA
-    
-    # Bins model
-    anova_bins <- anova(model_bins)
-    p_sex_bins <- if ("Sex" %in% rownames(anova_bins)) anova_bins["Sex", "Pr(>F)"] else NA
-    p_gw_bins <- if ("GW_bucket" %in% rownames(anova_bins)) anova_bins["GW_bucket", "Pr(>F)"] else NA
-    p_int_bins <- if ("Sex:GW_bucket" %in% rownames(anova_bins)) anova_bins["Sex:GW_bucket", "Pr(>F)"] else NA
-    
-    # Add to summary results
-    summary_results <- bind_rows(
-      summary_results,
-      data.frame(
-        Variable = rep(label, 6),
-        Model = rep(c("Continuous GW", "GW Bins"), each = 3),
-        Term = rep(c("Sex", "GW/GW_bucket", "Sex:GW/Sex:GW_bucket"), 2),
-        P_value = c(p_sex_cont, p_gw_cont, p_int_cont,
-                    p_sex_bins, p_gw_bins, p_int_bins)
+    if (gw_sufficient) {
+      # Continuous GW model
+      formula_cont <- as.formula(paste(metric, "~ Sex * GW"))
+      model_cont <- lm(formula_cont, data = sample_metrics)
+      
+      cat("\nLinear Model (continuous GW):\n")
+      print(summary(model_cont))
+      cat("\nANOVA:\n")
+      print(anova(model_cont))
+      
+      # GW bins model
+      formula_bins <- as.formula(paste(metric, "~ Sex * GW_bucket"))
+      model_bins <- lm(formula_bins, data = sample_metrics)
+      
+      cat("\nLinear Model (GW bins):\n")
+      print(summary(model_bins))
+      cat("\nANOVA:\n")
+      print(anova(model_bins))
+      
+      # Store models
+      all_models[[paste0(metric, "_continuous")]] <- model_cont
+      all_models[[paste0(metric, "_bins")]] <- model_bins
+      
+      # Extract p-values for summary table
+      # Continuous model
+      coef_cont <- summary(model_cont)$coefficients
+      p_sex_cont <- if ("SexM" %in% rownames(coef_cont)) coef_cont["SexM", "Pr(>|t|)"] else NA
+      p_gw_cont <- if ("GW" %in% rownames(coef_cont)) coef_cont["GW", "Pr(>|t|)"] else NA
+      p_int_cont <- if ("SexM:GW" %in% rownames(coef_cont)) coef_cont["SexM:GW", "Pr(>|t|)"] else NA
+      
+      # Bins model
+      anova_bins <- anova(model_bins)
+      p_sex_bins <- if ("Sex" %in% rownames(anova_bins)) anova_bins["Sex", "Pr(>F)"] else NA
+      p_gw_bins <- if ("GW_bucket" %in% rownames(anova_bins)) anova_bins["GW_bucket", "Pr(>F)"] else NA
+      p_int_bins <- if ("Sex:GW_bucket" %in% rownames(anova_bins)) anova_bins["Sex:GW_bucket", "Pr(>F)"] else NA
+      
+      # Add to summary results
+      summary_results <- bind_rows(
+        summary_results,
+        data.frame(
+          Variable = rep(label, 6),
+          Model = rep(c("Continuous GW", "GW Bins"), each = 3),
+          Term = rep(c("Sex", "GW/GW_bucket", "Sex:GW/Sex:GW_bucket"), 2),
+          P_value = c(p_sex_cont, p_gw_cont, p_int_cont,
+                      p_sex_bins, p_gw_bins, p_int_bins)
+        )
       )
-    )
+    } else {
+      # Sex-only model when GW variation is insufficient
+      formula_sex <- as.formula(paste(metric, "~ Sex"))
+      model_sex <- lm(formula_sex, data = sample_metrics)
+      
+      cat("\nLinear Model (Sex only):\n")
+      print(summary(model_sex))
+      cat("\nANOVA:\n")
+      print(anova(model_sex))
+      
+      # Store model
+      all_models[[paste0(metric, "_sex_only")]] <- model_sex
+      
+      # Extract p-values
+      coef_sex <- summary(model_sex)$coefficients
+      p_sex <- if ("SexM" %in% rownames(coef_sex)) coef_sex["SexM", "Pr(>|t|)"] else NA
+      
+      # Add to summary results
+      summary_results <- bind_rows(
+        summary_results,
+        data.frame(
+          Variable = label,
+          Model = "Sex Only",
+          Term = "Sex",
+          P_value = p_sex
+        )
+      )
+    }
   }
   
   # Add significance annotations
@@ -1036,7 +1075,8 @@ format_p_value <- function(p_value) {
 calculate_metabolite_abundance <- function(dataset, 
                                            sample_cols = NULL,
                                            sample_pattern = "^Sample",
-                                           compound_annotation = NULL) {
+                                           compound_annotation = NULL
+                                          ) {
   
   # Determine sample columns
   if (is.null(sample_cols)) {
