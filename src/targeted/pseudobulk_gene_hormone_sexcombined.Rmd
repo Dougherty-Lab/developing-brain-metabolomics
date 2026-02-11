@@ -12,7 +12,7 @@ The purpose of this script is to 1) explore single cell RNA-seq results without 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-Packages <- c("tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot", "edgeR", "limma", "patchwork", "svglite", "Matrix", "ggpubr")
+Packages <- c("tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot", "edgeR", "limma", "patchwork", "svglite", "Matrix", "ggpubr", "ggpp")
 
 lapply(Packages, library, character.only=TRUE)
 
@@ -120,6 +120,179 @@ notypepb_E2 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_f
 notypepb_P4 <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtered_P4)
 ```
 
+## Diagnostic Plots: Understanding Pseudobulk Data Structure
+
+```{r diagnostic-plots, fig.width=12, fig.height=10}
+# Create output directory for diagnostics
+dir.create("../../results/targeted/pseudobulk_diagnostics", showWarnings = FALSE, recursive = TRUE)
+
+# Function to create comprehensive diagnostic plots
+create_pseudobulk_diagnostics <- function(pb_data, pb_name, hormone_name) {
+  
+  counts <- pb_data$pb$counts  # samples x genes
+  metadata <- pb_data$metadata
+  
+  # Calculate key metrics
+  library_sizes <- rowSums(counts)
+  genes_detected_per_sample <- rowSums(counts > 0)
+  mean_counts_per_gene <- colMeans(counts)
+  
+  # Calculate CPM
+  cpm_mat <- edgeR::cpm(t(counts), log = FALSE)  # Need genes x samples for cpm
+  mean_cpm_per_gene <- rowMeans(cpm_mat)
+  
+  # Create comprehensive diagnostic plot
+  p1 <- ggplot(metadata, aes(x = reorder(rownames(metadata), cell_count), y = cell_count, fill = Sex)) +
+    geom_bar(stat = "identity") +
+    coord_flip() +
+    scale_fill_manual(values = c("F" = "#E69F00", "M" = "#56B4E9")) +
+    labs(title = paste0("Cell Counts per Pseudobulk Sample (", pb_name, ")"),
+         x = "Sample", y = "Number of Cells Aggregated") +
+    theme_minimal(base_size = 10) +
+    theme(axis.text.y = element_text(size = 6))
+  
+  p2 <- ggplot(data.frame(library_size = library_sizes, 
+                          sample = rownames(counts),
+                          cell_count = metadata$cell_count,
+                          Sex = metadata$Sex), 
+               aes(x = cell_count, y = library_size, color = Sex)) +
+    geom_point(size = 3, alpha = 0.7) +
+    geom_smooth(method = "lm", se = TRUE) +
+    scale_color_manual(values = c("F" = "#E69F00", "M" = "#56B4E9")) +
+    scale_y_log10(labels = scales::comma) +
+    labs(title = "Library Size vs Cell Count",
+         x = "Cell Count", y = "Total Counts (log10)") +
+    theme_minimal(base_size = 10) +
+    stat_cor(method = "pearson", label.x.npc = "left", label.y.npc = "top")
+  
+  p3 <- ggplot(data.frame(genes_detected = genes_detected_per_sample,
+                          sample = rownames(counts),
+                          cell_count = metadata$cell_count,
+                          Sex = metadata$Sex),
+               aes(x = cell_count, y = genes_detected, color = Sex)) +
+    geom_point(size = 3, alpha = 0.7) +
+    geom_smooth(method = "lm", se = TRUE) +
+    scale_color_manual(values = c("F" = "#E69F00", "M" = "#56B4E9")) +
+    labs(title = "Genes Detected vs Cell Count",
+         x = "Cell Count", y = "Number of Genes with Counts > 0") +
+    theme_minimal(base_size = 10) +
+    stat_cor(method = "pearson", label.x.npc = "left", label.y.npc = "top")
+  
+  # Gene-level summaries
+  p4 <- ggplot(data.frame(mean_counts = mean_counts_per_gene), 
+               aes(x = mean_counts)) +
+    geom_histogram(bins = 100, fill = "steelblue", alpha = 0.7) +
+    scale_x_log10(labels = scales::comma) +
+    labs(title = "Distribution of Mean Raw Counts per Gene",
+         x = "Mean Raw Counts (log10)", y = "Number of Genes") +
+    theme_minimal(base_size = 10) +
+    geom_vline(xintercept = c(1, 10, 50, 100), linetype = "dashed", color = "red", alpha = 0.5) +
+    annotate("text", x = c(1, 10, 50, 100), y = Inf, 
+             label = c("1", "10", "50", "100"), vjust = 1.5, size = 3, color = "red")
+  
+  p5 <- ggplot(data.frame(mean_cpm = mean_cpm_per_gene), 
+               aes(x = mean_cpm)) +
+    geom_histogram(bins = 100, fill = "darkgreen", alpha = 0.7) +
+    scale_x_log10() +
+    labs(title = "Distribution of Mean CPM per Gene",
+         x = "Mean CPM (log10)", y = "Number of Genes") +
+    theme_minimal(base_size = 10) +
+    geom_vline(xintercept = c(0.1, 0.5, 1, 5, 10), linetype = "dashed", color = "red", alpha = 0.5) +
+    annotate("text", x = c(0.1, 0.5, 1, 5, 10), y = Inf, 
+             label = c("0.1", "0.5", "1", "5", "10"), vjust = 1.5, size = 3, color = "red")
+  
+  # Sample prevalence per gene
+  genes_per_sample_count <- rowSums(t(counts) > 0)  # genes x samples for this
+  p6 <- ggplot(data.frame(n_samples = genes_per_sample_count),
+               aes(x = n_samples)) +
+    geom_histogram(bins = max(genes_per_sample_count), fill = "purple", alpha = 0.7) +
+    labs(title = "Gene Prevalence Across Samples",
+         x = "Number of Samples with Count > 0", y = "Number of Genes") +
+    theme_minimal(base_size = 10) +
+    geom_vline(xintercept = c(3, 5, 10), linetype = "dashed", color = "red", alpha = 0.5) +
+    annotate("text", x = c(3, 5, 10), y = Inf,
+             label = c("3", "5", "10"), vjust = 1.5, size = 3, color = "red")
+  
+  # Summary statistics
+  summary_text <- paste0(
+    "Summary Statistics:\n",
+    "- Total samples: ", nrow(counts), "\n",
+    "- Total genes: ", ncol(counts), "\n",
+    "- Cell count range: ", min(metadata$cell_count), " - ", max(metadata$cell_count), "\n",
+    "- Median cells/sample: ", median(metadata$cell_count), "\n",
+    "- Library size range: ", scales::comma(min(library_sizes)), " - ", scales::comma(max(library_sizes)), "\n",
+    "- Median library size: ", scales::comma(median(library_sizes)), "\n",
+    "- Genes detected/sample (median): ", median(genes_detected_per_sample)
+  )
+  
+  p7 <- ggplot() + 
+    annotate("text", x = 0.5, y = 0.5, label = summary_text, size = 4, hjust = 0.5) +
+    theme_void()
+  
+  # Filtering impact preview
+  filter_thresholds <- data.frame(
+    raw_count = c(1, 2, 10, 50, 100),
+    cpm = c(0.1, 0.5, 1, 2, 5)
+  )
+  
+  filter_results <- purrr::map_dfr(1:nrow(filter_thresholds), function(i) {
+    # Raw count filtering
+    genes_raw <- sum(rowSums(t(counts) >= filter_thresholds$raw_count[i]) >= 10)
+    # CPM filtering  
+    genes_cpm <- sum(rowSums(cpm_mat >= filter_thresholds$cpm[i]) >= 10)
+    
+    data.frame(
+      threshold = paste0("Raw: ", filter_thresholds$raw_count[i], "\nCPM: ", filter_thresholds$cpm[i]),
+      raw_count = genes_raw,
+      cpm_based = genes_cpm,
+      type = c("Raw Count", "CPM")
+    )
+  })
+  
+  filter_results_long <- filter_results %>%
+    pivot_longer(cols = c(raw_count, cpm_based), names_to = "filter_type", values_to = "genes_retained")
+  
+  p8 <- ggplot(filter_results_long, aes(x = threshold, y = genes_retained, fill = filter_type)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_manual(values = c("raw_count" = "steelblue", "cpm_based" = "darkgreen"),
+                     labels = c("Raw Count", "CPM-based")) +
+    labs(title = "Genes Retained with Different Filters\n(Requiring presence in ≥10 samples)",
+         x = "Filter Threshold", y = "Number of Genes Retained",
+         fill = "Filter Type") +
+    theme_minimal(base_size = 10) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  # Combine all plots
+  combined <- (p1 | p2 | p3) / (p4 | p5 | p6) / (p7 | p8)
+  
+  # Save combined plot
+  ggsave(paste0("../../results/targeted/pseudobulk_diagnostics/", pb_name, "_diagnostics.png"),
+         plot = combined, width = 16, height = 12, dpi = 300)
+  
+  ggsave(paste0("../../results/targeted/pseudobulk_diagnostics/", pb_name, "_diagnostics.svg"),
+         plot = combined, width = 16, height = 12)
+  
+  # Print summary to console
+  cat("\n===========================================\n")
+  cat(pb_name, "Pseudobulk Diagnostics\n")
+  cat("===========================================\n")
+  cat(summary_text, "\n")
+  cat("\nRecommended filtering based on data:\n")
+  cat("- If using RAW COUNTS: count_threshold = 10-50 might be reasonable\n")
+  cat("- If using CPM: count_threshold = 0.5-1 is standard\n")
+  cat("- Gene sample threshold: 10 is reasonable (present in", 
+      round(10/nrow(counts)*100, 1), "% of samples)\n")
+  cat("===========================================\n\n")
+  
+  return(combined)
+}
+
+# Generate diagnostics for each hormone dataset
+diag_TT <- create_pseudobulk_diagnostics(notype_pb_TT, "Testosterone", "TT")
+diag_E2 <- create_pseudobulk_diagnostics(notypepb_E2, "Estradiol", "E2")
+diag_P4 <- create_pseudobulk_diagnostics(notypepb_P4, "Progesterone", "P4")
+```
+
 # Differential Gene Expression Analysis
 
 ## Define Functions
@@ -200,21 +373,54 @@ run_voom_lm <- function(counts, metadata, predictor) {
 
 ### Filtering Function
 ```{r filtering functions}
-analyze_hormone_notype <- function(pb_counts, metadata_merged, hormone, overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm) {
+# analyze_hormone_notype: Analyze hormone-gene relationships without cell type stratification
+#
+# Parameters:
+#   count_threshold: Expression threshold for gene filtering
+#   gene_sample_threshold: Minimum number of samples where gene must meet threshold
+#   use_cpm: If TRUE, apply threshold to CPM values; if FALSE, use raw counts
+#            Set based on diagnostic plots - use CPM if cell counts vary widely
+#
+analyze_hormone_notype <- function(pb_counts, metadata_merged, hormone, 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 1, 
+                                   gene_sample_threshold = 10, 
+                                   use_cpm = TRUE,
+                                   model = run_voom_lm) {
 
     initial_sample_size <- nrow(metadata_merged)
     cat("\nGroup:", "bulk", "\n")
     cat("Initial number of samples:", initial_sample_size, "\n")
     
-    #transpose counts
+    #transpose counts to genes x samples (required for limma)
     pb_counts = t(pb_counts)
-    # Gene-level filtering to retain genes with counts above certain thresholds
-    keep_genes <- colSums(pb_counts >= count_threshold) >= gene_sample_threshold
     
-    pb_counts <- pb_counts[, keep_genes, drop = FALSE]
+    # Gene-level filtering based on expression
+    if (use_cpm) {
+      # CPM-based filtering: accounts for library size differences
+      # Recommended when cell counts per sample vary widely
+      cat("Using CPM-based filtering with threshold:", count_threshold, "\n")
+      filter_values <- edgeR::cpm(pb_counts, log = FALSE)
+      filter_label <- "CPM"
+    } else {
+      # Raw count filtering: simpler, appropriate when cell counts are similar
+      cat("Using raw count filtering with threshold:", count_threshold, "\n")
+      filter_values <- pb_counts
+      filter_label <- "raw counts"
+    }
+    
+    # Keep genes with expression > threshold in at least min_samples
+    keep_genes <- rowSums(filter_values >= count_threshold) >= gene_sample_threshold
+    
+    # Subset to keep only genes that pass the threshold (subset rows)
+    pb_counts <- pb_counts[keep_genes, , drop = FALSE]
+    
+    cat("Genes passing", filter_label, "filter:", sum(keep_genes), "out of", length(keep_genes), "\n")
+    cat("Filter criteria:", filter_label, ">=", count_threshold, "in >=", gene_sample_threshold, "samples\n")
 
     # Check if any genes remain after filtering
-    if (ncol(pb_counts) == 0) {
+    # CORRECT - genes are rows after transpose
+  if (nrow(pb_counts) == 0) {
       cat("Group removed: no genes passed the filtering threshold\n")
       return(NULL)
     }
@@ -230,7 +436,7 @@ analyze_hormone_notype <- function(pb_counts, metadata_merged, hormone, overall_
     }
     
     # Subset counts and metadata to only those with non-zero hormone values
-    final_counts_sub <- pb_counts[, nonzero_hormone_mask, drop = FALSE]
+  final_counts_sub <- pb_counts[, nonzero_hormone_mask, drop = FALSE]
     final_metadata_sub <- metadata_merged[nonzero_hormone_mask, , drop = FALSE]
     
     cat("Final sample size:", nrow(final_metadata_sub), "\n")
@@ -265,7 +471,7 @@ plot_top_genes <- function(data, output_dir, hormone, top_n = 6) {
     counts_log <- t(counts_log)
 
     top_genes <- limma_res %>%
-      filter(adj.P.Val < 0.05) %>%
+      filter(adj.P.Val < 0.5) %>%
       arrange(-abs(t)) %>%
       slice_head(n = top_n) %>%
       pull(gene)
@@ -275,7 +481,12 @@ plot_top_genes <- function(data, output_dir, hormone, top_n = 6) {
         select(gene, adj.P.Val) %>%
         as.data.frame()
 
-    message(" Plotting group: ", metadata_sub$cell_type[1])
+    # For notype analysis, cell_type will be "bulk"
+    analysis_label <- ifelse("cell_type" %in% colnames(metadata_sub), 
+                             metadata_sub$cell_type[1], 
+                             "bulk")
+    
+    message(" Plotting group: ", analysis_label)
     message("- Top genes: ", paste(top_genes, collapse = ", "))
 
     plot_list <- purrr::map(seq_len(nrow(top_genes_pvals)), function(i) {
@@ -283,13 +494,13 @@ plot_top_genes <- function(data, output_dir, hormone, top_n = 6) {
       adj_pval <- top_genes_pvals$adj.P.Val[i]
       
       if (!gene %in% colnames(counts_log)) {
-        message("    Gene ", gene, " not in counts — skipping")
+        message("    Gene ", gene, " not in counts â€” skipping")
         return(NULL)
       }
 
       expr_vals <- counts_log[, gene]
       if (all(is.na(expr_vals)) || all(expr_vals == 0)) {
-        message("    Gene ", gene, " has all NA or zero expression — skipping")
+        message("    Gene ", gene, " has all NA or zero expression â€” skipping")
         return(NULL)
       }
       
@@ -303,11 +514,12 @@ plot_top_genes <- function(data, output_dir, hormone, top_n = 6) {
         geom_smooth(method = "lm", se = TRUE, color = "black") +
         scale_color_viridis_c() +
         scale_shape_manual(values = c("M" = 16, "F" = 17)) +
-        labs(title = paste0(gene, " (adj. p-value: ", format(adj_pval, digits = 3), ") in ", metadata_sub$cell_type[1]),
+        labs(title = paste0(gene, " (adj. p-value: ", format(adj_pval, digits = 3), ")"),
+             subtitle = paste0("Analysis: ", analysis_label),
              x = hormone, y = "log1p(CPM)") +
         theme_minimal(base_size = 14) +
         stat_cor(method = "pearson", label.x.npc = "left", label.y.npc = "top", size = 5)
-      
+      #Add in limma p value, label two separate p values (correlation vs limma > adjusted p value)
       p
     }) %>% compact()
 
@@ -317,7 +529,7 @@ plot_top_genes <- function(data, output_dir, hormone, top_n = 6) {
     }
 
     combined_plot <- patchwork::wrap_plots(plotlist = plot_list, ncol = 2)
-    clean_name <- gsub("/", "-", metadata_sub$cell_type[1])
+    clean_name <- gsub("/", "-", analysis_label)
 
     ggsave(file.path(output_dir, paste0(clean_name, "_top_genes.png")),
            plot = combined_plot, width = 10, height = 6 + ceiling(length(plot_list)/2), dpi = 300)
@@ -328,22 +540,161 @@ plot_top_genes <- function(data, output_dir, hormone, top_n = 6) {
 
 ### Summary Functions
 ```{r summarize}
-summarize_sig_genes_combined <- function(results, fdr_cutoff = 0.05, logfc_cutoff = 0.25) {
-  sig <- results %>% filter(adj.P.Val < fdr_cutoff)
-  if (!is.null(logfc_cutoff)) {
-    sig <- sig %>% filter(abs(logFC) >= logfc_cutoff)
-  }
-  sig %>%
-    count(cell_type, name = "num_sig_genes") %>%
-    arrange(desc(num_sig_genes))
+# Create volcano plot showing logFC vs -log10(adj.P.Val)
+create_volcano_plot <- function(results, hormone_name, fdr_threshold = 0.05, logfc_threshold = 0.25) {
+  
+  # Add significance category
+  results_plot <- results %>%
+    mutate(
+      significance = case_when(
+        adj.P.Val < fdr_threshold & abs(logFC) >= logfc_threshold ~ "Significant",
+        adj.P.Val < fdr_threshold ~ "FDR < 0.05 only",
+        abs(logFC) >= logfc_threshold ~ "LogFC > 0.25 only",
+        TRUE ~ "Not significant"
+      ),
+      neg_log_p = -log10(adj.P.Val)
+    )
+  
+  # Count by category
+  sig_counts <- results_plot %>%
+    count(significance) %>%
+    arrange(desc(n))
+  
+  # Create volcano plot
+  p <- ggplot(results_plot, aes(x = logFC, y = neg_log_p, color = significance)) +
+    geom_point(alpha = 0.5, size = 1) +
+    geom_hline(yintercept = -log10(fdr_threshold), linetype = "dashed", color = "red") +
+    geom_vline(xintercept = c(-logfc_threshold, logfc_threshold), linetype = "dashed", color = "blue") +
+    scale_color_manual(values = c(
+      "Significant" = "red",
+      "FDR < 0.05 only" = "orange",
+      "LogFC > 0.25 only" = "blue",
+      "Not significant" = "grey70"
+    )) +
+    labs(
+      title = paste0(hormone_name, " - Volcano Plot"),
+      subtitle = paste0(
+        "Significant: ", sig_counts$n[sig_counts$significance == "Significant"], " genes | ",
+        "Total tested: ", nrow(results_plot), " genes"
+      ),
+      x = "log2 Fold Change",
+      y = "-log10(Adjusted P-value)",
+      color = "Category"
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(legend.position = "bottom")
+  
+  return(list(plot = p, counts = sig_counts))
 }
 
-plot_sig_gene_summary_combined <- function(summary_df, title) {
-  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes)) +
-    geom_bar(stat = "identity", fill = "steelblue") +
-    labs(title = title, x = "Cell Type", y = "# Significant Genes") +
-    theme_minimal(base_size = 14) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# Create p-value distribution and top genes summary
+create_pvalue_summary_plot <- function(results, hormone_name) {
+  
+  # P-value distribution
+  p1 <- ggplot(results, aes(x = adj.P.Val)) +
+    geom_histogram(bins = 50, fill = "steelblue", alpha = 0.7) +
+    geom_vline(xintercept = 0.05, linetype = "dashed", color = "red") +
+    geom_vline(xintercept = 0.1, linetype = "dashed", color = "orange") +
+    annotate("text", x = 0.05, y = Inf, label = "FDR=0.05", 
+             vjust = 1.5, hjust = -0.1, color = "red", size = 3) +
+    annotate("text", x = 0.1, y = Inf, label = "FDR=0.1", 
+             vjust = 1.5, hjust = -0.1, color = "orange", size = 3) +
+    labs(
+      title = "Distribution of Adjusted P-values",
+      x = "Adjusted P-value",
+      y = "Number of Genes"
+    ) +
+    theme_minimal(base_size = 11)
+  
+  # Summary statistics
+  p_stats <- data.frame(
+    Metric = c(
+      "Total genes tested",
+      "FDR < 0.05",
+      "FDR < 0.1",
+      "FDR < 0.2",
+      "Median adj.P.Val",
+      "Mean |logFC|",
+      "Max |logFC|"
+    ),
+    Value = c(
+      nrow(results),
+      sum(results$adj.P.Val < 0.05),
+      sum(results$adj.P.Val < 0.1),
+      sum(results$adj.P.Val < 0.2),
+      round(median(results$adj.P.Val), 3),
+      round(mean(abs(results$logFC)), 3),
+      round(max(abs(results$logFC)), 3)
+    )
+  )
+  
+  # Top 10 genes by p-value
+  top_genes <- results %>%
+    arrange(adj.P.Val) %>%
+    slice_head(n = 10) %>%
+    select(gene, logFC, adj.P.Val, t) %>%
+    mutate(
+      logFC = round(logFC, 3),
+      adj.P.Val = format(adj.P.Val, scientific = TRUE, digits = 3),
+      t = round(t, 2)
+    )
+  
+  # Create text plot for statistics
+  p2 <- ggplot() +
+    annotate("table", x = 0.5, y = 0.7, 
+             label = list(p_stats), 
+             size = 3) +
+    annotate("text", x = 0.5, y = 0.95, 
+             label = paste0(hormone_name, " - Summary Statistics"),
+             size = 5, fontface = "bold") +
+    theme_void()
+  
+  # Top genes table
+  p3 <- ggplot() +
+    annotate("text", x = 0.5, y = 0.95, 
+             label = "Top 10 Genes (by adj.P.Val)",
+             size = 4, fontface = "bold") +
+    theme_void() +
+    theme(plot.margin = margin(10, 10, 10, 10))
+  
+  # Combine
+  combined <- (p1 | p2) / p3
+  
+  return(list(
+    plot = combined,
+    stats = p_stats,
+    top_genes = top_genes
+  ))
+}
+
+# Create MA plot (mean expression vs logFC)
+create_ma_plot <- function(results, hormone_name, fdr_threshold = 0.05) {
+  
+  # Calculate mean expression (AveExpr from limma)
+  results_plot <- results %>%
+    mutate(
+      significant = adj.P.Val < fdr_threshold,
+      neg_log_p = -log10(adj.P.Val)
+    )
+  
+  p <- ggplot(results_plot, aes(x = AveExpr, y = logFC, color = significant)) +
+    geom_point(alpha = 0.5, size = 1) +
+    geom_hline(yintercept = 0, linetype = "solid", color = "black", size = 0.3) +
+    scale_color_manual(
+      values = c("TRUE" = "red", "FALSE" = "grey70"),
+      labels = c("TRUE" = paste0("FDR < ", fdr_threshold), "FALSE" = "Not significant")
+    ) +
+    labs(
+      title = paste0(hormone_name, " - MA Plot"),
+      subtitle = paste0("Significant genes: ", sum(results_plot$significant)),
+      x = "Average Expression (log2 CPM)",
+      y = "log2 Fold Change",
+      color = ""
+    ) +
+    theme_minimal(base_size = 12) +
+    theme(legend.position = "bottom")
+  
+  return(p)
 }
 ```
 
@@ -352,11 +703,41 @@ plot_sig_gene_summary_combined <- function(summary_df, title) {
 ### Testosterone
 ```{r testosterone analysis}
 # TT - Run analysis
-res_TT_1 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, hormone = "TT", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm_cc_gw)
 
-res_TT_2 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, hormone = "TT", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm_cc)
+# Option 1: CPM-based filtering (recommended if cell counts vary)
+res_TT_1 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, 
+                                   hormone = "TT", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2,           # CPM > 1
+                                   gene_sample_threshold = 10,    # in >= 10 samples
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm_cc_gw)
 
-res_TT_3 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, hormone = "TT", overall_min_samples = 8, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
+res_TT_2 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, 
+                                   hormone = "TT", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2, 
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm_cc)
+
+res_TT_3 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, 
+                                   hormone = "TT", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2, 
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm)
+
+# Option 2: Raw count filtering (if cell counts are similar across samples)
+# Uncomment and adjust threshold based on diagnostics if you prefer raw counts:
+# res_TT_1 <- analyze_hormone_notype(notype_pb_TT$pb$counts, notype_pb_TT$metadata, 
+#                                    hormone = "TT", 
+#                                    overall_min_samples = 8, 
+#                                    count_threshold = 20,          # raw counts > 20
+#                                    gene_sample_threshold = 10,
+#                                    use_cpm = FALSE,
+#                                    model = run_voom_lm_cc_gw)
 
 # TT - Plot top genes
 plot_top_genes(res_TT_1, "../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group1", hormone = "TT")
@@ -364,30 +745,60 @@ plot_top_genes(res_TT_2, "../../results/targeted/notype_pseudobulk_testosterone_
 plot_top_genes(res_TT_3, "../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group3", hormone = "TT")
 
 
-#Summary
-group1_summary_TT <- summarize_sig_genes_combined(res_TT_1$limma_results)
-group2_summary_TT <- summarize_sig_genes_combined(res_TT_2$limma_results)
-group3_summary_TT <- summarize_sig_genes_combined(res_TT_3$limma_results)
+# TT - Create summary visualizations
+volcano_TT_1 <- create_volcano_plot(res_TT_1$limma_results, "Testosterone - Group1")
+volcano_TT_2 <- create_volcano_plot(res_TT_2$limma_results, "Testosterone - Group2")
+volcano_TT_3 <- create_volcano_plot(res_TT_3$limma_results, "Testosterone - Group3")
 
-#Gene Summary Plot
-ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group1/sex_combined_TT_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group1_summary_TT, "Testosterone"), width = 8, height = 5)
-ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group2/sex_combined_TT_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group2_summary_TT, "Testosterone"), width = 8, height = 5)
-ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group3/sex_combined_TT_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group3_summary_TT, "Testosterone"), width = 8, height = 5)
-ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group4/sex_combined_TT_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group4_summary_TT, "Testosterone"), width = 8, height = 5)
+pval_summary_TT_1 <- create_pvalue_summary_plot(res_TT_1$limma_results, "Testosterone - Group1")
+pval_summary_TT_2 <- create_pvalue_summary_plot(res_TT_2$limma_results, "Testosterone - Group2")
+pval_summary_TT_3 <- create_pvalue_summary_plot(res_TT_3$limma_results, "Testosterone - Group3")
 
+ma_TT_1 <- create_ma_plot(res_TT_1$limma_results, "Testosterone - Group1")
+ma_TT_2 <- create_ma_plot(res_TT_2$limma_results, "Testosterone - Group2")
+ma_TT_3 <- create_ma_plot(res_TT_3$limma_results, "Testosterone - Group3")
 
-#Save Result CSV
-write_csv(res_TT_1$combined_results, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_TT_results.csv")
-write_csv(res_TT_2$combined_results, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_TT_results.csv")
-write_csv(res_TT_3$combined_results, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_TT_results.csv")
-write_csv(res_TT_4$combined_results, "../../results/targeted/gene_hormone_csv/notype_Group4_sex_combined_TT_results.csv")
+# Save volcano plots
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group1/notype_TT_volcano.png", 
+       plot = volcano_TT_1$plot, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group2/notype_TT_volcano.png", 
+       plot = volcano_TT_2$plot, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group3/notype_TT_volcano.png", 
+       plot = volcano_TT_3$plot, width = 10, height = 8, dpi = 300)
 
+# Save p-value summary plots
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group1/notype_TT_pvalue_summary.png", 
+       plot = pval_summary_TT_1$plot, width = 12, height = 10, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group2/notype_TT_pvalue_summary.png", 
+       plot = pval_summary_TT_2$plot, width = 12, height = 10, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group3/notype_TT_pvalue_summary.png", 
+       plot = pval_summary_TT_3$plot, width = 12, height = 10, dpi = 300)
 
-#Save Summary CSV
-write_csv(group1_summary_TT, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_TT_summary.csv")
-write_csv(group2_summary_TT, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_TT_summary.csv")
-write_csv(group3_summary_TT, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_TT_summary.csv")
-write_csv(group4_summary_TT, "../../results/targeted/gene_hormone_csv/notype_Group4_sex_combined_TT_summary.csv")
+# Save MA plots
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group1/notype_TT_ma_plot.png", 
+       plot = ma_TT_1, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group2/notype_TT_ma_plot.png", 
+       plot = ma_TT_2, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_testosterone_plots_combined/Group3/notype_TT_ma_plot.png", 
+       plot = ma_TT_3, width = 10, height = 8, dpi = 300)
+
+# Save full results CSVs
+write_csv(res_TT_1$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_TT_results.csv")
+write_csv(res_TT_2$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_TT_results.csv")
+write_csv(res_TT_3$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_TT_results.csv")
+
+# Save summary statistics CSVs
+write_csv(volcano_TT_1$counts, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_TT_sig_counts.csv")
+write_csv(volcano_TT_2$counts, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_TT_sig_counts.csv")
+write_csv(volcano_TT_3$counts, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_TT_sig_counts.csv")
+
+write_csv(pval_summary_TT_1$stats, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_TT_stats.csv")
+write_csv(pval_summary_TT_2$stats, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_TT_stats.csv")
+write_csv(pval_summary_TT_3$stats, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_TT_stats.csv")
+
+write_csv(pval_summary_TT_1$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_TT_top10.csv")
+write_csv(pval_summary_TT_2$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_TT_top10.csv")
+write_csv(pval_summary_TT_3$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_TT_top10.csv")
 
 
 
@@ -396,93 +807,185 @@ write_csv(group4_summary_TT, "../../results/targeted/gene_hormone_csv/notype_Gro
 ### Estradiol
 ```{r estradiol analysis}
 # E2 - Run analysis
-res_E2_1 <- analyze_hormone_combined(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3,  model = run_voom_lm_cc_gw)
+# Adjust thresholds based on diagnostic plots above
+res_E2_1 <- analyze_hormone_notype(notypepb_E2$pb$counts, notypepb_E2$metadata, 
+                                   hormone = "E2", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2,
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm_cc_gw)
 
-res_E2_2 <- analyze_hormone_combined(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm_cc)
+res_E2_2 <- analyze_hormone_notype(notypepb_E2$pb$counts, notypepb_E2$metadata, 
+                                   hormone = "E2", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2, 
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm_cc)
 
-res_E2_3 <- analyze_hormone_combined(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
-
-res_E2_4 <- add_outlier_analyze_hormone_combined(pb_E2$pb$counts, pb_E2$metadata, hormone = "E2", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
+res_E2_3 <- analyze_hormone_notype(notypepb_E2$pb$counts, notypepb_E2$metadata, 
+                                   hormone = "E2", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2, 
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm)
 
 
 
 # E2 - Plot top genes
-plot_top_genes_from_subsets_combined(res_E2_1$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots_combined/Group1", hormone = "E2")
-plot_top_genes_from_subsets_combined(res_E2_2$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots_combined/Group2", hormone = "E2")
-plot_top_genes_from_subsets_combined(res_E2_3$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots_combined/Group3", hormone = "E2")
-plot_top_genes_from_subsets_combined(res_E2_4$by_group_data, "../../results/targeted/pseudobulk_estrogen_plots_combined/Group4", hormone = "E2")
+plot_top_genes(res_E2_1, "../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group1", hormone = "E2")
+plot_top_genes(res_E2_2, "../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group2", hormone = "E2")
+plot_top_genes(res_E2_3, "../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group3", hormone = "E2")
 
-#Summary
-group1_summary_E2 <- summarize_sig_genes_combined(res_E2_1$combined_results)
-group2_summary_E2 <- summarize_sig_genes_combined(res_E2_2$combined_results)
-group3_summary_E2 <- summarize_sig_genes_combined(res_E2_3$combined_results)
-group4_summary_E2 <- summarize_sig_genes_combined(res_E2_4$combined_results)
+# E2 - Create summary visualizations
+volcano_E2_1 <- create_volcano_plot(res_E2_1$limma_results, "Estradiol - Group1")
+volcano_E2_2 <- create_volcano_plot(res_E2_2$limma_results, "Estradiol - Group2")
+volcano_E2_3 <- create_volcano_plot(res_E2_3$limma_results, "Estradiol - Group3")
 
-#Gene Summary Plot
-ggsave("../../results/targeted/pseudobulk_estrogen_plots_combined/Group1/sex_combined_E2_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group1_summary_E2, "Estradiol"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_estrogen_plots_combined/Group2/sex_combined_E2_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group2_summary_E2, "Estradiol"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_estrogen_plots_combined/Group3/sex_combined_E2_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group3_summary_E2, "Estradiol"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_estrogen_plots_combined/Group4/sex_combined_E2_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group4_summary_E2, "Estradiol"), width = 8, height = 5)
+pval_summary_E2_1 <- create_pvalue_summary_plot(res_E2_1$limma_results, "Estradiol - Group1")
+pval_summary_E2_2 <- create_pvalue_summary_plot(res_E2_2$limma_results, "Estradiol - Group2")
+pval_summary_E2_3 <- create_pvalue_summary_plot(res_E2_3$limma_results, "Estradiol - Group3")
 
+ma_E2_1 <- create_ma_plot(res_E2_1$limma_results, "Estradiol - Group1")
+ma_E2_2 <- create_ma_plot(res_E2_2$limma_results, "Estradiol - Group2")
+ma_E2_3 <- create_ma_plot(res_E2_3$limma_results, "Estradiol - Group3")
 
-#Save Result CSV
-write_csv(res_E2_1$combined_results, "../../results/targeted/gene_hormone_csv/Group1_sex_combined_E2_results.csv")
-write_csv(res_E2_2$combined_results, "../../results/targeted/gene_hormone_csv/Group2_sex_combined_E2_results.csv")
-write_csv(res_E2_3$combined_results, "../../results/targeted/gene_hormone_csv/Group3_sex_combined_E2_results.csv")
-write_csv(res_E2_4$combined_results, "../../results/targeted/gene_hormone_csv/Group4_sex_combined_E2_results.csv")
+# Save volcano plots
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group1/notype_E2_volcano.png", 
+       plot = volcano_E2_1$plot, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group2/notype_E2_volcano.png", 
+       plot = volcano_E2_2$plot, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group3/notype_E2_volcano.png", 
+       plot = volcano_E2_3$plot, width = 10, height = 8, dpi = 300)
 
-#Save Summary CSV
-write_csv(group1_summary_E2, "../../results/targeted/gene_hormone_csv/Group1_sex_combined_E2_summary.csv")
-write_csv(group2_summary_E2, "../../results/targeted/gene_hormone_csv/Group2_sex_combined_E2_summary.csv")
-write_csv(group3_summary_E2, "../../results/targeted/gene_hormone_csv/Group3_sex_combined_E2_summary.csv")
-write_csv(group4_summary_E2, "../../results/targeted/gene_hormone_csv/Group4_sex_combined_E2_summary.csv")
+# Save p-value summary plots
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group1/notype_E2_pvalue_summary.png", 
+       plot = pval_summary_E2_1$plot, width = 12, height = 10, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group2/notype_E2_pvalue_summary.png", 
+       plot = pval_summary_E2_2$plot, width = 12, height = 10, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group3/notype_E2_pvalue_summary.png", 
+       plot = pval_summary_E2_3$plot, width = 12, height = 10, dpi = 300)
+
+# Save MA plots
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group1/notype_E2_ma_plot.png", 
+       plot = ma_E2_1, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group2/notype_E2_ma_plot.png", 
+       plot = ma_E2_2, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_estrogen_plots_combined/Group3/notype_E2_ma_plot.png", 
+       plot = ma_E2_3, width = 10, height = 8, dpi = 300)
+
+# Save full results CSVs
+write_csv(res_E2_1$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_E2_results.csv")
+write_csv(res_E2_2$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_E2_results.csv")
+write_csv(res_E2_3$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_E2_results.csv")
+
+# Save summary statistics CSVs
+write_csv(volcano_E2_1$counts, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_E2_sig_counts.csv")
+write_csv(volcano_E2_2$counts, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_E2_sig_counts.csv")
+write_csv(volcano_E2_3$counts, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_E2_sig_counts.csv")
+
+write_csv(pval_summary_E2_1$stats, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_E2_stats.csv")
+write_csv(pval_summary_E2_2$stats, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_E2_stats.csv")
+write_csv(pval_summary_E2_3$stats, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_E2_stats.csv")
+
+write_csv(pval_summary_E2_1$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_E2_top10.csv")
+write_csv(pval_summary_E2_2$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_E2_top10.csv")
+write_csv(pval_summary_E2_3$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_E2_top10.csv")
 
 ```
 
 ### Progesterone
 ```{r progesterone analysis}
 # P4 - Run analysis
-res_P4_1 <- analyze_hormone_combined(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm_cc_gw)
+# Adjust thresholds based on diagnostic plots above
+res_P4_1 <- analyze_hormone_notype(notypepb_P4$pb$counts, notypepb_P4$metadata, 
+                                   hormone = "P4", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2,
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm_cc_gw)
 
-res_P4_2 <- analyze_hormone_combined(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm_cc)
+res_P4_2 <- analyze_hormone_notype(notypepb_P4$pb$counts, notypepb_P4$metadata, 
+                                   hormone = "P4", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2, 
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm_cc)
 
-res_P4_3 <- analyze_hormone_combined(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
-
-res_P4_4 <- add_outlier_analyze_hormone_combined(pb_P4$pb$counts, pb_P4$metadata, hormone = "P4", overall_min_samples = 10, count_threshold = 2, gene_sample_threshold = 3, model = run_voom_lm)
+res_P4_3 <- analyze_hormone_notype(notypepb_P4$pb$counts, notypepb_P4$metadata, 
+                                   hormone = "P4", 
+                                   overall_min_samples = 8, 
+                                   count_threshold = 2, 
+                                   gene_sample_threshold = 10,
+                                   use_cpm = FALSE,
+                                   model = run_voom_lm)
 
 
 # P4 - Plot top genes
-plot_top_genes_from_subsets_combined(res_P4_1$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots_combined/Group1", hormone = "P4")
-plot_top_genes_from_subsets_combined(res_P4_2$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots_combined/Group2", hormone = "P4")
-plot_top_genes_from_subsets_combined(res_P4_3$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots_combined/Group3", hormone = "P4")
-plot_top_genes_from_subsets_combined(res_P4_4$by_group_data, "../../results/targeted/pseudobulk_progesterone_plots_combined/Group4", hormone = "P4")
+plot_top_genes(res_P4_1, "../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group1", hormone = "P4")
+plot_top_genes(res_P4_2, "../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group2", hormone = "P4")
+plot_top_genes(res_P4_3, "../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group3", hormone = "P4")
 
 
-#Summary
-group1_summary_P4 <- summarize_sig_genes_combined(res_P4_1$combined_results)
-group2_summary_P4 <- summarize_sig_genes_combined(res_P4_2$combined_results)
-group3_summary_P4 <- summarize_sig_genes_combined(res_P4_3$combined_results)
-group4_summary_P4 <- summarize_sig_genes_combined(res_P4_4$combined_results)
+# P4 - Create summary visualizations
+volcano_P4_1 <- create_volcano_plot(res_P4_1$limma_results, "Progesterone - Group1")
+volcano_P4_2 <- create_volcano_plot(res_P4_2$limma_results, "Progesterone - Group2")
+volcano_P4_3 <- create_volcano_plot(res_P4_3$limma_results, "Progesterone - Group3")
 
-#Gene Summary Plot
-ggsave("../../results/targeted/pseudobulk_progesterone_plots_combined/Group1/sex_combined_P4_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group1_summary_P4, "Progesterone"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_progesterone_plots_combined/Group2/sex_combined_P4_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group2_summary_P4, "Progesterone"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_progesterone_plots_combined/Group3/sex_combined_P4_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group3_summary_P4, "Progesterone"), width = 8, height = 5)
-ggsave("../../results/targeted/pseudobulk_progesterone_plots_combined/Group4/sex_combined_P4_sig_gene_counts.png", plot = plot_sig_gene_summary_combined(group4_summary_P4, "Progesterone"), width = 8, height = 5)
+pval_summary_P4_1 <- create_pvalue_summary_plot(res_P4_1$limma_results, "Progesterone - Group1")
+pval_summary_P4_2 <- create_pvalue_summary_plot(res_P4_2$limma_results, "Progesterone - Group2")
+pval_summary_P4_3 <- create_pvalue_summary_plot(res_P4_3$limma_results, "Progesterone - Group3")
+
+ma_P4_1 <- create_ma_plot(res_P4_1$limma_results, "Progesterone - Group1")
+ma_P4_2 <- create_ma_plot(res_P4_2$limma_results, "Progesterone - Group2")
+ma_P4_3 <- create_ma_plot(res_P4_3$limma_results, "Progesterone - Group3")
+
+# Save volcano plots
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group1/notype_P4_volcano.png", 
+       plot = volcano_P4_1$plot, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group2/notype_P4_volcano.png", 
+       plot = volcano_P4_2$plot, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group3/notype_P4_volcano.png", 
+       plot = volcano_P4_3$plot, width = 10, height = 8, dpi = 300)
+
+# Save p-value summary plots
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group1/notype_P4_pvalue_summary.png", 
+       plot = pval_summary_P4_1$plot, width = 12, height = 10, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group2/notype_P4_pvalue_summary.png", 
+       plot = pval_summary_P4_2$plot, width = 12, height = 10, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group3/notype_P4_pvalue_summary.png", 
+       plot = pval_summary_P4_3$plot, width = 12, height = 10, dpi = 300)
+
+# Save MA plots
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group1/notype_P4_ma_plot.png", 
+       plot = ma_P4_1, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group2/notype_P4_ma_plot.png", 
+       plot = ma_P4_2, width = 10, height = 8, dpi = 300)
+ggsave("../../results/targeted/notype_pseudobulk_progesterone_plots_combined/Group3/notype_P4_ma_plot.png", 
+       plot = ma_P4_3, width = 10, height = 8, dpi = 300)
+
+# Save full results CSVs
+write_csv(res_P4_1$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_P4_results.csv")
+write_csv(res_P4_2$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_P4_results.csv")
+write_csv(res_P4_3$limma_results, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_P4_results.csv")
 
 
-#Save Result CSV
-write_csv(res_P4_1$combined_results, "../../results/targeted/gene_hormone_csv/Group1_sex_combined_P4_results.csv")
-write_csv(res_P4_2$combined_results, "../../results/targeted/gene_hormone_csv/Group2_sex_combined_P4_results.csv")
-write_csv(res_P4_3$combined_results, "../../results/targeted/gene_hormone_csv/Group3_sex_combined_P4_results.csv")
-write_csv(res_P4_4$combined_results, "../../results/targeted/gene_hormone_csv/Group4_sex_combined_P4_results.csv")
+# Save summary statistics CSVs
+write_csv(volcano_P4_1$counts, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_P4_sig_counts.csv")
+write_csv(volcano_P4_2$counts, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_P4_sig_counts.csv")
+write_csv(volcano_P4_3$counts, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_P4_sig_counts.csv")
 
+write_csv(pval_summary_P4_1$stats, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_P4_stats.csv")
+write_csv(pval_summary_P4_2$stats, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_P4_stats.csv")
+write_csv(pval_summary_P4_3$stats, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_P4_stats.csv")
 
-#Save Summary CSV
-write_csv(group1_summary_P4, "../../results/targeted/gene_hormone_csv/Group1_sex_combined_P4_summary.csv")
-write_csv(group2_summary_P4, "../../results/targeted/gene_hormone_csv/Group2_sex_combined_P4_summary.csv")
-write_csv(group3_summary_P4, "../../results/targeted/gene_hormone_csv/Group3_sex_combined_P4_summary.csv")
-write_csv(group4_summary_P4, "../../results/targeted/gene_hormone_csv/Group4_sex_combined_P4_summary.csv")
+write_csv(pval_summary_P4_1$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group1_sex_combined_P4_top10.csv")
+write_csv(pval_summary_P4_2$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group2_sex_combined_P4_top10.csv")
+write_csv(pval_summary_P4_3$top_genes, "../../results/targeted/gene_hormone_csv/notype_Group3_sex_combined_P4_top10.csv")
 
 ```
 

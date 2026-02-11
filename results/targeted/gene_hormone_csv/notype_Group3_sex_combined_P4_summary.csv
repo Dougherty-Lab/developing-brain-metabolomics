@@ -1,0 +1,2 @@
+analysis_type,num_sig_genes,total_genes_tested,fdr_cutoff,logfc_cutoff
+bulk_notype,0,21940,0.1,2
