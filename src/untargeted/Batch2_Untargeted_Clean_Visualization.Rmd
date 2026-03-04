@@ -264,6 +264,81 @@ pathways_results <- analyze_category_abundance(
 print(pathways_results)
 ```
 
+## Annotation Completeness
+```{r annotation_completeness}
+# Define annotation categories to check
+annotation_categories <- c("Super.Class", "Class", "Sub.Class", "Pathways")
+
+# Calculate missingness per category for annotated metabolites only
+annotation_completeness <- batch2_compound_annotation %>%
+  filter(Compound.ID %in% batch2_peak_area$Compound.ID) %>%
+  summarise(across(all_of(annotation_categories),
+                   list(
+                     n_missing  = ~sum(is.na(.) | . == ""),
+                     n_present  = ~sum(!is.na(.) & . != ""),
+                     pct_missing = ~round(100 * mean(is.na(.) | . == ""), 1)
+                   ),
+                   .names = "{.col}__{.fn}")) %>%
+  pivot_longer(everything(),
+               names_to  = c("Category", ".value"),
+               names_sep = "__") %>%
+  mutate(Total = n_missing + n_present,
+         Category = factor(Category, levels = annotation_categories))
+
+# Print summary table
+cat("\n=== ANNOTATION COMPLETENESS SUMMARY ===\n")
+print(annotation_completeness %>%
+        select(Category, n_present, n_missing, Total, pct_missing) %>%
+        rename("Annotated" = n_present, "Missing" = n_missing,
+               "% Missing" = pct_missing))
+
+# Stacked bar: annotated vs missing per category
+annotation_completeness_long <- annotation_completeness %>%
+  select(Category, n_present, n_missing) %>%
+  pivot_longer(c(n_present, n_missing),
+               names_to  = "Status",
+               values_to = "Count") %>%
+  mutate(Status = recode(Status,
+                         "n_present" = "Annotated",
+                         "n_missing" = "Missing"))
+
+p_annotation_completeness <- ggplot(annotation_completeness_long,
+                                    aes(x = Category, y = Count, fill = Status)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = Count),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 4, fontface = "bold") +
+  scale_fill_manual(values = c("Annotated" = "#2E86AB", "Missing" = "#E84855")) +
+  theme_minimal() +
+  labs(title = "batch2 clean Annotation Completeness by Category",
+       x = "Annotation Category",
+       y = "Number of Metabolites",
+       fill = "Status") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(p_annotation_completeness, "batch2 clean annotation_completeness",
+                 png_path = png_path, svg_path = svg_path)
+print(p_annotation_completeness)
+
+# Percent-missing bar for a cleaner at-a-glance view
+p_annotation_pct_missing <- ggplot(annotation_completeness,
+                                   aes(x = Category, y = pct_missing, fill = Category)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(pct_missing, "%")),
+            vjust = -0.4, size = 4) +
+  scale_fill_viridis_d(guide = "none") +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  theme_minimal() +
+  labs(title = "batch2 clean % Metabolites Missing Annotation by Category",
+       x = "Annotation Category",
+       y = "% Missing") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(p_annotation_pct_missing, "batch2 clean annotation_pct_missing",
+                 png_path = png_path, svg_path = svg_path)
+print(p_annotation_pct_missing)
+```
+
 ## PCA
 
 ```{r PCA_One, echo = TRUE}

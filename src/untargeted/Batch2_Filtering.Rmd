@@ -6,6 +6,7 @@ output:
   html_document:
     toc: TRUE
 ---
+Code developed by author with assistance from Claude (Haiku 4.5 and Sonnet 4.6). Output checked and validated by author.
 
 # Set Up
 ```{r setup, include=FALSE}
@@ -602,14 +603,14 @@ superclass_stacked <- ggplot(superclass_counts, aes(x = Column_Mode, y = n_metab
 save_dual_format(superclass_stacked, "Filtered_metabolite_counts_superclass_stacked_by_column_mode", png_path = png_path, svg_path = svg_path)
 ```
 ## Filter by Metabolite Missingness
-Filter out metabolites present in fewer than 75% of samples. 
+Filter out metabolites present in fewer than 50% of samples (threshold lowered to retain metabolites that may only be detected in one sex). 
 
 ```{r missing_filter}
 # Filter metabolites
 missingness_results <- filter_metabolites_by_missingness(
   dataset = Batch2_annotated_dataset_RT_filtered,
   compound_annotation = Batch2_Untargeted_Raw_compound_annotation,
-  detection_threshold = 0.75,
+  detection_threshold = 0.50,
   verbose = TRUE
 )
 
@@ -619,7 +620,7 @@ Batch2_annotated_dataset_missingness_filtered <- missingness_results$filtered_da
 # Plot with separate paths
 p_missingness <- plot_missingness_distribution(
   missingness_stats = missingness_results$missingness_stats,
-  detection_threshold = 0.75,
+  detection_threshold = 0.50,
   png_path = png_path,
   svg_path = svg_path
 )
@@ -631,12 +632,66 @@ p_missingness <- plot_missingness_distribution(
 check_duplicates(Batch2_annotated_dataset_missingness_filtered)
 ```
 
+## Filter by Annotation Score
+Inspect the distribution of annotation scores to determine a quality threshold. Metabolites below the chosen threshold will be removed before deduplication.
+
+```{r annotation_score_filter}
+# Join annotation scores to the missingness-filtered dataset
+annotation_scores <- Batch2_Untargeted_Raw_compound_annotation %>%
+  select(Compound.ID, Best.Match) %>%
+  distinct()
+
+score_data <- Batch2_annotated_dataset_missingness_filtered %>%
+  left_join(annotation_scores, by = "Compound.ID")
+
+# Histogram of annotation scores across all metabolites
+annotation_score_histogram <- ggplot(score_data, aes(x = Best.Match)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black", na.rm = TRUE) +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Metabolite Annotation Scores",
+    subtitle = "Use this histogram to choose a score threshold for filtering",
+    x = "Best Match Score (50-100)",
+    y = "Metabolite Count"
+  ) +
+  theme(plot.margin = margin(10, 10, 10, 10))
+
+annotation_score_histogram
+save_dual_format(annotation_score_histogram, "annotation_score_histogram", png_path = png_path, svg_path = svg_path)
+
+cat("Annotation score summary:\n")
+print(summary(score_data$Best.Match))
+cat("Metabolites with missing score:", sum(is.na(score_data$Best.Match)), "\n")
+```
+
+```{r annotation_score_apply_threshold}
+# SET YOUR THRESHOLD HERE based on the histogram above
+annotation_score_threshold <- 60  # <-- Update this value after reviewing histogram
+
+# Apply annotation score filter
+Batch2_annotated_dataset_score_filtered <- Batch2_annotated_dataset_missingness_filtered %>%
+  left_join(annotation_scores, by = "Compound.ID") %>%
+  filter(is.na(Best.Match) | Best.Match >= annotation_score_threshold) %>%
+  select(-Best.Match)  # Remove temporary Score column
+
+cat("\n=== Annotation Score Filter Summary ===\n")
+cat("Score threshold applied:", annotation_score_threshold, "\n")
+cat("Metabolites before:", nrow(Batch2_annotated_dataset_missingness_filtered), "\n")
+cat("Metabolites after:", nrow(Batch2_annotated_dataset_score_filtered), "\n")
+cat("Metabolites removed:", nrow(Batch2_annotated_dataset_missingness_filtered) - nrow(Batch2_annotated_dataset_score_filtered), "\n")
+```
+
+### Post Annotation Score Filter Duplicate Check
+```{r post_score_check}
+check_duplicates(Batch2_annotated_dataset_score_filtered)
+```
+
 ## Remove Duplicates
 Select metabolite with highest intensity across samples
 
 ```{r duplicate_removal}
 dedup_results <- remove_duplicates_by_intensity(
-  dataset = Batch2_annotated_dataset_missingness_filtered,
+  dataset = Batch2_annotated_dataset_score_filtered,
   compound_annotation = Batch2_Untargeted_Raw_compound_annotation,
   name_column = "Name",
   verbose = TRUE
@@ -649,7 +704,7 @@ Batch2_annotated_dataset_final <- dedup_results$filtered_dataset
 prepare_long_data(Batch2_annotated_dataset_final, Batch2_Untargeted_Raw_sample_metadata, data_name = "Batch2_annotated_dataset_final_long" )
 
 # Quick check
-quick_dedup(Batch2_annotated_dataset_missingness_filtered, 
+quick_dedup(Batch2_annotated_dataset_score_filtered, 
             compound_annotation = Batch2_Untargeted_Raw_compound_annotation)
 ```
 ### Check RT Post Filtering

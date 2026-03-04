@@ -279,7 +279,8 @@ prepare_long_data <- function(dataset,
     left_join(
       sample_metadata_filtered %>% select(all_of(metadata_cols)),
       by = "Sample"
-    )
+    ) %>%
+    mutate(SampleLabel = paste0(Sample, " (", Sex, ")"))
   
   cat("  Added metadata columns:", paste(setdiff(metadata_cols, "Sample"), collapse = ", "), "\n")
   cat("  Final observations:", nrow(data_long), "\n")
@@ -421,11 +422,12 @@ plot_intensity_violin <- function(data_long, title_prefix = "",
 plot_intensity_violin_by_sex <- function(data_long, title_prefix = "", 
                                          png_path = NULL, svg_path = NULL,
                                          width = 12, height = 8, dpi = 300) {
-  p <- ggplot(data_long, aes(x = as.factor(Sample), y = log10, fill = Sex)) +
+  p <- ggplot(data_long, aes(x = as.factor(SampleLabel), y = log10, fill = GW)) +
     geom_violin(color = "black") +
+    scale_fill_viridis_c(name = "Gestational Week") +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Peak Intensity per Sample by Sex"),
-         x = "Sample",
+    labs(title = paste0(title_prefix, "Peak Intensity per Sample by Gestational Week"),
+         x = "Sample (Sex)",
          y = "Log10 Intensity") +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
   
@@ -539,7 +541,8 @@ calculate_peak_detection <- function(dataset,
     left_join(
       sample_metadata_filtered %>% select(all_of(metadata_cols)),
       by = "Sample"
-    )
+    ) %>%
+    mutate(SampleLabel = paste0(Sample, " (", Sex, ")"))
   
   cat("  Mean detected peaks:", round(mean(peak_detection_df$detected_peaks), 1), "\n")
   cat("  Mean detection rate:", scales::percent(mean(peak_detection_df$detection_rate)), "\n")
@@ -733,12 +736,13 @@ plot_detected_peaks_per_sample <- function(peak_detection_df, title_prefix = "",
     stop("peak_detection_df must contain 'detected_peaks' column")
   }
   
-  p <- ggplot(peak_detection_df, aes(x = Sample, y = detected_peaks, fill = Sex)) +
+  p <- ggplot(peak_detection_df, aes(x = SampleLabel, y = detected_peaks, fill = GW)) +
     geom_bar(stat = "identity") +
+    scale_fill_viridis_c(name = "Gestational Week") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
     labs(title = paste0(title_prefix, "Number of Detected Peaks per Sample"),
-         x = "Sample",
+         x = "Sample (Sex)",
          y = "Number of Detected Peaks")
   
   save_dual_format(p, paste0(title_prefix, "detected_peaks_per_sample"), 
@@ -1075,10 +1079,10 @@ format_p_value <- function(p_value) {
 calculate_metabolite_abundance <- function(dataset, 
                                            sample_cols = NULL,
                                            sample_pattern = "^Sample",
-                                           compound_annotation = NULL
-                                          ) {
+                                           compound_annotation = NULL,
+                                           id_col = "Compound.ID"   # NEW PARAMETER
+) {
   
-  # Determine sample columns
   if (is.null(sample_cols)) {
     sample_cols <- grep(sample_pattern, names(dataset), value = TRUE)
     if (length(sample_cols) == 0) {
@@ -1092,27 +1096,33 @@ calculate_metabolite_abundance <- function(dataset,
   cat("  Samples:", length(sample_cols), "\n")
   cat("  Metabolites:", nrow(dataset), "\n")
   
-  # Calculate mean intensity across samples
+  # Select columns that exist
+  keep_cols <- intersect(c(id_col, "Name", "Formula"), names(dataset))
+  
   metabolite_abundance <- dataset %>%
     mutate(mean_intensity = rowMeans(select(., all_of(sample_cols)), na.rm = TRUE)) %>%
-    select(Compound.ID, Name, Formula, mean_intensity) %>%
+    select(all_of(keep_cols), mean_intensity) %>%
     arrange(desc(mean_intensity)) %>%
     mutate(display_name = ifelse(is.na(Name) | Name == "", 
-                                 Compound.ID, 
-                                 paste0(Name, " (", Compound.ID, ")")))
+                                 .data[[id_col]], 
+                                 paste0(Name, " (", .data[[id_col]], ")")))
   
   # Add annotations if provided
   if (!is.null(compound_annotation)) {
+    anno_join_cols <- intersect(c(id_col, "Name"), names(compound_annotation))
+    anno_select_cols <- intersect(
+      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways"),
+      names(compound_annotation)
+    )
     metabolite_abundance <- metabolite_abundance %>%
       left_join(
-        compound_annotation %>% select(Compound.ID, Name, Class, Sub.Class, Super.Class, Pathways),
-        by = c("Compound.ID", "Name")
+        compound_annotation %>% select(all_of(anno_select_cols)),
+        by = intersect(anno_join_cols, names(metabolite_abundance))
       )
     cat("  Added compound annotations\n")
   }
   
   cat("Done!\n\n")
-  
   return(metabolite_abundance)
 }
 
@@ -1126,10 +1136,12 @@ calculate_metabolite_abundance <- function(dataset,
 calculate_metabolite_abundance_by_group <- function(data_long,
                                                     group_by = "Sex",
                                                     dataset = NULL,
-                                                    compound_annotation = NULL) {
+                                                    compound_annotation = NULL,
+                                                    id_col = "Compound.ID"   # NEW PARAMETER
+) {
   
-  # Check required columns
-  required_cols <- c("Compound.ID", "Name", "Intensity", group_by)
+  # Check required columns (id_col instead of hardcoded Compound.ID)
+  required_cols <- c(id_col, "Name", "Intensity", group_by)
   missing_cols <- setdiff(required_cols, names(data_long))
   if (length(missing_cols) > 0) {
     stop(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
@@ -1137,39 +1149,37 @@ calculate_metabolite_abundance_by_group <- function(data_long,
   
   cat("Calculating metabolite abundance by", paste(group_by, collapse = ", "), "...\n")
   
-  # Calculate mean intensity by group
   metabolite_abundance_grouped <- data_long %>%
-    group_by(across(all_of(c("Compound.ID", "Name", group_by)))) %>%
+    group_by(across(all_of(c(id_col, "Name", group_by)))) %>%
     summarise(mean_intensity = mean(Intensity, na.rm = TRUE),
               .groups = "drop")
   
   # Add Formula if dataset provided
-  if (!is.null(dataset) && "Formula" %in% names(dataset)) {
+  if (!is.null(dataset) && "Formula" %in% names(dataset) && id_col %in% names(dataset)) {
     metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
-      left_join(dataset %>% select(Compound.ID, Formula), by = "Compound.ID")
+      left_join(dataset %>% select(all_of(id_col), Formula), by = id_col)
   }
   
-  # Create display name
   metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
     mutate(display_name = ifelse(is.na(Name) | Name == "", 
-                                 Compound.ID, 
-                                 paste0(Name, " (", Compound.ID, ")")))
-  
-  # Arrange by group and intensity
-  metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
+                                 .data[[id_col]], 
+                                 paste0(Name, " (", .data[[id_col]], ")"))) %>%
     arrange(across(all_of(group_by)), desc(mean_intensity))
   
   # Add annotations if provided
   if (!is.null(compound_annotation)) {
+    anno_select_cols <- intersect(
+      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways"),
+      names(compound_annotation)
+    )
     metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
       left_join(
-        compound_annotation %>% select(Compound.ID, Name, Class, Sub.Class, Super.Class, Pathways),
-        by = c("Compound.ID", "Name")
+        compound_annotation %>% select(all_of(anno_select_cols)),
+        by = intersect(c(id_col, "Name"), names(metabolite_abundance_grouped))
       )
   }
   
   cat("Done!\n\n")
-  
   return(metabolite_abundance_grouped)
 }
 

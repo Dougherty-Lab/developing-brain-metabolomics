@@ -338,35 +338,76 @@ detect_rt_threshold_from_density <- function(
       density_smooth <- density_raw
     }
     
-    # ===== IMPROVED THRESHOLD DETECTION =====
-    # Find the FIRST SIGNIFICANT DROP in the density curve
-    # Don't wait for the global peak - look for any sharp drop early on
+    # ===== THRESHOLD DETECTION: MINIMUM AFTER FIRST REAL PEAK =====
+    # Strategy:
+    #   1. Find the first "real" peak: a local max where density rose by >= rise_pct%
+    #      from the local preceding minimum, and then fell by >= fall_pct% from that peak.
+    #      This catches small early peaks that are below the global max threshold.
+    #   2. After that peak, find the minimum point BEFORE density starts rising again
+    #      (i.e. the valley floor, not where it hits <= 1).
     
-    # Calculate the gradient (first derivative of density)
-    # Negative values = decreasing density
-    density_gradient <- diff(density_smooth)
+    density_smooth_nona <- ifelse(is.na(density_smooth), 0, density_smooth)
     
-    # Define significant drop as > 10% of the max absolute gradient magnitude
-    max_gradient_magnitude <- max(abs(density_gradient), na.rm = TRUE)
-    significant_threshold <- max_gradient_magnitude * 0.1
+    rise_pct  <- 0.25   # peak must rise >= 25% above the local pre-peak minimum
+    fall_pct  <- 0.25   # peak must fall >= 25% from peak value before we accept it
+    n         <- length(density_smooth_nona)
     
-    # Find ALL significant drops (negative gradients exceeding threshold)
-    significant_drops <- which(density_gradient < -significant_threshold)
+    first_peak_idx <- NA
     
-    if (length(significant_drops) > 0) {
-      # Take the FIRST significant drop
-      first_drop_idx <- significant_drops[1]
+    for (k in 2:(n - 1)) {
+      # Local max check
+      if (density_smooth_nona[k] <= density_smooth_nona[k - 1] ||
+          density_smooth_nona[k] <= density_smooth_nona[k + 1]) next
       
-      if (first_drop_idx > 0 && first_drop_idx < length(bin_centers)) {
-        rt_threshold_candidate <- bin_centers[first_drop_idx]
-      } else {
-        rt_threshold_candidate <- bin_centers[1]
+      peak_val <- density_smooth_nona[k]
+      
+      # Find the local minimum in the approach to this peak (look back up to 10 bins)
+      lookback <- seq(max(1, k - 10), k - 1)
+      local_pre_min <- min(density_smooth_nona[lookback], na.rm = TRUE)
+      
+      # Check that the peak rose sufficiently from its local baseline
+      if (peak_val < local_pre_min * (1 + rise_pct) && local_pre_min > 0) next
+      if (peak_val == 0) next
+      
+      # Check that density has already started to fall after the peak
+      # (need at least one bin after k where it has dropped by fall_pct)
+      fall_threshold <- peak_val * (1 - fall_pct)
+      post_k <- seq(k + 1, min(n, k + 15))
+      if (!any(density_smooth_nona[post_k] <= fall_threshold, na.rm = TRUE)) next
+      
+      first_peak_idx <- k
+      break
+    }
+    
+    if (!is.na(first_peak_idx)) {
+      cat("    First real peak at index:", first_peak_idx,
+          "(RT:", round(bin_centers[first_peak_idx], 3), "min,",
+          "density:", round(density_smooth_nona[first_peak_idx], 1), ")\n")
+      
+      # Step 2: Walk downhill after the peak and stop at the valley floor —
+      # the last bin before density starts consistently rising again.
+      valley_idx <- first_peak_idx + 1
+      for (k in seq(first_peak_idx + 1, min(n - 1, first_peak_idx + 60))) {
+        if (density_smooth_nona[k] <= density_smooth_nona[valley_idx]) {
+          valley_idx <- k   # still descending or flat, keep moving
+        } else {
+          # Density ticked up - check if it keeps rising (not just noise)
+          if (k + 1 <= n && density_smooth_nona[k + 1] >= density_smooth_nona[k]) {
+            break           # confirmed rise, stop here
+          }
+        }
       }
+      
+      rt_threshold_candidate <- bin_centers[valley_idx]
+      cat("    Valley floor (threshold) at index:", valley_idx,
+          "(RT:", round(bin_centers[valley_idx], 3), "min)\n")
+      
     } else {
-      # No significant drop found, use where density is lowest in first half
-      first_half_idx <- seq(1, length(density_smooth) %/% 2)
-      lowest_idx <- which.min(density_smooth[first_half_idx])[1]
-      rt_threshold_candidate <- bin_centers[lowest_idx]
+      # Fallback: no real peak detected - use the global minimum in the first half
+      cat("    WARNING: No real peak detected. Using first-half minimum as fallback.\n")
+      first_half_idx <- seq(1, max(1, n %/% 2))
+      valley_idx <- which.min(density_smooth_nona[first_half_idx])[1]
+      rt_threshold_candidate <- bin_centers[valley_idx]
     }
     
     rt_threshold_strict <- NA

@@ -1,0 +1,352 @@
+---
+title: "Combine Raw Datasets (Unfiltered, With Duplicates)"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: TRUE
+---
+
+Made w/ assistance from Claude Sonnet 4.6. Output checked and validated by author.
+
+# Set Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+Packages <- c("tidyverse", "readxl", "stats", "ggfortify", "ggrepel", "svglite", "pheatmap", "pracma")
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r source_functions}
+# Source Functions
+source("functions.R")
+source("filtering_functions.R")
+```
+
+```{r set_path}
+png_path <- "../../results/untargeted/raw_combined_dataset"
+csv_path <- "../../results/untargeted/raw_combined_dataset/csv"
+svg_path <- "../../results/untargeted/raw_combined_dataset/svg"
+data_path <- "../../data"
+
+# Create output directories
+dir.create(png_path, recursive = TRUE, showWarnings = FALSE)
+dir.create(csv_path, recursive = TRUE, showWarnings = FALSE)
+dir.create(svg_path, recursive = TRUE, showWarnings = FALSE)
+```
+
+# Load Raw Data
+
+## Batch 1
+```{r load-batch1-raw}
+# Peak Area Values and Metabolite Annotations
+batch1_full_dataset      <- read_excel('../../doc/untargeted/8_untargeted_developing_2025.xlsx', sheet = "Area",       range = NULL)
+batch1_compound_annotation <- read_excel('../../doc/untargeted/8_untargeted_developing_2025.xlsx', sheet = "Annotation", range = NULL)
+
+# Sample Metadata
+batch1_sample_metadata <- read_excel('../../doc/untargeted/8_metadata.xlsx', sheet = "metadata", range = NULL)
+batch1_sample_metadata <- batch1_sample_metadata %>%
+  rename(Sample = SampleName)
+```
+
+## Batch 2
+```{r load-batch2-raw}
+# Peak Area Values and Metabolite Annotations
+batch2_full_dataset        <- read_excel('../../doc/untargeted/24_untargeted_developing_2025.xlsx', sheet = "Area",       range = NULL)
+batch2_compound_annotation <- read_excel('../../doc/untargeted/24_untargeted_developing_2025.xlsx', sheet = "Annotation", range = NULL)
+
+# Sample Metadata
+batch2_sample_metadata <- read_excel('../../doc/untargeted/24_metadata.xlsx', sheet = "metadata", range = NULL)
+batch2_sample_metadata <- batch2_sample_metadata %>%
+  rename(Sample = SampleName)
+```
+
+# Clean Raw Data
+
+`clean_metabolomics_data()` assigns cleaned objects into the global environment using
+the `dataset_name` prefix, producing `<dataset_name>_peak_data`, `_compound_annotation`,
+and `_sample_metadata`.
+
+## Batch 1
+```{r clean-batch1}
+clean_metabolomics_data(batch1_full_dataset, batch1_sample_metadata, batch1_compound_annotation,
+                        dataset_name = "Batch1_Untargeted_Raw")
+```
+
+## Batch 2
+```{r clean-batch2}
+clean_metabolomics_data(batch2_full_dataset, batch2_sample_metadata, batch2_compound_annotation,
+                        dataset_name = "Batch2_Untargeted_Raw")
+```
+
+# Sample Outlier Removal
+
+## Batch 1
+
+Remove samples with outlier mean metabolite intensity:
+```{r batch1-outlier-intensity}
+batch1_outlier_removal_1_results <- remove_intensity_outliers(
+  data           = Batch1_Untargeted_Raw_peak_data,
+  metadata       = batch1_sample_metadata,
+  threshold      = 3,
+  save_plot      = TRUE,
+  output_prefix  = "Batch1_01_intensity_outliers",
+  png_path       = png_path,
+  csv_path       = csv_path
+)
+batch1_outlier_removal_1 <- batch1_outlier_removal_1_results$filtered_data
+```
+
+Remove samples with outlier number of detected peaks:
+```{r batch1-outlier-detection}
+batch1_outlier_removal_2_results <- remove_detection_outliers(
+  data          = batch1_outlier_removal_1,
+  metadata      = batch1_sample_metadata,
+  threshold     = 3,
+  na_threshold  = 0,
+  save_plot     = TRUE,
+  output_prefix = "Batch1_02_detection_outliers",
+  png_path      = png_path,
+  csv_path      = csv_path
+)
+batch1_outlier_removal_2 <- batch1_outlier_removal_2_results$filtered_data
+```
+
+## Batch 2
+
+Remove samples with outlier mean metabolite intensity:
+```{r batch2-outlier-intensity}
+batch2_outlier_removal_1_results <- remove_intensity_outliers(
+  data           = Batch2_Untargeted_Raw_peak_data,
+  metadata       = batch2_sample_metadata,
+  threshold      = 3,
+  save_plot      = TRUE,
+  output_prefix  = "Batch2_01_intensity_outliers",
+  png_path       = png_path,
+  csv_path       = csv_path
+)
+batch2_outlier_removal_1 <- batch2_outlier_removal_1_results$filtered_data
+```
+
+Remove samples with outlier number of detected peaks:
+```{r batch2-outlier-detection}
+batch2_outlier_removal_2_results <- remove_detection_outliers(
+  data          = batch2_outlier_removal_1,
+  metadata      = batch2_sample_metadata,
+  threshold     = 3,
+  na_threshold  = 0,
+  save_plot     = TRUE,
+  output_prefix = "Batch2_02_detection_outliers",
+  png_path      = png_path,
+  csv_path      = csv_path
+)
+batch2_outlier_removal_2 <- batch2_outlier_removal_2_results$filtered_data
+```
+
+# Remove Unannotated Metabolites
+
+Keep only rows with a non-empty Name. Unannotated features are retained separately for reference but not carried forward into the combined dataset.
+
+```{r remove-unannotated}
+batch1_annotated      <- batch1_outlier_removal_2[!is.na(batch1_outlier_removal_2$Name) & batch1_outlier_removal_2$Name != "", ]
+batch1_unannotated    <- batch1_outlier_removal_2[ is.na(batch1_outlier_removal_2$Name) | batch1_outlier_removal_2$Name == "", ]
+
+batch2_annotated      <- batch2_outlier_removal_2[!is.na(batch2_outlier_removal_2$Name) & batch2_outlier_removal_2$Name != "", ]
+batch2_unannotated    <- batch2_outlier_removal_2[ is.na(batch2_outlier_removal_2$Name) | batch2_outlier_removal_2$Name == "", ]
+
+cat("Batch 1 — annotated:", nrow(batch1_annotated), "  unannotated:", nrow(batch1_unannotated), "\n")
+cat("Batch 2 — annotated:", nrow(batch2_annotated), "  unannotated:", nrow(batch2_unannotated), "\n")
+```
+
+# Data Inspection
+
+```{r inspect-dimensions}
+# Within-batch duplicate check
+batch1_dup_names <- batch1_annotated$Name[duplicated(batch1_annotated$Name)]
+batch2_dup_names <- batch2_annotated$Name[duplicated(batch2_annotated$Name)]
+
+cat("Duplicate compound names within Batch 1:", length(unique(batch1_dup_names)),
+    " (", sum(duplicated(batch1_annotated$Name)), "duplicate rows)\n")
+cat("Duplicate compound names within Batch 2:", length(unique(batch2_dup_names)),
+    " (", sum(duplicated(batch2_annotated$Name)), "duplicate rows)\n")
+
+# Cross-batch overlap based on unique Names
+batch1_unique_names <- unique(batch1_annotated$Name)
+batch2_unique_names <- unique(batch2_annotated$Name)
+
+overlap     <- intersect(batch1_unique_names, batch2_unique_names)
+batch1_only <- setdiff(batch1_unique_names, batch2_unique_names)
+batch2_only <- setdiff(batch2_unique_names, batch1_unique_names)
+
+cat("\nUnique compound names — Batch 1:", length(batch1_unique_names),
+    "  Batch 2:", length(batch2_unique_names), "\n")
+cat("In BOTH batches:", length(overlap), "\n")
+cat("Batch 1 ONLY:", length(batch1_only), "\n")
+cat("Batch 2 ONLY:", length(batch2_only), "\n")
+```
+
+# Batch Overlap Bar Graph
+```{r overlap-barplot}
+overlap_summary <- tibble(
+  Category = c("Batch 1 Only", "Batch 2 Only", "Both Batches"),
+  Count    = c(length(batch1_only), length(batch2_only), length(overlap))
+)
+
+p_overlap <- ggplot(overlap_summary, aes(x = Category, y = Count, fill = Category)) +
+  geom_bar(stat = "identity", color = "white", width = 0.6) +
+  geom_text(aes(label = Count), vjust = -0.5, size = 4.5, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "Batch 1 Only" = "#4E79A7",
+    "Batch 2 Only" = "#F28E2B",
+    "Both Batches" = "#59A14F"
+  )) +
+  labs(
+    title = "Metabolites by Batch Presence (Raw Data, Sample Outliers Removed)",
+    subtitle = "Based on unique compound Name; within-batch duplicates collapsed for overlap calculation",
+    x = NULL,
+    y = "Number of Unique Compound Names"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold"),
+    panel.grid.major.x = element_blank()
+  )
+
+print(p_overlap)
+
+ggsave(file.path(png_path, "metabolite_batch_overlap.png"),
+       plot = p_overlap, width = 7, height = 5, dpi = 300)
+ggsave(file.path(svg_path, "metabolite_batch_overlap.svg"),
+       plot = p_overlap, width = 7, height = 5)
+
+cat("Overlap bar graph saved.\n")
+```
+
+# Prepare Data for Combining
+
+Because this is raw data, a single compound Name may appear multiple times within a
+batch (multiple peaks/features). A unique row-level ID per batch is assigned so every
+peak is traceable even when the same compound Name appears multiple times.
+
+```{r prepare-data}
+batch1_annotated <- batch1_annotated %>%
+  mutate(
+    Compound.ID_Batch1 = Compound.ID,
+    Row_ID_Batch1      = row_number()
+  ) %>%
+  select(Name, Compound.ID_Batch1, Row_ID_Batch1, everything(), -Compound.ID, -Formula)
+
+batch2_annotated <- batch2_annotated %>%
+  mutate(
+    Compound.ID_Batch2 = Compound.ID,
+    Row_ID_Batch2      = row_number()
+  ) %>%
+  select(Name, Compound.ID_Batch2, Row_ID_Batch2, everything(), -Compound.ID, -Formula)
+
+cat("Batch 1 rows after preparation:", nrow(batch1_annotated), "\n")
+cat("Batch 2 rows after preparation:", nrow(batch2_annotated), "\n")
+```
+
+# Combine Peak Area Data
+
+Batches are stacked with `bind_rows()` rather than joined on Name. A Name-based join
+would create a combinatorial explosion of rows because duplicates exist within and
+between batches. Each row retains its batch origin, batch-specific Compound.ID, and
+unique row ID for downstream grouping, filtering, or deduplication.
+
+```{r combine-peak-area}
+batch1_tagged <- batch1_annotated %>%
+  mutate(
+    Compound.ID_Batch2 = NA_character_,
+    Row_ID_Batch2      = NA_integer_,
+    Batch              = "Batch1"
+  )
+
+batch2_tagged <- batch2_annotated %>%
+  mutate(
+    Compound.ID_Batch1 = NA_character_,
+    Row_ID_Batch1      = NA_integer_,
+    Batch              = "Batch2"
+  )
+
+combined_peak_area <- bind_rows(batch1_tagged, batch2_tagged) %>%
+  mutate(
+    Detected_Batch1 = Batch == "Batch1",
+    Detected_Batch2 = Batch == "Batch2"
+  ) %>%
+  select(
+    Name, Batch,
+    Compound.ID_Batch1, Row_ID_Batch1,
+    Compound.ID_Batch2, Row_ID_Batch2,
+    Detected_Batch1, Detected_Batch2,
+    everything()
+  )
+
+cat("Combined peak data:", nrow(combined_peak_area), "total rows\n")
+cat("  Batch 1 features:", sum(combined_peak_area$Batch == "Batch1"), "\n")
+cat("  Batch 2 features:", sum(combined_peak_area$Batch == "Batch2"), "\n")
+```
+
+# Combine Metabolite Annotations
+```{r combine-annotations}
+batch1_annotations_tagged <- Batch1_Untargeted_Raw_compound_annotation %>%
+  mutate(
+    Compound.ID_Batch1 = Compound.ID,
+    Batch = "Batch1"
+  ) %>%
+  select(-Compound.ID)
+
+batch2_annotations_tagged <- Batch2_Untargeted_Raw_compound_annotation %>%
+  mutate(
+    Compound.ID_Batch2 = Compound.ID,
+    Batch = "Batch2"
+  ) %>%
+  select(-Compound.ID)
+
+combined_annotations <- bind_rows(batch1_annotations_tagged, batch2_annotations_tagged) %>%
+  arrange(Name, Batch) %>%
+  select(Compound.ID_Batch1, Compound.ID_Batch2, Batch, everything())
+
+cat("Combined annotations:", nrow(combined_annotations), "rows\n")
+cat("  Batch 1 annotations:", sum(combined_annotations$Batch == "Batch1"), "\n")
+cat("  Batch 2 annotations:", sum(combined_annotations$Batch == "Batch2"), "\n")
+```
+
+# Combine Sample Metadata
+```{r combine-metadata}
+combined_sample_metadata <- bind_rows(
+  batch1_sample_metadata %>% mutate(Batch = "Batch1"),
+  batch2_sample_metadata %>% mutate(Batch = "Batch2")
+) %>%
+  select(Sample, Batch, GW, Sex)
+
+cat("Combined samples:", nrow(combined_sample_metadata), "\n")
+cat("  Batch 1 samples:", sum(combined_sample_metadata$Batch == "Batch1"), "\n")
+cat("  Batch 2 samples:", sum(combined_sample_metadata$Batch == "Batch2"), "\n")
+
+cat("\nSample distribution:\n")
+print(combined_sample_metadata %>%
+        group_by(Batch, Sex) %>%
+        summarise(Count = n(), .groups = "drop"))
+```
+
+# Save Combined Raw Data
+```{r save-combined}
+write_csv(combined_peak_area,
+          file.path(data_path, 'raw_full_dataset_peak_area_values.csv'))
+
+write_csv(combined_annotations,
+          file.path(data_path, 'raw_full_dataset_metabolite_annotations.csv'))
+
+write_csv(combined_sample_metadata,
+          file.path(data_path, 'raw_full_dataset_sample_metadata.csv'))
+
+cat("\nAll raw combined datasets saved successfully to:", data_path, "\n")
+cat("Files saved:\n")
+cat("  - raw_full_dataset_peak_area_values.csv\n")
+cat("  - raw_full_dataset_metabolite_annotations.csv\n")
+cat("  - raw_full_dataset_sample_metadata.csv\n")
+```
+
+# End

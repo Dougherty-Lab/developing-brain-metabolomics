@@ -20,6 +20,7 @@ lapply(Packages, library, character.only=TRUE)
 #Source Functions
 source("functions.R")
 source("missingness_visualization_functions.R")
+source("filtering_functions.R")
 ```
 
 ```{r set_path, include=FALSE}
@@ -44,8 +45,17 @@ combined_sample_metadata = read_csv('../../data/full_dataset_sample_metadata.csv
 
 ```
 
+```{r summary-table}
+print(sum(combined_peak_area$Detected_Batch1 == TRUE))
+print(sum(combined_peak_area$Detected_Batch2 == TRUE))
+print(sum(combined_peak_area$Detected_Both == TRUE))
+print(length(combined_peak_area$Name))
+
+```
+
 # Peak Features
 ## Peak Intensity
+
 
 ```{r long_format}
 combined_long <- prepare_long_data(combined_peak_area, combined_sample_metadata)
@@ -124,21 +134,24 @@ peak_stats <- test_peak_features(
 metabolite_abundance <- calculate_metabolite_abundance(
   dataset = combined_peak_area,
   sample_cols = 4:35,
-  compound_annotation = combined_compound_annotation)
-)
+  compound_annotation = combined_compound_annotation,
+  id_col = "Name")
+
 
 metabolite_abundance_by_sex <- calculate_metabolite_abundance_by_group(
   data_long = combined_long,
   group_by = "Sex",
   dataset = combined_peak_area,
-  compound_annotation = combined_compound_annotation
+  compound_annotation = combined_compound_annotation,
+  id_col = "Name"
 )
 
 metabolite_abundance_by_gw <- calculate_metabolite_abundance_by_group(
   data_long = combined_long,
   group_by = "GW_bucket",
   dataset = combined_peak_area,
-  compound_annotation = combined_compound_annotation
+  compound_annotation = combined_compound_annotation,
+  id_col = "Name"
 )
 
 ```
@@ -176,17 +189,132 @@ print(top_metabolites_by_group_sex)
 print(top_metabolites_by_group_gw)
 ```
 
-```{r abundance_heatmaps}
-heatmaps <- plot_top_metabolites_heatmaps(
-  dataset = combined_peak_area,
-  metabolite_abundance = metabolite_abundance,
-  n = 100,
-  sample_metadata = combined_sample_metadata,
-  sample_cols = 4:35,
-  title_prefix = "combined clean ",
-  png_path = png_path
-)
+```{r batch_abundance_comparison}
+
+# ── 1. Tag each metabolite with its detection group ──────────────────────────
+metabolite_abundance_tagged <- metabolite_abundance %>%
+  left_join(
+    combined_peak_area %>% select(Name, Detected_Batch1, Detected_Batch2, Detected_Both),
+    by = "Name"
+  ) %>%
+  mutate(
+    Detection_Group = case_when(
+      Detected_Both                          ~ "Both Batches",
+      Detected_Batch1 & !Detected_Batch2    ~ "Batch 1 Only",
+      Detected_Batch2 & !Detected_Batch1    ~ "Batch 2 Only",
+      TRUE                                   ~ "Unknown"
+    ),
+    Detection_Group = factor(Detection_Group,
+                             levels = c("Both Batches", "Batch 1 Only", "Batch 2 Only"))
+  )
+
+# ── 2. Top 20 per detection group (bar charts) ───────────────────────────────
+n_top <- 20
+
+plot_batch_top_bar <- function(data, group_label, color) {
+  top <- data %>%
+    filter(Detection_Group == group_label) %>%
+    slice_max(mean_intensity, n = n_top) %>%
+    mutate(Name = fct_reorder(Name, mean_intensity))
+  
+  ggplot(top, aes(x = mean_intensity, y = Name)) +
+    geom_col(fill = color, color = "white", width = 0.7) +
+    scale_x_continuous(labels = scales::label_scientific()) +
+    theme_minimal() +
+    labs(
+      title = paste0("Top ", n_top, " Most Abundant Metabolites — ", group_label),
+      x = "Mean Intensity",
+      y = NULL
+    ) +
+    theme(plot.title = element_text(hjust = 0.5))
+}
+
+p_both   <- plot_batch_top_bar(metabolite_abundance_tagged, "Both Batches", "#2E86AB")
+p_batch1 <- plot_batch_top_bar(metabolite_abundance_tagged, "Batch 1 Only", "#E84855")
+p_batch2 <- plot_batch_top_bar(metabolite_abundance_tagged, "Batch 2 Only", "#F4A261")
+
+save_dual_format(p_both,   "combined clean top_abundant_both_batches",   png_path = png_path, svg_path = svg_path)
+save_dual_format(p_batch1, "combined clean top_abundant_batch1_only",    png_path = png_path, svg_path = svg_path)
+save_dual_format(p_batch2, "combined clean top_abundant_batch2_only",    png_path = png_path, svg_path = svg_path)
+
+print(p_both)
+print(p_batch1)
+print(p_batch2)
+
+# ── 3. Side-by-side comparison of top 20 overall, colored by detection group ─
+top20_overall <- metabolite_abundance_tagged %>%
+  slice_max(mean_intensity, n = 20) %>%
+  mutate(Name = fct_reorder(Name, mean_intensity))
+
+batch_palette <- c("Both Batches"  = "#2E86AB",
+                   "Batch 1 Only"  = "#E84855",
+                   "Batch 2 Only"  = "#F4A261")
+
+p_top20_colored <- ggplot(top20_overall, aes(x = mean_intensity, y = Name,
+                                              fill = Detection_Group)) +
+  geom_col(color = "white", width = 0.7) +
+  scale_fill_manual(values = batch_palette) +
+  scale_x_continuous(labels = scales::label_scientific()) +
+  theme_minimal() +
+  labs(
+    title = "Top 20 Most Abundant Metabolites (Overall) — Colored by Batch Detection",
+    x = "Mean Intensity",
+    y = NULL,
+    fill = "Detected In"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom")
+
+save_dual_format(p_top20_colored, "combined clean top20_colored_by_batch", png_path = png_path, svg_path = svg_path)
+print(p_top20_colored)
+
+# ── 4. Detection group composition summary ───────────────────────────────────
+detection_summary <- metabolite_abundance_tagged %>%
+  count(Detection_Group) %>%
+  mutate(pct = round(100 * n / sum(n), 1))
+
+p_detection_donut <- ggplot(detection_summary, aes(x = 2, y = n, fill = Detection_Group)) +
+  geom_col(color = "white", width = 1) +
+  coord_polar(theta = "y") +
+  xlim(0.5, 2.5) +
+  scale_fill_manual(values = batch_palette) +
+  geom_text(aes(label = paste0(Detection_Group, "\n", n, " (", pct, "%)")),
+            position = position_stack(vjust = 0.5), size = 3.5) +
+  theme_void() +
+  labs(title = "Metabolite Composition by Batch Detection") +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "none")
+
+save_dual_format(p_detection_donut, "combined clean detection_group_composition", png_path = png_path, svg_path = svg_path)
+print(p_detection_donut)
+
+# ── 5. Rank comparison: where do batch-specific metabolites fall in overall rank? ─
+rank_comparison <- metabolite_abundance_tagged %>%
+  arrange(desc(mean_intensity)) %>%
+  mutate(Overall_Rank = row_number())
+
+p_rank_density <- ggplot(rank_comparison, aes(x = Overall_Rank, fill = Detection_Group,
+                                               color = Detection_Group)) +
+  geom_density(alpha = 0.35, linewidth = 0.8) +
+  scale_fill_manual(values  = batch_palette) +
+  scale_color_manual(values = batch_palette) +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Overall Abundance Ranks by Batch Detection Group",
+    subtitle = "Left = more abundant; curves peaking left = group skews toward top ranks",
+    x = "Overall Abundance Rank",
+    y = "Density",
+    fill = "Detected In",
+    color = "Detected In"
+  ) +
+  theme(plot.title    = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, color = "grey40"),
+        legend.position = "bottom")
+
+save_dual_format(p_rank_density, "combined clean rank_density_by_batch", png_path = png_path, svg_path = svg_path)
+print(p_rank_density)
 ```
+
 
 ### Metabolite Class
 
@@ -262,6 +390,81 @@ pathways_results <- analyze_category_abundance(
 )
 
 print(pathways_results)
+```
+
+## Annotation Completeness
+```{r annotation_completeness}
+# Define annotation categories to check
+annotation_categories <- c("Super.Class", "Class", "Sub.Class", "Pathways")
+
+# Calculate missingness per category for annotated metabolites only
+annotation_completeness <- combined_compound_annotation %>%
+  filter(Compound.ID %in% combined_peak_area$Name) %>%
+  summarise(across(all_of(annotation_categories),
+                   list(
+                     n_missing  = ~sum(is.na(.) | . == ""),
+                     n_present  = ~sum(!is.na(.) & . != ""),
+                     pct_missing = ~round(100 * mean(is.na(.) | . == ""), 1)
+                   ),
+                   .names = "{.col}__{.fn}")) %>%
+  pivot_longer(everything(),
+               names_to  = c("Category", ".value"),
+               names_sep = "__") %>%
+  mutate(Total = n_missing + n_present,
+         Category = factor(Category, levels = annotation_categories))
+
+# Print summary table
+cat("\n=== ANNOTATION COMPLETENESS SUMMARY ===\n")
+print(annotation_completeness %>%
+        select(Category, n_present, n_missing, Total, pct_missing) %>%
+        rename("Annotated" = n_present, "Missing" = n_missing,
+               "% Missing" = pct_missing))
+
+# Stacked bar: annotated vs missing per category
+annotation_completeness_long <- annotation_completeness %>%
+  select(Category, n_present, n_missing) %>%
+  pivot_longer(c(n_present, n_missing),
+               names_to  = "Status",
+               values_to = "Count") %>%
+  mutate(Status = recode(Status,
+                         "n_present" = "Annotated",
+                         "n_missing" = "Missing"))
+
+p_annotation_completeness <- ggplot(annotation_completeness_long,
+                                    aes(x = Category, y = Count, fill = Status)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = Count),
+            position = position_stack(vjust = 0.5),
+            color = "white", size = 4, fontface = "bold") +
+  scale_fill_manual(values = c("Annotated" = "#2E86AB", "Missing" = "#E84855")) +
+  theme_minimal() +
+  labs(title = "combined clean Annotation Completeness by Category",
+       x = "Annotation Category",
+       y = "Number of Metabolites",
+       fill = "Status") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(p_annotation_completeness, "combined clean annotation_completeness",
+                 png_path = png_path, svg_path = svg_path)
+print(p_annotation_completeness)
+
+# Percent-missing bar for a cleaner at-a-glance view
+p_annotation_pct_missing <- ggplot(annotation_completeness,
+                                   aes(x = Category, y = pct_missing, fill = Category)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(pct_missing, "%")),
+            vjust = -0.4, size = 4) +
+  scale_fill_viridis_d(guide = "none") +
+  scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
+  theme_minimal() +
+  labs(title = "combined clean % Metabolites Missing Annotation by Category",
+       x = "Annotation Category",
+       y = "% Missing") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(p_annotation_pct_missing, "combined clean annotation_pct_missing",
+                 png_path = png_path, svg_path = svg_path)
+print(p_annotation_pct_missing)
 ```
 
 ## PCA

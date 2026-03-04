@@ -1,0 +1,518 @@
+---
+title: "Batch 2 Sex and GW Metabolomics Analysis (MetaboAnalystR)"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated `r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+# Set Up
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+# Install MetaboAnalystR if needed (run once):
+# install.packages("devtools")
+# devtools::install_github("xia-lab/MetaboAnalystR", build = TRUE, build_vignettes = FALSE)
+
+Packages <- c("tidyverse", "ggrepel", "svglite", "MetaboAnalystR")
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r source_functions, include=FALSE}
+source("functions.R")
+source("missingness_visualization_functions.R")
+```
+
+```{r set_paths, include=FALSE}
+png_path <- "../../results/untargeted/batch2_clean"
+svg_path  <- "../../results/untargeted/batch2_clean/svg"
+csv_path  <- "../../results/untargeted/batch2_clean/csv"
+
+# MetaboAnalystR writes output files to the working directory.
+# We use a dedicated subdirectory so its outputs stay organised.
+msa_dir <- file.path(png_path, "metaboanalyst")
+dir.create(msa_dir, recursive = TRUE, showWarnings = FALSE)
+```
+
+---
+
+## Load Datasets
+
+```{r load_data, include=FALSE}
+# Peak area values (metabolites x samples)
+batch2_peak_area <- read_csv(
+  '../../results/untargeted/Batch2_peak_area_values.csv',
+  show_col_types = FALSE
+)
+
+# Metabolite annotations
+batch2_compound_annotation <- read_csv(
+  '../../results/untargeted/Batch2_metabolite_annotations.csv',
+  show_col_types = FALSE
+)
+
+# Sample metadata
+batch2_sample_metadata <- read_csv(
+  '../../results/untargeted/Batch2_sample_metadata.csv',
+  show_col_types = FALSE
+)
+```
+
+---
+
+# Prepare MetaboAnalystR Input CSVs
+
+MetaboAnalystR reads data from CSV files on disk, so we write two sets of input files before running any analyses.
+
+**Sex analysis** uses the `"stat"` module:  
+- Format `"rowu"` / `"disc"`: row 1 = sample names, row 2 = group labels, rows 3+ = feature × sample values.
+
+**GW analysis** uses the `"mf"` (metadata table) module:  
+- A column-oriented data file (`"colu"`) plus a separate metadata CSV containing GW as a numeric column. MetaboAnalystR auto-detects numeric columns as continuous covariates and fits a limma linear model.
+
+```{r prep_input_files}
+# ── Align annotations to peak area table ────────────────────────────────────
+compounds_in_peak <- unique(batch2_peak_area$Compound.ID)
+
+annotation_filtered <- batch2_compound_annotation %>%
+  filter(Compound.ID %in% compounds_in_peak) %>%
+  distinct(Compound.ID, .keep_all = TRUE)
+
+id_to_name <- annotation_filtered %>% select(Compound.ID, Name)
+
+# Join metabolite names and keep only sample columns in metadata order
+sample_cols <- batch2_sample_metadata %>%
+  filter(Sample %in% colnames(batch2_peak_area)) %>%
+  pull(Sample)
+
+peak_named <- batch2_peak_area %>%
+  left_join(id_to_name, by = "Compound.ID") %>%
+  # batch2_peak_area already has a Name column, so left_join creates Name.x / Name.y
+  mutate(FeatureName = coalesce(Name.y, Name.x, Compound.ID)) %>%
+  select(FeatureName, all_of(sample_cols))
+
+sex_meta <- batch2_sample_metadata %>%
+  filter(Sample %in% sample_cols) %>%
+  arrange(match(Sample, sample_cols))
+
+# ── 1. Sex input (rowu / disc) ───────────────────────────────────────────────
+# Row 1: "Label" | sample names
+# Row 2: "Sex"   | group per sample
+# Rows 3+: feature name | peak area values
+label_row <- c("Label", sex_meta$Sample)
+group_row  <- c("Sex",   sex_meta$Sex)
+
+sex_input <- bind_rows(
+  setNames(as.data.frame(t(label_row)), label_row),
+  setNames(as.data.frame(t(group_row)), label_row),
+  peak_named %>% rename(Label = FeatureName) %>%
+    mutate(across(where(is.numeric), as.character))
+)
+
+sex_csv_path <- file.path(msa_dir, "batch2_sex_input.csv")
+write.csv(sex_input, sex_csv_path, row.names = FALSE, quote = FALSE)
+
+# ── 2. GW data file (colu) ───────────────────────────────────────────────────
+# Features in rows, samples in columns; no group row needed (group info in
+# the separate metadata file).
+gw_data_csv_path <- file.path(msa_dir, "batch2_gw_data_input.csv")
+write.csv(peak_named %>% rename(Label = FeatureName),
+          gw_data_csv_path, row.names = FALSE, quote = FALSE)
+
+# ── 3. GW metadata file ──────────────────────────────────────────────────────
+# First column = sample names; GW is numeric (auto-detected as continuous).
+gw_metadata <- sex_meta %>% select(Sample, GW, Sex)
+gw_meta_csv_path <- file.path(msa_dir, "batch2_gw_metadata.csv")
+write.csv(gw_metadata, gw_meta_csv_path, row.names = FALSE, quote = FALSE)
+
+cat("Input files written to:", msa_dir, "\n")
+cat("  Sex data :  batch2_sex_input.csv\n")
+cat("  GW data  :  batch2_gw_data_input.csv\n")
+cat("  GW meta  :  batch2_gw_metadata.csv\n")
+```
+
+---
+
+# Sex Analysis — MetaboAnalystR `stat` Module
+
+# MetaboAnalystR relies on a global `mSet` variable internally.
+# We use `mSet` throughout each section, then save to a named object
+# at the end so results are preserved when the GW section reinitialises `mSet`.
+
+```{r sex_mset_init}
+old_wd <- getwd()
+setwd(msa_dir)  # MetaboAnalystR writes plots/tables to the working directory
+
+# Pass default.dpi explicitly — fixes "promise already under evaluation" bug
+# caused by default.dpi = default.dpi self-reference in recent MetaboAnalystR versions
+mSet <- InitDataObjects("conc", "stat", FALSE, default.dpi = 72)
+mSet <- Read.TextData(mSet, "batch2_sex_input.csv", "rowu", "disc")
+mSet <- SanityCheckData(mSet)
+# ReplaceMin() intentionally omitted — data is pre-filtered; NAs represent
+# true non-detections and should not be imputed.
+mSet <- PreparePrenormData(mSet)
+
+# No normalization — data already filtered and clean
+mSet <- Normalization(mSet,
+                      rowNorm   = "NULL",
+                      transNorm = "NULL",
+                      scaleNorm = "NULL",
+                      ref       = NULL,
+                      ratio     = FALSE,
+                      ratioNum  = 20)
+```
+
+## Univariate — Fold Change & Wilcoxon Test
+
+```{r sex_univariate}
+# Fold-change analysis (fc.thresh = 1.5 ratio; cmp.type = 0 → group2 / group1)
+mSet <- FC.Anal(mSet, fc.thresh = 1.5, cmp.type = 0)
+
+# Wilcoxon rank-sum (nonpar = TRUE); FDR-adjusted p-value threshold
+mSet <- Ttests.Anal(mSet,
+                    nonpar    = TRUE,
+                    threshp   = 0.05,
+                    paired    = FALSE,
+                    equal.var = TRUE,
+                    pvalType  = "fdr")
+
+cat("\n=== Sex Differential Analysis Summary ===\n")
+cat("Total metabolites tested :", nrow(mSet$dataSet$norm), "\n")
+cat("Significant (FDR < 0.05) :", mSet$analSet$tt$sig.num, "\n")
+
+if (length(mSet$analSet$tt$sig.mat) > 0 &&
+    nrow(as.data.frame(mSet$analSet$tt$sig.mat)) > 0) {
+  cat("\nTop significant metabolites:\n")
+  print(head(as.data.frame(mSet$analSet$tt$sig.mat), 10))
+}
+```
+
+## Volcano Plot
+
+```{r sex_volcano}
+mSet <- Volcano.Anal(mSet,
+                     paired    = FALSE,
+                     fcthresh  = 1.5,
+                     cmp.type  = 0,
+                     pval.type = FALSE,   # FALSE = use adjusted (FDR) p-value
+                     pval      = 0.05,
+                     bothSig   = TRUE,
+                     pvalType  = "fdr")
+
+# Build ggplot volcano for dual-format saving and consistent styling
+volcano_data <- data.frame(
+  Name        = names(mSet$analSet$volcano$p.log),
+  neg_log10_p = mSet$analSet$volcano$p.log,
+  logFC       = mSet$analSet$volcano$fc.log
+) %>%
+  mutate(
+    pval_raw        = 10^(-neg_log10_p),
+    FDR             = p.adjust(pval_raw, method = "fdr"),
+    Significant_FDR = FDR < 0.05,
+    Direction = case_when(
+      Significant_FDR & logFC > 0 ~ "Higher in Males",
+      Significant_FDR & logFC < 0 ~ "Higher in Females",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+volcano_sex_FDR <- ggplot(volcano_data, aes(x = logFC, y = neg_log10_p)) +
+  geom_point(aes(color = Significant_FDR), alpha = 0.6) +
+  geom_text_repel(
+    data = volcano_data %>% filter(Significant_FDR),
+    aes(label = Name), size = 2.5, max.overlaps = 15
+  ) +
+  scale_color_manual(
+    values = c("FALSE" = "grey70", "TRUE" = "red"),
+    name   = "FDR < 0.05"
+  ) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(
+    x     = "Log2 Fold Change (Male / Female)",
+    y     = "-log10(p-value)",
+    title = "Sex Differential Analysis — Volcano Plot (Wilcoxon, FDR)"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(volcano_sex_FDR, "sex_volcano_FDR",
+                 png_path = png_path, svg_path = svg_path)
+print(volcano_sex_FDR)
+
+# Print summary
+cat("\nAmong FDR-significant metabolites:\n")
+print(volcano_data %>% filter(Significant_FDR) %>% count(Direction))
+
+cat("\n=== Top 10 Most Significant Metabolites ===\n")
+print(
+  volcano_data %>%
+    arrange(pval_raw) %>%
+    head(10) %>%
+    select(Name, logFC, pval_raw, FDR, Direction)
+)
+
+write_csv(volcano_data,
+          file.path(csv_path, "batch2_sex_differential_analysis.csv"))
+cat("\nResults saved to:", file.path(csv_path, "batch2_sex_differential_analysis.csv"), "\n")
+```
+
+## Multivariate — PCA
+
+```{r sex_pca}
+mSet <- PCA.Anal(mSet)
+
+mSet <- PlotPCA2DScore(mSet,
+                       imgName    = "pca_score_sex_",
+                       format     = "png",
+                       dpi        = 150,
+                       width      = NA,
+                       pc1        = 1,
+                       pc2        = 2,
+                       reg        = 0.95,
+                       show       = 1,
+                       grey.scale = 0)
+
+# ggplot version for dual-format saving
+pca_scores_sex <- as.data.frame(mSet$analSet$pca$x[, 1:2]) %>%
+  rownames_to_column("Sample") %>%
+  left_join(batch2_sample_metadata %>% select(Sample, Sex, GW), by = "Sample")
+
+pct_var <- round(
+  mSet$analSet$pca$sdev^2 / sum(mSet$analSet$pca$sdev^2) * 100, 1
+)
+
+pca_sex_plot <- ggplot(pca_scores_sex, aes(x = PC1, y = PC2, color = Sex)) +
+  geom_point(size = 3, alpha = 0.85) +
+  geom_text_repel(aes(label = Sample), size = 2.5, max.overlaps = 10) +
+  stat_ellipse(level = 0.95, linetype = "dashed") +
+  theme_minimal() +
+  labs(
+    x     = paste0("PC1 (", pct_var[1], "%)"),
+    y     = paste0("PC2 (", pct_var[2], "%)"),
+    title = "PCA Score Plot — Batch 2 by Sex"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(pca_sex_plot, "pca_score_sex",
+                 png_path = png_path, svg_path = svg_path)
+print(pca_sex_plot)
+```
+
+## Multivariate — PLS-DA
+
+```{r sex_plsda}
+mSet <- PLSDA.Anal(mSet, reg = TRUE)
+
+mSet <- PlotPLSPairSummary(mSet,
+                           imgName = "plsda_pair_sex_",
+                           format  = "png",
+                           dpi     = 150,
+                           width   = NA,
+                           pc.num  = 5)
+
+mSet <- PlotPLS2DScore(mSet,
+                       imgName    = "plsda_score_sex_",
+                       format     = "png",
+                       dpi        = 150,
+                       width      = NA,
+                       comp1      = 1,
+                       comp2      = 2,
+                       reg        = 0.95,
+                       show       = 1,
+                       grey.scale = 0)
+
+mSet <- PlotPLSLoading(mSet,
+                       imgName = "plsda_loading_sex_",
+                       format  = "png",
+                       dpi     = 150,
+                       width   = NA,
+                       comp1   = 1,
+                       comp2   = 2)
+
+mSet <- PlotPLSDA.VIP(mSet,
+                      imgName = "plsda_vip_sex_",
+                      format  = "png",
+                      dpi     = 150,
+                      width   = NA)
+
+# Extract and save VIP scores
+vip_df <- as.data.frame(mSet$analSet$plsda$vip.mat) %>%
+  rownames_to_column("Name") %>%
+  arrange(desc(`Comp. 1`))
+
+cat("\nTop 20 VIP scores (Comp 1):\n")
+print(head(vip_df, 20))
+
+write_csv(vip_df, file.path(csv_path, "batch2_sex_plsda_vip.csv"))
+
+# Save sex mSet before GW section reinitialises it
+mSet_sex <- mSet
+```
+
+```{r sex_restore_wd}
+setwd(old_wd)
+```
+
+---
+
+# GW Analysis — MetaboAnalystR Metadata Table (`mf`) Module
+
+For a continuous covariate (gestational weeks), we use the **metadata table**
+module, which fits a limma linear model with GW as a numeric predictor.
+MetaboAnalystR auto-detects numeric metadata columns as continuous variables.
+
+```{r gw_mset_init}
+setwd(msa_dir)
+
+# Pass default.dpi explicitly — same fix as sex section
+mSet <- InitDataObjects("conc", "mf", FALSE, default.dpi = 72)
+
+# Column-oriented data: features in rows, samples in columns
+mSet <- Read.TextDataTs(mSet, "batch2_gw_data_input.csv", "colu")
+
+# Metadata file: sample names + GW (numeric) + Sex (categorical)
+mSet <- ReadMetaData(mSet, "batch2_gw_metadata.csv")
+
+mSet <- SanityCheckData(mSet)
+mSet <- SanityCheckMeta(mSet, init = TRUE)
+# ReplaceMin() intentionally omitted — data is pre-filtered; NAs represent
+# true non-detections and should not be imputed.
+mSet <- PreparePrenormData(mSet)
+
+# No normalization — data already clean
+mSet <- Normalization(mSet,
+                      rowNorm   = "NULL",
+                      transNorm = "NULL",
+                      scaleNorm = "NULL",
+                      ref       = NULL,
+                      ratio     = FALSE,
+                      ratioNum  = 20)
+```
+
+## GW Limma Linear Model
+
+```{r gw_limma}
+# Fit limma linear model: feature abundance ~ GW (continuous)
+mSet <- PerformCovariateLinearModel(mSet,
+                                    analysis.var = "GW",
+                                    meta         = "NA",
+                                    contrast.cls = "NA",
+                                    equal.var    = TRUE)
+
+# Significant features (FDR < 0.05)
+gw_sig <- as.data.frame(mSet$analSet$cov$sig.mat)
+
+cat("\n=== GW Limma Analysis Summary ===\n")
+cat("Total metabolites tested  :", nrow(mSet$dataSet$norm), "\n")
+cat("Significant (FDR < 0.05) :", nrow(gw_sig), "\n")
+
+if (nrow(gw_sig) > 0) {
+  cat("\nTop significant metabolites:\n")
+  print(head(gw_sig, 10))
+}
+```
+
+## GW Results — Lollipop Plot
+
+```{r gw_plot}
+# Full stats table from limma output
+gw_all_stats <- as.data.frame(mSet$analSet$cov$stats) %>%
+  rownames_to_column("Name") %>%
+  rename(
+    logFC   = logFC,
+    p_value = P.Value,
+    FDR     = adj.P.Val
+  ) %>%
+  mutate(
+    Significant_FDR = FDR < 0.05,
+    Direction = case_when(
+      Significant_FDR & logFC > 0 ~ "Positive with GW",
+      Significant_FDR & logFC < 0 ~ "Negative with GW",
+      TRUE ~ "Not Significant"
+    )
+  ) %>%
+  arrange(FDR)
+
+sig_gw <- gw_all_stats %>% filter(Significant_FDR)
+
+scatter_GW <- ggplot(sig_gw,
+                     aes(x = reorder(Name, logFC), y = logFC,
+                         color = Direction)) +
+  geom_segment(aes(xend = reorder(Name, logFC), yend = 0),
+               color = "grey70") +
+  geom_point(aes(size = -log10(p_value)), alpha = 0.85) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  coord_flip() +
+  scale_color_manual(values = c("Positive with GW" = "#E76F51",
+                                "Negative with GW" = "#457B9D")) +
+  theme_minimal() +
+  labs(
+    x     = "Metabolite",
+    y     = "Effect Size (limma logFC per GW unit)",
+    size  = "-log10(p-value)",
+    title = "Metabolites Significantly Associated with Gestational Week (GW)"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.text.y = element_text(size = 7))
+
+save_dual_format(scatter_GW, "significant_GW",
+                 png_path = png_path, svg_path = svg_path)
+print(scatter_GW)
+
+cat("\n=== Top 10 Metabolites Associated with GW ===\n")
+print(head(gw_all_stats %>%
+             select(Name, logFC, p_value, FDR, Direction), 10))
+
+write_csv(gw_all_stats,
+          file.path(csv_path, "batch2_GW_limma_analysis.csv"))
+cat("\nResults saved to:", file.path(csv_path, "batch2_GW_limma_analysis.csv"), "\n")
+```
+
+## GW — PCA Colored by GW
+
+```{r gw_pca}
+mSet <- PCA.Anal(mSet)
+
+pca_scores_gw <- as.data.frame(mSet$analSet$pca$x[, 1:2]) %>%
+  rownames_to_column("Sample") %>%
+  left_join(batch2_sample_metadata %>% select(Sample, GW, Sex), by = "Sample")
+
+pct_var_gw <- round(
+  mSet$analSet$pca$sdev^2 / sum(mSet$analSet$pca$sdev^2) * 100, 1
+)
+
+pca_gw_plot <- ggplot(pca_scores_gw,
+                      aes(x = PC1, y = PC2, color = GW)) +
+  geom_point(aes(shape = Sex), size = 3, alpha = 0.9) +
+  geom_text_repel(aes(label = Sample), size = 2.5, max.overlaps = 10,
+                  color = "grey30") +
+  scale_color_viridis_c(option = "plasma", name = "Gestational\nWeek") +
+  theme_minimal() +
+  labs(
+    x     = paste0("PC1 (", pct_var_gw[1], "%)"),
+    y     = paste0("PC2 (", pct_var_gw[2], "%)"),
+    title = "PCA Score Plot — Batch 2 Colored by GW"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(pca_gw_plot, "pca_score_GW",
+                 png_path = png_path, svg_path = svg_path)
+print(pca_gw_plot)
+
+# Save GW mSet for reference
+mSet_gw <- mSet
+
+setwd(old_wd)
+```
+
+---
+
+# Session Info
+
+```{r session_info}
+sessionInfo()
+```

@@ -33,33 +33,37 @@
 <polyline points='28.46,197.72 714.52,197.72 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='28.46,68.63 714.52,68.63 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='59.64,544.09 59.64,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='215.57,544.09 215.57,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='371.49,544.09 371.49,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='527.41,544.09 527.41,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='184.38,544.09 184.38,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='309.12,544.09 309.12,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='433.86,544.09 433.86,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='558.60,544.09 558.60,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='683.34,544.09 683.34,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='28.46,520.43 714.52,520.43 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='28.46,391.34 714.52,391.34 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='28.46,262.26 714.52,262.26 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='28.46,133.17 714.52,133.17 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='137.60,544.09 137.60,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='293.53,544.09 293.53,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='449.45,544.09 449.45,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='605.37,544.09 605.37,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='59.64' y='434.37' width='155.92' height='86.06' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
-<rect x='215.57' y='176.20' width='155.92' height='344.23' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
-<rect x='371.49' y='47.12' width='155.92' height='473.31' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
-<rect x='527.41' y='391.34' width='155.92' height='129.08' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
-<line x1='402.02' y1='544.09' x2='402.02' y2='23.45' style='stroke-width: 2.13; stroke: #FF0000; stroke-dasharray: 11.38,11.38; stroke-linecap: butt;' />
+<polyline points='122.01,544.09 122.01,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='246.75,544.09 246.75,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='371.49,544.09 371.49,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='496.23,544.09 496.23,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='620.97,544.09 620.97,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<rect x='59.64' y='434.37' width='124.74' height='86.06' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
+<rect x='184.38' y='305.29' width='124.74' height='215.14' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
+<rect x='309.12' y='47.12' width='124.74' height='473.31' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
+<rect x='433.86' y='305.29' width='124.74' height='215.14' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
+<rect x='558.60' y='477.40' width='124.74' height='43.03' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4;' />
+<line x1='358.50' y1='544.09' x2='358.50' y2='23.45' style='stroke-width: 2.13; stroke: #FF0000; stroke-dasharray: 11.38,11.38; stroke-linecap: butt;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
 <text x='23.53' y='523.64' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>0</text>
 <text x='23.53' y='394.55' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>3</text>
 <text x='23.53' y='265.47' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>6</text>
 <text x='23.53' y='136.38' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>9</text>
-<text x='137.60' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>860</text>
-<text x='293.53' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>870</text>
-<text x='449.45' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>880</text>
-<text x='605.37' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>890</text>
+<text x='122.01' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>740</text>
+<text x='246.75' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>750</text>
+<text x='371.49' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>760</text>
+<text x='496.23' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>770</text>
+<text x='620.97' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='14.67px' lengthAdjust='spacingAndGlyphs'>780</text>
 <text x='371.49' y='568.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='132.04px' lengthAdjust='spacingAndGlyphs'>Number of Detected Peaks</text>
 <text transform='translate(13.50,283.77) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='97.19px' lengthAdjust='spacingAndGlyphs'>Number of Samples</text>
 <text x='28.46' y='15.09' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='354.70px' lengthAdjust='spacingAndGlyphs'>batch2 clean Distribution of Detected Peaks Across Samples</text>

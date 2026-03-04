@@ -7,7 +7,7 @@ output:
     toc: TRUE
 ---
 
-Made w/ assistance from Claude Sonnet 4.5. Output checked and validated by author. 
+Made w/ assistance from Claude Sonnet 4.6. Output checked and validated by author. 
 
 # Set Up
 ```{r setup}
@@ -18,9 +18,9 @@ lapply(Packages, library, character.only = TRUE)
 ```
 
 ```{r set_path}
-png_path <- "../../results/untargeted/combined_datasets"
-csv_path <- "../../results/untargeted/combined_datasets/csv"
-svg_path <- "../../results/untargeted/combined_datasets/svg"
+png_path <- "../../results/untargeted/combined_dataset"
+csv_path <- "../../results/untargeted/combined_dataset/csv"
+svg_path <- "../../results/untargeted/combined_dataset/svg"
 data_path <- "../../data"
 ```
 
@@ -79,6 +79,49 @@ if (length(overlap) > 0) {
   print(head(overlap, 10))
 }
 ```
+
+# Batch Overlap Bar Graph
+```{r overlap-barplot}
+# Summarize compound name overlap across batches
+batch1_only  <- setdiff(batch1_metabolites, batch2_metabolites)
+batch2_only  <- setdiff(batch2_metabolites, batch1_metabolites)
+
+overlap_summary <- tibble(
+  Category = c("Batch 1 Only", "Batch 2 Only", "Both Batches"),
+  Count    = c(length(batch1_only), length(batch2_only), length(overlap))
+)
+
+p_overlap <- ggplot(overlap_summary, aes(x = Category, y = Count, fill = Category)) +
+  geom_bar(stat = "identity", color = "white", width = 0.6) +
+  geom_text(aes(label = Count), vjust = -0.5, size = 4.5, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "Batch 1 Only" = "#4E79A7",
+    "Batch 2 Only" = "#F28E2B",
+    "Both Batches" = "#59A14F"
+  )) +
+  labs(
+    title = "Metabolites by Batch Presence (Filtered Data)",
+    subtitle = "Based on compound Name matching after filtering and deduplication",
+    x = NULL,
+    y = "Number of Metabolites"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    legend.position = "none",
+    plot.title = element_text(face = "bold"),
+    panel.grid.major.x = element_blank()
+  )
+
+print(p_overlap)
+
+ggsave(file.path(png_path, "metabolite_batch_overlap.png"),
+       plot = p_overlap, width = 7, height = 5, dpi = 300)
+ggsave(file.path(svg_path, "metabolite_batch_overlap.svg"),
+       plot = p_overlap, width = 7, height = 5)
+
+cat("Overlap bar graph saved.\n")
+```
+
 # Prepare Data for Combining
 `````{r prepare-data}
 # Add batch identifier to Compound.IDs for trace-ability
@@ -249,5 +292,3 @@ cat("  - full_dataset_peak_area_values.csv\n")
 cat("  - full_dataset_metabolite_annotations.csv\n")
 cat("  - full_dataset_sample_metadata.csv\n")
 ```
-
-

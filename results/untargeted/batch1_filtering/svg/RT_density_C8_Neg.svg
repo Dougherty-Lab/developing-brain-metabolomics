@@ -131,7 +131,7 @@
 <rect x='670.95' y='305.81' width='5.63' height='7.98' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #D3D3D3; fill-opacity: 0.60;' />
 <rect x='677.99' y='301.82' width='5.63' height='11.97' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #D3D3D3; fill-opacity: 0.60;' />
 <polyline points='75.44,297.83 82.48,273.89 89.52,276.55 96.56,279.21 103.60,303.15 110.64,313.80 117.68,313.80 124.72,313.80 131.75,313.80 138.79,313.80 145.83,312.47 152.87,311.14 159.91,307.14 166.95,305.81 173.99,296.50 181.03,280.54 188.07,233.99 195.11,162.17 202.15,95.66 209.18,57.09 216.22,100.99 223.26,171.48 230.30,236.65 237.34,252.61 244.38,235.32 251.42,214.04 258.46,203.40 265.50,191.43 272.54,174.14 279.58,166.16 286.61,180.79 293.65,192.76 300.69,222.02 307.73,236.65 314.77,272.56 321.81,275.22 328.85,280.54 335.89,271.23 342.93,263.25 349.97,216.70 357.01,208.72 364.04,187.44 371.08,207.39 378.12,199.41 385.16,211.38 392.20,203.40 399.24,190.10 406.28,175.47 413.32,164.83 420.36,170.15 427.40,172.81 434.44,179.46 441.47,195.42 448.51,210.05 455.55,237.98 462.59,249.95 469.63,261.92 476.67,268.57 483.71,275.22 490.75,280.54 497.79,293.84 504.83,304.48 511.87,309.81 518.90,309.81 525.94,308.48 532.98,305.81 540.02,307.14 547.06,308.48 554.10,311.14 561.14,307.14 568.18,305.81 575.22,300.49 582.26,303.15 589.30,305.81 596.33,311.14 603.37,309.81 610.41,301.82 617.45,303.15 624.49,305.81 631.53,313.80 638.57,271.23 645.61,236.65 652.65,212.71 659.69,247.29 666.73,279.21 673.76,299.16 ' style='stroke-width: 2.13; stroke: #4682B4; stroke-linecap: butt;' />
-<line x1='96.56' y1='326.96' x2='96.56' y2='37.28' style='stroke-width: 2.13; stroke: #FF0000; stroke-dasharray: 11.38,11.38; stroke-linecap: butt;' />
+<line x1='138.79' y1='326.96' x2='138.79' y2='37.28' style='stroke-width: 2.13; stroke: #FF0000; stroke-dasharray: 11.38,11.38; stroke-linecap: butt;' />
 <circle cx='75.44' cy='297.83' r='2.49' style='stroke-width: 0.71; stroke: #4682B4; fill: #4682B4;' />
 <circle cx='82.48' cy='273.89' r='2.49' style='stroke-width: 0.71; stroke: #4682B4; fill: #4682B4;' />
 <circle cx='89.52' cy='276.55' r='2.49' style='stroke-width: 0.71; stroke: #4682B4; fill: #4682B4;' />
@@ -230,7 +230,7 @@
 <text x='684.32' y='339.18' text-anchor='middle' style='font-size: 10.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='11.12px' lengthAdjust='spacingAndGlyphs'>15</text>
 <text x='374.60' y='352.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='102.67px' lengthAdjust='spacingAndGlyphs'>Retention Time (min)</text>
 <text transform='translate(13.50,182.12) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.13px' lengthAdjust='spacingAndGlyphs'>Metabolite Count</text>
-<text x='374.60' y='29.61' text-anchor='middle' style='font-size: 10.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='93.91px' lengthAdjust='spacingAndGlyphs'>Threshold: 1.083 min</text>
+<text x='374.60' y='29.61' text-anchor='middle' style='font-size: 10.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='93.91px' lengthAdjust='spacingAndGlyphs'>Threshold: 2.083 min</text>
 <text x='374.60' y='14.23' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='108.01px' lengthAdjust='spacingAndGlyphs'>C8 - Neg (10s bins)</text>
 </g>
 </svg>
