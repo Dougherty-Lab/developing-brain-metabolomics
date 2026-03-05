@@ -112,7 +112,7 @@ generate_and_filter_pseudobulk <- function(seurat_obj, targeted_filtered) {
   pb$counts <- pb$counts[common_ids, , drop = FALSE]
   pb$metadata <- pb_metadata[common_ids, , drop = FALSE]
   
-  list(pb = pb, metadata = pb_metadata)
+  list(pb = pb, metadata = pb$metadata)
 }
 
 notype_pb_TT <- generate_and_filter_pseudobulk(SSD_data_v5, targeted_comparison_filtered_TT)
