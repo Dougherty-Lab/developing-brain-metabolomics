@@ -11,7 +11,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
  
-Packages <- c("tidyverse", "readxl", "stats", "ggfortify", "ggrepel", "svglite", "Biobase", "ComplexHeatmap")
+Packages <- c("readxl", "stats", "ggfortify", "ggrepel", "svglite", "Biobase", "ComplexHeatmap", "limma", "tidyverse", "ropls")
 
 lapply(Packages, library, character.only=TRUE)
 ```
@@ -48,7 +48,7 @@ batch2_sample_metadata = read_csv('../../results/untargeted/Batch2_sample_metada
 ``` {r prep_dataframe}
 # Convert metabolites data to matrix format
 final_matrix <- batch2_peak_area %>%
-  select(starts_with("Sample"))
+  dplyr::select(starts_with("Sample"))
   
 # Filter annotation to only include compounds present in peak area
 compounds_in_peak <- unique(batch2_peak_area$Compound.ID)
@@ -87,6 +87,16 @@ batch2_metabolomics <- ExpressionSet(
   phenoData = sample_phenoData,
   featureData = metabolite_featureData
 )
+```
+
+```{r log_transform}
+# Log2-transform peak intensities (log2(x + 1) to handle any zeros)
+# Applied to the ExpressionSet in-place so all downstream analyses use log values
+exprs(batch2_metabolomics) <- log2(exprs(batch2_metabolomics) + 1)
+
+cat("Log2 transformation applied.\n")
+cat("Intensity range before: check raw matrix if needed\n")
+cat("Intensity range after:", range(exprs(batch2_metabolomics), na.rm = TRUE), "\n")
 ```
 
 ```{r gw_correlation}
@@ -133,10 +143,89 @@ print(scatter_GW)
 top_GW_correlations <- metabolite_samplemetadata_stats %>%
   arrange(desc(abs(GW_corr_pval.correlation.cor))) %>%
   head(10) %>%
-  select(Name, GW_corr_pval.correlation.cor, GW_corr_pval.p_value, GW_FDR)
+  dplyr::select(Name, GW_corr_pval.correlation.cor, GW_corr_pval.p_value, GW_FDR)
 
 print(top_GW_correlations)
 ```
+
+```{r gw_limma}
+# limma linear model for GW associations (replicating MetaboAnalystR behavior)
+# Design uses ~ GW (with intercept), matching MetaboAnalystR's continuous-only model choice
+metadata_limma <- pData(batch2_metabolomics)
+peak_matrix_limma <- exprs(batch2_metabolomics)  # features × samples
+
+design_gw <- model.matrix(~ GW, data = metadata_limma)
+
+fit_gw <- lmFit(peak_matrix_limma, design_gw)
+fit_gw <- eBayes(fit_gw)
+gw_limma_results <- topTable(fit_gw, coef = "GW", number = Inf, adjust.method = "BH") %>%
+  rownames_to_column("Name")
+
+# Merge with annotation
+gw_limma_results <- gw_limma_results %>%
+  left_join(fData(batch2_metabolomics) %>% dplyr::select(Name, Compound.ID, Super.Class, Class), 
+            by = "Name")
+
+# Top hits bar chart - effect size (slope per GW week)
+top_gw <- gw_limma_results %>%
+  filter(P.Value < 0.05) %>%
+  arrange(desc(abs(logFC))) %>%
+  head(30) %>%
+  mutate(
+    Direction = ifelse(logFC > 0, "Increases with GW", "Decreases with GW"),
+    FDR_label = case_when(
+      adj.P.Val < 0.001 ~ "***",
+      adj.P.Val < 0.01  ~ "**",
+      adj.P.Val < 0.05  ~ "*",
+      TRUE              ~ ""
+    )
+  )
+
+gw_bar <- ggplot(top_gw, aes(x = reorder(Name, logFC), y = logFC, fill = Direction)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_text(aes(label = FDR_label,
+                hjust = ifelse(logFC > 0, -0.2, 1.2)),
+            size = 4, fontface = "bold") +
+  coord_flip() +
+  scale_fill_manual(values = c("Increases with GW" = "steelblue", 
+                                "Decreases with GW" = "tomato")) +
+  theme_minimal() +
+  labs(x = "Metabolite", 
+       y = "Slope (log2 peak area per GW week)",
+       title = "Top GW-Associated Metabolites (limma, p < 0.05)",
+       caption = "* FDR < 0.05   ** FDR < 0.01   *** FDR < 0.001") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.caption = element_text(hjust = 0))
+
+save_dual_format(gw_bar, "gw_limma_bar", png_path = png_path, svg_path = svg_path)
+print(gw_bar)
+
+# Ranked dot plot - all metabolites
+gw_dot <- ggplot(gw_limma_results %>% 
+                   arrange(logFC) %>%
+                   mutate(rank = row_number()),
+                 aes(x = rank, y = logFC, color = adj.P.Val < 0.05)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c("FALSE" = "grey70", "TRUE" = "red"), 
+                     name = "FDR < 0.05") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  theme_minimal() +
+  labs(x = "Metabolite rank", 
+       y = "Slope (log2 peak area per GW week)",
+       title = "GW Association Effect Sizes - All Metabolites") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(gw_dot, "gw_limma_dot", png_path = png_path, svg_path = svg_path)
+print(gw_dot)
+
+# Save results
+write_csv(gw_limma_results, file.path(csv_path, "batch2_gw_limma_results.csv"))
+
+cat("GW limma results summary:\n")
+cat("  Nominal p < 0.05:", sum(gw_limma_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.05:", sum(gw_limma_results$adj.P.Val < 0.05), "\n")
+```
+
 
 ## Sex Differential Analysis
 # Univariate Testing for Sex Differences with Volcano Plots
@@ -247,7 +336,7 @@ cat("\n=== Top 10 Most Significant Metabolites ===\n")
 top_metabolites <- metabolite_sex_stats %>%
   arrange(p_value) %>%
   head(10) %>%
-  select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Bonferroni, Direction)
+  dplyr::select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Bonferroni, Direction)
 print(top_metabolites)
 
 # Top metabolites with largest fold changes (FDR significant only)
@@ -256,7 +345,7 @@ top_FC <- metabolite_sex_stats %>%
   filter(Significant_FDR) %>%
   arrange(desc(abs(logFC))) %>%
   head(10) %>%
-  select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Direction)
+  dplyr::select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Direction)
 print(top_FC)
 
 # Save results to CSV
@@ -265,7 +354,7 @@ write_csv(metabolite_sex_stats,
 
 cat("\nResults saved to:", file.path(csv_path, "batch2_sex_differential_analysis.csv"), "\n")
 ```
-#By Annotationa Group
+#By Annotation Group
 ```{r group_sex_analysis}
 # Function to collapse metabolites by annotation category
 collapse_metabolites_by_group <- function(eset, group_col) {
@@ -414,7 +503,7 @@ for(group_col in grouping_cols) {
     cat("Top 10 groups by p-value:\n")
     print(results %>% 
             head(10) %>% 
-            select(Group, N_metabolites, logFC, p_value, FDR, Direction))
+            dplyr::select(Group, N_metabolites, logFC, p_value, FDR, Direction))
     cat("\n")
     
     # Create volcano plot - SIZE = N_metabolites
@@ -447,6 +536,7 @@ for(group_col in grouping_cols) {
   }
 }
 ```
+
 ```{r combine_results}
 # Combine all results for overview
 if(length(all_collapsed_results) > 0) {
@@ -512,4 +602,261 @@ if(length(all_collapsed_results) > 0) {
   print(top_overall)
 }
 
+```
+PLS-DA
+```{r sex_plsda}
+# PLS-DA using ropls (predI = safe_ncomp, no orthoI = standard PLS-DA)
+plsda_matrix <- t(exprs(batch2_metabolomics))  # samples × features
+sex_labels <- factor(pData(batch2_metabolomics)$Sex)
+
+# Impute for PLS-DA only - local copy, does not affect any other analysis
+plsda_matrix_imputed <- apply(plsda_matrix, 2, min_value_impute)
+
+# Safe ncomp based on smallest group size
+min_group_size <- min(table(sex_labels))
+safe_ncomp <- min(5, min_group_size - 1)
+cat("Group sizes:", table(sex_labels), "\n")
+cat("Using ncomp =", safe_ncomp, "\n")
+
+set.seed(42)
+plsda_fit <- opls(
+  x         = plsda_matrix_imputed,
+  y         = sex_labels,
+  predI     = safe_ncomp,
+  orthoI    = 0,        # 0 orthogonal components = standard PLS-DA
+  permI     = 0,        # permutation in dedicated chunk
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+# Score plot (comp 1 vs comp 2)
+plsda_scores <- data.frame(
+  Comp1 = plsda_fit@scoreMN[, 1],
+  Comp2 = plsda_fit@scoreMN[, 2],
+  Sex   = sex_labels
+)
+
+score_plot <- ggplot(plsda_scores, aes(x = Comp1, y = Comp2, color = Sex)) +
+  geom_point(size = 3, alpha = 0.8) +
+  theme_minimal() +
+  labs(x = "Component 1", y = "Component 2",
+       title = "PLS-DA Score Plot - Sex") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(score_plot, "sex_plsda_scores", png_path = png_path, svg_path = svg_path)
+print(score_plot)
+
+# VIP scores
+vip_df <- data.frame(
+  Name     = colnames(plsda_matrix_imputed),
+  VIP_comp1 = as.numeric(getVipVn(plsda_fit))
+) %>%
+  arrange(desc(VIP_comp1)) %>%
+  left_join(fData(batch2_metabolomics) %>%
+              dplyr::select(Name, Compound.ID, Super.Class, Class),
+            by = "Name")
+
+vip_plot <- ggplot(vip_df %>% head(30),
+                   aes(x = reorder(Name, VIP_comp1), y = VIP_comp1)) +
+  geom_bar(stat = "identity", fill = "steelblue", alpha = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite", y = "VIP Score (Component 1)",
+       title = "PLS-DA VIP Scores for Sex Classification (Top 30)",
+       caption = "Red dashed line = VIP > 1") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(vip_plot, "sex_plsda_vip", png_path = png_path, svg_path = svg_path)
+print(vip_plot)
+
+write_csv(vip_df, file.path(csv_path, "batch2_sex_plsda_vip.csv"))
+cat("Metabolites with VIP > 1:", sum(vip_df$VIP_comp1 > 1), "\n")
+```
+```{r plsda_permutation}
+# PLS-DA permutation test via ropls
+set.seed(42)
+plsda_perm <- opls(
+  x         = plsda_matrix_imputed,
+  y         = sex_labels,
+  predI     = safe_ncomp,
+  orthoI    = 0,
+  permI     = 100,
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+cat("\nPLS-DA permutation test results (100 permutations):\n")
+print(plsda_perm@summaryDF)
+
+# Plot permuted R2Y and Q2 distributions vs observed
+perm_data <- data.frame(
+  R2Y = plsda_perm@suppLs$permMN[, "R2Y(cum)"],
+  Q2  = plsda_perm@suppLs$permMN[, "Q2(cum)"]
+)
+
+observed_R2Y <- plsda_fit@summaryDF[1, "R2Y(cum)"]
+observed_Q2  <- plsda_fit@summaryDF[1, "Q2(cum)"]
+
+perm_plot <- ggplot(perm_data) +
+  geom_histogram(aes(x = R2Y, fill = "R2Y"), alpha = 0.5, bins = 20) +
+  geom_histogram(aes(x = Q2,  fill = "Q2"),  alpha = 0.5, bins = 20) +
+  geom_vline(xintercept = observed_R2Y, color = "tomato",    linewidth = 1,
+             linetype = "dashed") +
+  geom_vline(xintercept = observed_Q2,  color = "steelblue", linewidth = 1,
+             linetype = "dashed") +
+  scale_fill_manual(values = c("R2Y" = "tomato", "Q2" = "steelblue"),
+                    name = "Metric") +
+  theme_minimal() +
+  labs(x = "Permuted value", y = "Count",
+       title = "PLS-DA Permutation Test (100 permutations)",
+       caption = "Dashed lines = observed model values; histograms = permuted null distribution") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(perm_plot, "sex_plsda_permutation", png_path = png_path, svg_path = svg_path)
+print(perm_plot)
+```
+
+OPLS-DA
+```{r sex_oplsda}
+# OPLS-DA using ropls (industry standard for metabolomics)
+# Same imputed matrix as PLS-DA - local copy only
+# permI = 0 here, permutation testing done separately below
+oplsda_fit <- opls(
+  x         = plsda_matrix_imputed,
+  y         = sex_labels,
+  predI     = 1,
+  orthoI    = 1,   # explicit, start with 1 orthogonal component
+  permI     = 0,
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+
+# Extract scores
+oplsda_scores <- data.frame(
+  Predictive = oplsda_fit@scoreMN[, 1],
+  Orthogonal = oplsda_fit@orthoScoreMN[, 1],
+  Sex        = sex_labels
+)
+
+oplsda_score_plot <- ggplot(oplsda_scores, 
+                             aes(x = Predictive, y = Orthogonal, color = Sex)) +
+  geom_point(size = 3, alpha = 0.8) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(x = "Predictive Component (sex-correlated variance)",
+       y = "Orthogonal Component (within-sex variance)",
+       title = "OPLS-DA Score Plot - Sex (ropls)") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(oplsda_score_plot, "sex_oplsda_scores", png_path = png_path, svg_path = svg_path)
+print(oplsda_score_plot)
+
+# S-plot: covariance vs correlation of each feature with predictive component
+# More interpretable than VIP for OPLS-DA - shows reliability AND magnitude
+cov_vec  <- apply(plsda_matrix_imputed, 2, function(x) 
+  cov(x, oplsda_fit@scoreMN[, 1]))
+cor_vec  <- apply(plsda_matrix_imputed, 2, function(x) 
+  cor(x, oplsda_fit@scoreMN[, 1]))
+
+splot_df <- data.frame(
+  Name       = colnames(plsda_matrix_imputed),
+  Covariance = cov_vec,
+  Correlation = cor_vec
+) %>%
+  left_join(fData(batch2_metabolomics) %>%
+              dplyr::select(Name, Compound.ID, Super.Class, Class),
+            by = "Name") %>%
+  mutate(Reliable = abs(Correlation) > 0.5)  # conventional reliability threshold
+
+splot <- ggplot(splot_df, aes(x = Covariance, y = Correlation, color = Reliable)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  geom_hline(yintercept = c(-0.5, 0.5), linetype = "dashed", color = "grey50") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  scale_color_manual(values = c("FALSE" = "grey70", "TRUE" = "steelblue"),
+                     name = "|Correlation| > 0.5") +
+  theme_minimal() +
+  labs(x = "Covariance with Predictive Component (effect size)",
+       y = "Correlation with Predictive Component (reliability)",
+       title = "OPLS-DA S-plot - Sex",
+       caption = "Top-right: higher in females | Bottom-left: higher in males") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(splot, "sex_oplsda_splot", png_path = png_path, svg_path = svg_path)
+print(splot)
+
+# VIP scores
+oplsda_vip_df <- data.frame(
+  Name          = colnames(plsda_matrix_imputed),
+  VIP_predictive = as.numeric(getVipVn(oplsda_fit))
+) %>%
+  arrange(desc(VIP_predictive)) %>%
+  left_join(fData(batch2_metabolomics) %>%
+              dplyr::select(Name, Compound.ID, Super.Class, Class),
+            by = "Name")
+
+oplsda_vip_plot <- ggplot(oplsda_vip_df %>% head(30),
+                           aes(x = reorder(Name, VIP_predictive), y = VIP_predictive)) +
+  geom_bar(stat = "identity", fill = "darkorchid", alpha = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  coord_flip() +
+  theme_minimal() +
+  labs(x = "Metabolite", y = "VIP Score (Predictive Component)",
+       title = "OPLS-DA VIP Scores for Sex Classification (Top 30)",
+       caption = "Red dashed line = VIP > 1") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(oplsda_vip_plot, "sex_oplsda_vip", png_path = png_path, svg_path = svg_path)
+print(oplsda_vip_plot)
+
+write_csv(oplsda_vip_df, file.path(csv_path, "batch2_sex_oplsda_vip.csv"))
+write_csv(splot_df,      file.path(csv_path, "batch2_sex_oplsda_splot.csv"))
+```
+```{r oplsda_permutation}
+# OPLS-DA permutation test via ropls
+# Re-runs model with permI = 100; ropls handles this internally
+set.seed(42)
+oplsda_perm <- opls(
+  x         = plsda_matrix_imputed,
+  y         = sex_labels,
+  predI     = 1,
+  orthoI    = 1,
+  permI     = 100,
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+# ropls stores permutation p-values in summaryDF
+cat("\nOPLS-DA permutation test results (100 permutations):\n")
+print(oplsda_perm@summaryDF)
+
+# Extract and plot permutation R2Y and Q2 distributions
+perm_data <- data.frame(
+  R2Y = oplsda_perm@suppLs$permMN[, "R2Y(cum)"],
+  Q2  = oplsda_perm@suppLs$permMN[, "Q2(cum)"]
+)
+
+observed_R2Y <- oplsda_fit@summaryDF[1, "R2Y(cum)"]
+observed_Q2  <- oplsda_fit@summaryDF[1, "Q2(cum)"]
+
+perm_plot <- ggplot(perm_data) +
+  geom_histogram(aes(x = R2Y, fill = "R2Y"), alpha = 0.5, bins = 20) +
+  geom_histogram(aes(x = Q2,  fill = "Q2"),  alpha = 0.5, bins = 20) +
+  geom_vline(xintercept = observed_R2Y, color = "tomato",   linewidth = 1,
+             linetype = "dashed") +
+  geom_vline(xintercept = observed_Q2,  color = "steelblue", linewidth = 1,
+             linetype = "dashed") +
+  scale_fill_manual(values = c("R2Y" = "tomato", "Q2" = "steelblue"),
+                    name = "Metric") +
+  theme_minimal() +
+  labs(x = "Permuted value",
+       y = "Count",
+       title = "OPLS-DA Permutation Test (100 permutations)",
+       caption = "Dashed lines = observed model values; histograms = permuted null distribution") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(perm_plot, "sex_oplsda_permutation", png_path = png_path, svg_path = svg_path)
+print(perm_plot)
 ```

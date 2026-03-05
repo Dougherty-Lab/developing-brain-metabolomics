@@ -148,7 +148,7 @@ setwd(msa_dir)  # MetaboAnalystR writes plots/tables to the working directory
 
 # Pass default.dpi explicitly — fixes "promise already under evaluation" bug
 # caused by default.dpi = default.dpi self-reference in recent MetaboAnalystR versions
-mSet <- InitDataObjects("conc", "stat", FALSE, default.dpi = 72)
+mSet <- InitDataObjects("conc", "stat", FALSE, default.dpi = 300)
 mSet <- Read.TextData(mSet, "batch2_sex_input.csv", "rowu", "disc")
 mSet <- SanityCheckData(mSet)
 # ReplaceMin() intentionally omitted — data is pre-filtered; NAs represent
