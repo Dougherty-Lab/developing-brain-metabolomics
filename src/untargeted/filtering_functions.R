@@ -982,6 +982,10 @@ detect_metabolite_duplicates <- function(
       select(colnames(dataset)[1], all_of(name_column))
   }
   
+  # Normalize metabolite name case before duplicate detection
+  dataset_with_names <- dataset_with_names %>%
+    mutate(!!sym(name_column) := str_to_title(!!sym(name_column)))
+  
   # Count occurrences of each metabolite name
   duplicate_summary <- dataset_with_names %>%
     group_by(!!sym(name_column)) %>%
@@ -1162,7 +1166,12 @@ remove_duplicates_by_intensity <- function(
     dataset_with_names <- dataset %>%
       select(all_of(c(metabolite_id_col, sample_names, name_column)))
   }
+  # ========================================================================
+  # NORMALIZE METABOLITE NAME CASE (title case to collapse case-variant duplicates)
+  # ========================================================================
   
+  dataset_with_names <- dataset_with_names %>%
+    mutate(!!sym(name_column) := str_to_title(!!sym(name_column)))
   # ========================================================================
   # CALCULATE MEAN INTENSITY FOR EACH METABOLITE
   # ========================================================================

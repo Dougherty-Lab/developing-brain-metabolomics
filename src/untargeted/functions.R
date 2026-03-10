@@ -338,10 +338,49 @@ create_gw_buckets <- function(metadata,
 #' @param dpi Resolution for PNG (default: 300)
 
 # ============================================================================
+# Label Truncation Helper
+# ============================================================================
+
+#' Truncate character labels to a maximum number of characters
+#'
+#' @param labels Character vector of labels to truncate
+#' @param max_chars Maximum number of characters (default: 20)
+#' @param ellipsis String appended to truncated labels (default: "...")
+#' @return Character vector of truncated labels (same length as input)
+truncate_labels <- function(labels, max_chars = 20, ellipsis = "...") {
+  ifelse(
+    nchar(labels) > max_chars,
+    paste0(substr(labels, 1, max_chars - nchar(ellipsis)), ellipsis),
+    labels
+  )
+}
+
+#' Build a lookup data frame mapping truncated labels to full labels
+#'
+#' @param full_labels Character vector of original full labels
+#' @param max_chars Maximum characters before truncation (default: 20)
+#' @return Data frame with columns: truncated_label, full_label
+#'         Only rows where truncation actually occurred are included.
+build_label_lookup <- function(full_labels, max_chars = 20) {
+  truncated <- truncate_labels(full_labels, max_chars)
+  lookup <- data.frame(
+    truncated_label = truncated,
+    full_label      = full_labels,
+    stringsAsFactors = FALSE
+  )
+  # Only keep rows where the label was actually changed
+  lookup <- lookup[lookup$truncated_label != lookup$full_label, , drop = FALSE]
+  # Deduplicate
+  lookup <- unique(lookup)
+  lookup
+}
+
+# ============================================================================
 # Image Saving
 # ============================================================================
 save_dual_format <- function(plot, filename, png_path = NULL, svg_path = NULL,
-                             width = 10, height = 8, dpi = 300) {
+                             width = 10, height = 8, dpi = 300,
+                             label_lookup = NULL) {
   # Save PNG
   if (!is.null(png_path)) {
     ggsave(
@@ -365,6 +404,14 @@ save_dual_format <- function(plot, filename, png_path = NULL, svg_path = NULL,
       height = height,
       bg = "transparent"
     )
+    
+    # Save label lookup CSV alongside SVG if provided and non-empty
+    if (!is.null(label_lookup) && nrow(label_lookup) > 0) {
+      readr::write_csv(
+        label_lookup,
+        file.path(svg_path, paste0(filename, "_label_lookup.csv"))
+      )
+    }
   }
 }
 
@@ -1210,6 +1257,11 @@ plot_top_metabolites_bar <- function(metabolite_abundance,
   top_n_metabolites <- metabolite_abundance %>%
     slice_head(n = n)
   
+  # Build lookup before truncating
+  label_lookup <- build_label_lookup(top_n_metabolites$display_name)
+  top_n_metabolites <- top_n_metabolites %>%
+    mutate(display_name = truncate_labels(display_name))
+  
   p <- ggplot(top_n_metabolites, aes(x = reorder(display_name, mean_intensity), y = mean_intensity)) +
     geom_bar(stat = "identity", fill = "steelblue") +
     coord_flip() +
@@ -1220,7 +1272,8 @@ plot_top_metabolites_bar <- function(metabolite_abundance,
     theme(axis.text.y = element_text(size = 8))
   
   save_dual_format(p, paste0(title_prefix, "top", n, "_metabolites"), 
-                   png_path, svg_path, width, height, dpi)
+                   png_path, svg_path, width, height, dpi,
+                   label_lookup = label_lookup)
   
   return(p)
 }
@@ -1252,6 +1305,11 @@ plot_top_metabolites_by_group <- function(metabolite_abundance_grouped,
     slice_head(n = n) %>%
     ungroup()
   
+  # Build lookup before truncating
+  label_lookup <- build_label_lookup(top_n_by_group$display_name)
+  top_n_by_group <- top_n_by_group %>%
+    mutate(display_name = truncate_labels(display_name))
+  
   # Determine number of columns for faceting
   n_groups <- length(unique(top_n_by_group[[group_by]]))
   ncol <- min(n_groups, 3)
@@ -1273,7 +1331,8 @@ plot_top_metabolites_by_group <- function(metabolite_abundance_grouped,
     theme(axis.text.y = element_text(size = text_size))
   
   save_dual_format(p, paste0(title_prefix, "top", n, "_metabolites_by_", tolower(group_by)), 
-                   png_path, svg_path, width, height, dpi)
+                   png_path, svg_path, width, height, dpi,
+                   label_lookup = label_lookup)
   
   return(p)
 }
@@ -1612,6 +1671,11 @@ plot_top_categories_bar <- function(category_abundance,
   top_n_categories <- category_abundance %>%
     slice_head(n = n)
   
+  # Build lookup before truncating
+  label_lookup <- build_label_lookup(top_n_categories$category_name)
+  top_n_categories <- top_n_categories %>%
+    mutate(category_name = truncate_labels(category_name))
+  
   p <- ggplot(top_n_categories, 
               aes(x = reorder(category_name, mean_intensity), y = mean_intensity)) +
     geom_bar(stat = "identity", fill = "steelblue") +
@@ -1624,7 +1688,8 @@ plot_top_categories_bar <- function(category_abundance,
   
   save_dual_format(p, 
                    paste0(title_prefix, "top", n, "_", tolower(category_type)), 
-                   png_path, svg_path, width, height, dpi)
+                   png_path, svg_path, width, height, dpi,
+                   label_lookup = label_lookup)
   
   return(p)
 }
@@ -1659,6 +1724,11 @@ plot_top_categories_by_group <- function(category_abundance_grouped,
     slice_head(n = n) %>%
     ungroup()
   
+  # Build lookup before truncating
+  label_lookup <- build_label_lookup(top_n_by_group$category_name)
+  top_n_by_group <- top_n_by_group %>%
+    mutate(category_name = truncate_labels(category_name))
+  
   # Determine faceting parameters
   n_groups <- length(unique(top_n_by_group[[group_by]]))
   ncol <- min(n_groups, 3)
@@ -1680,7 +1750,8 @@ plot_top_categories_by_group <- function(category_abundance_grouped,
   
   save_dual_format(p, 
                    paste0(title_prefix, "top", n, "_", tolower(category_type), "_by_", tolower(group_by)), 
-                   png_path, svg_path, width, height, dpi)
+                   png_path, svg_path, width, height, dpi,
+                   label_lookup = label_lookup)
   
   return(p)
 }

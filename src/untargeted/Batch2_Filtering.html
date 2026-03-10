@@ -536,27 +536,27 @@ dup_results &lt;- detect_metabolite_duplicates(
 ## 
 ## OVERALL STATISTICS:
 ##   Total metabolite identifiers: 1903 
-##   Unique metabolite names: 1211 
-##   Non-duplicate metabolites (appear once): 796 
-##   Duplicate metabolite names: 415 
-##   Total duplicate identifiers: 1107 
+##   Unique metabolite names: 1206 
+##   Non-duplicate metabolites (appear once): 790 
+##   Duplicate metabolite names: 416 
+##   Total duplicate identifiers: 1113 
 ## 
 ## DUPLICATE SUMMARY:
 ## ---------------------------------------------------------------------- 
-## # A tibble: 415 × 2
+## # A tibble: 416 × 2
 ##    Name                                                   n_occurrences
 ##    &lt;chr&gt;                                                          &lt;int&gt;
-##  1 L-Glutathione (reduced)                                           10
+##  1 L-Glutathione (Reduced)                                           10
 ##  2 Adenosine                                                          8
-##  3 N-Acetylneuraminic acid                                            8
+##  3 N-Acetylneuraminic Acid                                            8
 ##  4 Guanosine                                                          7
-##  5 L-Aspartic acid                                                    7
-##  6 L-Glutamic acid                                                    7
+##  5 L-Aspartic Acid                                                    7
+##  6 L-Glutamic Acid                                                    7
 ##  7 L-N-Acetylhistidine                                                7
-##  8 N-Acetyl-1-aspartylglutamic acid                                   7
-##  9 Pantothenic acid                                                   7
-## 10 1-Palmitoyl-2-hydroxy-sn-glycero-3-phosphoethanolamine             6
-## # ℹ 405 more rows
+##  8 N-Acetyl-1-Aspartylglutamic Acid                                   7
+##  9 Pantothenic Acid                                                   7
+## 10 1-Palmitoyl-2-Hydroxy-Sn-Glycero-3-Phosphoethanolamine             6
+## # ℹ 406 more rows
 ## ---------------------------------------------------------------------- 
 ## 
 ## Detailed duplicate information saved to: ../../results/untargeted/batch2_filtering/csv/metabolite_duplicates.csv 
@@ -1020,7 +1020,7 @@ prepare_long_data(Batch2_annotated_dataset_RT_filtered, Batch2_Untargeted_Raw_sa
 ##   Added metadata columns: GW, Sex, GW_bucket 
 ##   Final observations: 29661 
 ## Done!</code></pre>
-<pre><code>## # A tibble: 29,661 × 9
+<pre><code>## # A tibble: 29,661 × 10
 ##    Compound.ID      Name    Formula Sample Intensity log10    GW Sex   GW_bucket
 ##    &lt;chr&gt;            &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    
 ##  1 Amide-Neg-000001 L-(+)-… C3 H6 … Sampl…    1.91e8  8.28    21 F     19-21    
@@ -1033,7 +1033,8 @@ prepare_long_data(Batch2_annotated_dataset_RT_filtered, Batch2_Untargeted_Raw_sa
 ##  8 Amide-Neg-000001 L-(+)-… C3 H6 … Sampl…    3.42e8  8.53    18 M     16-18    
 ##  9 Amide-Neg-000001 L-(+)-… C3 H6 … Sampl…    3.39e8  8.53    23 F     22-24    
 ## 10 Amide-Neg-000001 L-(+)-… C3 H6 … Sampl…    2.00e8  8.30    23 F     22-24    
-## # ℹ 29,651 more rows</code></pre>
+## # ℹ 29,651 more rows
+## # ℹ 1 more variable: SampleLabel &lt;chr&gt;</code></pre>
 </div>
 <div id="post-rt-filter-duplicate-check" class="section level3">
 <h3>Post RT Filter Duplicate Check</h3>
@@ -1041,10 +1042,10 @@ prepare_long_data(Batch2_annotated_dataset_RT_filtered, Batch2_Untargeted_Raw_sa
 <pre><code>## 
 ## === OVERALL STATISTICS ===
 ##   Total metabolite identifiers: 1569 
-##   Unique metabolite names: 1090 
-##   Non-duplicate metabolites (appear once): 749 
+##   Unique metabolite names: 1087 
+##   Non-duplicate metabolites (appear once): 746 
 ##   Duplicate metabolite names: 341 
-##   Total duplicate identifiers: 820</code></pre>
+##   Total duplicate identifiers: 823</code></pre>
 </div>
 <div id="check-rt-post-filtering" class="section level3">
 <h3>Check RT Post Filtering</h3>
@@ -1350,10 +1351,10 @@ p_missingness &lt;- plot_missingness_distribution(
 <pre><code>## 
 ## === OVERALL STATISTICS ===
 ##   Total metabolite identifiers: 1275 
-##   Unique metabolite names: 951 
-##   Non-duplicate metabolites (appear once): 702 
-##   Duplicate metabolite names: 249 
-##   Total duplicate identifiers: 573</code></pre>
+##   Unique metabolite names: 948 
+##   Non-duplicate metabolites (appear once): 698 
+##   Duplicate metabolite names: 250 
+##   Total duplicate identifiers: 577</code></pre>
 </div>
 </div>
 <div id="filter-by-annotation-score" class="section level2">
@@ -1418,10 +1419,10 @@ cat(&quot;\n=== Annotation Score Filter Summary ===\n&quot;)</code></pre>
 <pre><code>## 
 ## === OVERALL STATISTICS ===
 ##   Total metabolite identifiers: 1126 
-##   Unique metabolite names: 819 
-##   Non-duplicate metabolites (appear once): 586 
-##   Duplicate metabolite names: 233 
-##   Total duplicate identifiers: 540</code></pre>
+##   Unique metabolite names: 817 
+##   Non-duplicate metabolites (appear once): 583 
+##   Duplicate metabolite names: 234 
+##   Total duplicate identifiers: 543</code></pre>
 </div>
 </div>
 <div id="remove-duplicates" class="section level2">
@@ -1440,19 +1441,19 @@ cat(&quot;\n=== Annotation Score Filter Summary ===\n&quot;)</code></pre>
 ## 
 ## OVERALL STATISTICS:
 ##   Total metabolite identifiers before: 1126 
-##   Total metabolite identifiers after: 819 
-##   Duplicates removed: 307 
-##   Percent retained: 72.74 %
+##   Total metabolite identifiers after: 817 
+##   Duplicates removed: 309 
+##   Percent retained: 72.56 %
 ## 
 ## DUPLICATE GROUPS RESOLVED:
-##   Metabolite names with duplicates: 233 
-##   Duplicate identifiers removed: 307 
+##   Metabolite names with duplicates: 234 
+##   Duplicate identifiers removed: 309 
 ## 
 ## DISTRIBUTION OF DUPLICATES:
-##   182 metabolite name(s) with 1 duplicate(s) removed
+##   183 metabolite name(s) with 1 duplicate(s) removed
 ##   32 metabolite name(s) with 2 duplicate(s) removed
-##   16 metabolite name(s) with 3 duplicate(s) removed
-##   2 metabolite name(s) with 4 duplicate(s) removed
+##   15 metabolite name(s) with 3 duplicate(s) removed
+##   3 metabolite name(s) with 4 duplicate(s) removed
 ##   1 metabolite name(s) with 5 duplicate(s) removed
 ## 
 ## ======================================================================</code></pre>
@@ -1463,38 +1464,39 @@ cat(&quot;\n=== Annotation Score Filter Summary ===\n&quot;)</code></pre>
 prepare_long_data(Batch2_annotated_dataset_final, Batch2_Untargeted_Raw_sample_metadata, data_name = &quot;Batch2_annotated_dataset_final_long&quot; )</code></pre>
 <pre><code>## Preparing long-format data...
 ##   Found 24 samples
-##   Dataset contains 819 metabolites
-##   Initial observations: 19656 
-##   Removed 1441 non-finite values
+##   Dataset contains 817 metabolites
+##   Initial observations: 19608 
+##   Removed 1429 non-finite values
 ##   Log10 transformed intensity values
 ##   Created GW buckets: 16-18, 19-21, 22-24 
 ##   Added metadata columns: GW, Sex, GW_bucket 
-##   Final observations: 18215 
+##   Final observations: 18179 
 ## Done!</code></pre>
-<pre><code>## # A tibble: 18,215 × 9
+<pre><code>## # A tibble: 18,179 × 10
 ##    Compound.ID   Name       Formula Sample Intensity log10    GW Sex   GW_bucket
 ##    &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    
-##  1 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   588889.  5.77    22 F     22-24    
-##  2 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   519159.  5.72    22 M     22-24    
-##  3 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   653327.  5.82    21 F     19-21    
-##  4 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   391198.  5.59    22 M     22-24    
-##  5 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   404229.  5.61    21 M     19-21    
-##  6 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…  1198661.  6.08    23 F     22-24    
-##  7 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   443623.  5.65    23 F     22-24    
-##  8 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   505514.  5.70    18 M     16-18    
-##  9 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   485338.  5.69    24 M     22-24    
-## 10 C8-Pos-000489 (+/-)8-HE… C20 H3… Sampl…   323860.  5.51    17 F     16-18    
-## # ℹ 18,205 more rows</code></pre>
+##  1 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   588889.  5.77    22 F     22-24    
+##  2 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   519159.  5.72    22 M     22-24    
+##  3 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   653327.  5.82    21 F     19-21    
+##  4 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   391198.  5.59    22 M     22-24    
+##  5 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   404229.  5.61    21 M     19-21    
+##  6 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…  1198661.  6.08    23 F     22-24    
+##  7 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   443623.  5.65    23 F     22-24    
+##  8 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   505514.  5.70    18 M     16-18    
+##  9 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   485338.  5.69    24 M     22-24    
+## 10 C8-Pos-000489 (+/-)8-He… C20 H3… Sampl…   323860.  5.51    17 F     16-18    
+## # ℹ 18,169 more rows
+## # ℹ 1 more variable: SampleLabel &lt;chr&gt;</code></pre>
 <pre class="r"><code># Quick check
 quick_dedup(Batch2_annotated_dataset_score_filtered, 
             compound_annotation = Batch2_Untargeted_Raw_compound_annotation)</code></pre>
 <pre><code>## 
 ## === OVERALL STATISTICS ===
 ##   Total metabolite identifiers before: 1126 
-##   Total metabolite identifiers after: 819 
-##   Duplicates removed: 307 
-##   Percent retained: 72.74 %
-##   Duplicate groups resolved: 233</code></pre>
+##   Total metabolite identifiers after: 817 
+##   Duplicates removed: 309 
+##   Percent retained: 72.56 %
+##   Duplicate groups resolved: 234</code></pre>
 <div id="check-rt-post-filtering-1" class="section level3">
 <h3>Check RT Post Filtering</h3>
 <p>Re-check column composition after filtering:</p>
@@ -1506,7 +1508,7 @@ metabolite_abundance &lt;- calculate_metabolite_abundance(
 )</code></pre>
 <pre><code>## Calculating metabolite abundance...
 ##   Samples: 24 
-##   Metabolites: 819 
+##   Metabolites: 817 
 ##   Added compound annotations
 ## Done!</code></pre>
 <pre class="r"><code>metabolite_abundance_by_sex &lt;- calculate_metabolite_abundance_by_group(
@@ -1705,12 +1707,12 @@ print(&quot;Summary of metabolite diversity by Column-Mode:&quot;)</code></pre>
 <pre><code>## # A tibble: 6 × 6
 ##   Column Mode  total_metabolites n_superclasses n_classes n_subclasses
 ##   &lt;chr&gt;  &lt;chr&gt;             &lt;int&gt;          &lt;int&gt;     &lt;int&gt;        &lt;int&gt;
-## 1 Amide  Neg                 112              7        21           25
-## 2 Amide  Pos                 168              8        26           37
-## 3 C18    Neg                  16              4         5            5
-## 4 C18    Pos                  60              9        18           18
-## 5 C8     Neg                 101              4         7           13
-## 6 C8     Pos                 362              9        34           62</code></pre>
+## 1 Amide  Neg                 111              4         8            7
+## 2 Amide  Pos                 167              8        20           19
+## 3 C18    Neg                  16              1         1            1
+## 4 C18    Pos                  60              6         9            7
+## 5 C8     Neg                 101              1         2            5
+## 6 C8     Pos                 362              9        20           32</code></pre>
 <pre class="r"><code># 5. Alternative: Stacked bar showing all column-modes side by side for each Super.Class
 superclass_stacked &lt;- ggplot(superclass_counts, aes(x = Column_Mode, y = n_metabolites, fill = Super.Class)) +
   geom_bar(stat = &quot;identity&quot;, color = &quot;black&quot;) +
@@ -1726,6 +1728,9 @@ save_dual_format(superclass_stacked, &quot;Final_metabolite_counts_superclass_st
 
 output_dir &lt;- &quot;../../results/untargeted&quot;
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+
+Batch2_Untargeted_Raw_compound_annotation &lt;- Batch2_Untargeted_Raw_compound_annotation %&gt;%
+  mutate(Name = str_to_title(Name))
 
 # Save peak area values
 write.csv(Batch2_annotated_dataset_final, 

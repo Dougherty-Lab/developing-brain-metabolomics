@@ -57,7 +57,7 @@
 <polyline points='520.63,353.03 520.63,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='577.38,353.03 577.38,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='634.14,353.03 634.14,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='66.61' y='58.25' width='28.38' height='280.58' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
+<rect x='66.61' y='58.75' width='28.38' height='280.08' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='94.99' y='295.47' width='28.38' height='43.36' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='123.36' y='338.83' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='151.74' y='315.90' width='28.38' height='22.92' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
@@ -65,7 +65,7 @@
 <rect x='208.49' y='338.83' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='236.87' y='322.38' width='28.38' height='16.45' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='265.25' y='338.83' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
-<rect x='293.62' y='329.36' width='28.38' height='9.47' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
+<rect x='293.62' y='329.86' width='28.38' height='8.97' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='322.00' y='325.87' width='28.38' height='12.96' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='350.37' y='338.83' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
 <rect x='378.75' y='334.34' width='28.38' height='4.49' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D; fill-opacity: 0.60;' />
@@ -119,9 +119,9 @@
 <rect x='94.99' y='631.53' width='28.38' height='42.36' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
 <rect x='123.36' y='673.89' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
 <rect x='151.74' y='649.97' width='28.38' height='23.92' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
-<rect x='180.12' y='659.94' width='28.38' height='13.95' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
+<rect x='180.12' y='660.43' width='28.38' height='13.46' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
 <rect x='208.49' y='673.89' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
-<rect x='236.87' y='656.95' width='28.38' height='16.94' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
+<rect x='236.87' y='657.44' width='28.38' height='16.45' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
 <rect x='265.25' y='673.89' width='28.38' height='0.00' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
 <rect x='293.62' y='658.94' width='28.38' height='14.95' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />
 <rect x='322.00' y='664.42' width='28.38' height='9.47' style='stroke-width: 1.07; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4; fill-opacity: 0.60;' />

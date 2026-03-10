@@ -928,6 +928,9 @@ save_dual_format(superclass_stacked, "Final_metabolite_counts_superclass_stacked
 output_dir <- "../../results/untargeted"
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
+Batch2_Untargeted_Raw_compound_annotation <- Batch2_Untargeted_Raw_compound_annotation %>%
+  mutate(Name = str_to_title(Name))
+
 # Save peak area values
 write.csv(Batch2_annotated_dataset_final, 
           file.path(output_dir, "Batch2_peak_area_values.csv"), 
