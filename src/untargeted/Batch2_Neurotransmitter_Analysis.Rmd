@@ -296,12 +296,13 @@ for (scope in names(analyses_list)) {
     mutate(Name_display = truncate_labels(Name))
   
   gw_bar <- ggplot(gw_bar_data,
-                   aes(x = reorder(Name_display, logFC), y = logFC, fill = Direction)) +
-    geom_bar(stat = "identity", alpha = 0.8) +
-    geom_text(aes(label = FDR_label,
-                  hjust = ifelse(logFC > 0, -0.2, 1.2)),
-              size = 4, fontface = "bold") +
-    coord_flip() +
+                 aes(x = reorder(Name, logFC), y = logFC, fill = Direction)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_text(aes(label = FDR_label,
+                hjust = ifelse(logFC > 0, -0.2, 1.2)),
+            size = 4, fontface = "bold") +
+  scale_x_discrete(labels = setNames(gw_bar_data$Name_display, gw_bar_data$Name)) +
+  coord_flip() +
     scale_fill_manual(values = c("Increases with GW" = "steelblue",
                                   "Decreases with GW" = "tomato")) +
     theme_minimal() +
@@ -463,12 +464,13 @@ for (scope in names(analyses_list)) {
     mutate(Name_display = truncate_labels(Name))
   
   sex_bar <- ggplot(sex_bar_data,
-                    aes(x = reorder(Name_display, logFC), y = logFC, fill = Direction)) +
-    geom_bar(stat = "identity", alpha = 0.8) +
-    geom_text(aes(label = FDR_label,
-                  hjust = ifelse(logFC > 0, -0.2, 1.2)),
-              size = 4, fontface = "bold") +
-    coord_flip() +
+                  aes(x = reorder(Name, logFC), y = logFC, fill = Direction)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_text(aes(label = FDR_label,
+                hjust = ifelse(logFC > 0, -0.2, 1.2)),
+            size = 4, fontface = "bold") +
+  scale_x_discrete(labels = setNames(sex_bar_data$Name_display, sex_bar_data$Name)) +
+  coord_flip() +
     scale_fill_manual(values = c("Higher in Males"   = "steelblue",
                                   "Higher in Females" = "tomato")) +
     theme_minimal() +

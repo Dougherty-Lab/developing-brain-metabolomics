@@ -120,13 +120,13 @@
 <circle cx='367.07' cy='506.12' r='2.49' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='366.27' cy='506.65' r='2.49' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='367.65' cy='507.24' r='2.49' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
-<text x='110.46' y='57.31' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='73.94px' lengthAdjust='spacingAndGlyphs'>Dl-Dipalmitoylpho...</text>
-<text x='98.22' y='126.75' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='75.35px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-Dl-Aspar...</text>
-<text x='456.92' y='142.71' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='76.32px' lengthAdjust='spacingAndGlyphs'>Spectral Match To...</text>
-<text x='464.99' y='231.74' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='76.80px' lengthAdjust='spacingAndGlyphs'>1-Hexadecyl-2-(9z...</text>
-<text x='204.74' y='227.69' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='78.22px' lengthAdjust='spacingAndGlyphs'>1-O-Octadecyl-Sn-...</text>
-<text x='435.03' y='248.10' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='73.02px' lengthAdjust='spacingAndGlyphs'>1-Linoleoyl-Sn-Gl...</text>
-<text x='269.21' y='261.02' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='76.33px' lengthAdjust='spacingAndGlyphs'>1-Stearoyl-2-Doco...</text>
+<text x='128.90' y='41.90' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='73.94px' lengthAdjust='spacingAndGlyphs'>Dl-Dipalmitoylpho...</text>
+<text x='98.23' y='126.75' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='75.35px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-Dl-Aspar...</text>
+<text x='438.21' y='158.54' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='76.32px' lengthAdjust='spacingAndGlyphs'>Spectral Match To...</text>
+<text x='446.23' y='247.46' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='76.80px' lengthAdjust='spacingAndGlyphs'>1-Hexadecyl-2-(9z...</text>
+<text x='186.10' y='243.30' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='78.22px' lengthAdjust='spacingAndGlyphs'>1-O-Octadecyl-Sn-...</text>
+<text x='416.18' y='263.85' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='73.02px' lengthAdjust='spacingAndGlyphs'>1-Linoleoyl-Sn-Gl...</text>
+<text x='269.05' y='260.96' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='76.33px' lengthAdjust='spacingAndGlyphs'>1-Stearoyl-2-Doco...</text>
 <line x1='28.46' y1='272.92' x2='636.06' y2='272.92' style='stroke-width: 1.07; stroke: #0000FF; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 <line x1='367.87' y1='530.28' x2='367.87' y2='23.45' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 </g>
