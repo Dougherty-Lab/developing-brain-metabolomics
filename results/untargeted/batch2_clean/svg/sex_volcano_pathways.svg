@@ -238,18 +238,18 @@
 <circle cx='345.14' cy='520.43' r='1.42' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='320.55' cy='520.43' r='1.42' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='296.43' cy='520.43' r='1.42' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
-<text x='221.35' y='58.05' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00250;rea...</text>
-<text x='552.28' y='99.54' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00310;rea...</text>
-<text x='171.10' y='118.21' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.90px' lengthAdjust='spacingAndGlyphs'>reactome:R-HSA-30...</text>
-<text x='120.81' y='144.36' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.90px' lengthAdjust='spacingAndGlyphs'>reactome:R-HSA-14...</text>
-<text x='265.00' y='165.73' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00330;rea...</text>
-<text x='173.96' y='175.09' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00592;rea...</text>
-<text x='213.35' y='193.73' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='49.30px' lengthAdjust='spacingAndGlyphs'>wiki:WP4313</text>
-<text x='287.00' y='205.22' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.90px' lengthAdjust='spacingAndGlyphs'>reactome:R-HSA-42...</text>
-<text x='518.01' y='204.34' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='61.19px' lengthAdjust='spacingAndGlyphs'>kegg:map00350</text>
-<text x='378.58' y='207.28' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='84.41px' lengthAdjust='spacingAndGlyphs'>kegg:map00020;keg...</text>
-<text x='251.83' y='218.78' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='84.41px' lengthAdjust='spacingAndGlyphs'>kegg:map00250;keg...</text>
-<text x='269.34' y='234.44' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='75.35px' lengthAdjust='spacingAndGlyphs'>wiki:WP4189;wiki:...</text>
+<text x='239.32' y='42.13' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00250;rea...</text>
+<text x='552.27' y='99.21' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00310;rea...</text>
+<text x='170.98' y='118.36' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.90px' lengthAdjust='spacingAndGlyphs'>reactome:R-HSA-30...</text>
+<text x='120.65' y='144.36' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.90px' lengthAdjust='spacingAndGlyphs'>reactome:R-HSA-14...</text>
+<text x='265.04' y='165.56' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00330;rea...</text>
+<text x='173.92' y='175.14' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='82.99px' lengthAdjust='spacingAndGlyphs'>kegg:map00592;rea...</text>
+<text x='213.91' y='193.62' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='49.30px' lengthAdjust='spacingAndGlyphs'>wiki:WP4313</text>
+<text x='287.11' y='207.29' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.90px' lengthAdjust='spacingAndGlyphs'>reactome:R-HSA-42...</text>
+<text x='517.85' y='204.48' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='61.19px' lengthAdjust='spacingAndGlyphs'>kegg:map00350</text>
+<text x='358.04' y='223.12' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='84.41px' lengthAdjust='spacingAndGlyphs'>kegg:map00020;keg...</text>
+<text x='257.54' y='222.93' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='84.41px' lengthAdjust='spacingAndGlyphs'>kegg:map00250;keg...</text>
+<text x='271.99' y='236.53' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='75.35px' lengthAdjust='spacingAndGlyphs'>wiki:WP4189;wiki:...</text>
 <line x1='35.79' y1='232.55' x2='625.37' y2='232.55' style='stroke-width: 1.07; stroke: #0000FF; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 <line x1='320.60' y1='544.09' x2='320.60' y2='23.45' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 </g>

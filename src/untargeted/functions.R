@@ -2000,3 +2000,79 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
   ))
 }
 
+# ============================================================================
+# Trajectory Plot Functions
+# ============================================================================
+
+#' Plot a single metabolite's intensity trajectory across gestational week
+#'
+#' Points are colored by sex. A LOESS smooth (span = 1, no SE ribbon) is added
+#' per sex group as a visual trend guide. The function is intentionally agnostic
+#' to which eset is passed, so it can be used from any analysis script.
+#'
+#' @param metabolite_name Exact feature name as it appears in rownames(exprs(eset))
+#' @param eset ExpressionSet containing exprs() and pData() with GW and Sex columns
+#' @param title_suffix Optional subtitle string (e.g. FDR/logFC annotation)
+#' @return ggplot object
+plot_trajectory <- function(metabolite_name, eset, title_suffix = "") {
+
+  intensity     <- exprs(eset)[metabolite_name, ]
+  metadata_traj <- pData(eset)
+
+  traj_df <- data.frame(
+    GW        = metadata_traj$GW,
+    Sex       = metadata_traj$Sex,
+    Intensity = intensity
+  )
+
+  display_name <- truncate_labels(metabolite_name)
+
+  ggplot(traj_df, aes(x = GW, y = Intensity, color = Sex)) +
+    geom_point(size = 3, alpha = 0.8) +
+    geom_smooth(aes(group = 1), method = "lm", se = FALSE,
+                color = "grey30", linewidth = 0.7) +
+    scale_color_manual(values = c("F" = "tomato", "M" = "steelblue")) +
+    theme_minimal() +
+    labs(x        = "Gestational Week",
+         y        = "log2 Peak Area",
+         title    = display_name,
+         subtitle = title_suffix) +
+    theme(plot.title    = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5, size = 9, color = "grey40"))
+}
+
+#' Save a list of trajectory plots as paged grids
+#'
+#' Splits plots into pages of plots_per_page, arranges each page with cowplot,
+#' saves via save_dual_format, and prints to the active device.
+#'
+#' @param plots List of ggplot objects
+#' @param filename_prefix Base filename (page number appended automatically)
+#' @param png_path Directory for PNG output (passed to save_dual_format)
+#' @param svg_path Directory for SVG output (passed to save_dual_format)
+#' @param plots_per_page Number of plots per grid page (default 4)
+#' @param ncol Number of columns in grid (default 2)
+#' @param width Grid width in inches (default 12)
+#' @param height Grid height in inches (default 8)
+#' @return Invisibly returns NULL
+save_trajectory_grids <- function(plots,
+                                  filename_prefix,
+                                  png_path,
+                                  svg_path,
+                                  plots_per_page = 4,
+                                  ncol           = 2,
+                                  width          = 12,
+                                  height         = 8) {
+  n_pages <- ceiling(length(plots) / plots_per_page)
+  for (pg in seq_len(n_pages)) {
+    idx       <- ((pg - 1) * plots_per_page + 1):min(pg * plots_per_page, length(plots))
+    grid_plot <- cowplot::plot_grid(plotlist = plots[idx], ncol = ncol)
+    save_dual_format(grid_plot,
+                     paste0(filename_prefix, "_page", pg),
+                     png_path = png_path, svg_path = svg_path,
+                     width = width, height = height)
+    print(grid_plot)
+  }
+  invisible(NULL)
+}
+

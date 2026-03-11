@@ -1,0 +1,18 @@
+Analysis,Subgroup,Method,N_Total,N_Nominal,N_FDR,N_VIP1,N_VIP2
+GW,Full untargeted,limma,817,114,14,NA,NA
+Sex,Full untargeted,limma,817,35,0,NA,NA
+Sex,Full untargeted,Wilcoxon,817,32,0,NA,NA
+Sex,Full untargeted,PLS-DA VIP,817,NA,NA,292,11
+Sex,Full untargeted,OPLS-DA VIP,817,NA,NA,306,27
+GW,Steroids (broad),limma,18,3,1,NA,NA
+Sex,Steroids (broad),limma,18,1,0,NA,NA
+Sex,Steroids (broad),PLS-DA VIP,18,NA,NA,8,0
+GW,Steroids (strict),limma,14,3,1,NA,NA
+Sex,Steroids (strict),limma,14,1,0,NA,NA
+Sex,Steroids (strict),PLS-DA VIP,14,NA,NA,3,0
+GW,Neurotransmitters (broad),limma,80,7,0,NA,NA
+Sex,Neurotransmitters (broad),limma,80,7,0,NA,NA
+Sex,Neurotransmitters (broad),PLS-DA VIP,80,NA,NA,28,0
+GW,Neurotransmitters (strict),limma,14,2,0,NA,NA
+Sex,Neurotransmitters (strict),limma,14,1,0,NA,NA
+Sex,Neurotransmitters (strict),PLS-DA VIP,14,NA,NA,6,0

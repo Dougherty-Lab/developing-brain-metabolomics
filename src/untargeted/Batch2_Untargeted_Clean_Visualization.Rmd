@@ -35,19 +35,35 @@ csv_path <- "../../results/untargeted/batch2_clean/csv"
 batch2_peak_area = read_csv('../../results/untargeted/Batch2_peak_area_values.csv', show_col_types = FALSE)
 
 #Metabolite Annotations
-
 batch2_compound_annotation = read_csv('../../results/untargeted/Batch2_metabolite_annotations.csv', show_col_types = FALSE)
 
 #Sample Metadata
-
 batch2_sample_metadata = read_csv('../../results/untargeted/Batch2_sample_metadata.csv', show_col_types = FALSE)
+```
 
+```{r log_transform, include=FALSE}
+# Create a log10-transformed copy for abundance calculations
+# batch2_peak_area stays raw so prepare_long_data can handle its own log transform
+# log10(x + 1) pseudocount handles any zeros
+sample_cols_idx <- grep("^Sample", names(batch2_peak_area), value = FALSE)
+
+batch2_peak_area_log <- batch2_peak_area
+batch2_peak_area_log[, sample_cols_idx] <- lapply(
+  batch2_peak_area[, sample_cols_idx],
+  function(x) log10(as.numeric(x) + 1)
+)
+
+cat("Log10-transformed copy created: batch2_peak_area_log\n")
+cat("Intensity range after transform:",
+    range(unlist(batch2_peak_area_log[, sample_cols_idx]), na.rm = TRUE), "\n")
 ```
 
 # Peak Features
 ## Peak Intensity
 
 ```{r long_format}
+# prepare_long_data uses log_transform = TRUE (default), creating the log10 column
+# that all intensity plotting functions expect
 batch2_long <- prepare_long_data(batch2_peak_area, batch2_sample_metadata)
 ```
 
@@ -121,8 +137,9 @@ peak_stats <- test_peak_features(
 
 ## Individual Metabolites
 ```{r calculate_abundance}
+# Use log10-transformed copy for all abundance calculations
 metabolite_abundance <- calculate_metabolite_abundance(
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   sample_cols = 4:27,
   compound_annotation = batch2_compound_annotation
 )
@@ -130,17 +147,16 @@ metabolite_abundance <- calculate_metabolite_abundance(
 metabolite_abundance_by_sex <- calculate_metabolite_abundance_by_group(
   data_long = batch2_long,
   group_by = "Sex",
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   compound_annotation = batch2_compound_annotation
 )
 
 metabolite_abundance_by_gw <- calculate_metabolite_abundance_by_group(
   data_long = batch2_long,
   group_by = "GW_bucket",
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   compound_annotation = batch2_compound_annotation
 )
-
 ```
 
 ```{r abundance_bargraphs}
@@ -178,7 +194,7 @@ print(top_metabolites_by_group_gw)
 
 ```{r abundance_heatmaps}
 heatmaps <- plot_top_metabolites_heatmaps(
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   metabolite_abundance = metabolite_abundance,
   n = 100,
   sample_metadata = batch2_sample_metadata,
@@ -195,7 +211,7 @@ class_results <- analyze_category_abundance(
   metabolite_abundance_annotated = metabolite_abundance,
   metabolite_abundance_by_sex = metabolite_abundance_by_sex,
   metabolite_abundance_by_gw = metabolite_abundance_by_gw,
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   category = "Class",
   n_bar = 20,
   n_heatmap = 100,
@@ -214,7 +230,7 @@ subclass_results <- analyze_category_abundance(
   metabolite_abundance_annotated = metabolite_abundance,
   metabolite_abundance_by_sex = metabolite_abundance_by_sex,
   metabolite_abundance_by_gw = metabolite_abundance_by_gw,
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   category = "Sub.Class",
   n_bar = 20,
   n_heatmap = 100,
@@ -227,12 +243,13 @@ subclass_results <- analyze_category_abundance(
 
 print(subclass_results)
 ```
+
 ```{r abundance_superclass}
 superclass_results <- analyze_category_abundance(
   metabolite_abundance_annotated = metabolite_abundance,
   metabolite_abundance_by_sex = metabolite_abundance_by_sex,
   metabolite_abundance_by_gw = metabolite_abundance_by_gw,
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   category = "Super.Class",
   n_bar = 20,
   n_heatmap = 100,
@@ -245,12 +262,13 @@ superclass_results <- analyze_category_abundance(
 
 print(superclass_results)
 ```
+
 ```{r abundance_pathways}
 pathways_results <- analyze_category_abundance(
   metabolite_abundance_annotated = metabolite_abundance,
   metabolite_abundance_by_sex = metabolite_abundance_by_sex,
   metabolite_abundance_by_gw = metabolite_abundance_by_gw,
-  dataset = batch2_peak_area,
+  dataset = batch2_peak_area_log,
   category = "Pathways",
   n_bar = 20,
   n_heatmap = 100,
@@ -288,13 +306,13 @@ annotation_completeness <- batch2_compound_annotation %>%
 # Print summary table
 cat("\n=== ANNOTATION COMPLETENESS SUMMARY ===\n")
 print(annotation_completeness %>%
-        select(Category, n_present, n_missing, Total, pct_missing) %>%
+        dplyr::select(Category, n_present, n_missing, Total, pct_missing) %>%
         rename("Annotated" = n_present, "Missing" = n_missing,
                "% Missing" = pct_missing))
 
 # Stacked bar: annotated vs missing per category
 annotation_completeness_long <- annotation_completeness %>%
-  select(Category, n_present, n_missing) %>%
+  dplyr::select(Category, n_present, n_missing) %>%
   pivot_longer(c(n_present, n_missing),
                names_to  = "Status",
                values_to = "Count") %>%
@@ -344,11 +362,12 @@ print(p_annotation_pct_missing)
 ```{r PCA_One, echo = TRUE}
 # PCA of sample variation
 # Prepare data for PCA (samples as rows, metabolites as columns)
-samples_matrix <- batch2_peak_area %>%
-  select(starts_with("Sample")) %>%
+# Uses log10-transformed data with 1/5th min imputation for PCA only
+samples_matrix <- batch2_peak_area_log %>%
+  dplyr::select(starts_with("Sample")) %>%
   t()
 
-# 1/5th min value imputation
+# 1/5th min value imputation for remaining NAs
 samples_matrix <- apply(samples_matrix, 2, min_value_impute)
 
 # Perform PCA
@@ -380,7 +399,7 @@ sample_elbow <- ggplot(elbow_data, aes(x = PC, y = VarExp)) +
        title = "Scree Plot of PCA Variance Explained by Samples") +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(sample_elbow, "sample_elbow", png_path = png_path, svg_path =  svg_path)
+save_dual_format(sample_elbow, "sample_elbow", png_path = png_path, svg_path = svg_path)
 print(sample_elbow)
 
 # Plot PCA for samples
@@ -389,10 +408,12 @@ sample_pca <- ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
   labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
-       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), title = "PCA of Sample Variation")
+       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), 
+       title = "PCA of Sample Variation")
 
-save_dual_format(sample_pca, "sample_pca", png_path = png_path, svg_path =  svg_path)
+save_dual_format(sample_pca, "sample_pca", png_path = png_path, svg_path = svg_path)
 print(sample_pca)
+
 # Sex PCA
 sample_pca1x2_sex <- ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, label = Sample)) +
   geom_point(size = 3) +
@@ -404,7 +425,7 @@ sample_pca1x2_sex <- ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, la
   scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(sample_pca1x2_sex, "sample_pca1x2_sex", png_path = png_path, svg_path =  svg_path)
+save_dual_format(sample_pca1x2_sex, "sample_pca1x2_sex", png_path = png_path, svg_path = svg_path)
 print(sample_pca1x2_sex)
 
 sample_pca2x3_sex <- ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, label = Sample)) +
@@ -417,7 +438,7 @@ sample_pca2x3_sex <- ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, la
   scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(sample_pca2x3_sex, "sample_pca2x3_sex", png_path = png_path, svg_path =  svg_path)
+save_dual_format(sample_pca2x3_sex, "sample_pca2x3_sex", png_path = png_path, svg_path = svg_path)
 print(sample_pca2x3_sex)
 
 # GW PCA
@@ -431,7 +452,7 @@ sample_pca1x2_gw <- ggplot(sample_scores, aes(x = PC1, y = PC2, color = GW, labe
   scale_color_viridis_c() +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(sample_pca1x2_gw, "sample_pca1x2_gw", png_path = png_path, svg_path =  svg_path)
+save_dual_format(sample_pca1x2_gw, "sample_pca1x2_gw", png_path = png_path, svg_path = svg_path)
 print(sample_pca1x2_gw)
 
 sample_pca2x3_gw <- ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, label = Sample)) +
@@ -444,13 +465,13 @@ sample_pca2x3_gw <- ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, labe
   scale_color_viridis_c() +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(sample_pca2x3_gw, "sample_pca2x3_gw", png_path = png_path, svg_path =  svg_path)
+save_dual_format(sample_pca2x3_gw, "sample_pca2x3_gw", png_path = png_path, svg_path = svg_path)
 print(sample_pca2x3_gw)
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
-metabolites_matrix <- batch2_peak_area %>%
-  select(starts_with("Sample"))
+metabolites_matrix <- batch2_peak_area_log %>%
+  dplyr::select(starts_with("Sample"))
 
 metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
 
@@ -458,7 +479,6 @@ metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
 pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 
 # Filter annotation to only include compounds present in peak area
-
 compounds_in_peak <- unique(batch2_peak_area$Compound.ID)
 
 batch2_compound_annotation <- batch2_compound_annotation %>%
@@ -486,14 +506,14 @@ metabolite_elbow <- ggplot(elbow_data, aes(x = PC, y = VarExp)) +
        title = "Scree Plot of PCA Variance Explained by Metabolites") +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(metabolite_elbow, "metabolite_elbow", png_path = png_path, svg_path =  svg_path)
+save_dual_format(metabolite_elbow, "metabolite_elbow", png_path = png_path, svg_path = svg_path)
 print(metabolite_elbow)
+
 # Calculate distance from origin for each metabolite
 metabolite_scores <- metabolite_scores %>%
   mutate(distance = sqrt(PC1^2 + PC2^2))
 
-# Define a threshold for labeling outliers.
-# This threshold can be adjusted based on the spread of your data.
+# Define a threshold for labeling outliers
 threshold <- quantile(metabolite_scores$distance, 0.99)
 
 # Create a logical column to indicate if the metabolite is an outlier
@@ -510,7 +530,7 @@ metabolite_pca1x2 <- ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
        title = "PCA of Metabolite Variation") +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(metabolite_pca1x2, "metabolite_pca1x2", png_path = png_path, svg_path =  svg_path)
+save_dual_format(metabolite_pca1x2, "metabolite_pca1x2", png_path = png_path, svg_path = svg_path)
 print(metabolite_pca1x2)
 
 metabolite_pca2x3 <- ggplot(metabolite_scores, aes(x = PC2, y = PC3)) +
@@ -522,6 +542,6 @@ metabolite_pca2x3 <- ggplot(metabolite_scores, aes(x = PC2, y = PC3)) +
        title = "PCA of Metabolite Variation") +
   theme(plot.title = element_text(hjust = 0.5))
 
-save_dual_format(metabolite_pca2x3, "metabolite_pca2x3", png_path = png_path, svg_path =  svg_path)
+save_dual_format(metabolite_pca2x3, "metabolite_pca2x3", png_path = png_path, svg_path = svg_path)
 print(metabolite_pca2x3)
 ```

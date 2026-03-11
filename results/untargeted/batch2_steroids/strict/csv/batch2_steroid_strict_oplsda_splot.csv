@@ -1,0 +1,15 @@
+Name,Covariance,Correlation,Compound.ID,Sub.Class,Class,Reliable,Name_display
+7-Oxocholesterol,5.368111329275287,0.6746309002237499,C8-Pos-000100,Cholestane steroids,Steroids and steroid derivatives,TRUE,7-Oxocholesterol
+Progesterone,-0.1708655470795048,-0.2896632113066318,C8-Pos-000112,Pregnane steroids,Steroids and steroid derivatives,FALSE,Progesterone
+Methasterone,-1.4183810296734372,-0.1678795438726397,C8-Pos-000124,Androstane steroids,Steroids and steroid derivatives,FALSE,Methasterone
+"17-(1-Hydroxyethyl)-10,13-Dimethyl-2,3,6,7,8,9,10,11,12,13,14,15,16,17-Tetradecahydro-1h-Cyclopenta[A]Phenanthren-3-One",-0.010955111085152451,-0.019124265821168544,C8-Pos-000157,Pregnane steroids,Steroids and steroid derivatives,FALSE,17-(1-Hydroxyethy...
+Cholest-4-En-3-One,0.12577113817754226,0.41268581234396773,C8-Pos-000270,Cholestane steroids,Steroids and steroid derivatives,FALSE,Cholest-4-En-3-One
+"Spectral Match To Cholesta-4,6-Dien-3-One From Nist14",0.9826945178895863,0.2591511302847482,C8-Pos-000321,Cholestane steroids,Steroids and steroid derivatives,FALSE,Spectral Match To...
+Norethandrolone,-0.1981922087267678,-0.4633898455865535,C8-Pos-000347,Pregnane steroids,Steroids and steroid derivatives,FALSE,Norethandrolone
+Methyltestosterone,-0.8959851225497268,-0.2509254222459416,C8-Pos-000522,Androstane steroids,Steroids and steroid derivatives,FALSE,Methyltestosterone
+7α-Hydroxytestosterone,0.004176508502011524,0.007793674735736343,C8-Pos-000589,Androstane steroids,Steroids and steroid derivatives,FALSE,7α-Hydroxytestost...
+"Cholestan-3-One, (5α)-",1.3645895084740938,0.1742556715108912,C8-Pos-000611,Cholestane steroids,Steroids and steroid derivatives,FALSE,"Cholestan-3-One, ..."
+Cortisone,-0.3445816871320685,-0.3267114611600475,C8-Pos-000623,Hydroxysteroids,Steroids and steroid derivatives,FALSE,Cortisone
+Corticosterone,-1.8383567113199741,-0.2303196639659956,C8-Pos-000625,Hydroxysteroids,Steroids and steroid derivatives,FALSE,Corticosterone
+Norgestrel,-0.7264830132520064,-0.46850772455193107,C8-Pos-000681,Estrane steroids,Steroids and steroid derivatives,FALSE,Norgestrel
+Cortisol,0.14427598137348538,0.021351910826241695,C8-Pos-000701,Hydroxysteroids,Steroids and steroid derivatives,FALSE,Cortisol

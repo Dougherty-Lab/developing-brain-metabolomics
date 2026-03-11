@@ -1,0 +1,9 @@
+Name,Sex_Wilcoxon_FDR,Sex_Wilcoxon_nom,Sex_limma_FDR,Sex_limma_nom,GW_corr_FDR,GW_limma_FDR
+Spectral Match To 1-Myristoyl-Sn-Glycero-3-Phosphocholine From Nist14,0,1,0,0,0,0
+N-Acetyl-Dl-Aspartic Acid,0,1,0,1,0,0
+Dl-Dipalmitoylphosphatidylcholine,0,1,0,1,0,0
+1-Linoleoyl-Sn-Glycero-3-Phosphorylcholine,0,1,0,1,0,0
+"Spectral Match To 1,2-Dilinoleoyl-Sn-Glycero-3-Phosphocholine From Nist14",0,1,0,1,0,0
+1-Hexadecyl-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,0,0,0,1,0,0
+1-O-Octadecyl-Sn-Glyceryl-3-Phosphorylcholine,0,0,0,1,0,0
+1-Stearoyl-2-Docosahexaenoyl-Sn-Glycero-3-Phosphocholine,0,0,0,1,0,0

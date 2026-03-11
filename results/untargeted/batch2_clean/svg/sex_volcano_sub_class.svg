@@ -182,12 +182,12 @@
 <circle cx='455.03' cy='520.43' r='2.31' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='466.78' cy='520.43' r='1.42' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='468.73' cy='520.43' r='1.93' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
-<text x='71.61' y='42.44' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='34.14px' lengthAdjust='spacingAndGlyphs'>Indolines</text>
-<text x='532.50' y='61.94' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='68.72px' lengthAdjust='spacingAndGlyphs'>Cyclohexylamines</text>
-<text x='490.89' y='100.52' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='81.06px' lengthAdjust='spacingAndGlyphs'>Gamma-keto acids ...</text>
-<text x='366.08' y='84.74' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='75.38px' lengthAdjust='spacingAndGlyphs'>Cholestane steroids</text>
-<text x='412.11' y='100.65' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='57.82px' lengthAdjust='spacingAndGlyphs'>Cinnamic acids</text>
-<text x='374.99' y='118.78' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='80.60px' lengthAdjust='spacingAndGlyphs'>Carbonyl compounds</text>
+<text x='71.49' y='42.21' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='34.14px' lengthAdjust='spacingAndGlyphs'>Indolines</text>
+<text x='549.54' y='46.52' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='68.72px' lengthAdjust='spacingAndGlyphs'>Cyclohexylamines</text>
+<text x='508.42' y='84.83' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='81.06px' lengthAdjust='spacingAndGlyphs'>Gamma-keto acids ...</text>
+<text x='365.92' y='84.69' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='75.38px' lengthAdjust='spacingAndGlyphs'>Cholestane steroids</text>
+<text x='412.32' y='100.55' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='57.82px' lengthAdjust='spacingAndGlyphs'>Cinnamic acids</text>
+<text x='374.82' y='118.78' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='80.60px' lengthAdjust='spacingAndGlyphs'>Carbonyl compounds</text>
 <line x1='35.79' y1='118.04' x2='625.37' y2='118.04' style='stroke-width: 1.07; stroke: #0000FF; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 <line x1='457.94' y1='544.09' x2='457.94' y2='23.45' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 </g>

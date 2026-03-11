@@ -117,8 +117,8 @@
 <circle cx='346.64' cy='515.24' r='1.99' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='284.52' cy='515.24' r='2.56' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
 <circle cx='275.54' cy='520.43' r='2.23' style='stroke-width: 0.71; stroke: #BEBEBE; stroke-opacity: 0.60; fill: #BEBEBE; fill-opacity: 0.60;' />
-<text x='205.37' y='58.17' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='46.46px' lengthAdjust='spacingAndGlyphs'>Prenol lipids</text>
-<text x='257.70' y='141.98' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='81.55px' lengthAdjust='spacingAndGlyphs'>Glycerophospholipids</text>
+<text x='205.11' y='58.07' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='46.46px' lengthAdjust='spacingAndGlyphs'>Prenol lipids</text>
+<text x='275.28' y='126.47' text-anchor='middle' style='font-size: 8.54px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='81.55px' lengthAdjust='spacingAndGlyphs'>Glycerophospholipids</text>
 <line x1='35.79' y1='200.51' x2='625.37' y2='200.51' style='stroke-width: 1.07; stroke: #0000FF; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 <line x1='298.93' y1='544.09' x2='298.93' y2='23.45' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
 </g>

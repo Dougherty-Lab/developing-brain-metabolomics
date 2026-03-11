@@ -1,0 +1,19 @@
+Name,Covariance,Correlation,Compound.ID,Sub.Class,Class,Reliable,Name_display
+Calcitriol,0.8928428025241382,0.07553466087778343,C8-Neg-000216,Vitamin D and derivatives,Steroids and steroid derivatives,FALSE,Calcitriol
+7-Oxocholesterol,5.603531038873373,0.6758403332010726,C8-Pos-000100,Cholestane steroids,Steroids and steroid derivatives,TRUE,7-Oxocholesterol
+Progesterone,-0.16328805759316112,-0.2656628770764648,C8-Pos-000112,Pregnane steroids,Steroids and steroid derivatives,FALSE,Progesterone
+Methasterone,-1.4917210615297989,-0.16944552241688565,C8-Pos-000124,Androstane steroids,Steroids and steroid derivatives,FALSE,Methasterone
+"17-(1-Hydroxyethyl)-10,13-Dimethyl-2,3,6,7,8,9,10,11,12,13,14,15,16,17-Tetradecahydro-1h-Cyclopenta[A]Phenanthren-3-One",-0.021434870647966817,-0.035910914266222546,C8-Pos-000157,Pregnane steroids,Steroids and steroid derivatives,FALSE,17-(1-Hydroxyethy...
+Cholest-4-En-3-One,0.13916915371981334,0.4382471928205583,C8-Pos-000270,Cholestane steroids,Steroids and steroid derivatives,FALSE,Cholest-4-En-3-One
+"Spectral Match To Cholesta-4,6-Dien-3-One From Nist14",0.9873090960948858,0.24987644660044878,C8-Pos-000321,Cholestane steroids,Steroids and steroid derivatives,FALSE,Spectral Match To...
+Norethandrolone,-0.1958622343525526,-0.4394892420402392,C8-Pos-000347,Pregnane steroids,Steroids and steroid derivatives,FALSE,Norethandrolone
+Methyl Deoxycholate,-0.30514663802909164,-0.3773696595864105,C8-Pos-000363,"Bile acids, alcohols and derivatives",Steroids and steroid derivatives,FALSE,Methyl Deoxycholate
+Solanidine,-0.12494761267267594,-0.17240714953683034,C8-Pos-000378,Steroidal alkaloids,Steroids and steroid derivatives,FALSE,Solanidine
+"Cholan-24-Oic Acid, 12-Hydroxy-3-Oxo-, Methyl Ester (With Partial Stereo Definitions)",0.0077643610299276775,0.012313795895822663,C8-Pos-000432,"Bile acids, alcohols and derivatives",Steroids and steroid derivatives,FALSE,Cholan-24-Oic Aci...
+Methyltestosterone,-0.811789357372861,-0.21818496870788215,C8-Pos-000522,Androstane steroids,Steroids and steroid derivatives,FALSE,Methyltestosterone
+7α-Hydroxytestosterone,0.0033750848790974237,0.006044372421532712,C8-Pos-000589,Androstane steroids,Steroids and steroid derivatives,FALSE,7α-Hydroxytestost...
+"Cholestan-3-One, (5α)-",1.3914115701200256,0.17052109529946577,C8-Pos-000611,Cholestane steroids,Steroids and steroid derivatives,FALSE,"Cholestan-3-One, ..."
+Cortisone,-0.3844278254748039,-0.34980386285929926,C8-Pos-000623,Hydroxysteroids,Steroids and steroid derivatives,FALSE,Cortisone
+Corticosterone,-1.6276593735406226,-0.1957052003483203,C8-Pos-000625,Hydroxysteroids,Steroids and steroid derivatives,FALSE,Corticosterone
+Norgestrel,-0.7264244568364908,-0.44959281094457865,C8-Pos-000681,Estrane steroids,Steroids and steroid derivatives,FALSE,Norgestrel
+Cortisol,0.20157827154100194,0.028630177200113117,C8-Pos-000701,Hydroxysteroids,Steroids and steroid derivatives,FALSE,Cortisol

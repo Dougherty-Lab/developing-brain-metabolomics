@@ -1,0 +1,590 @@
+---
+title: "Batch 2 Pathway Analysis (MSEA)"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated `r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+---
+
+Code developed by author with assistance from Claude (Sonnet 4.6). Output checked and validated by author.
+
+# Set Up
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+Packages <- c("readxl", "tidyverse", "fgsea", "KEGGREST", "knitr",
+              "kableExtra", "svglite", "ggrepel")
+
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r source_functions, include=FALSE}
+source("functions.R")
+```
+
+```{r paths, include=FALSE}
+png_path <- "../../results/untargeted/batch2_clean"
+svg_path <- "../../results/untargeted/batch2_clean/svg"
+csv_path <- "../../results/untargeted/batch2_clean/csv"
+```
+
+## Load Data
+
+```{r load_annotation}
+# Full annotation file — needed for KEGG IDs and Pathways column
+batch2_compound_annotation_full <- read_csv(
+  "../../results/untargeted/Batch2_metabolite_annotations.csv",
+  show_col_types = FALSE
+)
+
+# Peak area file defines the compounds that survived filtering
+batch2_peak_area <- read_csv(
+  "../../results/untargeted/Batch2_peak_area_values.csv",
+  show_col_types = FALSE
+)
+
+# Restrict annotation to measured compounds only
+batch2_compound_annotation <- batch2_compound_annotation_full %>%
+  filter(Compound.ID %in% batch2_peak_area$Compound.ID)
+
+cat("Total annotation rows:   ", nrow(batch2_compound_annotation_full), "\n")
+cat("Measured compounds:      ", nrow(batch2_compound_annotation), "\n")
+
+# Pathway ID → name lookup sheet from the core's Excel file
+# Columns: pathway names, pathway source, pathwayid
+pathway_info <- read_excel(
+  "../../doc/untargeted/24_untargeted_developing_2025.xlsx",
+  sheet = "Pathways"
+) %>%
+  rename_with(~c("pathway_name", "pathway_source", "pathway_id"),
+              everything())
+```
+
+```{r load_limma}
+# Limma results from Batch2_Sex_and_GW_Analysis.Rmd
+# topTable output includes t-statistic, which is the ranking variable for MSEA
+gw_limma  <- read_csv(file.path(csv_path, "batch2_gw_limma_results.csv"),
+                      show_col_types = FALSE)
+sex_limma <- read_csv(file.path(csv_path, "batch2_sex_limma_results.csv"),
+                      show_col_types = FALSE)
+
+cat("GW limma:  ", nrow(gw_limma),  "metabolites\n")
+cat("Sex limma: ", nrow(sex_limma), "metabolites\n")
+```
+
+---
+
+# Pathway Annotation
+
+## Parse Existing Pathways Column
+
+```{r parse_pathways}
+# Pathways column format: "kegg:map00620;reactome:R-HSA-196807;wiki:WP2456"
+# Split per metabolite into one row per pathway ID, retaining source prefix
+
+pathways_parsed <- batch2_compound_annotation %>%
+  filter(!is.na(Pathways) & Pathways != "") %>%
+  dplyr::select(Compound.ID, Name, KEGG, Pathways) %>%
+  separate_rows(Pathways, sep = ";") %>%
+  mutate(
+    pathway_source = str_extract(Pathways, "^[^:]+"),   # "kegg", "reactome", "wiki"
+    pathway_id     = str_remove(Pathways, "^[^:]+:")    # "map00620", "R-HSA-...", "WP..."
+  ) %>%
+  dplyr::select(-Pathways) %>%
+  filter(!is.na(pathway_id) & pathway_id != "")
+
+cat("Metabolites with any pathway annotation (existing):",
+    n_distinct(pathways_parsed$Name), "of", nrow(batch2_compound_annotation), "\n")
+cat("Unique pathways (existing):", n_distinct(pathways_parsed$pathway_id), "\n")
+cat("\nBreakdown by source:\n")
+print(count(pathways_parsed, pathway_source))
+```
+
+## KEGGREST Re-Mapping
+
+```{r keggrest_remap}
+# Use the KEGG column (KEGG compound IDs, e.g. "C00031") to fetch
+# additional pathway annotations for metabolites missing from Pathways column.
+# With only ~80 compounds to query, per-compound keggLink() calls are feasible.
+
+metabolites_missing_pathways <- batch2_compound_annotation %>%
+  filter(is.na(Pathways) | Pathways == "") %>%
+  filter(!is.na(KEGG) & KEGG != "") %>%
+  dplyr::select(Compound.ID, Name, KEGG)
+
+cat("Metabolites missing pathway annotation:", nrow(batch2_compound_annotation %>%
+      filter(is.na(Pathways) | Pathways == "")), "\n")
+cat("Of those, with KEGG ID available:", nrow(metabolites_missing_pathways), "\n")
+
+# Per-compound KEGG pathway lookup.
+# keggLink(target, source) with target = "pathway", source = "cpd:CXXXXX"
+# returns map-level pathway IDs (e.g. "path:map00010") for that compound.
+# 81 queries is feasible; Sys.sleep(0.35) stays within KEGG's rate limit.
+# Some KEGG cells contain semicolon-separated multiple IDs (e.g. "C05282;C20948")
+# Expand these so each ID is queried individually, then re-join to Compound.ID/Name
+metabolites_missing_pathways <- metabolites_missing_pathways %>%
+  separate_rows(KEGG, sep = ";") %>%
+  mutate(KEGG = str_trim(KEGG)) %>%
+  filter(!is.na(KEGG) & KEGG != "")
+
+# Validate: KEGG compound IDs must be "C" + exactly 5 digits
+metabolites_missing_pathways <- metabolites_missing_pathways %>%
+  mutate(KEGG_valid = str_detect(KEGG, "^C\\d{5}$"))
+
+cat("KEGG IDs passing format check:", sum(metabolites_missing_pathways$KEGG_valid), "\n")
+cat("KEGG IDs skipped (malformed): ", sum(!metabolites_missing_pathways$KEGG_valid), "\n")
+
+valid_ids <- metabolites_missing_pathways %>%
+  filter(KEGG_valid) %>%
+  pull(KEGG) %>%
+  unique()
+
+cat("\nQuerying KEGGREST per compound (", length(valid_ids), "queries)...\n")
+flush.console()
+
+query_kegg_pathways <- function(kegg_ids) {
+  results <- vector("list", length(kegg_ids))
+  for (i in seq_along(kegg_ids)) {
+    kid <- kegg_ids[i]
+    results[[i]] <- tryCatch({
+      links <- keggLink("pathway", paste0("cpd:", kid))
+      # links: names = "cpd:CXXXXX", values = "path:mapXXXXX"
+      tibble(KEGG = kid, pathway_id = str_remove(links, "path:"))
+    }, error = function(e) {
+      message("  Query failed for ", kid, ": ", e$message)
+      tibble(KEGG = character(), pathway_id = character())
+    })
+    if (i %% 10 == 0) { cat("  ", i, "/", length(kegg_ids), "\n"); flush.console() }
+    Sys.sleep(0.35)
+  }
+  bind_rows(results)
+}
+
+kegg_link_df <- query_kegg_pathways(valid_ids)
+```
+
+```{r build_kegg_new, dependson="keggrest_remap"}
+if (nrow(kegg_link_df) > 0) {
+  kegg_new <- metabolites_missing_pathways %>%
+    inner_join(kegg_link_df, by = "KEGG") %>%
+    mutate(pathway_source = "kegg") %>%
+    dplyr::select(Compound.ID, Name, KEGG, pathway_source, pathway_id)
+
+  cat("New KEGG pathway assignments retrieved:", nrow(kegg_new), "\n")
+  cat("Metabolites newly covered:", n_distinct(kegg_new$Name), "\n")
+} else {
+  kegg_new <- tibble(Compound.ID = character(), Name = character(),
+                     KEGG = character(), pathway_source = character(),
+                     pathway_id = character())
+  cat("No KEGG pathway links returned — proceeding with existing annotations only.\n")
+}
+```
+
+## Combine and Map Pathway Names
+
+```{r combine_pathway_annotations}
+# Stack existing + KEGG-remapped annotations
+# For metabolites that already had pathway annotations, keep them as-is;
+# KEGG new rows only add metabolites that had no annotations before.
+pathways_combined <- bind_rows(
+  pathways_parsed,
+  kegg_new %>% dplyr::select(Compound.ID, Name, pathway_source, pathway_id)
+)
+
+# Attach human-readable pathway names from the core's Pathways sheet
+# pathway_info has: pathway_name, pathway_source, pathway_id
+pathways_combined <- pathways_combined %>%
+  left_join(
+    pathway_info %>% dplyr::select(pathway_id, pathway_name),
+    by = "pathway_id"
+  ) %>%
+  mutate(
+    # For KEGG pathway IDs without a name in the sheet, fetch label from ID
+    pathway_label = case_when(
+      !is.na(pathway_name) & pathway_name != "" ~ pathway_name,
+      pathway_source == "kegg"      ~ paste0("KEGG:", pathway_id),
+      pathway_source == "reactome"  ~ paste0("Reactome:", pathway_id),
+      pathway_source == "wiki"      ~ paste0("WikiPathways:", pathway_id),
+      TRUE ~ pathway_id
+    )
+  )
+
+cat("\n=== Final Pathway Coverage ===\n")
+cat("Metabolites with any pathway annotation:",
+    n_distinct(pathways_combined$Name), "of", nrow(batch2_compound_annotation), "\n")
+cat("Unique pathways:", n_distinct(pathways_combined$pathway_id), "\n\n")
+cat("Breakdown by source:\n")
+print(count(pathways_combined, pathway_source))
+```
+
+## Build Pathway Sets
+
+```{r build_pathway_sets}
+# MSEA requires: list(pathway_label = character vector of metabolite Names)
+# Filter: minimum 5 and maximum 500 members in the measured background
+# Use pathway_label (human-readable) as the set name
+
+# For duplicate pathway IDs across sources, keep distinct Name-pathway_id pairs
+pathway_sets_raw <- pathways_combined %>%
+  distinct(Name, pathway_id, pathway_label, pathway_source) %>%
+  filter(Name %in% gw_limma$Name)    # restrict to metabolites in our analysis
+
+pathway_sets <- pathway_sets_raw %>%
+  mutate(pathway_source = factor(pathway_source,
+                                 levels = c("kegg", "reactome", "wiki"),
+                                 labels = c("KEGG", "Reactome", "WikiPathways"))) %>%
+  group_by(pathway_label, pathway_source) %>%
+  summarise(members = list(unique(Name)), .groups = "drop") %>%
+  mutate(
+    n_members = lengths(members),
+    # Append source to label so cross-database duplicates are distinct
+    pathway_label_src = paste0(pathway_label, " (", pathway_source, ")")
+  ) %>%
+  filter(n_members >= 5, n_members <= 500)
+
+# Lookup table to re-join source onto fgsea results after the fact
+# Key is the unique pathway_label_src used as fgsea set name
+pathway_source_lookup <- pathway_sets %>%
+  dplyr::select(pathway_label_src, pathway_source)
+
+# Convert to named list for fgsea — keyed by the source-appended label
+pathway_list <- setNames(pathway_sets$members, pathway_sets$pathway_label_src)
+
+cat("Pathway sets available for MSEA:", length(pathway_list), "\n")
+cat("Median members per set:", median(lengths(pathway_list)), "\n")
+cat("Range:", min(lengths(pathway_list)), "–", max(lengths(pathway_list)), "\n")
+```
+
+---
+
+# MSEA
+
+MSEA (Metabolite Set Enrichment Analysis) is the metabolomics analog of GSEA. Rather
+than requiring a significance cutoff, it uses the **full ranked list** of metabolites
+ordered by their limma t-statistic. This is appropriate here given sparse individual
+hits (especially for sex), as it uses all available signal.
+
+The ranking statistic is the limma **t-statistic**, which combines effect size and
+precision. Implemented via `fgsea` with 10,000 permutations.
+
+```{r msea_function}
+run_msea <- function(limma_results, pathway_list, analysis_label,
+                     nperm = 10000, seed = 42) {
+  # Build named ranked vector: Name -> t-statistic
+  # Remove any NAs (metabolites where model didn't converge)
+  ranked <- limma_results %>%
+    filter(!is.na(t)) %>%
+    arrange(desc(t)) %>%
+    dplyr::select(Name, t) %>%
+    deframe()                      # named numeric vector
+
+  cat("\n===", analysis_label, "===\n")
+  cat("Metabolites in ranked list:", length(ranked), "\n")
+  cat("Pathway sets to test:", length(pathway_list), "\n")
+
+  # Restrict pathway sets to metabolites present in this ranked list
+  pathway_list_filtered <- lapply(pathway_list, function(x) {
+    intersect(x, names(ranked))
+  })
+  pathway_list_filtered <- pathway_list_filtered[lengths(pathway_list_filtered) >= 5]
+  cat("Pathway sets after restricting to ranked list:", length(pathway_list_filtered), "\n")
+
+  if (length(pathway_list_filtered) == 0) {
+    cat("No pathway sets have sufficient coverage — skipping.\n")
+    return(NULL)
+  }
+
+  set.seed(seed)
+  results <- fgsea(
+    pathways = pathway_list_filtered,
+    stats    = ranked,
+    nPermSimple = nperm,
+    minSize  = 5,
+    maxSize  = 500
+  )
+
+  results <- results %>%
+    as_tibble() %>%
+    arrange(padj, pval) %>%
+    mutate(analysis = analysis_label)
+
+  cat("Pathways tested:", nrow(results), "\n")
+  cat("Nominal p < 0.05:", sum(results$pval  < 0.05, na.rm = TRUE), "\n")
+  cat("FDR < 0.05:",       sum(results$padj < 0.05, na.rm = TRUE), "\n")
+  cat("FDR < 0.25:",       sum(results$padj < 0.25, na.rm = TRUE), "\n")
+
+  return(results)
+}
+```
+
+## GW Analysis
+
+```{r msea_gw}
+msea_gw <- run_msea(gw_limma, pathway_list,
+                    analysis_label = "GW (limma t-statistic)")
+```
+
+## Sex Analysis
+
+```{r msea_sex}
+msea_sex <- run_msea(sex_limma, pathway_list,
+                     analysis_label = "Sex (limma t-statistic, positive = higher in males)")
+```
+
+---
+
+# Results
+
+## GW — Top Pathways
+
+```{r results_gw}
+if (!is.null(msea_gw)) {
+  msea_gw %>%
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) %>%
+    head(30) %>%
+    dplyr::select(pathway, pathway_source, pval, padj, NES, size, leadingEdge) %>%
+    mutate(
+      pval = signif(pval, 3),
+      padj = signif(padj, 3),
+      NES  = round(NES, 3),
+      leadingEdge = map_chr(leadingEdge, ~paste(head(.x, 5), collapse = ", "))
+    ) %>%
+    rename(
+      Pathway         = pathway,
+      Source          = pathway_source,
+      `p-value`       = pval,
+      `FDR`           = padj,
+      `NES`           = NES,
+      `Set size`      = size,
+      `Leading edge (top 5)` = leadingEdge
+    ) %>%
+    kable(caption = "GW MSEA — top 30 pathways by FDR") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"),
+                  full_width = FALSE, font_size = 11)
+}
+```
+
+## Sex — Top Pathways
+
+```{r results_sex}
+if (!is.null(msea_sex)) {
+  msea_sex %>%
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) %>%
+    head(30) %>%
+    dplyr::select(pathway, pathway_source, pval, padj, NES, size, leadingEdge) %>%
+    mutate(
+      pval = signif(pval, 3),
+      padj = signif(padj, 3),
+      NES  = round(NES, 3),
+      leadingEdge = map_chr(leadingEdge, ~paste(head(.x, 5), collapse = ", "))
+    ) %>%
+    rename(
+      Pathway         = pathway,
+      Source          = pathway_source,
+      `p-value`       = pval,
+      `FDR`           = padj,
+      `NES`           = NES,
+      `Set size`      = size,
+      `Leading edge (top 5)` = leadingEdge
+    ) %>%
+    kable(caption = "Sex MSEA — top 30 pathways by FDR") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"),
+                  full_width = FALSE, font_size = 11)
+}
+```
+
+---
+
+# Visualizations
+
+```{r plot_function}
+# Dot plot: NES on x, pathway on y, color = database, size = set size
+# FDR significance shown as stars appended to pathway labels on the y-axis
+# * p < 0.05, ** FDR < 0.05, *** FDR < 0.01
+plot_msea_dotplot <- function(results, pathway_source_lookup, analysis_label,
+                              top_n = 25) {
+  if (is.null(results) || nrow(results) == 0) {
+    message("No results to plot for: ", analysis_label)
+    return(NULL)
+  }
+
+  plot_data <- results %>%
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) %>%
+    filter(pval < 0.05) %>%
+    arrange(padj) %>%
+    head(top_n) %>%
+    mutate(
+      stars = case_when(
+        padj < 0.01 ~ "**",
+        padj < 0.05 ~ "*",
+        TRUE        ~ ""
+      ),
+      # Strip the " (Source)" suffix before truncating, then re-append
+      # so the source is never swallowed by str_trunc
+      pathway_base  = str_remove(pathway, " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$"),
+      pathway_short = str_trunc(pathway_base, 45),
+      pathway_label = paste0(pathway_short, " (", pathway_source, ")",
+                             if_else(stars != "", paste0(" ", stars), ""))
+    )
+
+  if (nrow(plot_data) == 0) {
+    message("No nominally significant pathways for: ", analysis_label)
+    return(NULL)
+  }
+
+  ggplot(plot_data,
+         aes(x = NES,
+             y = reorder(pathway_label, NES),
+             color = pathway_source,
+             size  = size,
+             shape = pathway_source)) +
+    geom_point(alpha = 0.85) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    scale_color_manual(name = "Database",
+                       values = c("KEGG" = "#E41A1C", "Reactome" = "#377EB8",
+                                  "WikiPathways" = "#4DAF4A")) +
+    scale_shape_manual(name = "Database",
+                       values = c("KEGG" = 16, "Reactome" = 17, "WikiPathways" = 15)) +
+    scale_size_continuous(name = "Set size", range = c(2, 8)) +
+    theme_minimal(base_size = 11) +
+    labs(
+      x        = "Normalized Enrichment Score (NES)",
+      y        = NULL,
+      title    = paste0("MSEA — ", analysis_label),
+      subtitle = paste0("Top ", nrow(plot_data), " pathways by FDR (p < 0.05 shown)\n",
+                        "* FDR < 0.05   ** FDR < 0.01")
+    ) +
+    theme(
+      plot.title    = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9),
+      axis.text.y   = element_text(size = 8),
+      legend.position = "right"
+    )
+}
+```
+
+## GW Dot Plot
+
+```{r plot_gw, fig.width=10, fig.height=8}
+p_gw <- plot_msea_dotplot(msea_gw, pathway_source_lookup, "GW")
+if (!is.null(p_gw)) {
+  save_dual_format(p_gw, "msea_gw_dotplot", png_path = png_path, svg_path = svg_path)
+  print(p_gw)
+}
+```
+
+## Sex Dot Plot
+
+```{r plot_sex, fig.width=10, fig.height=8}
+p_sex <- plot_msea_dotplot(msea_sex, pathway_source_lookup, "Sex (positive NES = enriched in males)")
+if (!is.null(p_sex)) {
+  save_dual_format(p_sex, "msea_sex_dotplot", png_path = png_path, svg_path = svg_path)
+  print(p_sex)
+}
+```
+
+## fgsea Enrichment Plots — Top GW Pathways
+
+```{r enrichment_plots_gw, fig.width=8, fig.height=4}
+# Individual enrichment plots for top 5 GW pathways by FDR
+if (!is.null(msea_gw) && nrow(msea_gw) > 0) {
+  ranked_gw <- gw_limma %>%
+    filter(!is.na(t)) %>%
+    arrange(desc(t)) %>%
+    dplyr::select(Name, t) %>%
+    deframe()
+
+  # Restrict to pathways present in filtered list
+  pathway_list_gw <- lapply(pathway_list, function(x) intersect(x, names(ranked_gw)))
+  pathway_list_gw <- pathway_list_gw[lengths(pathway_list_gw) >= 5]
+
+  top_gw_pathways <- msea_gw %>%
+    arrange(padj) %>%
+    head(5) %>%
+    pull(pathway)
+
+  for (pw in top_gw_pathways) {
+    if (pw %in% names(pathway_list_gw)) {
+      p <- plotEnrichment(pathway_list_gw[[pw]], ranked_gw) +
+        labs(title = str_trunc(pw, 70),
+             subtitle = paste0("NES = ", round(msea_gw$NES[msea_gw$pathway == pw], 3),
+                               "  |  FDR = ", signif(msea_gw$padj[msea_gw$pathway == pw], 3)),
+             x = "Rank in GW t-statistic",
+             y = "Enrichment Score") +
+        theme_minimal() +
+        theme(plot.title    = element_text(size = 10, hjust = 0.5),
+              plot.subtitle = element_text(size = 9,  hjust = 0.5, color = "grey40"))
+      print(p)
+    }
+  }
+}
+```
+
+## fgsea Enrichment Plots — Top Sex Pathways
+
+```{r enrichment_plots_sex, fig.width=8, fig.height=4}
+if (!is.null(msea_sex) && nrow(msea_sex) > 0) {
+  ranked_sex <- sex_limma %>%
+    filter(!is.na(t)) %>%
+    arrange(desc(t)) %>%
+    dplyr::select(Name, t) %>%
+    deframe()
+
+  pathway_list_sex <- lapply(pathway_list, function(x) intersect(x, names(ranked_sex)))
+  pathway_list_sex <- pathway_list_sex[lengths(pathway_list_sex) >= 5]
+
+  top_sex_pathways <- msea_sex %>%
+    arrange(padj) %>%
+    head(5) %>%
+    pull(pathway)
+
+  for (pw in top_sex_pathways) {
+    if (pw %in% names(pathway_list_sex)) {
+      p <- plotEnrichment(pathway_list_sex[[pw]], ranked_sex) +
+        labs(title = str_trunc(pw, 70),
+             subtitle = paste0("NES = ", round(msea_sex$NES[msea_sex$pathway == pw], 3),
+                               "  |  FDR = ", signif(msea_sex$padj[msea_sex$pathway == pw], 3),
+                               "  |  positive NES = enriched in males"),
+             x = "Rank in sex t-statistic (M > F)",
+             y = "Enrichment Score") +
+        theme_minimal() +
+        theme(plot.title    = element_text(size = 10, hjust = 0.5),
+              plot.subtitle = element_text(size = 9,  hjust = 0.5, color = "grey40"))
+      print(p)
+    }
+  }
+}
+```
+
+---
+
+# Save Results
+
+```{r save}
+# Save pathway sets (for reproducibility / supplementary)
+pathway_sets_out <- pathway_sets_raw %>%
+  distinct(Name, pathway_id, pathway_label) %>%
+  left_join(pathway_info %>% dplyr::select(pathway_id, pathway_source),
+            by = "pathway_id")
+write_csv(pathway_sets_out,
+          file.path(csv_path, "batch2_pathway_metabolite_mapping.csv"))
+
+# Save MSEA results
+if (!is.null(msea_gw)) {
+  msea_gw_out <- msea_gw %>%
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) %>%
+    mutate(leadingEdge = map_chr(leadingEdge, ~paste(.x, collapse = ";")))
+  write_csv(msea_gw_out, file.path(csv_path, "batch2_msea_gw.csv"))
+}
+
+if (!is.null(msea_sex)) {
+  msea_sex_out <- msea_sex %>%
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) %>%
+    mutate(leadingEdge = map_chr(leadingEdge, ~paste(.x, collapse = ";")))
+  write_csv(msea_sex_out, file.path(csv_path, "batch2_msea_sex.csv"))
+}
+
+cat("Files saved to:", csv_path, "\n")
+```

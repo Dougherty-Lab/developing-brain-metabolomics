@@ -710,6 +710,10 @@ save_dual_format(sex_bar, "sex_limma_bar", png_path = png_path, svg_path = svg_p
 print(sex_bar)
 
 write_csv(sex_limma_results, file.path(csv_path, "batch2_sex_limma_results.csv"))
+
+cat("GW limma results summary:\n")
+cat("  Nominal p < 0.05:", sum(sex_limma_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.05:", sum(sex_limma_results$adj.P.Val < 0.05), "\n")
 ```
  
 ### limma trajectory plots
@@ -717,32 +721,6 @@ write_csv(sex_limma_results, file.path(csv_path, "batch2_sex_limma_results.csv")
 # Trajectory plots for top GW and sex limma hits
 # Points only, colored by sex, x = GW (continuous)
 metadata_traj <- pData(batch2_metabolomics)
-
-# Helper to plot a single metabolite trajectory
-plot_trajectory <- function(metabolite_name, color_by_sex = TRUE, title_suffix = "") {
-  
-  intensity <- exprs(batch2_metabolomics)[metabolite_name, ]
-  
-  traj_df <- data.frame(
-    GW        = metadata_traj$GW,
-    Sex       = metadata_traj$Sex,
-    Intensity = intensity
-  )
-  
-  display_name <- truncate_labels(metabolite_name)
-  
-  p <- ggplot(traj_df, aes(x = GW, y = Intensity, color = Sex)) +
-    geom_point(size = 3, alpha = 0.8) +
-    scale_color_manual(values = c("F" = "tomato", "M" = "steelblue")) +
-    theme_minimal() +
-    labs(x = "Gestational Week",
-         y = "log2 Peak Area",
-         title = display_name,
-         subtitle = title_suffix) +
-    theme(plot.title    = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5, size = 9, color = "grey40"))
-  return(p)
-}
 
 # --- GW trajectory plots ---
 # Top 20 FDR-significant by effect size
@@ -762,44 +740,23 @@ gw_nominal_hits <- gw_limma_results %>%
                         "  slope=", round(logFC, 3)))
 
 # Plot GW FDR hits
-if(nrow(gw_fdr_hits) > 0) {
+if (nrow(gw_fdr_hits) > 0) {
   gw_fdr_plots <- lapply(seq_len(nrow(gw_fdr_hits)), function(i) {
-    plot_trajectory(gw_fdr_hits$Name[i], 
+    plot_trajectory(gw_fdr_hits$Name[i], eset = batch2_metabolomics,
                     title_suffix = paste0("GW FDR significant | ", gw_fdr_hits$label[i]))
   })
-  
-  # Save as grid - 4 per page
-  n_pages <- ceiling(length(gw_fdr_plots) / 4)
-  for(pg in seq_len(n_pages)) {
-    idx <- ((pg - 1) * 4 + 1):min(pg * 4, length(gw_fdr_plots))
-    grid_plot <- cowplot::plot_grid(plotlist = gw_fdr_plots[idx], ncol = 2)
-    save_dual_format(grid_plot, 
-                     paste0("gw_trajectory_fdr_page", pg),
-                     png_path = png_path, svg_path = svg_path,
-                     width = 12, height = 8)
-    print(grid_plot)
-  }
+  save_trajectory_grids(gw_fdr_plots, "gw_trajectory_fdr", png_path, svg_path)
 } else {
   cat("No FDR-significant GW hits to plot\n")
 }
 
 # Plot GW nominal hits
-if(nrow(gw_nominal_hits) > 0) {
+if (nrow(gw_nominal_hits) > 0) {
   gw_nominal_plots <- lapply(seq_len(nrow(gw_nominal_hits)), function(i) {
-    plot_trajectory(gw_nominal_hits$Name[i],
+    plot_trajectory(gw_nominal_hits$Name[i], eset = batch2_metabolomics,
                     title_suffix = paste0("GW nominal only | ", gw_nominal_hits$label[i]))
   })
-  
-  n_pages <- ceiling(length(gw_nominal_plots) / 4)
-  for(pg in seq_len(n_pages)) {
-    idx <- ((pg - 1) * 4 + 1):min(pg * 4, length(gw_nominal_plots))
-    grid_plot <- cowplot::plot_grid(plotlist = gw_nominal_plots[idx], ncol = 2)
-    save_dual_format(grid_plot,
-                     paste0("gw_trajectory_nominal_page", pg),
-                     png_path = png_path, svg_path = svg_path,
-                     width = 12, height = 8)
-    print(grid_plot)
-  }
+  save_trajectory_grids(gw_nominal_plots, "gw_trajectory_nominal", png_path, svg_path)
 }
 
 # --- Sex trajectory plots ---
@@ -820,43 +777,23 @@ sex_nominal_hits <- sex_limma_results %>%
                         "  logFC=", round(logFC, 3)))
 
 # Plot sex FDR hits
-if(nrow(sex_fdr_hits) > 0) {
+if (nrow(sex_fdr_hits) > 0) {
   sex_fdr_plots <- lapply(seq_len(nrow(sex_fdr_hits)), function(i) {
-    plot_trajectory(sex_fdr_hits$Name[i],
+    plot_trajectory(sex_fdr_hits$Name[i], eset = batch2_metabolomics,
                     title_suffix = paste0("Sex FDR significant | ", sex_fdr_hits$label[i]))
   })
-  
-  n_pages <- ceiling(length(sex_fdr_plots) / 4)
-  for(pg in seq_len(n_pages)) {
-    idx <- ((pg - 1) * 4 + 1):min(pg * 4, length(sex_fdr_plots))
-    grid_plot <- cowplot::plot_grid(plotlist = sex_fdr_plots[idx], ncol = 2)
-    save_dual_format(grid_plot,
-                     paste0("sex_trajectory_fdr_page", pg),
-                     png_path = png_path, svg_path = svg_path,
-                     width = 12, height = 8)
-    print(grid_plot)
-  }
+  save_trajectory_grids(sex_fdr_plots, "sex_trajectory_fdr", png_path, svg_path)
 } else {
   cat("No FDR-significant sex hits to plot\n")
 }
 
 # Plot sex nominal hits
-if(nrow(sex_nominal_hits) > 0) {
+if (nrow(sex_nominal_hits) > 0) {
   sex_nominal_plots <- lapply(seq_len(nrow(sex_nominal_hits)), function(i) {
-    plot_trajectory(sex_nominal_hits$Name[i],
+    plot_trajectory(sex_nominal_hits$Name[i], eset = batch2_metabolomics,
                     title_suffix = paste0("Sex nominal only | ", sex_nominal_hits$label[i]))
   })
-  
-  n_pages <- ceiling(length(sex_nominal_plots) / 4)
-  for(pg in seq_len(n_pages)) {
-    idx <- ((pg - 1) * 4 + 1):min(pg * 4, length(sex_nominal_plots))
-    grid_plot <- cowplot::plot_grid(plotlist = sex_nominal_plots[idx], ncol = 2)
-    save_dual_format(grid_plot,
-                     paste0("sex_trajectory_nominal_page", pg),
-                     png_path = png_path, svg_path = svg_path,
-                     width = 12, height = 8)
-    print(grid_plot)
-  }
+  save_trajectory_grids(sex_nominal_plots, "sex_trajectory_nominal", png_path, svg_path)
 }
 ```
 
