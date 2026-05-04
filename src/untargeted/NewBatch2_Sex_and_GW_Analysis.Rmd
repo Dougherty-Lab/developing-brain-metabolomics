@@ -1,0 +1,1584 @@
+---
+title: "Batch 2 Sex and GW Metabolomics Analysis"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated `r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+---
+
+# Set Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+Packages <- c("readxl", "stats", "ggfortify", "ggrepel", "svglite", "Biobase", "ComplexHeatmap", "limma", "tidyverse", "ropls", "cowplot", "UpSetR")
+
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r source_function, include=FALSE}
+# Source Functions
+source("functions.R")
+source("missingness_visualization_functions.R")
+```
+
+```{r set_path, include=FALSE}
+png_path <- "../../results/untargeted/newbatch2_clean"
+svg_path <- "../../results/untargeted/newbatch2_clean/svg"
+csv_path <- "../../results/untargeted/newbatch2_clean/csv"
+```
+
+## Load Dataset(s)
+
+```{r LoadDataset, include=FALSE}
+# Peak Area Values
+newbatch2_peak_area <- read_csv("../../results/untargeted/newbatch2_peak_area_clean.csv", show_col_types = FALSE)
+
+# Metabolite Annotations
+
+newbatch2_compound_annotation <- read_csv("../../results/untargeted/newbatch2_metabolite_annotations.csv", show_col_types = FALSE)
+
+# Sample Metadata
+
+newbatch2_sample_metadata <- read_csv("../../results/untargeted/newbatch2_sample_metadata.csv", show_col_types = FALSE)
+```
+
+
+``` {r prep_dataframe}
+# Convert metabolites data to matrix format
+final_matrix <- newbatch2_peak_area %>%
+  dplyr::select(starts_with("Sample"))
+
+# Filter annotation to only include compounds present in peak area
+compounds_in_peak <- unique(newbatch2_peak_area$Compound.ID)
+
+newbatch2_compound_annotation <- newbatch2_compound_annotation %>%
+  filter(Compound.ID %in% compounds_in_peak) %>%
+  arrange(match(Name, rownames(final_matrix)))
+
+
+metabolite_names <- newbatch2_compound_annotation$Name
+final_matrix <- apply(final_matrix, 2, as.numeric)
+rownames(final_matrix) <- metabolite_names
+
+# Filter metadata to match metabolites samples
+newbatch2_sample_metadata <- newbatch2_sample_metadata %>%
+  filter(Sample %in% colnames(final_matrix)) %>%
+  # Ensure the order matches the metabolites data
+  arrange(match(Sample, colnames(final_matrix)))
+
+# Create the metadata dataframe
+sample_metadata_df <- as.data.frame(newbatch2_sample_metadata)
+rownames(sample_metadata_df) <- sample_metadata_df$Sample
+
+# Create Biobase ExpressionSet with the matched data
+sample_phenoData <- AnnotatedDataFrame(sample_metadata_df)
+
+# Create the metabolite metadata dataframe
+metabolite_metadata_df <- as.data.frame(newbatch2_compound_annotation)
+rownames(metabolite_metadata_df) <- metabolite_metadata_df$Name
+
+metabolite_featureData <- AnnotatedDataFrame(metabolite_metadata_df)
+
+# Create the ExpressionSet with both phenodata and featuredata
+newbatch2_metabolomics <- ExpressionSet(
+  assayData = final_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+```
+
+```{r log_transform}
+# Log2-transform peak intensities (log2(x + 1) to handle any zeros)
+# Applied to the ExpressionSet in-place so all downstream analyses use log values
+exprs(newbatch2_metabolomics) <- log2(exprs(newbatch2_metabolomics) + 1)
+
+cat("Log2 transformation applied.\n")
+cat("Intensity range before: check raw matrix if needed\n")
+cat("Intensity range after:", range(exprs(newbatch2_metabolomics), na.rm = TRUE), "\n")
+```
+# GW Analysis
+
+## GW Correlation
+```{r gw_correlation}
+# Calculate correlations and p-values between metabolites and metadata
+metadata <- pData(newbatch2_metabolomics)
+GW <- metadata$GW
+
+# Function to calculate correlation and p-value
+correlation_test <- function(x, y) {
+  result <- cor.test(x, y)
+  c(correlation = result$estimate, p_value = result$p.value)
+}
+
+# Calculate correlations and p-values for each metabolite
+metabolite_samplemetadata_stats <- data.frame(
+  Name = fData(newbatch2_metabolomics)$Name,
+  GW_corr_pval = t(apply(exprs(newbatch2_metabolomics), 1, function(x) correlation_test(x, GW)))
+)
+
+metabolite_samplemetadata_stats <- metabolite_samplemetadata_stats %>%
+  mutate(
+    GW_FDR = p.adjust(GW_corr_pval.p_value, method = "fdr")
+  )
+
+
+# For GW
+# Scatter plot for significant GW correlations
+significant_GW <- metabolite_samplemetadata_stats %>% filter(GW_FDR < 0.1)
+
+significant_GW <- significant_GW %>% mutate(Name_display = truncate_labels(Name))
+
+scatter_GW <- ggplot(significant_GW, aes(x = reorder(Name_display, GW_corr_pval.correlation.cor), y = GW_corr_pval.correlation.cor)) +
+  geom_point(aes(size = -log10(GW_corr_pval.p_value), color = GW_corr_pval.correlation.cor)) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Metabolite",
+    y = "Correlation with GW",
+    title = "Significant Metabolite Correlations with Gestational Weeks (GW)"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5), legend.position = "right", axis.text.x = element_text(angle = 90, hjust = 1))
+
+save_dual_format(scatter_GW, "significant_GW",
+  png_path = png_path, svg_path = svg_path,
+  label_lookup = build_label_lookup(significant_GW$Name)
+)
+
+print(scatter_GW)
+
+# Print top correlations
+top_GW_correlations <- metabolite_samplemetadata_stats %>%
+  arrange(desc(abs(GW_corr_pval.correlation.cor))) %>%
+  head(10) %>%
+  dplyr::select(Name, GW_corr_pval.correlation.cor, GW_corr_pval.p_value, GW_FDR)
+
+print(top_GW_correlations)
+```
+
+## GW Limma
+```{r gw_limma}
+# limma linear model for GW associations (replicating MetaboAnalystR behavior)
+# Design uses ~ GW (with intercept), matching MetaboAnalystR's continuous-only model choice
+metadata_limma <- pData(newbatch2_metabolomics)
+peak_matrix_limma <- exprs(newbatch2_metabolomics) # features × samples
+
+design_gw <- model.matrix(~GW, data = metadata_limma)
+
+fit_gw <- lmFit(peak_matrix_limma, design_gw)
+fit_gw <- eBayes(fit_gw)
+gw_limma_results <- topTable(fit_gw, coef = "GW", number = Inf, adjust.method = "BH") %>%
+  rownames_to_column("Name")
+
+# Merge with annotation
+gw_limma_results <- gw_limma_results %>%
+  left_join(fData(newbatch2_metabolomics) %>% dplyr::select(Name, Compound.ID, Super.Class, Class),
+    by = "Name"
+  )
+
+# Top hits bar chart - effect size (slope per GW week)
+# Always show all FDR-significant hits; fill remaining slots up to 30 with
+# top nominal-only hits ranked by absolute effect size
+n_fdr_gw <- sum(gw_limma_results$adj.P.Val < 0.1)
+top_gw <- bind_rows(
+  gw_limma_results %>% filter(adj.P.Val < 0.1) %>%
+    arrange(desc(abs(logFC))),
+  gw_limma_results %>% filter(P.Value < 0.05, adj.P.Val >= 0.1) %>%
+    arrange(desc(abs(logFC))) %>%
+    head(max(0L, 30L - n_fdr_gw))
+) %>%
+  mutate(
+    Direction = ifelse(logFC > 0, "Increases with GW", "Decreases with GW"),
+    FDR_label = case_when(
+      adj.P.Val < 0.001 ~ "***",
+      adj.P.Val < 0.01 ~ "**",
+      adj.P.Val < 0.1 ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+gw_bar_lookup <- build_label_lookup(top_gw$Name)
+top_gw <- top_gw %>% mutate(Name_display = truncate_labels(Name))
+
+gw_bar <- ggplot(top_gw, aes(x = reorder(Name, logFC), y = logFC, fill = Direction)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_text(
+    aes(
+      label = Name_display,
+      y     = logFC * 0.98,
+      hjust = ifelse(logFC > 0, 1, 0)
+    ),
+    size = 2.8, color = "white"
+  ) +
+  geom_text(
+    aes(
+      label = FDR_label,
+      hjust = ifelse(logFC > 0, -0.2, 1.2)
+    ),
+    size = 4, fontface = "bold"
+  ) +
+  coord_flip() +
+  scale_fill_manual(values = c(
+    "Increases with GW" = "#1B5E20",
+    "Decreases with GW" = "#C8E6C9"
+  )) +
+  theme_minimal() +
+  labs(
+    x       = NULL,
+    y       = "Slope (log2 peak area per GW week)",
+    title   = "Top GW-Associated Metabolites (limma, p < 0.05)",
+    caption = "* FDR < 0.1   ** FDR < 0.01   *** FDR < 0.001"
+  ) +
+  theme(
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank(),
+    plot.title   = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0)
+  )
+
+save_dual_format(gw_bar, "gw_limma_bar",
+  png_path = png_path, svg_path = svg_path,
+  label_lookup = gw_bar_lookup
+)
+print(gw_bar)
+
+# Trajectory plots for all GW FDR-significant hits (shown immediately after bar chart)
+gw_fdr_traj_hits <- gw_limma_results %>%
+  filter(adj.P.Val < 0.1) %>%
+  arrange(desc(abs(logFC))) %>%
+  mutate(label = paste0(
+    "FDR=", formatC(adj.P.Val, format = "e", digits = 2),
+    "  slope=", round(logFC, 3)
+  ))
+
+if (nrow(gw_fdr_traj_hits) > 0) {
+  gw_fdr_traj_plots <- build_trajectory_plots(
+    metabolite_names = gw_fdr_traj_hits$Name,
+    eset             = newbatch2_metabolomics,
+    title_suffixes   = paste0("GW FDR significant | ", gw_fdr_traj_hits$label)
+  )
+  save_trajectory_grids(gw_fdr_traj_plots, "gw_trajectory_fdr", png_path, svg_path)
+} else {
+  cat("No FDR-significant GW hits to plot\n")
+}
+
+# Ranked dot plot - all metabolites
+gw_dot <- ggplot(
+  gw_limma_results %>%
+    arrange(logFC) %>%
+    mutate(rank = row_number()),
+  aes(x = rank, y = logFC, color = adj.P.Val < 0.1)
+) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(
+    values = c("FALSE" = "grey70", "TRUE" = "red"),
+    name = "FDR < 0.1"
+  ) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  theme_minimal() +
+  labs(
+    x = "Metabolite rank",
+    y = "Slope (log2 peak area per GW week)",
+    title = "GW Association Effect Sizes - All Metabolites"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(gw_dot, "gw_limma_dot", png_path = png_path, svg_path = svg_path)
+print(gw_dot)
+
+# Save results
+write_csv(gw_limma_results, file.path(csv_path, "newbatch2_gw_limma_results.csv"))
+
+cat("GW limma results summary:\n")
+cat("  Nominal p < 0.05:", sum(gw_limma_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.1:", sum(gw_limma_results$adj.P.Val < 0.1), "\n")
+```
+
+
+# Sex Differential Analysis
+## Univariate Testing
+```{r sex_analysis}
+# Calculate p-values for sex differences using the Wilcoxon rank-sum test
+metadata <- pData(newbatch2_metabolomics)
+sex_groups <- metadata$Sex
+
+# Function to calculate Wilcoxon rank-sum test p-value and statistic
+wilcoxon_test <- function(x, sex) {
+  # Remove missing values
+  valid_idx <- !is.na(x)
+  x_clean <- x[valid_idx]
+  sex_clean <- sex[valid_idx]
+
+  # Only test if we have both groups
+  if (length(unique(sex_clean)) < 2) {
+    return(c(statistic = NA, p_value = NA))
+  }
+
+  result <- wilcox.test(x_clean[sex_clean == "F"],
+    x_clean[sex_clean == "M"],
+    exact = FALSE
+  )
+  c(statistic = as.numeric(result$statistic), p_value = result$p.value)
+}
+
+# Perform Wilcoxon rank-sum test for each metabolite
+wilcoxon_results <- t(apply(exprs(newbatch2_metabolomics), 1, wilcoxon_test, sex = sex_groups))
+
+# Ensure column names are set
+colnames(wilcoxon_results) <- c("statistic", "p_value")
+
+# Calculate mean values by sex for fold change calculation
+mean_male <- apply(exprs(newbatch2_metabolomics)[, sex_groups == "M"], 1, mean, na.rm = TRUE)
+mean_female <- apply(exprs(newbatch2_metabolomics)[, sex_groups == "F"], 1, mean, na.rm = TRUE)
+
+# Create comprehensive statistics data frame
+metabolite_sex_stats <- data.frame(
+  Name = fData(newbatch2_metabolomics)$Name,
+  Compound.ID = fData(newbatch2_metabolomics)$Compound.ID,
+  Wilcoxon_statistic = wilcoxon_results[, "statistic"],
+  p_value = wilcoxon_results[, "p_value"],
+  Mean_Female = mean_female,
+  Mean_Male = mean_male,
+  logFC = log2(mean_male / mean_female)
+) %>%
+  mutate(
+    FDR = p.adjust(p_value, method = "fdr"),
+    Bonferroni = p.adjust(p_value, method = "bonferroni"),
+    Significant_FDR = FDR < 0.1,
+    Significant_Bonferroni = Bonferroni < 0.05,
+    Direction = case_when(
+      logFC > 0 ~ "Higher in Males",
+      logFC < 0 ~ "Higher in Females",
+      TRUE ~ "No difference"
+    )
+  )
+metabolite_sex_stats <- metabolite_sex_stats %>% mutate(Name_display = truncate_labels(Name))
+
+sig_metabolites_fdr <- metabolite_sex_stats %>% filter(p_value < 0.05)
+
+# Volcano plot with FDR correction - NO bubble size
+volcano_FDR <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(p_value))) +
+  geom_point(aes(color = Significant_FDR), alpha = 0.6) +
+  geom_text_repel(
+    data = sig_metabolites_fdr,
+    aes(label = Name_display),
+    size = 3, max.overlaps = 15
+  ) +
+  scale_color_manual(
+    values = c("FALSE" = "grey", "TRUE" = "red"),
+    name = "FDR < 0.1"
+  ) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(
+    x = "Log2 Fold Change (Male/Female)",
+    y = "-log10(p-value)",
+    title = "Sex Differential Analysis - Volcano Plot (FDR)"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "right"
+  )
+
+save_dual_format(volcano_FDR, "sex_volcano_FDR",
+  png_path = png_path, svg_path = svg_path,
+  label_lookup = build_label_lookup(metabolite_sex_stats$Name)
+)
+print(volcano_FDR)
+
+# Volcano plot with Bonferroni correction - NO bubble size
+volcano_Bonferroni <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(p_value))) +
+  geom_point(aes(color = Significant_Bonferroni), alpha = 0.6) +
+  geom_text_repel(
+    data = sig_metabolites_fdr,
+    aes(label = Name_display),
+    size = 3, max.overlaps = 15
+  ) +
+  scale_color_manual(
+    values = c("FALSE" = "grey", "TRUE" = "red"),
+    name = "Bonferroni < 0.05"
+  ) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(
+    x = "Log2 Fold Change (Male/Female)",
+    y = "-log10(p-value)",
+    title = "Sex Differential Analysis - Volcano Plot (Bonferroni)"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "right"
+  )
+
+save_dual_format(volcano_Bonferroni, "sex_volcano_Bonferroni",
+  png_path = png_path, svg_path = svg_path,
+  label_lookup = build_label_lookup(metabolite_sex_stats$Name)
+)
+print(volcano_Bonferroni)
+
+# Summary statistics
+cat("\n=== Sex Differential Analysis Summary ===\n")
+cat("Total metabolites analyzed:", nrow(metabolite_sex_stats), "\n")
+cat("Significant at FDR < 0.1:", sum(metabolite_sex_stats$Significant_FDR, na.rm = TRUE), "\n")
+cat("Significant at Bonferroni < 0.05:", sum(metabolite_sex_stats$Significant_Bonferroni, na.rm = TRUE), "\n")
+
+# Direction summary
+cat("\nAmong FDR-significant metabolites:\n")
+direction_summary <- metabolite_sex_stats %>%
+  filter(Significant_FDR) %>%
+  count(Direction)
+print(direction_summary)
+
+# Top metabolites by significance
+cat("\n=== Top 10 Most Significant Metabolites ===\n")
+top_metabolites <- metabolite_sex_stats %>%
+  arrange(p_value) %>%
+  head(10) %>%
+  dplyr::select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Bonferroni, Direction)
+print(top_metabolites)
+
+# Top metabolites with largest fold changes (FDR significant only)
+cat("\n=== Top 10 Largest Fold Changes (FDR < 0.1) ===\n")
+top_FC <- metabolite_sex_stats %>%
+  filter(Significant_FDR) %>%
+  arrange(desc(abs(logFC))) %>%
+  head(10) %>%
+  dplyr::select(Name, logFC, Mean_Female, Mean_Male, p_value, FDR, Direction)
+print(top_FC)
+
+# Save results to CSV
+write_csv(
+  metabolite_sex_stats,
+  file.path(csv_path, "newbatch2_sex_differential_analysis.csv")
+)
+
+cat("\nResults saved to:", file.path(csv_path, "newbatch2_sex_differential_analysis.csv"), "\n")
+```
+### By Annotation Group
+```{r group_sex_analysis}
+# Function to collapse metabolites by annotation category
+collapse_metabolites_by_group <- function(eset, group_col) {
+  # Get expression data and annotations
+  expr_data <- exprs(eset)
+  annotations <- fData(eset)
+
+  # Check if column exists
+  if (!group_col %in% colnames(annotations)) {
+    warning(paste("Column", group_col, "not found in annotations"))
+    return(NULL)
+  }
+
+  # Remove rows with missing group information
+  valid_idx <- !is.na(annotations[[group_col]]) &
+    annotations[[group_col]] != "" &
+    annotations[[group_col]] != "NA" &
+    !is.na(annotations[[group_col]])
+
+  expr_data_clean <- expr_data[valid_idx, ]
+  groups <- annotations[[group_col]][valid_idx]
+
+  cat("  Valid metabolites with", group_col, "annotation:", sum(valid_idx), "\n")
+
+  # Collapse by taking median of each group
+  unique_groups <- unique(groups)
+  collapsed_data <- matrix(NA, nrow = length(unique_groups), ncol = ncol(expr_data))
+  rownames(collapsed_data) <- unique_groups
+  colnames(collapsed_data) <- colnames(expr_data)
+
+  for (i in seq_along(unique_groups)) {
+    group_idx <- groups == unique_groups[i]
+    if (sum(group_idx) == 1) {
+      collapsed_data[i, ] <- expr_data_clean[group_idx, ]
+    } else {
+      collapsed_data[i, ] <- apply(expr_data_clean[group_idx, , drop = FALSE], 2, median, na.rm = TRUE)
+    }
+  }
+
+  # Create summary annotation
+  collapsed_annotation <- data.frame(
+    Group = unique_groups,
+    N_metabolites = as.numeric(table(groups)[unique_groups]),
+    Category = group_col
+  )
+  rownames(collapsed_annotation) <- unique_groups
+
+  # Create new ExpressionSet
+  collapsed_phenoData <- phenoData(eset)
+  collapsed_featureData <- AnnotatedDataFrame(collapsed_annotation)
+
+  collapsed_eset <- ExpressionSet(
+    assayData = collapsed_data,
+    phenoData = collapsed_phenoData,
+    featureData = collapsed_featureData
+  )
+
+  return(collapsed_eset)
+}
+
+# Function to perform sex analysis on collapsed data
+perform_collapsed_sex_analysis <- function(eset, category_name) {
+  metadata <- pData(eset)
+  sex_groups <- metadata$Sex
+
+  # Wilcoxon test function
+  wilcoxon_test <- function(x, sex) {
+    valid_idx <- !is.na(x)
+    x_clean <- x[valid_idx]
+    sex_clean <- sex[valid_idx]
+
+    if (length(unique(sex_clean)) < 2) {
+      return(c(statistic = NA, p_value = NA))
+    }
+
+    result <- wilcox.test(x_clean[sex_clean == "F"],
+      x_clean[sex_clean == "M"],
+      exact = FALSE
+    )
+    c(statistic = as.numeric(result$statistic), p_value = result$p.value)
+  }
+
+  # Perform tests
+  wilcoxon_results <- t(apply(exprs(eset), 1, wilcoxon_test, sex = sex_groups))
+  colnames(wilcoxon_results) <- c("statistic", "p_value")
+
+  # Calculate means
+  mean_male <- apply(exprs(eset)[, sex_groups == "M"], 1, mean, na.rm = TRUE)
+  mean_female <- apply(exprs(eset)[, sex_groups == "F"], 1, mean, na.rm = TRUE)
+
+  # Create results data frame
+  results <- data.frame(
+    Group = fData(eset)$Group,
+    N_metabolites = fData(eset)$N_metabolites,
+    Category = category_name,
+    Wilcoxon_statistic = wilcoxon_results[, "statistic"],
+    p_value = wilcoxon_results[, "p_value"],
+    Mean_Female = mean_female,
+    Mean_Male = mean_male,
+    logFC = log2(mean_male / mean_female)
+  ) %>%
+    mutate(
+      Group_display = truncate_labels(Group),
+      FDR = p.adjust(p_value, method = "fdr"),
+      Bonferroni = p.adjust(p_value, method = "bonferroni"),
+      Significant_FDR = FDR < 0.1,
+      Significant_Bonferroni = Bonferroni < 0.05,
+      Significant_nominal = p_value < 0.05,
+      Direction = case_when(
+        logFC > 0 ~ "Higher in Males",
+        logFC < 0 ~ "Higher in Females",
+        TRUE ~ "No difference"
+      )
+    ) %>%
+    arrange(p_value)
+
+  return(results)
+}
+
+# Analyze each available grouping category
+grouping_cols <- c("Super.Class", "Class", "Sub.Class", "Pathways")
+
+all_collapsed_results <- list()
+
+for (group_col in grouping_cols) {
+  cat("\n", rep("=", 80), "\n", sep = "")
+  cat("Analyzing by", group_col, "\n")
+  cat(rep("=", 80), "\n\n", sep = "")
+
+  # Collapse metabolites
+  collapsed_eset <- collapse_metabolites_by_group(newbatch2_metabolomics, group_col)
+
+  if (!is.null(collapsed_eset)) {
+    cat("  Number of", group_col, "groups:", nrow(collapsed_eset), "\n\n")
+
+    # Perform sex analysis
+    results <- perform_collapsed_sex_analysis(collapsed_eset, group_col)
+    all_collapsed_results[[group_col]] <- results
+
+    # Print summary
+    cat("Summary:\n")
+    cat("  Total groups:", nrow(results), "\n")
+    cat("  Significant at p < 0.05:", sum(results$Significant_nominal, na.rm = TRUE), "\n")
+    cat("  Significant at FDR < 0.1:", sum(results$Significant_FDR, na.rm = TRUE), "\n")
+    cat("  Significant at Bonferroni < 0.05:", sum(results$Significant_Bonferroni, na.rm = TRUE), "\n\n")
+
+    # Print top results
+    cat("Top 10 groups by p-value:\n")
+    print(results %>%
+      head(10) %>%
+      dplyr::select(Group, N_metabolites, logFC, p_value, FDR, Direction))
+    cat("\n")
+
+    results_sig <- results %>% filter(p_value < 0.05)
+
+    # Create volcano plot - SIZE = N_metabolites
+    volcano_plot <- ggplot(results, aes(x = logFC, y = -log10(p_value))) +
+      geom_point(aes(color = Significant_FDR, size = N_metabolites), alpha = 0.6) +
+      geom_text_repel(
+        data = results_sig,
+        aes(label = Group_display),
+        size = 3, max.overlaps = 15
+      ) +
+      scale_color_manual(
+        values = c("FALSE" = "grey", "TRUE" = "red"),
+        name = "FDR < 0.1"
+      ) +
+      geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+      geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+      theme_minimal() +
+      labs(
+        x = "Log2 Fold Change (Male/Female)",
+        y = "-log10(p-value)",
+        title = paste("Sex Differences by", group_col),
+        size = "N Metabolites"
+      ) +
+      theme(
+        plot.title = element_text(hjust = 0.5),
+        legend.position = "right"
+      )
+
+    save_dual_format(volcano_plot,
+      paste0("sex_volcano_", tolower(gsub("\\.", "_", group_col))),
+      png_path = png_path,
+      svg_path = svg_path
+    )
+    print(volcano_plot)
+
+    # Save results
+    write_csv(
+      results,
+      file.path(csv_path, paste0("newbatch2_sex_analysis_by_", tolower(gsub("\\.", "_", group_col)), ".csv"))
+    )
+  }
+}
+```
+
+```{r combine_results}
+# Combine all results for overview
+if (length(all_collapsed_results) > 0) {
+  combined_results <- bind_rows(all_collapsed_results)
+
+  # Summary plot across all categories
+  summary_sig <- combined_results %>%
+    group_by(Category) %>%
+    summarise(
+      Total = n(),
+      Nominal_sig = sum(Significant_nominal, na.rm = TRUE),
+      FDR_sig = sum(Significant_FDR, na.rm = TRUE),
+      Bonferroni_sig = sum(Significant_Bonferroni, na.rm = TRUE)
+    ) %>%
+    pivot_longer(
+      cols = c(Nominal_sig, FDR_sig, Bonferroni_sig),
+      names_to = "Significance_Level",
+      values_to = "Count"
+    ) %>%
+    mutate(Significance_Level = factor(Significance_Level,
+      levels = c("Nominal_sig", "FDR_sig", "Bonferroni_sig"),
+      labels = c("p < 0.05", "FDR < 0.1", "Bonferroni < 0.05")
+    ))
+
+  summary_plot <- ggplot(summary_sig, aes(x = Category, y = Count, fill = Significance_Level)) +
+    geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
+    geom_text(aes(label = Count), position = position_dodge(width = 0.9), vjust = -0.5, size = 3) +
+    theme_minimal() +
+    labs(
+      title = "Significant Sex Differences by Annotation Category",
+      x = "Annotation Category",
+      y = "Number of Significant Groups",
+      fill = "Significance Level"
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      axis.text.x = element_text(angle = 45, hjust = 1)
+    )
+
+  save_dual_format(summary_plot, "sex_collapsed_summary", png_path = png_path, svg_path = svg_path)
+  print(summary_plot)
+
+  # Save combined results
+  write_csv(
+    combined_results,
+    file.path(csv_path, "newbatch2_sex_analysis_all_collapsed.csv")
+  )
+
+  # Print overall summary
+  cat("\n", rep("=", 80), "\n", sep = "")
+  cat("OVERALL SUMMARY\n")
+  cat(rep("=", 80), "\n\n", sep = "")
+
+  overall_summary <- combined_results %>%
+    group_by(Category) %>%
+    summarise(
+      Total_Groups = n(),
+      Groups_with_nominal_sig = sum(Significant_nominal, na.rm = TRUE),
+      Groups_with_FDR_sig = sum(Significant_FDR, na.rm = TRUE),
+      Groups_with_Bonferroni_sig = sum(Significant_Bonferroni, na.rm = TRUE),
+      Median_logFC = median(abs(logFC), na.rm = TRUE)
+    )
+
+  print(overall_summary)
+
+  # Most significant groups across all categories
+  cat("\n\nTop 20 Most Significant Groups (all categories combined):\n")
+  top_overall <- combined_results %>%
+    arrange(p_value) %>%
+    head(20) %>%
+    dplyr::select(Category, Group, N_metabolites, logFC, p_value, FDR, Bonferroni, Direction)
+  print(top_overall)
+}
+```
+
+## Sex Limma
+```{r sex_limma}
+# limma linear model for sex differences
+# Design uses ~ Sex (with intercept), reference level is Female
+# logFC = log2(Male/Female)
+metadata_limma <- pData(newbatch2_metabolomics)
+peak_matrix_limma <- exprs(newbatch2_metabolomics)
+
+# Ensure Sex is a factor with Female as reference
+metadata_limma$Sex <- factor(metadata_limma$Sex, levels = c("F", "M"))
+
+design_sex <- model.matrix(~Sex, data = metadata_limma)
+
+fit_sex <- lmFit(peak_matrix_limma, design_sex)
+fit_sex <- eBayes(fit_sex)
+sex_limma_results <- topTable(fit_sex,
+  coef = "SexM", number = Inf,
+  adjust.method = "BH"
+) %>%
+  rownames_to_column("Name") %>%
+  left_join(
+    fData(newbatch2_metabolomics) %>%
+      dplyr::select(Name, Compound.ID, Super.Class, Class),
+    by = "Name"
+  ) %>%
+  mutate(
+    Direction = ifelse(logFC > 0, "Higher in Males", "Higher in Females"),
+    FDR_label = case_when(
+      adj.P.Val < 0.001 ~ "***",
+      adj.P.Val < 0.01 ~ "**",
+      adj.P.Val < 0.1 ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+cat("Sex limma results summary:\n")
+cat("  Nominal p < 0.05:", sum(sex_limma_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.1:", sum(sex_limma_results$adj.P.Val < 0.1), "\n")
+
+# Volcano plot - appropriate here since sex IS a discrete comparison
+volcano_sex_limma <- ggplot(
+  sex_limma_results,
+  aes(x = logFC, y = -log10(P.Value))
+) +
+  geom_point(aes(color = adj.P.Val < 0.1), alpha = 0.6) +
+  scale_color_manual(
+    values = c("FALSE" = "grey", "TRUE" = "red"),
+    name = "FDR < 0.1"
+  ) +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(
+    x = "Log2 Fold Change (Male/Female)",
+    y = "-log10(p-value)",
+    title = "Sex Differential Analysis - limma Volcano Plot",
+    caption = "Positive logFC = higher in males"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(volcano_sex_limma, "sex_limma_volcano",
+  png_path = png_path, svg_path = svg_path
+)
+print(volcano_sex_limma)
+
+# Bar chart of top hits with FDR labels
+# Always show all FDR-significant hits; fill remaining slots up to 30 with
+# top nominal-only hits ranked by absolute effect size
+n_fdr_sex <- sum(sex_limma_results$adj.P.Val < 0.1)
+top_sex <- bind_rows(
+  sex_limma_results %>% filter(adj.P.Val < 0.1) %>%
+    arrange(desc(abs(logFC))),
+  sex_limma_results %>% filter(P.Value < 0.05, adj.P.Val >= 0.1) %>%
+    arrange(desc(abs(logFC))) %>%
+    head(max(0L, 30L - n_fdr_sex))
+)
+
+sex_bar_lookup <- build_label_lookup(top_sex$Name)
+top_sex <- top_sex %>% mutate(Name_display = truncate_labels(Name))
+
+sex_bar <- ggplot(top_sex, aes(
+  x = reorder(Name, logFC), y = logFC,
+  fill = Direction
+)) +
+  geom_bar(stat = "identity", alpha = 0.8) +
+  geom_text(
+    aes(
+      label = Name_display,
+      y     = logFC * 0.98,
+      hjust = ifelse(logFC > 0, 1, 0)
+    ),
+    size = 2.8, color = "white"
+  ) +
+  geom_text(
+    aes(
+      label = FDR_label,
+      hjust = ifelse(logFC > 0, -0.2, 1.2)
+    ),
+    size = 4, fontface = "bold"
+  ) +
+  coord_flip() +
+  scale_fill_manual(values = c(
+    "Higher in Males" = "#571C90",
+    "Higher in Females" = "#FFC20A"
+  )) +
+  theme_minimal() +
+  labs(
+    x       = NULL,
+    y       = "Log2 Fold Change (Male/Female)",
+    title   = "Top Sex-Differential Metabolites (limma, p < 0.05)",
+    caption = "* FDR < 0.1   ** FDR < 0.01   *** FDR < 0.001"
+  ) +
+  theme(
+    axis.text.y  = element_blank(),
+    axis.ticks.y = element_blank(),
+    plot.title   = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 0)
+  )
+
+save_dual_format(sex_bar, "sex_limma_bar",
+  png_path = png_path, svg_path = svg_path,
+  label_lookup = sex_bar_lookup
+)
+print(sex_bar)
+
+write_csv(sex_limma_results, file.path(csv_path, "newbatch2_sex_limma_results.csv"))
+```
+# Interaction limma
+```{r interaction_limma}
+# limma interaction model: Sex * GW
+# Estimates sex effect adjusted for GW, GW effect adjusted for sex,
+# and Sex:GW interaction (does GW trajectory differ between sexes)
+# More rigorous than separate models since main effects are mutually adjusted
+
+metadata_int <- pData(newbatch2_metabolomics)
+peak_matrix_int <- exprs(newbatch2_metabolomics)
+
+metadata_int$Sex <- factor(metadata_int$Sex, levels = c("F", "M"))
+
+# Single model, three extractable coefficients
+design_int <- model.matrix(~ Sex * GW, data = metadata_int)
+cat("Design matrix columns:\n")
+print(colnames(design_int))
+
+fit_int <- lmFit(peak_matrix_int, design_int)
+fit_int <- eBayes(fit_int)
+
+# --- Extract all three coefficients ---
+
+# 1. Sex main effect (adjusted for GW)
+sex_adj_results <- topTable(fit_int, coef = "SexM", number = Inf,
+                             adjust.method = "BH") %>%
+  rownames_to_column("Name") %>%
+  left_join(fData(newbatch2_metabolomics) %>%
+              dplyr::select(Name, Compound.ID, Super.Class, Class),
+            by = "Name") %>%
+  mutate(
+    Direction = ifelse(logFC > 0, "Higher in Males", "Higher in Females"),
+    FDR_label = case_when(
+      adj.P.Val < 0.001 ~ "***",
+      adj.P.Val < 0.01  ~ "**",
+      adj.P.Val < 0.1  ~ "*",
+      TRUE              ~ ""
+    )
+  )
+
+cat("\nSex effect (adjusted for GW):\n")
+cat("  Nominal p < 0.05:", sum(sex_adj_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.1:", sum(sex_adj_results$adj.P.Val < 0.1), "\n")
+
+# 2. GW main effect (adjusted for Sex)
+gw_adj_results <- topTable(fit_int, coef = "GW", number = Inf,
+                            adjust.method = "BH") %>%
+  rownames_to_column("Name") %>%
+  left_join(fData(newbatch2_metabolomics) %>%
+              dplyr::select(Name, Compound.ID, Super.Class, Class),
+            by = "Name") %>%
+  mutate(
+    Direction = ifelse(logFC > 0, "Increases with GW", "Decreases with GW"),
+    FDR_label = case_when(
+      adj.P.Val < 0.001 ~ "***",
+      adj.P.Val < 0.01  ~ "**",
+      adj.P.Val < 0.1  ~ "*",
+      TRUE              ~ ""
+    )
+  )
+
+cat("\nGW effect (adjusted for Sex):\n")
+cat("  Nominal p < 0.05:", sum(gw_adj_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.1:", sum(gw_adj_results$adj.P.Val < 0.1), "\n")
+
+# 3. Sex:GW interaction
+int_results <- topTable(fit_int, coef = "SexM:GW", number = Inf,
+                         adjust.method = "BH") %>%
+  rownames_to_column("Name") %>%
+  left_join(fData(newbatch2_metabolomics) %>%
+              dplyr::select(Name, Compound.ID, Super.Class, Class),
+            by = "Name") %>%
+  mutate(
+    Direction = ifelse(logFC > 0, "Steeper in Males", "Steeper in Females"),
+    FDR_label = case_when(
+      adj.P.Val < 0.001 ~ "***",
+      adj.P.Val < 0.01  ~ "**",
+      adj.P.Val < 0.1  ~ "*",
+      TRUE              ~ ""
+    )
+  )
+
+cat("\nSex:GW interaction:\n")
+cat("  Nominal p < 0.05:", sum(int_results$P.Value < 0.05), "\n")
+cat("  FDR < 0.1:", sum(int_results$adj.P.Val < 0.1), "\n")
+
+# --- Plots ---
+
+# Helper to make bar chart from any of the three interaction model coefficients.
+# Matches main bar chart logic: FDR hits guaranteed first, names inside bars,
+# FDR stars outside bars, label lookup saved via save_dual_format.
+plot_limma_bar <- function(results, title, ylab, fill_values, filename,
+                           fdr_cut = 0.1, n = 30L) {
+  n_fdr <- sum(results$adj.P.Val < fdr_cut, na.rm = TRUE)
+  top <- bind_rows(
+    results %>% filter(adj.P.Val < fdr_cut) %>% arrange(desc(abs(logFC))),
+    results %>% filter(P.Value < 0.05, adj.P.Val >= fdr_cut) %>%
+      arrange(desc(abs(logFC))) %>% head(max(0L, n - n_fdr))
+  ) %>%
+    mutate(
+      FDR_label = case_when(
+        adj.P.Val < 0.001   ~ "***",
+        adj.P.Val < 0.01    ~ "**",
+        adj.P.Val < fdr_cut ~ "*",
+        TRUE                ~ ""
+      )
+    )
+
+  if (nrow(top) == 0) {
+    cat("No nominal hits for:", title, "\n")
+    return(invisible(NULL))
+  }
+
+  label_lookup <- build_label_lookup(top$Name)
+  top <- top %>% mutate(Name_display = truncate_labels(Name))
+
+  p <- ggplot(top, aes(x = reorder(Name, logFC), y = logFC, fill = Direction)) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_text(
+      aes(
+        label = Name_display,
+        y     = logFC * 0.98,
+        hjust = ifelse(logFC > 0, 1, 0)
+      ),
+      size = 2.8, color = "white"
+    ) +
+    geom_text(
+      aes(
+        label = FDR_label,
+        hjust = ifelse(logFC > 0, -0.2, 1.2)
+      ),
+      size = 4, fontface = "bold"
+    ) +
+    coord_flip() +
+    scale_fill_manual(values = fill_values) +
+    theme_minimal() +
+    labs(
+      x       = NULL,
+      y       = ylab,
+      title   = title,
+      caption = paste0("* FDR < ", fdr_cut, "   ** FDR < 0.01   *** FDR < 0.001")
+    ) +
+    theme(
+      axis.text.y  = element_blank(),
+      axis.ticks.y = element_blank(),
+      plot.title   = element_text(hjust = 0.5),
+      plot.caption = element_text(hjust = 0)
+    )
+
+  save_dual_format(p, filename, png_path = png_path, svg_path = svg_path,
+                   label_lookup = label_lookup)
+  p
+}
+
+# Sex adjusted bar
+p_sex_adj <- plot_limma_bar(
+  sex_adj_results,
+  title       = "Sex Effect Adjusted for GW (limma, p < 0.05)",
+  ylab        = "Log2 Fold Change (Male/Female, GW-adjusted)",
+  fill_values = c("Higher in Males" = "#571C90", "Higher in Females" = "#FFC20A"),
+  filename    = "sex_adj_limma_bar"
+)
+if (!is.null(p_sex_adj)) print(p_sex_adj)
+
+# GW adjusted bar
+p_gw_adj <- plot_limma_bar(
+  gw_adj_results,
+  title       = "GW Effect Adjusted for Sex (limma, p < 0.05)",
+  ylab        = "Slope (log2 peak area per GW week, Sex-adjusted)",
+  fill_values = c("Increases with GW" = "#1B5E20", "Decreases with GW" = "#C8E6C9"),
+  filename    = "gw_adj_limma_bar"
+)
+if (!is.null(p_gw_adj)) print(p_gw_adj)
+
+# Interaction bar
+p_int <- plot_limma_bar(
+  int_results,
+  title       = "Sex:GW Interaction (limma, p < 0.05)",
+  ylab        = "Interaction coefficient (difference in GW slope by sex)",
+  fill_values = c("Steeper in Males" = "#1A5276", "Steeper in Females" = "#AED6F1"),
+  filename    = "interaction_limma_bar"
+)
+if (!is.null(p_int)) print(p_int)
+
+# Volcano for sex adjusted (discrete comparison, volcano appropriate)
+volcano_sex_adj <- ggplot(sex_adj_results,
+                           aes(x = logFC, y = -log10(P.Value))) +
+  geom_point(aes(color = adj.P.Val < 0.1), alpha = 0.6) +
+  scale_color_manual(values = c("FALSE" = "grey", "TRUE" = "red"),
+                     name = "FDR < 0.1") +
+  geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+  theme_minimal() +
+  labs(x = "Log2 Fold Change (Male/Female)",
+       y = "-log10(p-value)",
+       title = "Sex Effect Adjusted for GW - Volcano Plot",
+       caption = "Positive logFC = higher in males") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(volcano_sex_adj, "sex_adj_limma_volcano",
+                 png_path = png_path, svg_path = svg_path)
+print(volcano_sex_adj)
+
+# Ranked dot plot for GW adjusted (continuous, dot plot appropriate)
+gw_adj_dot <- ggplot(gw_adj_results %>%
+                       arrange(logFC) %>%
+                       mutate(rank = row_number()),
+                     aes(x = rank, y = logFC, color = adj.P.Val < 0.1)) +
+  geom_point(alpha = 0.6, size = 1.5) +
+  scale_color_manual(values = c("FALSE" = "grey70", "TRUE" = "red"),
+                     name = "FDR < 0.1") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey40") +
+  theme_minimal() +
+  labs(x = "Metabolite rank",
+       y = "Slope (log2 peak area per GW week, Sex-adjusted)",
+       title = "GW Effect Sizes Adjusted for Sex - All Metabolites") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(gw_adj_dot, "gw_adj_limma_dot",
+                 png_path = png_path, svg_path = svg_path)
+print(gw_adj_dot)
+
+# --- Save results ---
+write_csv(sex_adj_results, file.path(csv_path, "newbatch2_sex_adjusted_limma_results.csv"))
+write_csv(gw_adj_results,  file.path(csv_path, "newbatch2_gw_adjusted_limma_results.csv"))
+write_csv(int_results,     file.path(csv_path, "newbatch2_interaction_limma_results.csv"))
+```
+
+## limma trajectory plots
+```{r trajectory_plots}
+# Trajectory plots for top GW and sex limma hits
+# Points only, colored by sex, x = GW (continuous)
+metadata_traj <- pData(newbatch2_metabolomics)
+
+# --- GW trajectory plots ---
+# Note: FDR-significant GW trajectories are plotted in the gw_limma chunk above.
+# Top 20 nominal only (not FDR significant)
+gw_nominal_hits <- gw_limma_results %>%
+  filter(P.Value < 0.05 & adj.P.Val >= 0.1) %>%
+  arrange(desc(abs(logFC))) %>%
+  head(20) %>%
+  mutate(label = paste0(
+    "p=", formatC(P.Value, format = "e", digits = 2),
+    "  slope=", round(logFC, 3)
+  ))
+
+# Plot GW nominal hits
+if (nrow(gw_nominal_hits) > 0) {
+  gw_nominal_plots <- build_trajectory_plots(
+    metabolite_names = gw_nominal_hits$Name,
+    eset             = newbatch2_metabolomics,
+    title_suffixes   = paste0("GW nominal only | ", gw_nominal_hits$label)
+  )
+  save_trajectory_grids(gw_nominal_plots, "gw_trajectory_nominal", png_path, svg_path)
+}
+
+# --- Sex trajectory plots ---
+# Top 20 FDR-significant by effect size
+sex_fdr_hits <- sex_limma_results %>%
+  filter(adj.P.Val < 0.1) %>%
+  arrange(desc(abs(logFC))) %>%
+  head(20) %>%
+  mutate(label = paste0(
+    "FDR=", formatC(adj.P.Val, format = "e", digits = 2),
+    "  logFC=", round(logFC, 3)
+  ))
+
+# Top 20 nominal only
+sex_nominal_hits <- sex_limma_results %>%
+  filter(P.Value < 0.05 & adj.P.Val >= 0.1) %>%
+  arrange(desc(abs(logFC))) %>%
+  head(20) %>%
+  mutate(label = paste0(
+    "p=", formatC(P.Value, format = "e", digits = 2),
+    "  logFC=", round(logFC, 3)
+  ))
+
+# Plot sex FDR hits
+if (nrow(sex_fdr_hits) > 0) {
+  sex_fdr_plots <- build_trajectory_plots(
+    metabolite_names = sex_fdr_hits$Name,
+    eset             = newbatch2_metabolomics,
+    title_suffixes   = paste0("Sex FDR significant | ", sex_fdr_hits$label)
+  )
+  save_trajectory_grids(sex_fdr_plots, "sex_trajectory_fdr", png_path, svg_path)
+} else {
+  cat("No FDR-significant sex hits to plot\n")
+}
+
+# Plot sex nominal hits
+if (nrow(sex_nominal_hits) > 0) {
+  sex_nominal_plots <- build_trajectory_plots(
+    metabolite_names = sex_nominal_hits$Name,
+    eset             = newbatch2_metabolomics,
+    title_suffixes   = paste0("Sex nominal only | ", sex_nominal_hits$label)
+  )
+  save_trajectory_grids(sex_nominal_plots, "sex_trajectory_nominal", png_path, svg_path)
+}
+```
+
+# Sex PLS-DA
+```{r sex_plsda}
+# PLS-DA using ropls (predI = safe_ncomp, no orthoI = standard PLS-DA)
+plsda_matrix <- t(exprs(newbatch2_metabolomics)) # samples × features
+sex_labels <- factor(pData(newbatch2_metabolomics)$Sex)
+
+# Impute for PLS-DA only - local copy, does not affect any other analysis
+plsda_matrix_imputed <- apply(plsda_matrix, 2, min_value_impute)
+
+# Safe ncomp based on smallest group size
+min_group_size <- min(table(sex_labels))
+safe_ncomp <- min(5, min_group_size - 1)
+cat("Group sizes:", table(sex_labels), "\n")
+cat("Using ncomp =", safe_ncomp, "\n")
+
+set.seed(42)
+plsda_fit <- opls(
+  x         = plsda_matrix_imputed,
+  y         = sex_labels,
+  predI     = safe_ncomp,
+  orthoI    = 0, # 0 orthogonal components = standard PLS-DA
+  permI     = 0, # permutation in dedicated chunk
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+# Score plot (comp 1 vs comp 2)
+plsda_scores <- data.frame(
+  Comp1 = plsda_fit@scoreMN[, 1],
+  Comp2 = plsda_fit@scoreMN[, 2],
+  Sex   = sex_labels
+)
+
+score_plot <- ggplot(plsda_scores, aes(x = Comp1, y = Comp2, color = Sex)) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90"), name = "Sex") +
+  theme_minimal() +
+  labs(
+    x = "Component 1", y = "Component 2",
+    title = "PLS-DA Score Plot - Sex"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(score_plot, "sex_plsda_scores", png_path = png_path, svg_path = svg_path)
+print(score_plot)
+
+# VIP scores
+vip_df <- data.frame(
+  Name = colnames(plsda_matrix_imputed),
+  VIP_comp1 = as.numeric(getVipVn(plsda_fit))
+) %>%
+  arrange(desc(VIP_comp1)) %>%
+  left_join(
+    fData(newbatch2_metabolomics) %>%
+      dplyr::select(Name, Compound.ID, Super.Class, Class),
+    by = "Name"
+  )
+
+vip_plot_data <- vip_df %>% head(30)
+vip_lookup <- build_label_lookup(vip_plot_data$Name)
+vip_plot_data <- vip_plot_data %>% mutate(Name_display = truncate_labels(Name))
+
+vip_plot <- ggplot(
+  vip_plot_data,
+  aes(x = reorder(Name_display, VIP_comp1), y = VIP_comp1)
+) +
+  geom_bar(stat = "identity", fill = "#571C90", alpha = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Metabolite", y = "VIP Score (Component 1)",
+    title = "PLS-DA VIP Scores for Sex Classification (Top 30)",
+    caption = "Red dashed line = VIP > 1"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(vip_plot, "sex_plsda_vip",
+  png_path = png_path, svg_path = svg_path,
+  label_lookup = vip_lookup
+)
+print(vip_plot)
+
+write_csv(vip_df, file.path(csv_path, "newbatch2_sex_plsda_vip.csv"))
+cat("Metabolites with VIP > 1:", sum(vip_df$VIP_comp1 > 1), "\n")
+```
+## Permutation
+```{r plsda_permutation}
+# PLS-DA permutation test via ropls
+set.seed(42)
+plsda_perm <- opls(
+  x         = plsda_matrix_imputed,
+  y         = sex_labels,
+  predI     = safe_ncomp,
+  orthoI    = 0,
+  permI     = 1000,
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+cat("\nPLS-DA permutation test results (1000 permutations):\n")
+print(plsda_perm@summaryDF)
+
+# Plot permuted R2Y and Q2 distributions vs observed
+perm_data <- data.frame(
+  R2Y = plsda_perm@suppLs$permMN[, "R2Y(cum)"],
+  Q2  = plsda_perm@suppLs$permMN[, "Q2(cum)"]
+)
+
+observed_R2Y <- plsda_fit@summaryDF[1, "R2Y(cum)"]
+observed_Q2 <- plsda_fit@summaryDF[1, "Q2(cum)"]
+
+perm_plot <- ggplot(perm_data) +
+  geom_histogram(aes(x = R2Y, fill = "R2Y"), alpha = 0.5, bins = 20) +
+  geom_histogram(aes(x = Q2, fill = "Q2"), alpha = 0.5, bins = 20) +
+  geom_vline(
+    xintercept = observed_R2Y, color = "#571C90", linewidth = 1,
+    linetype = "dashed"
+  ) +
+  geom_vline(
+    xintercept = observed_Q2, color = "#1B5E20", linewidth = 1,
+    linetype = "dashed"
+  ) +
+  scale_fill_manual(
+    values = c("R2Y" = "#571C90", "Q2" = "#1B5E20"),
+    name = "Metric"
+  ) +
+  theme_minimal() +
+  labs(
+    x = "Permuted value", y = "Count",
+    title = "PLS-DA Permutation Test (1000 permutations)",
+    caption = "Dashed lines = observed model values; histograms = permuted null distribution"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(perm_plot, "sex_plsda_permutation", png_path = png_path, svg_path = svg_path)
+print(perm_plot)
+```
+
+```{r upset_overlap}
+# --- Sex analyses overlap ---
+# Collect significant hits from each sex method
+sex_wilcoxon_fdr <- metabolite_sex_stats %>%
+  filter(FDR < 0.1) %>%
+  pull(Name)
+sex_wilcoxon_nominal <- metabolite_sex_stats %>%
+  filter(p_value < 0.05 & FDR >= 0.1) %>%
+  pull(Name)
+sex_limma_fdr <- sex_limma_results %>%
+  filter(adj.P.Val < 0.1) %>%
+  pull(Name)
+sex_limma_nominal <- sex_limma_results %>%
+  filter(P.Value < 0.05 & adj.P.Val >= 0.1) %>%
+  pull(Name)
+sex_plsda_vip <- vip_df %>%
+  filter(VIP_comp1 > 1) %>%
+  pull(Name)
+all_sex_names <- unique(c(
+  sex_wilcoxon_fdr, sex_wilcoxon_nominal,
+  sex_limma_fdr, sex_limma_nominal,
+  sex_plsda_vip
+))
+
+sex_upset_df <- data.frame(
+  Name                 = all_sex_names,
+  Wilcoxon_FDR         = as.integer(all_sex_names %in% sex_wilcoxon_fdr),
+  Wilcoxon_nominal     = as.integer(all_sex_names %in% sex_wilcoxon_nominal),
+  limma_FDR            = as.integer(all_sex_names %in% sex_limma_fdr),
+  limma_nominal        = as.integer(all_sex_names %in% sex_limma_nominal),
+  PLSDA_VIP            = as.integer(all_sex_names %in% sex_plsda_vip)
+)
+
+png(file.path(png_path, "sex_upset_overlap.png"),
+  width = 12, height = 7, units = "in", res = 300
+)
+upset(
+  sex_upset_df %>% dplyr::select(-Name),
+  order.by = "freq",
+  decreasing = TRUE,
+  main.bar.color = "grey30",
+  text.scale = 1.3,
+  mainbar.y.label = "Metabolites in Intersection",
+  sets.x.label = "Metabolites per Method"
+)
+dev.off()
+
+# Print to Rmd output as well
+upset(
+  sex_upset_df %>% dplyr::select(-Name),
+  order.by        = "freq",
+  decreasing      = TRUE,
+  main.bar.color  = "grey30",
+  text.scale      = 1.3,
+  mainbar.y.label = "Metabolites in Intersection",
+  sets.x.label    = "Metabolites per Method"
+)
+
+# Save intersection membership for downstream use
+write_csv(sex_upset_df, file.path(csv_path, "newbatch2_sex_upset_membership.csv"))
+
+# Identify metabolites significant in ALL FDR methods
+sex_all_fdr <- sex_upset_df %>%
+  filter(Wilcoxon_FDR == 1 & limma_FDR == 1) %>%
+  pull(Name)
+cat(
+  "Metabolites FDR-significant in both Wilcoxon and limma (sex):",
+  length(sex_all_fdr), "\n"
+)
+if (length(sex_all_fdr) > 0) print(sex_all_fdr)
+
+# --- GW analyses overlap ---
+gw_corr_fdr <- metabolite_samplemetadata_stats %>%
+  filter(GW_FDR < 0.1) %>%
+  pull(Name)
+gw_corr_nominal <- metabolite_samplemetadata_stats %>%
+  filter(GW_corr_pval.p_value < 0.05 & GW_FDR >= 0.1) %>%
+  pull(Name)
+gw_limma_fdr <- gw_limma_results %>%
+  filter(adj.P.Val < 0.1) %>%
+  pull(Name)
+gw_limma_nominal <- gw_limma_results %>%
+  filter(P.Value < 0.05 & adj.P.Val >= 0.1) %>%
+  pull(Name)
+
+all_gw_names <- unique(c(
+  gw_corr_fdr, gw_corr_nominal,
+  gw_limma_fdr, gw_limma_nominal
+))
+
+gw_upset_df <- data.frame(
+  Name = all_gw_names,
+  Correlation_FDR = as.integer(all_gw_names %in% gw_corr_fdr),
+  Correlation_nominal = as.integer(all_gw_names %in% gw_corr_nominal),
+  limma_FDR = as.integer(all_gw_names %in% gw_limma_fdr),
+  limma_nominal = as.integer(all_gw_names %in% gw_limma_nominal)
+)
+
+png(file.path(png_path, "gw_upset_overlap.png"),
+  width = 10, height = 6, units = "in", res = 300
+)
+upset(
+  gw_upset_df %>% dplyr::select(-Name),
+  order.by        = "freq",
+  decreasing      = TRUE,
+  main.bar.color  = "grey30",
+  text.scale      = 1.3,
+  mainbar.y.label = "Metabolites in Intersection",
+  sets.x.label    = "Metabolites per Method"
+)
+dev.off()
+
+upset(
+  gw_upset_df %>% dplyr::select(-Name),
+  order.by        = "freq",
+  decreasing      = TRUE,
+  main.bar.color  = "grey30",
+  text.scale      = 1.3,
+  mainbar.y.label = "Metabolites in Intersection",
+  sets.x.label    = "Metabolites per Method"
+)
+
+write_csv(gw_upset_df, file.path(csv_path, "newbatch2_gw_upset_membership.csv"))
+
+gw_all_fdr <- gw_upset_df %>%
+  filter(Correlation_FDR == 1 & limma_FDR == 1) %>%
+  pull(Name)
+cat(
+  "Metabolites FDR-significant in both correlation and limma (GW):",
+  length(gw_all_fdr), "\n"
+)
+if (length(gw_all_fdr) > 0) print(gw_all_fdr)
+```
+
+# GW PLS-DA
+```{r gw_plsda}
+# Add GW_bucket to phenoData if not present
+if (!"GW_bucket" %in% colnames(pData(newbatch2_metabolomics))) {
+  pData(newbatch2_metabolomics)$GW_bucket <- cut(
+    pData(newbatch2_metabolomics)$GW,
+    breaks = c(15, 18, 21, 24),
+    labels = c("16-18", "19-21", "22-24"),
+    include.lowest = TRUE
+  )
+}
+
+# PLS-DA for GW buckets (3-level categorical: 16-18, 19-21, 22-24)
+# Uses same imputed matrix as sex PLS-DA - local copy only
+# GW bucket labels pulled from sample metadata
+gw_labels <- factor(pData(newbatch2_metabolomics)$GW_bucket,
+  levels = c("16-18", "19-21", "22-24")
+)
+
+cat("GW bucket distribution:\n")
+print(table(gw_labels))
+
+# ncomp ceiling: number of groups - 1 = 2 for 3 GW buckets
+min_gw_group <- min(table(gw_labels))
+safe_ncomp_gw <- min(2, min_gw_group - 1)
+cat("Using ncomp =", safe_ncomp_gw, "\n")
+
+set.seed(42)
+gw_plsda_fit <- opls(
+  x         = plsda_matrix_imputed,
+  y         = gw_labels,
+  predI     = safe_ncomp_gw,
+  orthoI    = 0,
+  permI     = 0,
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+cat("\nGW PLS-DA model summary:\n")
+print(gw_plsda_fit@summaryDF)
+
+# Score plot (comp 1 vs comp 2)
+gw_plsda_scores <- data.frame(
+  Comp1 = gw_plsda_fit@scoreMN[, 1],
+  Comp2 = gw_plsda_fit@scoreMN[, 2],
+  GW_bucket = gw_labels
+)
+
+gw_score_plot <- ggplot(
+  gw_plsda_scores,
+  aes(x = Comp1, y = Comp2, color = GW_bucket)
+) +
+  geom_point(size = 3, alpha = 0.8) +
+  scale_color_manual(values = c("16-18" = "#C8E6C9", "19-21" = "#66BB6A", "22-24" = "#1B5E20"), name = "GW Bucket") +
+  theme_minimal() +
+  labs(
+    x = "Component 1", y = "Component 2",
+    title = "PLS-DA Score Plot - Gestational Week Buckets"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(gw_score_plot, "gw_plsda_scores",
+  png_path = png_path, svg_path = svg_path
+)
+print(gw_score_plot)
+
+# VIP scores
+gw_vip_df <- data.frame(
+  Name      = colnames(plsda_matrix_imputed),
+  VIP_comp1 = as.numeric(getVipVn(gw_plsda_fit))
+) %>%
+  arrange(desc(VIP_comp1)) %>%
+  left_join(
+    fData(newbatch2_metabolomics) %>%
+      dplyr::select(Name, Compound.ID, Super.Class, Class),
+    by = "Name"
+  )
+
+gw_vip_plot <- ggplot(
+  gw_vip_df %>% head(30),
+  aes(x = reorder(Name, VIP_comp1), y = VIP_comp1)
+) +
+  geom_bar(stat = "identity", fill = "#1B5E20", alpha = 0.8) +
+  geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    x = "Metabolite", y = "VIP Score (Component 1)",
+    title = "PLS-DA VIP Scores for GW Classification (Top 30)",
+    caption = "Red dashed line = VIP > 1"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(gw_vip_plot, "gw_plsda_vip",
+  png_path = png_path, svg_path = svg_path
+)
+print(gw_vip_plot)
+
+write_csv(gw_vip_df, file.path(csv_path, "newbatch2_gw_plsda_vip.csv"))
+cat("Metabolites with VIP > 1:", sum(gw_vip_df$VIP_comp1 > 1), "\n")
+```
+## Permutation
+```{r gw_plsda_permutation}
+# GW PLS-DA permutation test via ropls
+set.seed(42)
+gw_plsda_perm <- opls(
+  x         = plsda_matrix_imputed,
+  y         = gw_labels,
+  predI     = safe_ncomp_gw,
+  orthoI    = 0,
+  permI     = 1000,
+  fig.pdfC  = "none",
+  info.txtC = "none"
+)
+
+cat("\nGW PLS-DA permutation test results (1000 permutations):\n")
+print(gw_plsda_perm@summaryDF)
+
+perm_data_gw <- data.frame(
+  R2Y = gw_plsda_perm@suppLs$permMN[, "R2Y(cum)"],
+  Q2  = gw_plsda_perm@suppLs$permMN[, "Q2(cum)"]
+)
+
+observed_R2Y_gw <- gw_plsda_fit@summaryDF[1, "R2Y(cum)"]
+observed_Q2_gw <- gw_plsda_fit@summaryDF[1, "Q2(cum)"]
+
+gw_perm_plot <- ggplot(perm_data_gw) +
+  geom_histogram(aes(x = R2Y, fill = "R2Y"), alpha = 0.5, bins = 20) +
+  geom_histogram(aes(x = Q2, fill = "Q2"), alpha = 0.5, bins = 20) +
+  geom_vline(
+    xintercept = observed_R2Y_gw, color = "#571C90",
+    linewidth = 1, linetype = "dashed"
+  ) +
+  geom_vline(
+    xintercept = observed_Q2_gw, color = "#1B5E20",
+    linewidth = 1, linetype = "dashed"
+  ) +
+  scale_fill_manual(
+    values = c("R2Y" = "#571C90", "Q2" = "#1B5E20"),
+    name = "Metric"
+  ) +
+  theme_minimal() +
+  labs(
+    x = "Permuted value", y = "Count",
+    title = "GW PLS-DA Permutation Test (1000 permutations)",
+    caption = "Dashed lines = observed model values; histograms = permuted null distribution"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+save_dual_format(gw_perm_plot, "gw_plsda_permutation",
+  png_path = png_path, svg_path = svg_path
+)
+print(gw_perm_plot)
+```

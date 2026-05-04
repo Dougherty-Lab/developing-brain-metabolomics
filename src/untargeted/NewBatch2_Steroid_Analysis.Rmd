@@ -1,0 +1,757 @@
+---
+title: "New Batch 2 Steroid Subgroup Analysis"
+author: "Sneha Michaela Chaturvedi"
+date: "Last Updated `r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  html_document:
+    toc: true
+---
+
+Code developed by author with assistance from Claude (Sonnet 4.6). Output checked and validated by author.
+
+# Set Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+Packages <- c(
+  "readxl", "stats", "ggfortify", "ggrepel", "svglite", "Biobase",
+  "ComplexHeatmap", "limma", "tidyverse", "ropls", "cowplot", "UpSetR"
+)
+
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r source_functions, include=FALSE}
+source("functions.R")
+source("missingness_visualization_functions.R")
+```
+
+## Load Dataset(s)
+
+```{r LoadDataset, include=FALSE}
+newbatch2_peak_area           <- read_csv('../../results/untargeted/newbatch2_peak_area_clean.csv',
+                                       show_col_types = FALSE)
+newbatch2_compound_annotation <- read_csv('../../results/untargeted/newbatch2_metabolite_annotations_flagged.csv',
+                                       show_col_types = FALSE)
+newbatch2_sample_metadata     <- read_csv('../../results/untargeted/newbatch2_sample_metadata.csv',
+                                       show_col_types = FALSE)
+ 
+cat("Compounds loaded:", nrow(newbatch2_peak_area), "\n")
+```
+
+## Build Full ExpressionSet
+
+```{r prep_dataframe}
+final_matrix <- newbatch2_peak_area %>%
+  dplyr::select(starts_with("Sample"))
+
+compounds_in_peak <- unique(newbatch2_peak_area$Compound.ID)
+
+newbatch2_compound_annotation <- newbatch2_compound_annotation %>%
+  filter(Compound.ID %in% compounds_in_peak) %>%
+  arrange(match(Name, rownames(final_matrix)))
+
+metabolite_names <- newbatch2_compound_annotation$Name
+final_matrix <- apply(final_matrix, 2, as.numeric)
+rownames(final_matrix) <- metabolite_names
+
+newbatch2_sample_metadata <- newbatch2_sample_metadata %>%
+  filter(Sample %in% colnames(final_matrix)) %>%
+  arrange(match(Sample, colnames(final_matrix)))
+
+sample_metadata_df <- as.data.frame(newbatch2_sample_metadata)
+rownames(sample_metadata_df) <- sample_metadata_df$Sample
+sample_phenoData <- AnnotatedDataFrame(sample_metadata_df)
+
+metabolite_metadata_df <- as.data.frame(newbatch2_compound_annotation)
+rownames(metabolite_metadata_df) <- metabolite_metadata_df$Name
+metabolite_featureData <- AnnotatedDataFrame(metabolite_metadata_df)
+
+newbatch2_metabolomics <- ExpressionSet(
+  assayData = final_matrix,
+  phenoData = sample_phenoData,
+  featureData = metabolite_featureData
+)
+```
+
+```{r log_transform}
+exprs(newbatch2_metabolomics) <- log2(exprs(newbatch2_metabolomics) + 1)
+cat("Log2 transformation applied.\n")
+cat("Intensity range after:", range(exprs(newbatch2_metabolomics), na.rm = TRUE), "\n")
+```
+
+---
+
+# Define Steroid Subgroups
+
+```{r define_subgroups}
+annotation_full <- fData(newbatch2_metabolomics)
+
+# --- Broad: all steroids and steroid derivatives by Class ---
+broad_names <- annotation_full %>%
+  filter(Class == "Steroids and steroid derivatives") %>%
+  pull(Name)
+
+cat("--- Sub.Class values in broad steroid set ---\n")
+annotation_full %>%
+  filter(Class == "Steroids and steroid derivatives") %>%
+  count(Sub.Class) %>%
+  arrange(desc(n)) %>%
+  print()
+
+# --- Strict: gonadal + adrenal steroids and cholesterol by Sub.Class ---
+# Targets: androgens, estrogens, progestogens, glucocorticoids,
+#          mineralocorticoids, cholesterol
+strict_names <- annotation_full %>%
+  filter(Sub.Class %in% c(
+    "Androstane steroids",
+    "Estrane steroids",
+    "Pregnane steroids",
+    "Hydroxysteroids",
+    "Cholestane steroids"
+  )) %>%
+  pull(Name)
+
+cat("=== Steroid Subgroup Sizes ===\n")
+cat("Broad (Class == Steroids and steroid derivatives):", length(broad_names), "compounds\n")
+cat("Strict (gonadal + adrenal + cholesterol by Sub.Class):", length(strict_names), "compounds\n\n")
+
+# Preview what the strict filter captured
+cat("Strict Sub.Class values detected:\n")
+annotation_full %>%
+  filter(Name %in% strict_names) %>%
+  count(Sub.Class) %>%
+  arrange(desc(n)) %>%
+  print()
+```
+
+```{r build_esets}
+# Subset ExpressionSets
+subset_eset <- function(eset, names_keep) {
+  idx <- featureNames(eset) %in% names_keep
+  eset[idx, ]
+}
+
+eset_broad <- subset_eset(newbatch2_metabolomics, broad_names)
+eset_strict <- subset_eset(newbatch2_metabolomics, strict_names)
+
+analyses_list <- list(broad = eset_broad, strict = eset_strict)
+
+cat("ExpressionSet sizes:\n")
+cat("  Broad: ", nrow(eset_broad), "features x", ncol(eset_broad), "samples\n")
+cat("  Strict:", nrow(eset_strict), "features x", ncol(eset_strict), "samples\n")
+```
+
+---
+
+# Analyses (Looped over Broad and Strict)
+
+```{r main_loop}
+for (scope in names(analyses_list)) {
+  eset <- analyses_list[[scope]]
+
+  # Output paths scoped by broad/strict
+  png_path <- file.path("../../results/untargeted/newbatch2_steroids", scope)
+  svg_path <- file.path("../../results/untargeted/newbatch2_steroids", scope, "svg")
+  csv_path <- file.path("../../results/untargeted/newbatch2_steroids", scope, "csv")
+  dir.create(png_path, recursive = TRUE, showWarnings = FALSE)
+  dir.create(svg_path, recursive = TRUE, showWarnings = FALSE)
+  dir.create(csv_path, recursive = TRUE, showWarnings = FALSE)
+
+  cat("\n", rep("=", 80), "\n", sep = "")
+  cat("SCOPE:", toupper(scope), "\n")
+  cat(rep("=", 80), "\n\n", sep = "")
+
+  n_features <- nrow(eset)
+  cat("Compounds in this subgroup:", n_features, "\n\n")
+
+  # ── Compound Inventory ──────────────────────────────────────────────────────
+  cat("--- Compound Inventory ---\n")
+  inventory <- fData(eset) %>%
+    dplyr::select(Name, Sub.Class, Class) %>%
+    arrange(Sub.Class, Name)
+  print(inventory)
+  write_csv(
+    inventory,
+    file.path(csv_path, paste0("newbatch2_steroid_", scope, "_inventory.csv"))
+  )
+
+  metadata_loop <- pData(eset)
+  GW <- metadata_loop$GW
+  sex_groups <- metadata_loop$Sex
+
+  # ── GW Correlation ──────────────────────────────────────────────────────────
+  cat("\n--- GW Correlation ---\n")
+
+  correlation_test <- function(x, y) {
+    result <- cor.test(x, y)
+    c(correlation = result$estimate, p_value = result$p.value)
+  }
+
+  gw_corr_stats <- data.frame(
+    Name = fData(eset)$Name,
+    GW_corr_pval = t(apply(exprs(eset), 1, function(x) correlation_test(x, GW)))
+  ) %>%
+    mutate(GW_FDR = p.adjust(GW_corr_pval.p_value, method = "fdr"))
+
+  # Plot all compounds (subset is small enough)
+  gw_corr_all <- gw_corr_stats %>%
+    mutate(
+      Name_display = truncate_labels(Name),
+      Significant = GW_FDR < 0.05,
+      FDR_label = case_when(
+        GW_FDR < 0.001 ~ "***",
+        GW_FDR < 0.01 ~ "**",
+        GW_FDR < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    )
+
+  scatter_GW <- ggplot(
+    gw_corr_all,
+    aes(
+      x = reorder(Name_display, GW_corr_pval.correlation.cor),
+      y = GW_corr_pval.correlation.cor
+    )
+  ) +
+    geom_point(aes(
+      size = -log10(GW_corr_pval.p_value),
+      color = GW_corr_pval.correlation.cor
+    )) +
+    geom_text(
+      aes(
+        label = FDR_label,
+        y = GW_corr_pval.correlation.cor + 0.03
+      ),
+      size = 3, fontface = "bold"
+    ) +
+    coord_flip() +
+    scale_color_gradient2(
+      low = "tomato", mid = "grey90", high = "steelblue",
+      midpoint = 0, name = "Correlation"
+    ) +
+    theme_minimal() +
+    labs(
+      x = "Compound",
+      y = "Correlation with GW",
+      title = paste0("GW Correlations - Steroids (", scope, ")"),
+      size = "-log10(p)"
+    ) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  save_dual_format(scatter_GW, paste0("gw_correlation_", scope),
+    png_path = png_path, svg_path = svg_path,
+    label_lookup = build_label_lookup(gw_corr_all$Name)
+  )
+  print(scatter_GW)
+  write_csv(
+    gw_corr_stats,
+    file.path(csv_path, paste0("newbatch2_steroid_", scope, "_gw_correlation.csv"))
+  )
+
+  # ── GW limma ────────────────────────────────────────────────────────────────
+  cat("\n--- GW limma ---\n")
+
+  design_gw <- model.matrix(~GW, data = metadata_loop)
+  fit_gw <- lmFit(exprs(eset), design_gw)
+  fit_gw <- eBayes(fit_gw)
+  gw_limma_results <- topTable(fit_gw,
+    coef = "GW", number = Inf,
+    adjust.method = "BH"
+  ) %>%
+    rownames_to_column("Name") %>%
+    left_join(fData(eset) %>% dplyr::select(Name, Compound.ID, Sub.Class, Class),
+      by = "Name"
+    ) %>%
+    mutate(
+      Direction = ifelse(logFC > 0, "Increases with GW", "Decreases with GW"),
+      FDR_label = case_when(
+        adj.P.Val < 0.001 ~ "***",
+        adj.P.Val < 0.01 ~ "**",
+        adj.P.Val < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    )
+
+  cat("GW limma - nominal p < 0.05:", sum(gw_limma_results$P.Value < 0.05), "\n")
+  cat("GW limma - FDR < 0.05:", sum(gw_limma_results$adj.P.Val < 0.05), "\n")
+
+  gw_bar_data <- gw_limma_results %>%
+    arrange(desc(abs(logFC))) %>%
+    mutate(Name_display = truncate_labels(Name))
+
+  gw_bar <- ggplot(
+    gw_bar_data,
+    aes(x = reorder(Name_display, logFC), y = logFC, fill = Direction)
+  ) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_text(
+      aes(
+        label = FDR_label,
+        hjust = ifelse(logFC > 0, -0.2, 1.2)
+      ),
+      size = 4, fontface = "bold"
+    ) +
+    coord_flip() +
+    scale_fill_manual(values = c(
+      "Increases with GW" = "steelblue",
+      "Decreases with GW" = "tomato"
+    )) +
+    theme_minimal() +
+    labs(
+      x = "Compound",
+      y = "Slope (log2 peak area per GW week)",
+      title = paste0("GW-Associated Steroids - limma (", scope, ")"),
+      caption = "* FDR < 0.05   ** FDR < 0.01   *** FDR < 0.001"
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.caption = element_text(hjust = 0)
+    )
+
+  save_dual_format(gw_bar, paste0("gw_limma_bar_", scope),
+    png_path = png_path, svg_path = svg_path,
+    label_lookup = build_label_lookup(gw_bar_data$Name)
+  )
+  print(gw_bar)
+  write_csv(
+    gw_limma_results,
+    file.path(csv_path, paste0("newbatch2_steroid_", scope, "_gw_limma.csv"))
+  )
+
+  # ── Sex Wilcoxon ────────────────────────────────────────────────────────────
+  cat("\n--- Sex Wilcoxon ---\n")
+
+  wilcoxon_test <- function(x, sex) {
+    valid_idx <- !is.na(x)
+    x_clean <- x[valid_idx]
+    sex_clean <- sex[valid_idx]
+    if (length(unique(sex_clean)) < 2) {
+      return(c(statistic = NA, p_value = NA))
+    }
+    result <- wilcox.test(x_clean[sex_clean == "F"],
+      x_clean[sex_clean == "M"],
+      exact = FALSE
+    )
+    c(statistic = as.numeric(result$statistic), p_value = result$p.value)
+  }
+
+  wilcoxon_results <- t(apply(exprs(eset), 1, wilcoxon_test, sex = sex_groups))
+  colnames(wilcoxon_results) <- c("statistic", "p_value")
+
+  mean_male <- apply(exprs(eset)[, sex_groups == "M", drop = FALSE], 1, mean, na.rm = TRUE)
+  mean_female <- apply(exprs(eset)[, sex_groups == "F", drop = FALSE], 1, mean, na.rm = TRUE)
+
+  metabolite_sex_stats <- data.frame(
+    Name = fData(eset)$Name,
+    Compound.ID = fData(eset)$Compound.ID,
+    Wilcoxon_statistic = wilcoxon_results[, "statistic"],
+    p_value = wilcoxon_results[, "p_value"],
+    Mean_Female = mean_female,
+    Mean_Male = mean_male,
+    logFC = log2(mean_male / mean_female)
+  ) %>%
+    mutate(
+      FDR = p.adjust(p_value, method = "fdr"),
+      Bonferroni = p.adjust(p_value, method = "bonferroni"),
+      Significant_FDR = FDR < 0.05,
+      Significant_Bonferroni = Bonferroni < 0.05,
+      Direction = case_when(
+        logFC > 0 ~ "Higher in Males",
+        logFC < 0 ~ "Higher in Females",
+        TRUE ~ "No difference"
+      ),
+      Name_display = truncate_labels(Name)
+    )
+
+  sig_metabolites_fdr <- metabolite_sex_stats %>% filter(p_value < 0.05)
+
+  cat("Sex Wilcoxon - nominal p < 0.05:", sum(metabolite_sex_stats$p_value < 0.05, na.rm = TRUE), "\n")
+  cat("Sex Wilcoxon - FDR < 0.05:", sum(metabolite_sex_stats$Significant_FDR, na.rm = TRUE), "\n")
+
+  volcano_FDR <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(p_value))) +
+    geom_point(aes(color = Significant_FDR), alpha = 0.6, size = 2) +
+    geom_text_repel(
+      data = sig_metabolites_fdr,
+      aes(label = Name_display),
+      size = 3, max.overlaps = 20
+    ) +
+    scale_color_manual(
+      values = c("FALSE" = "grey", "TRUE" = "red"),
+      name = "FDR < 0.05"
+    ) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    theme_minimal() +
+    labs(
+      x = "Log2 Fold Change (Male/Female)",
+      y = "-log10(p-value)",
+      title = paste0("Sex Differential - Volcano (FDR) - Steroids (", scope, ")")
+    ) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  save_dual_format(volcano_FDR, paste0("sex_volcano_FDR_", scope),
+    png_path = png_path, svg_path = svg_path,
+    label_lookup = build_label_lookup(metabolite_sex_stats$Name)
+  )
+  print(volcano_FDR)
+
+  volcano_Bonferroni <- ggplot(metabolite_sex_stats, aes(x = logFC, y = -log10(p_value))) +
+    geom_point(aes(color = Significant_Bonferroni), alpha = 0.6, size = 2) +
+    geom_text_repel(
+      data = sig_metabolites_fdr,
+      aes(label = Name_display),
+      size = 3, max.overlaps = 20
+    ) +
+    scale_color_manual(
+      values = c("FALSE" = "grey", "TRUE" = "red"),
+      name = "Bonferroni < 0.05"
+    ) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    theme_minimal() +
+    labs(
+      x = "Log2 Fold Change (Male/Female)",
+      y = "-log10(p-value)",
+      title = paste0("Sex Differential - Volcano (Bonferroni) - Steroids (", scope, ")")
+    ) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  save_dual_format(volcano_Bonferroni, paste0("sex_volcano_Bonferroni_", scope),
+    png_path = png_path, svg_path = svg_path,
+    label_lookup = build_label_lookup(metabolite_sex_stats$Name)
+  )
+  print(volcano_Bonferroni)
+
+  write_csv(
+    metabolite_sex_stats,
+    file.path(csv_path, paste0("newbatch2_steroid_", scope, "_sex_wilcoxon.csv"))
+  )
+
+  # ── Sex limma ───────────────────────────────────────────────────────────────
+  cat("\n--- Sex limma ---\n")
+
+  metadata_limma <- pData(eset)
+  metadata_limma$Sex <- factor(metadata_limma$Sex, levels = c("F", "M"))
+  design_sex <- model.matrix(~Sex, data = metadata_limma)
+
+  fit_sex <- lmFit(exprs(eset), design_sex)
+  fit_sex <- eBayes(fit_sex)
+  sex_limma_results <- topTable(fit_sex,
+    coef = "SexM", number = Inf,
+    adjust.method = "BH"
+  ) %>%
+    rownames_to_column("Name") %>%
+    left_join(fData(eset) %>% dplyr::select(Name, Compound.ID, Sub.Class, Class),
+      by = "Name"
+    ) %>%
+    mutate(
+      Direction = ifelse(logFC > 0, "Higher in Males", "Higher in Females"),
+      FDR_label = case_when(
+        adj.P.Val < 0.001 ~ "***",
+        adj.P.Val < 0.01 ~ "**",
+        adj.P.Val < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    )
+
+  cat("Sex limma - nominal p < 0.05:", sum(sex_limma_results$P.Value < 0.05), "\n")
+  cat("Sex limma - FDR < 0.05:", sum(sex_limma_results$adj.P.Val < 0.05), "\n")
+
+  volcano_sex_limma <- ggplot(
+    sex_limma_results,
+    aes(x = logFC, y = -log10(P.Value))
+  ) +
+    geom_point(aes(color = adj.P.Val < 0.05), alpha = 0.6, size = 2) +
+    geom_text_repel(
+      data = sex_limma_results %>% filter(P.Value < 0.05),
+      aes(label = truncate_labels(Name)),
+      size = 3, max.overlaps = 20
+    ) +
+    scale_color_manual(
+      values = c("FALSE" = "grey", "TRUE" = "red"),
+      name = "FDR < 0.05"
+    ) +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed", color = "blue") +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    theme_minimal() +
+    labs(
+      x = "Log2 Fold Change (Male/Female)",
+      y = "-log10(p-value)",
+      title = paste0("Sex Differential - limma Volcano - Steroids (", scope, ")"),
+      caption = "Positive logFC = higher in males"
+    ) +
+    theme(plot.title = element_text(hjust = 0.5))
+
+  save_dual_format(volcano_sex_limma, paste0("sex_limma_volcano_", scope),
+    png_path = png_path, svg_path = svg_path
+  )
+  print(volcano_sex_limma)
+
+  sex_bar_data <- sex_limma_results %>%
+    arrange(desc(abs(logFC))) %>%
+    mutate(Name_display = truncate_labels(Name))
+
+  sex_bar <- ggplot(
+    sex_bar_data,
+    aes(x = reorder(Name_display, logFC), y = logFC, fill = Direction)
+  ) +
+    geom_bar(stat = "identity", alpha = 0.8) +
+    geom_text(
+      aes(
+        label = FDR_label,
+        hjust = ifelse(logFC > 0, -0.2, 1.2)
+      ),
+      size = 4, fontface = "bold"
+    ) +
+    coord_flip() +
+    scale_fill_manual(values = c(
+      "Higher in Males" = "steelblue",
+      "Higher in Females" = "tomato"
+    )) +
+    theme_minimal() +
+    labs(
+      x = "Compound",
+      y = "Log2 Fold Change (Male/Female)",
+      title = paste0("Sex-Differential Steroids - limma (", scope, ")"),
+      caption = "* FDR < 0.05   ** FDR < 0.01   *** FDR < 0.001"
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.caption = element_text(hjust = 0)
+    )
+
+  save_dual_format(sex_bar, paste0("sex_limma_bar_", scope),
+    png_path = png_path, svg_path = svg_path,
+    label_lookup = build_label_lookup(sex_bar_data$Name)
+  )
+  print(sex_bar)
+  write_csv(
+    sex_limma_results,
+    file.path(csv_path, paste0("newbatch2_steroid_", scope, "_sex_limma.csv"))
+  )
+
+  # ── GW limma trajectories (nominal p < 0.05) ──────────────────────────────
+  cat("\n--- GW limma trajectories ---\n")
+  gw_nominal_names <- gw_limma_results %>%
+    filter(P.Value < 0.05) %>%
+    pull(Name)
+
+  if (length(gw_nominal_names) > 0) {
+    cat(length(gw_nominal_names), "compound(s)\n")
+    gw_traj_suffixes <- gw_limma_results %>%
+      filter(Name %in% gw_nominal_names) %>%
+      arrange(match(Name, gw_nominal_names)) %>%
+      mutate(suffix = sprintf("logFC=%.2f | p=%.3f | FDR=%.3f", logFC, P.Value, adj.P.Val)) %>%
+      pull(suffix)
+    gw_traj_plots <- build_trajectory_plots(gw_nominal_names, eset, title_suffixes = gw_traj_suffixes)
+    save_trajectory_grids(gw_traj_plots,
+      paste0("gw_limma_trajectories_", scope),
+      png_path = png_path, svg_path = svg_path
+    )
+  } else {
+    cat("No GW limma nominal hits — skipping trajectories.\n")
+  }
+
+  # ── Sex limma trajectories (nominal p < 0.05) ─────────────────────────────
+  cat("\n--- Sex limma trajectories ---\n")
+  sex_nominal_names <- sex_limma_results %>%
+    filter(P.Value < 0.05) %>%
+    pull(Name)
+
+  if (length(sex_nominal_names) > 0) {
+    cat(length(sex_nominal_names), "compound(s)\n")
+    sex_traj_suffixes <- sex_limma_results %>%
+      filter(Name %in% sex_nominal_names) %>%
+      arrange(match(Name, sex_nominal_names)) %>%
+      mutate(suffix = sprintf("logFC=%.2f | p=%.3f | FDR=%.3f", logFC, P.Value, adj.P.Val)) %>%
+      pull(suffix)
+    sex_traj_plots <- build_trajectory_plots(sex_nominal_names, eset, title_suffixes = sex_traj_suffixes)
+    save_trajectory_grids(sex_traj_plots,
+      paste0("sex_limma_trajectories_", scope),
+      png_path = png_path, svg_path = svg_path
+    )
+  } else {
+    cat("No sex limma nominal hits — skipping trajectories.\n")
+  }
+
+  # ── PLS-DA (guard: need >= 2 features and adequate group sizes) ──────────────
+  cat("\n--- PLS-DA ---\n")
+
+  plsda_matrix <- t(exprs(eset))
+  sex_labels <- factor(pData(eset)$Sex)
+  min_group_size <- min(table(sex_labels))
+  safe_ncomp <- min(5, min_group_size - 1, n_features - 1)
+
+  if (safe_ncomp < 1) {
+    cat("Skipping PLS-DA: insufficient features or group size for scope =", scope, "\n")
+  } else {
+    plsda_matrix_imputed <- apply(plsda_matrix, 2, min_value_impute)
+
+    cat("Group sizes:", table(sex_labels), "\n")
+    cat("Using ncomp =", safe_ncomp, "\n")
+
+    set.seed(42)
+    plsda_fit <- opls(
+      x         = plsda_matrix_imputed,
+      y         = sex_labels,
+      predI     = safe_ncomp,
+      orthoI    = 0,
+      permI     = 0,
+      fig.pdfC  = "none",
+      info.txtC = "none"
+    )
+
+    plsda_scores <- data.frame(
+      Comp1 = plsda_fit@scoreMN[, 1],
+      Comp2 = if (safe_ncomp >= 2) plsda_fit@scoreMN[, 2] else 0,
+      Sex   = sex_labels
+    )
+
+    score_plot <- ggplot(plsda_scores, aes(x = Comp1, y = Comp2, color = Sex)) +
+      geom_point(size = 3, alpha = 0.8) +
+      scale_color_manual(values = c("F" = "tomato", "M" = "steelblue")) +
+      theme_minimal() +
+      labs(
+        x = "Component 1", y = "Component 2",
+        title = paste0("PLS-DA Score Plot - Steroids (", scope, ")")
+      ) +
+      theme(plot.title = element_text(hjust = 0.5))
+
+    save_dual_format(score_plot, paste0("sex_plsda_scores_", scope),
+      png_path = png_path, svg_path = svg_path
+    )
+    print(score_plot)
+
+    vip_df <- data.frame(
+      Name      = colnames(plsda_matrix_imputed),
+      VIP_comp1 = as.numeric(getVipVn(plsda_fit))
+    ) %>%
+      arrange(desc(VIP_comp1)) %>%
+      left_join(fData(eset) %>% dplyr::select(Name, Compound.ID, Sub.Class, Class),
+        by = "Name"
+      ) %>%
+      mutate(Name_display = truncate_labels(Name))
+
+    vip_plot <- ggplot(vip_df, aes(x = reorder(Name_display, VIP_comp1), y = VIP_comp1)) +
+      geom_bar(stat = "identity", fill = "steelblue", alpha = 0.8) +
+      geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+      coord_flip() +
+      theme_minimal() +
+      labs(
+        x = "Compound",
+        y = "VIP Score (Component 1)",
+        title = paste0("PLS-DA VIP Scores - Steroids (", scope, ")"),
+        caption = "Red dashed line = VIP > 1"
+      ) +
+      theme(plot.title = element_text(hjust = 0.5))
+
+    save_dual_format(vip_plot, paste0("sex_plsda_vip_", scope),
+      png_path = png_path, svg_path = svg_path,
+      label_lookup = build_label_lookup(vip_df$Name)
+    )
+    print(vip_plot)
+    write_csv(
+      vip_df,
+      file.path(csv_path, paste0("newbatch2_steroid_", scope, "_plsda_vip.csv"))
+    )
+
+    # PLS-DA permutation
+    set.seed(42)
+    plsda_perm <- opls(
+      x         = plsda_matrix_imputed,
+      y         = sex_labels,
+      predI     = safe_ncomp,
+      orthoI    = 0,
+      permI     = 1000,
+      fig.pdfC  = "none",
+      info.txtC = "none"
+    )
+    cat("\nPLS-DA permutation results:\n")
+    print(plsda_perm@summaryDF)
+
+  }
+
+  # ── UpSet Plot ───────────────────────────────────────────────────────────────
+  cat("\n--- UpSet Overlap ---\n")
+
+  sex_wilcoxon_fdr <- metabolite_sex_stats %>%
+    filter(FDR < 0.05) %>%
+    pull(Name)
+  sex_wilcoxon_nominal <- metabolite_sex_stats %>%
+    filter(p_value < 0.05 & FDR >= 0.05) %>%
+    pull(Name)
+  sex_limma_fdr_hits <- sex_limma_results %>%
+    filter(adj.P.Val < 0.05) %>%
+    pull(Name)
+  sex_limma_nominal <- sex_limma_results %>%
+    filter(P.Value < 0.05 & adj.P.Val >= 0.05) %>%
+    pull(Name)
+  gw_corr_fdr <- gw_corr_stats %>%
+    filter(GW_FDR < 0.05) %>%
+    pull(Name)
+  gw_limma_fdr_hits <- gw_limma_results %>%
+    filter(adj.P.Val < 0.05) %>%
+    pull(Name)
+
+  all_names <- unique(c(
+    sex_wilcoxon_fdr, sex_wilcoxon_nominal,
+    sex_limma_fdr_hits, sex_limma_nominal,
+    gw_corr_fdr, gw_limma_fdr_hits
+  ))
+  
+  n_nonempty_sets <- sum(c(length(sex_wilcoxon_fdr) > 0,
+                         length(sex_wilcoxon_nominal)  > 0,
+                         length(sex_limma_fdr_hits)  > 0, 
+                         length(sex_limma_nominal)  > 0,
+                         length(gw_corr_fdr)  > 0,
+                         length(gw_limma_fdr_hits)  > 0
+                         ))
+
+  if (length(all_names) > 0 && n_nonempty_sets >= 2) {
+    upset_df <- data.frame(
+      Name              = all_names,
+      Sex_Wilcoxon_FDR  = as.integer(all_names %in% sex_wilcoxon_fdr),
+      Sex_Wilcoxon_nom  = as.integer(all_names %in% sex_wilcoxon_nominal),
+      Sex_limma_FDR     = as.integer(all_names %in% sex_limma_fdr_hits),
+      Sex_limma_nom     = as.integer(all_names %in% sex_limma_nominal),
+      GW_corr_FDR       = as.integer(all_names %in% gw_corr_fdr),
+      GW_limma_FDR      = as.integer(all_names %in% gw_limma_fdr_hits)
+    )
+
+    png(file.path(png_path, paste0("upset_overlap_", scope, ".png")),
+      width = 12, height = 7, units = "in", res = 300
+    )
+    upset(upset_df %>% dplyr::select(-Name),
+      order.by        = "freq",
+      decreasing      = TRUE,
+      main.bar.color  = "grey30",
+      text.scale      = 1.3,
+      mainbar.y.label = "Compounds in Intersection",
+      sets.x.label    = "Compounds per Method"
+    )
+    dev.off()
+
+    upset(upset_df %>% dplyr::select(-Name),
+      order.by        = "freq",
+      decreasing      = TRUE,
+      main.bar.color  = "grey30",
+      text.scale      = 1.3,
+      mainbar.y.label = "Compounds in Intersection",
+      sets.x.label    = "Compounds per Method"
+    )
+
+    write_csv(
+      upset_df,
+      file.path(csv_path, paste0("newbatch2_steroid_", scope, "_upset.csv"))
+    )
+  } else if (length(all_names) > 0) {
+  cat("Nominal hits found in only one method — UpSet plot requires ≥ 2 sets. Skipping.\n")
+  cat("Nominal hits:", paste(all_names, collapse = ", "), "\n")
+  } else {
+    cat("No significant hits for UpSet plot in scope:", scope, "\n")
+  }
+
+  cat("\n--- Scope", toupper(scope), "complete ---\n\n")
+}
+```

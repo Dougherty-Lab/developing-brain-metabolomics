@@ -1,0 +1,5 @@
+Name,logFC,AveExpr,t,P.Value,adj.P.Val,B,Compound.ID,Sub.Class,Class,Direction,FDR_label
+"17-(1-Hydroxyethyl)-10,13-Dimethyl-2,3,6,7,8,9,10,11,12,13,14,15,16,17-Tetradecahydro-1h-Cyclopenta[A]Phenanthren-3-One",-0.127877450931469,18.430373008910543,-1.9295286953198894,0.06670117420544823,0.2668046968217929,-3.9671071611188786,C8-Pos-000495,Pregnane steroids,Steroids and steroid derivatives,Decreases with GW,
+Cholest-4-En-3-One,0.09386674420107792,16.745763175725383,1.048490010050444,0.305337411514481,0.5720072938668121,-4.915931962264356,C8-Pos-001061,Cholestane steroids,Steroids and steroid derivatives,Increases with GW,
+Progesterone,-0.02794735831404718,14.951108265074668,-0.7228306947752628,0.47625269953331917,0.5720072938668121,-5.205110665345117,C8-Pos-000616,Pregnane steroids,Steroids and steroid derivatives,Decreases with GW,
+4-Cholestenone,0.025408427523935167,21.348525023940386,0.5720873285243578,0.5720072938668121,0.5720072938668121,-5.2906440619151756,C8-Pos-001064,Cholestane steroids,Steroids and steroid derivatives,Increases with GW,

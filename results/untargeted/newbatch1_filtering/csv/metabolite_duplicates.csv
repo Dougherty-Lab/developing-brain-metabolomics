@@ -1,0 +1,397 @@
+"Name","n_occurrences","compound_ids","is_duplicate"
+"Adenosine",10,"Amide-Neg-001485; Amide-Neg-001694; Amide-Pos-001066; Amide-Pos-001071; C18-Neg-001272; C18-Neg-001273; C18-Pos-001459; C18-Pos-001460; C8-Pos-000198; C8-Pos-000303",TRUE
+"Inosine",9,"Amide-Neg-001481; Amide-Pos-001079; Amide-Pos-001221; C18-Neg-000907; C18-Neg-001158; C18-Pos-001467; C18-Pos-001468; C8-Neg-000235; C8-Pos-000443",TRUE
+"Adenosine 5'-Diphosphate",8,"Amide-Neg-002081; Amide-Neg-002083; Amide-Pos-001676; Amide-Pos-001677; C18-Neg-001929; C18-Neg-001931; C18-Pos-003260; C18-Pos-003263",TRUE
+"L-Glutathione (Reduced)",8,"Amide-Neg-001742; Amide-Neg-001745; Amide-Pos-001228; Amide-Pos-001233; C18-Neg-001219; C18-Neg-001220; C18-Pos-001855; C18-Pos-001856",TRUE
+"Adenine",7,"Amide-Neg-000371; Amide-Neg-000373; Amide-Pos-000383; Amide-Pos-000391; C18-Neg-000075; C18-Pos-000420; C18-Pos-000422",TRUE
+"L-Glutamic Acid",7,"Amide-Neg-000286; Amide-Neg-000489; Amide-Pos-000319; Amide-Pos-000320; C18-Neg-000044; C18-Pos-000348; C18-Pos-000557",TRUE
+"L-Isoleucine",7,"Amide-Neg-000321; Amide-Neg-000322; Amide-Pos-000361; Amide-Pos-000362; Amide-Pos-000366; C18-Pos-000375; C18-Pos-000383",TRUE
+"L-Threonine",7,"Amide-Neg-000234; Amide-Neg-000237; Amide-Pos-000255; Amide-Pos-000263; C18-Neg-000031; C18-Pos-000015; C18-Pos-000268",TRUE
+"N-Acetyl-1-Aspartylglutamic Acid",7,"Amide-Neg-001718; Amide-Neg-001721; Amide-Pos-001213; C18-Neg-001189; C18-Neg-001194; C18-Pos-001811; C18-Pos-001815",TRUE
+"N-Acetyl-Neuraminic Acid",7,"Amide-Neg-001754; Amide-Neg-001755; Amide-Pos-001246; C18-Neg-001242; C18-Neg-001243; C18-Pos-001889; C18-Pos-002103",TRUE
+"Adenosine 5'-Monophosphate",6,"Amide-Pos-001400; Amide-Pos-001405; C18-Neg-001549; C18-Neg-001550; C18-Pos-002282; C18-Pos-002286",TRUE
+"Creatine",6,"Amide-Neg-000163; Amide-Neg-000317; Amide-Pos-000200; Amide-Pos-000339; C18-Neg-000057; C18-Pos-001431",TRUE
+"Glycerol Monooleate",6,"Amide-Pos-001355; C18-Pos-002182; C18-Pos-002183; C8-Pos-000806; C8-Pos-000807; C8-Pos-000812",TRUE
+"Guanosine",6,"Amide-Neg-001584; Amide-Neg-001588; C18-Neg-001013; C18-Neg-001014; C18-Pos-001618; C18-Pos-001619",TRUE
+"L-Aspartic Acid",6,"Amide-Neg-000172; Amide-Neg-000336; Amide-Pos-000226; C18-Neg-000068; C18-Pos-000393; C18-Pos-000395",TRUE
+"L-Pyroglutamic Acid",6,"Amide-Neg-000287; Amide-Neg-000289; Amide-Pos-000317; Amide-Pos-000324; C18-Pos-000350; C18-Pos-000351",TRUE
+"2-(Alpha-D-Mannopyranosyl)-L-Tryptophan",5,"Amide-Pos-001492; C18-Neg-001668; C18-Neg-001672; C18-Pos-002505; C18-Pos-002507",TRUE
+"5'-S-Methyl-5'-Thioadenosine",5,"Amide-Pos-001182; Amide-Pos-001183; C18-Pos-001730; C18-Pos-001731; C8-Pos-000483",TRUE
+"Citric Acid",5,"Amide-Neg-000876; Amide-Neg-000877; C18-Neg-000389; C18-Neg-000395; C18-Pos-001083",TRUE
+"Dodecyl Sulfate",5,"Amide-Neg-001471; Amide-Neg-001473; C18-Neg-000894; C8-Neg-000223; C8-Neg-000224",TRUE
+"Guanine",5,"Amide-Neg-000522; Amide-Pos-000503; Amide-Pos-000504; C18-Pos-000625; C18-Pos-000627",TRUE
+"Guanosine-5'-Monophosphate",5,"Amide-Pos-001474; Amide-Pos-001475; C18-Neg-001638; C18-Pos-002454; C18-Pos-002463",TRUE
+"L-Histidine",5,"Amide-Neg-000541; Amide-Neg-000545; Amide-Pos-000532; Amide-Pos-000536; C18-Pos-000651",TRUE
+"N,N'-Diphenylguanidine",5,"Amide-Pos-000806; Amide-Pos-000807; C18-Pos-001067; C8-Neg-000021; C8-Pos-000039",TRUE
+"N-Acetyl-L-Aspartic Acid",5,"Amide-Neg-000557; Amide-Neg-000704; C18-Neg-000290; C18-Neg-000304; C18-Pos-000969",TRUE
+"N-Acetylglutamic Acid",5,"Amide-Neg-000663; C18-Neg-000359; C18-Neg-000360; C18-Pos-000761; C18-Pos-000763",TRUE
+"N6-Succinyladenosine; Lc-Tdda; Ce10",5,"Amide-Pos-001540; C18-Neg-001738; C18-Neg-001739; C18-Pos-002702; C18-Pos-002703",TRUE
+"Spongouridin",5,"Amide-Neg-001329; C18-Neg-000746; C18-Neg-000747; C18-Pos-001317; C18-Pos-001319",TRUE
+"Sucrose",5,"Amide-Pos-001481; Amide-Pos-001482; C18-Neg-001505; C18-Pos-002025; C18-Pos-002479",TRUE
+"Taurine",5,"Amide-Pos-000156; Amide-Pos-000294; C18-Neg-000042; C18-Pos-000174; C18-Pos-000308",TRUE
+"1-Methyladenosine",4,"Amide-Pos-001131; Amide-Pos-001132; C18-Pos-001585; C18-Pos-001589",TRUE
+"1-Octadecanoyl-2-Octadecenoyl-Sn-Glycero-3-Phosphocholine",4,"Amide-Pos-002309; Amide-Pos-002310; C8-Pos-004400; C8-Pos-004401",TRUE
+"1-Palmitoyl-Sn-Glycero-3-Phosphocholine",4,"Amide-Pos-001795; Amide-Pos-001797; C18-Pos-004184; C8-Pos-002038",TRUE
+"2'-Deoxyguanosine 5'-Monophosphate (Dgmp)",4,"Amide-Neg-001898; Amide-Neg-001899; C18-Neg-001545; C18-Neg-001546",TRUE
+"2-Oleoyl-1-Palmitoyl-Sn-Glycero-3-Phosphocholine",4,"Amide-Pos-002276; Amide-Pos-002281; C8-Pos-004118; C8-Pos-004120",TRUE
+"4-(Acetylamino)Butanoic Acid",4,"Amide-Neg-000479; Amide-Neg-000480; C18-Neg-000130; C18-Neg-000131",TRUE
+"Acetyl-L-Carnitine",4,"Amide-Pos-000754; Amide-Pos-000755; C18-Pos-001003; C18-Pos-001008",TRUE
+"Arachidonic Acid",4,"C8-Neg-000422; C8-Neg-000423; C8-Pos-000422; C8-Pos-000424",TRUE
+"Choline",4,"Amide-Pos-000097; Amide-Pos-000123; C18-Pos-000039; C18-Pos-000045",TRUE
+"Cis-4-Hydroxy-D-Proline",4,"Amide-Neg-000320; Amide-Neg-000324; C18-Pos-000384; C18-Pos-000385",TRUE
+"Creatinine",4,"Amide-Pos-000193; Amide-Pos-000382; C18-Pos-000411; C18-Pos-000412",TRUE
+"D-(+)-Glucose",4,"Amide-Neg-000605; Amide-Neg-000767; Amide-Neg-000773; C18-Neg-000220",TRUE
+"D-(+)-Tryptophan",4,"Amide-Neg-000978; C18-Neg-000507; C18-Pos-001015; C18-Pos-001016",TRUE
+"D-Pantothenic Acid",4,"Amide-Neg-001134; C18-Pos-000992; C8-Pos-000078; C8-Pos-000079",TRUE
+"Dipropyleneglycol Dibenzoate",4,"C18-Pos-002215; C18-Pos-002216; C8-Pos-000855; C8-Pos-000856",TRUE
+"Dl-Dipalmitoylphosphatidylcholine",4,"Amide-Pos-002233; Amide-Pos-002235; C8-Pos-003901; C8-Pos-003910",TRUE
+"Glycerol Monopalmitate",4,"C18-Pos-001905; C18-Pos-001908; C8-Pos-000593; C8-Pos-000595",TRUE
+"Glycerophosphocholine",4,"Amide-Pos-001017; Amide-Pos-001020; C18-Pos-001397; C18-Pos-001398",TRUE
+"Guanosine 5'-Diphosphate (Gdp)",4,"Amide-Neg-002106; Amide-Neg-002109; Amide-Pos-001703; Amide-Pos-001705",TRUE
+"Hexanoylcarnitine",4,"Amide-Pos-001033; C18-Pos-001405; C18-Pos-001406; C8-Pos-000266",TRUE
+"Inosine-5'-Monophosphate (Imp)",4,"Amide-Neg-001902; Amide-Pos-001412; C18-Pos-002294; C18-Pos-002297",TRUE
+"L-Ascorbic Acid",4,"C18-Neg-000313; C18-Neg-000314; C18-Pos-000789; C18-Pos-000790",TRUE
+"L-Glutathione Oxidized Hexhydrate",4,"Amide-Neg-002215; Amide-Pos-002035; C18-Pos-001842; C18-Pos-001845",TRUE
+"Minoxidil",4,"Amide-Pos-000798; C18-Pos-001062; C8-Pos-000031; C8-Pos-000032",TRUE
+"Nicotinamide",4,"Amide-Pos-000278; Amide-Pos-000279; C18-Pos-000285; C18-Pos-000286",TRUE
+"Ophthalmate",4,"Amide-Neg-001616; Amide-Pos-001163; C18-Neg-001053; C18-Pos-001672",TRUE
+"Palmitoylcarnitine",4,"Amide-Pos-001595; C18-Pos-002929; C8-Pos-001332; C8-Pos-001333",TRUE
+"Pe(18:0_20:4)",4,"Amide-Pos-002290; Amide-Pos-002291; C8-Pos-004202; C8-Pos-004204",TRUE
+"Peg N5",4,"Amide-Pos-000903; C18-Pos-001271; C18-Pos-001272; C8-Pos-000156",TRUE
+"Penicillin G",4,"C18-Pos-002148; C18-Pos-002149; C8-Neg-000565; C8-Pos-000768",TRUE
+"Ppg N4",4,"Amide-Pos-000992; C18-Pos-001359; C18-Pos-001360; C8-Pos-000209",TRUE
+"Ps 22:5_22:6",4,"C8-Neg-003532; C8-Neg-003533; C8-Pos-005150; C8-Pos-005151",TRUE
+"Tetraglyme",4,"Amide-Pos-000835; Amide-Pos-000837; C18-Pos-001141; C18-Pos-001144",TRUE
+"Trans-3-Indoleacrylic Acid",4,"Amide-Pos-000658; Amide-Pos-000659; C18-Pos-000874; C18-Pos-000875",TRUE
+"Uric Acid",4,"C18-Neg-000243; C18-Neg-000244; C18-Pos-000741; C18-Pos-000742",TRUE
+"Uridine Monophosphate",4,"Amide-Pos-001297; C18-Neg-001400; C18-Pos-002017; C18-Pos-002023",TRUE
+"(2r)-3-Hydroxyisovaleroylcarnitine",3,"Amide-Pos-001043; C18-Pos-001422; C18-Pos-001425",TRUE
+"1,2-Dioleoyl-Sn-Glycero-3-Phosphatidylcholine",3,"Amide-Pos-002307; C8-Pos-004378; C8-Pos-004387",TRUE
+"1,2-Dipentadecanoyl-Sn-Glycero-3-Phosphocholine",3,"Amide-Pos-002176; C8-Pos-003665; C8-Pos-003668",TRUE
+"1-Oleoyl-Sn-Glycero-3-Phosphocholine",3,"Amide-Pos-001860; Amide-Pos-001861; C18-Pos-004585",TRUE
+"1-Stearoyl-2-Hydroxy-Sn-Glycero-3-Phosphoethanolamine",3,"C18-Neg-002091; C18-Neg-002092; C8-Pos-002059",TRUE
+"2-Docosahexaenoyl-1-Stearoyl-Sn-Glycero-3-Phosphoserine",3,"C8-Neg-003387; C8-Neg-003391; C8-Pos-004832",TRUE
+"3-Hydroxy-1-Methyl-3-(2-Oxopropyl)Indol-2-One",3,"Amide-Pos-000918; C18-Pos-000991; C8-Pos-000003",TRUE
+"3-Hydroxybutyrylcarnitine",3,"Amide-Pos-000982; C18-Pos-001341; C18-Pos-001343",TRUE
+"4-Dodecylbenzenesulfonic Acid",3,"Amide-Neg-001822; C8-Neg-000519; C8-Neg-000520",TRUE
+"5,5-Dimethyl-2-{[(2-Phenylacetyl)Amino]Methyl}-1,3-Thiazolane-4-Carboxylic Acid",3,"Amide-Neg-001753; C18-Neg-001235; C18-Neg-001236",TRUE
+"Acetyl-D-Alanine",3,"Amide-Neg-000316; C18-Neg-000062; C18-Neg-000064",TRUE
+"Acetylcholine",3,"Amide-Pos-000466; Amide-Pos-000467; C18-Pos-000540",TRUE
+"Azithromycin",3,"Amide-Pos-001526; C18-Pos-002599; C8-Pos-004027",TRUE
+"Bilirubin",3,"Amide-Pos-001974; C18-Pos-005805; C8-Pos-002850",TRUE
+"Bis(2,2,6,6-Tetramethyl-4-Piperidyl)Sebacate",3,"Amide-Pos-000915; C18-Pos-001292; C8-Pos-002057",TRUE
+"Bis(2-Ethylhexyl) Phthalate",3,"C18-Pos-002803; C8-Pos-001250; C8-Pos-001251",TRUE
+"Caprolactam",3,"Amide-Pos-000210; C18-Pos-000207; C18-Pos-000214",TRUE
+"Chloroprocaine",3,"Amide-Pos-001086; C18-Pos-001502; C8-Pos-000324",TRUE
+"Citroflex 4",3,"C18-Pos-002437; C8-Pos-001006; C8-Pos-001007",TRUE
+"Crotonic Acid",3,"Amide-Neg-000028; Amide-Pos-000010; Amide-Pos-000014",TRUE
+"Cystathionine",3,"Amide-Neg-001154; Amide-Pos-000836; C18-Pos-001138",TRUE
+"Cytidine 5'-Diphosphocholine",3,"Amide-Neg-002150; Amide-Pos-001779; C18-Pos-004076",TRUE
+"Cytosine",3,"Amide-Pos-000171; Amide-Pos-000173; C18-Pos-000184",TRUE
+"D,L-Serine",3,"Amide-Neg-000119; Amide-Neg-000127; C18-Neg-000012",TRUE
+"D-(-)-Mannitol",3,"Amide-Neg-000784; Amide-Neg-000787; C18-Neg-000334",TRUE
+"D-Glucose 6-Phosphate",3,"Amide-Neg-001431; Amide-Neg-001433; Amide-Pos-001037",TRUE
+"D-Proline",3,"Amide-Neg-000174; Amide-Pos-000224; Amide-Pos-000227",TRUE
+"D-Α-Hydroxyglutaric Acid",3,"Amide-Neg-000501; Amide-Neg-000511; C18-Neg-000146",TRUE
+"Dehydroascorbic Acid",3,"Amide-Neg-000678; Amide-Neg-000696; C18-Neg-000282",TRUE
+"Dl-Glutamine",3,"Amide-Pos-000475; Amide-Pos-000476; C18-Pos-000550",TRUE
+"Dl-Xylose",3,"Amide-Neg-000332; Amide-Neg-000515; C18-Neg-000065",TRUE
+"Docosahexaenoic Acid",3,"C8-Neg-000532; C8-Neg-000534; C8-Pos-000879",TRUE
+"Erucamide",3,"C18-Pos-002174; C18-Pos-002175; C8-Pos-000798",TRUE
+"Hypotaurine",3,"Amide-Neg-000136; Amide-Pos-000072; C18-Neg-000014",TRUE
+"Hypoxanthtine",3,"Amide-Pos-000410; Amide-Pos-000411; C18-Pos-000443",TRUE
+"L-(-)-Methionine",3,"Amide-Pos-000496; C18-Pos-000574; C18-Pos-000575",TRUE
+"L-Glutarylcarnitine",3,"Amide-Pos-001103; C18-Pos-001541; C18-Pos-001543",TRUE
+"L-Phenylalanine",3,"Amide-Neg-000631; C18-Pos-000721; C18-Pos-000722",TRUE
+"L-Pipecolinic Acid",3,"Amide-Pos-000330; C18-Pos-000353; C18-Pos-000354",TRUE
+"L-Threonic Acid Calcium Salt",3,"Amide-Neg-000404; Amide-Neg-000405; C18-Neg-000102",TRUE
+"L-Tyrosine",3,"Amide-Pos-000643; C18-Pos-000831; C18-Pos-000832",TRUE
+"Myristyl Sulfate",3,"Amide-Neg-001639; Amide-Neg-001640; C8-Neg-000367",TRUE
+"N,N-Diethylethanolamine",3,"Amide-Pos-000240; Amide-Pos-000242; C18-Pos-000263",TRUE
+"N-Acetyl-L-Alanine",3,"C18-Neg-000058; C18-Neg-000059; C18-Pos-000380",TRUE
+"N-Acetyl-L-Methionine",3,"Amide-Neg-000866; C18-Neg-000383; C18-Pos-000777",TRUE
+"N8-Acetylspermidine",3,"Amide-Pos-000660; Amide-Pos-000661; C18-Pos-000876",TRUE
+"Nicotinamide Adenine Dinucleotide (Nad+)",3,"Amide-Pos-002116; C18-Pos-002110; C18-Pos-002114",TRUE
+"O-Phosphocolamine",3,"Amide-Neg-000449; Amide-Pos-000437; Amide-Pos-000438",TRUE
+"Ondansetron",3,"Amide-Pos-001175; C18-Pos-001705; C8-Pos-000454",TRUE
+"Palmitoyl Ethanolamide",3,"C18-Pos-001759; C8-Pos-000383; C8-Pos-000497",TRUE
+"Peg N11",3,"Amide-Pos-001857; C18-Pos-004284; C8-Pos-002320",TRUE
+"Peg N6",3,"Amide-Pos-001134; C18-Pos-001609; C8-Pos-000389",TRUE
+"Peg N8",3,"Amide-Pos-001506; C18-Pos-002558; C8-Pos-001222",TRUE
+"Pentadecanoic Acid",3,"Amide-Neg-001316; C8-Neg-000128; C8-Neg-000129",TRUE
+"Pro-Asp",3,"Amide-Neg-001250; Amide-Pos-000865; Amide-Pos-000866",TRUE
+"Propionylcarnitine",3,"Amide-Pos-000824; C18-Pos-001104; C18-Pos-001106",TRUE
+"Ps 22:3_22:4",3,"C8-Neg-003553; C8-Pos-005221; C8-Pos-005224",TRUE
+"S-4-(2-Oxo-Butyl)Glutathione",3,"Amide-Pos-001532; C18-Pos-002636; C18-Pos-002638",TRUE
+"S-Adenosyl-L-Homocysteine",3,"Amide-Pos-001546; C18-Pos-000924; C18-Pos-000925",TRUE
+"Triphenyl Phosphate",3,"C18-Pos-002056; C8-Pos-000692; C8-Pos-000693",TRUE
+"Tris(2-Butoxyethyl) Phosphate",3,"Amide-Pos-001587; Amide-Pos-001589; C8-Pos-001323",TRUE
+"Udp-N-Acetylglucosamine",3,"Amide-Neg-001697; Amide-Pos-002021; C8-Pos-003037",TRUE
+"Uracil",3,"Amide-Pos-000180; C18-Pos-000187; C18-Pos-000190",TRUE
+"Xanthine",3,"Amide-Neg-000523; C18-Neg-000153; C18-Pos-000634",TRUE
+"(R)-Butyrylcarnitine",2,"Amide-Pos-000872; C18-Pos-001205",TRUE
+"(Rac)-Idroxioleic Acid",2,"C8-Neg-000383; C8-Neg-000385",TRUE
+"(±)12-Hete",2,"C8-Pos-000511; C8-Pos-000513",TRUE
+"(±)14(15)-Eet",2,"C8-Neg-000488; C8-Pos-000512",TRUE
+"(±)5-Hepe",2,"C8-Pos-000501; C8-Pos-000504",TRUE
+"1,2-Dihydroxyheptadec-16-Yn-4-Yl Acetate",2,"C8-Pos-000702; C8-Pos-000705",TRUE
+"1,2-Dimyristoyl-Sn-Glycero-3-Pc",2,"Amide-Pos-002141; C8-Pos-003474",TRUE
+"1,2-Dimyristoyl-Sn-Glycero-3-Phosphoethanolamine",2,"C8-Neg-002672; C8-Pos-003221",TRUE
+"1,3,5-Trimethyl-2-Nitrobenzene",2,"Amide-Pos-000587; Amide-Pos-000588",TRUE
+"1,3-Benzodioxolylbutanamine (Bdb)",2,"C18-Pos-000931; C18-Pos-000934",TRUE
+"1,8-Diaza-2,9-Diketocyclotetradecane",2,"Amide-Pos-000852; Amide-Pos-000853",TRUE
+"1-(5z,8z,11z,14z-Eicosatetraenoyl)-Sn-Glycero-3-Phosphocholine",2,"C18-Pos-004978; C18-Pos-004979",TRUE
+"1-Hexadecanoyl-Sn-Glycero-3-Phosphoethanolamine",2,"C18-Pos-003617; C18-Pos-003618",TRUE
+"1-Linoleoyl Glycerol",2,"C8-Pos-000787; C8-Pos-000790",TRUE
+"1-Methylhistidine",2,"Amide-Pos-000599; Amide-Pos-000606",TRUE
+"1-Myristoyl-Sn-Glycero-3-Phosphocholine",2,"Amide-Pos-001742; C18-Pos-003814",TRUE
+"1-Octadecanoyl-Sn-Glycero-3-Phosphoserine",2,"Amide-Neg-002166; C18-Neg-002219",TRUE
+"1-Oleoyl-2-Myristoyl-Sn-Glycero-3-Phosphocholine",2,"Amide-Pos-002228; Amide-Pos-002229",TRUE
+"1-Palmitoyl-2-Hydroxy-Sn-Glycero-3-Phosphoethanolamine",2,"Amide-Pos-001731; C18-Neg-002016",TRUE
+"1-Stearoylglycerol",2,"C8-Pos-000832; C8-Pos-000833",TRUE
+"1-Β-D-Arabinofuranosyluracil 5'-Monophosphate",2,"C18-Neg-001402; C18-Neg-001407",TRUE
+"11-Hydroxy-Δ(9)-Thc",2,"C8-Pos-000731; C8-Pos-000732",TRUE
+"13-((1-Carboxy-2-Hydroxyethyl)Amino)-13-Oxotridecanoic Acid",2,"C8-Pos-000606; C8-Pos-000754",TRUE
+"16-Deoxyvertaline B",2,"C8-Pos-001479; C8-Pos-001480",TRUE
+"16-Hydroxyhexadecanoic Acid",2,"Amide-Neg-001504; C8-Neg-000245",TRUE
+"2'-Guanylic Acid",2,"C18-Neg-001640; C18-Neg-001641",TRUE
+"2(2-Ethoxyethoxy)Ethanol",2,"C18-Pos-000658; C18-Pos-000671",TRUE
+"2,3,5,6-Tetrafluoro-4-Hydroxybenzoic Acid",2,"Amide-Neg-001016; Amide-Neg-001020",TRUE
+"2,6-Dimethylmorpholine",2,"Amide-Pos-000080; Amide-Pos-000232",TRUE
+"2-(5-Oxovaleryl)Phosphatidylcholine",2,"C18-Pos-005996; C8-Pos-002923",TRUE
+"2-Acetamido-N-Β-Aspartyl-2-Deoxyhexopyranosylamine",2,"Amide-Neg-001864; Amide-Pos-001270",TRUE
+"2-Aminoisobutyric Acid",2,"Amide-Pos-000144; Amide-Pos-000149",TRUE
+"2-Arachidonoyl Glycerol",2,"C8-Pos-001010; C8-Pos-001012",TRUE
+"2-Docosahexaenoyl-1-Palmitoyl-Sn-Glycero-3-Phosphoethanolamine",2,"Amide-Pos-002285; C8-Pos-004152",TRUE
+"2-Ethyl-N-({(2r,4s,5r)-5-[6-(2-Furyl)-2-Methyl-4-Pyrimidinyl]-1-Azabicyclo[2.2.2]Oct-2-Yl}Methyl)Butanamide",2,"C18-Pos-002886; C8-Pos-001303",TRUE
+"2-Furoic Acid",2,"Amide-Neg-000149; Amide-Neg-000150",TRUE
+"2-Hydroxy-6-[(Z)-Nonadec-8-Enyl]Benzoic Acid",2,"C8-Pos-001203; C8-Pos-001204",TRUE
+"2-Methyl-2,3,4,5-Tetrahydro-1,5-Benzoxazepin-4-One",2,"Amide-Pos-000725; Amide-Pos-000726",TRUE
+"2-Methylcitrate",2,"Amide-Neg-000985; Amide-Neg-000988",TRUE
+"2-Methylglutaric Acid",2,"Amide-Neg-000492; C18-Neg-000138",TRUE
+"2-Methylsuccinic Acid",2,"Amide-Neg-000333; Amide-Neg-000334",TRUE
+"2-Oleoyl-1-Stearoyl-Sn-Glycero-3-Phosphoserine",2,"Amide-Neg-002264; C8-Pos-004420",TRUE
+"2-Oxoadipic Acid",2,"Amide-Neg-000581; Amide-Neg-000587",TRUE
+"2-Oxobutanoic Acid",2,"Amide-Neg-000108; C18-Neg-000004",TRUE
+"2-Oxoglutaric Acid",2,"Amide-Neg-000482; C18-Neg-000136",TRUE
+"2-Phenylpropylamine",2,"Amide-Pos-000419; Amide-Pos-000420",TRUE
+"2-Sc S-(2-Succinyl)-L-Cysteine",2,"Amide-Neg-001285; Amide-Pos-000901",TRUE
+"3-Epi-25-Hydroxy Vitamin D3",2,"C8-Pos-001190; C8-Pos-001340",TRUE
+"3-Hydroxybutyric Acid",2,"Amide-Neg-000118; Amide-Neg-000125",TRUE
+"3-Hydroxystigmast-5-En-7-One",2,"C8-Pos-001621; C8-Pos-001626",TRUE
+"3-Methylhistidine",2,"Amide-Pos-000601; Amide-Pos-000602",TRUE
+"3-Phenyl-1-Propanol",2,"Amide-Pos-000253; Amide-Pos-000254",TRUE
+"3-[(2-Chloro-1,3-Thiazol-5-Yl)Methyl]-5-Methyl-1,3,5-Oxadiazinan-4-Ylideneamin",2,"C18-Pos-001329; C18-Pos-001330",TRUE
+"4,4,5,5,6,6,7,7,8,8,8-Undecafluorooctanoic Acid",2,"C18-Neg-001502; C18-Neg-001503",TRUE
+"4-Acetamidobutanoic Acid",2,"C18-Pos-000329; C18-Pos-000543",TRUE
+"4-Methoxychalcone",2,"C8-Pos-000082; C8-Pos-000155",TRUE
+"4-Oxoproline",2,"C18-Neg-000045; C18-Neg-000051",TRUE
+"5'-Cytidylic Acid",2,"Amide-Pos-001290; Amide-Pos-001291",TRUE
+"5,5-Dimethyloxazolidine-2,4-Dione",2,"Amide-Neg-000292; Amide-Neg-000296",TRUE
+"5-Methylcytosine",2,"Amide-Pos-000295; Amide-Pos-000296",TRUE
+"6-Gingerol",2,"Amide-Neg-001642; C18-Neg-001096",TRUE
+"7-Methylguanine",2,"Amide-Pos-000582; Amide-Pos-000584",TRUE
+"7-Methylguanosine",2,"Amide-Pos-001185; C18-Pos-001732",TRUE
+"8z,11z,14z-Eicosatrienoic Acid",2,"C8-Neg-000432; C8-Neg-000433",TRUE
+"9(Z),11(E)-Octadecadienoic Acid",2,"C8-Pos-000278; C8-Pos-000280",TRUE
+"9-Octadecynoic Acid",2,"C18-Pos-001744; C8-Pos-000489",TRUE
+"Aa-4047",2,"C18-Neg-000580; C18-Neg-000581",TRUE
+"Acetyl-Β-Methylcholine",2,"Amide-Pos-000559; Amide-Pos-000561",TRUE
+"Acrylic Acid",2,"Amide-Neg-000001; Amide-Neg-000002",TRUE
+"Adenosine Triphosphate (Atp)",2,"Amide-Neg-001422; Amide-Neg-002157",TRUE
+"Alfacalcidol",2,"C8-Pos-001187; C8-Pos-001188",TRUE
+"All-Cis-4,7,10,13,16-Docosapentaenoic Acid",2,"Amide-Neg-001841; C8-Neg-000540",TRUE
+"Allopurinol",2,"Amide-Neg-000402; Amide-Neg-000408",TRUE
+"Amifampridine",2,"Amide-Pos-000165; Amide-Pos-000167",TRUE
+"Aminoadipic Acid",2,"C18-Pos-000699; C18-Pos-000701",TRUE
+"Amp",2,"C8-Neg-000641; C8-Pos-000891",TRUE
+"Arachidonoyl-Carnitine; Lc-Tdda; Ce10",2,"Amide-Pos-001723; C18-Pos-003527",TRUE
+"Benzenesulfonic Acid, Dodecyl(Sulfophenoxy)-",2,"Amide-Neg-001355; Amide-Neg-001358",TRUE
+"Benzoylecgonine",2,"Amide-Pos-001164; C18-Pos-001671",TRUE
+"Beta-Alanine",2,"Amide-Pos-000026; Amide-Pos-000027",TRUE
+"Betaine",2,"C18-Pos-000240; C18-Pos-000247",TRUE
+"Betulin",2,"C8-Pos-001572; C8-Pos-001574",TRUE
+"Biliverdin",2,"C18-Pos-005769; C8-Pos-002830",TRUE
+"Biotin",2,"C18-Neg-000748; C18-Pos-001159",TRUE
+"Bis(2-Ethylhexyl) Adipate",2,"C8-Pos-001101; C8-Pos-001102",TRUE
+"Bis(2-Ethylhexyl) Sebacate",2,"C8-Pos-001597; C8-Pos-001598",TRUE
+"Bis(3-Methoxybenzylidene)Hydrazine",2,"Amide-Pos-001080; Amide-Pos-001081",TRUE
+"Bis(Methylbenzylidene)Sorbitol",2,"C8-Pos-001076; C8-Pos-001216",TRUE
+"C14-Sas (Tentative)",2,"Amide-Neg-001543; C8-Neg-000276",TRUE
+"Calcitriol",2,"C8-Neg-001002; C8-Pos-001324",TRUE
+"Chalcone",2,"C8-Pos-000022; C8-Pos-000023",TRUE
+"Cholesterol",2,"C8-Pos-001084; C8-Pos-001085",TRUE
+"Citraconic Acid",2,"Amide-Neg-000306; Amide-Neg-000307",TRUE
+"Citrulline",2,"Amide-Neg-000723; Amide-Pos-000621",TRUE
+"Cyclohexylamine",2,"Amide-Pos-000085; Amide-Pos-000086",TRUE
+"Cysteinylglycine",2,"Amide-Pos-000635; C18-Pos-000810",TRUE
+"Cytidine 5'-Diphosphate",2,"Amide-Pos-001613; Amide-Pos-001621",TRUE
+"Cytidine 5'-Diphosphate Ethanolamine",2,"Amide-Neg-002114; Amide-Pos-001718",TRUE
+"Cytidine 5'-Triphosphate",2,"Amide-Pos-001769; Amide-Pos-001770",TRUE
+"D-(+)-Arabitol",2,"Amide-Neg-000527; Amide-Neg-000528",TRUE
+"D-Alanine Methyl Ester",2,"Amide-Pos-000145; C18-Pos-000036",TRUE
+"D-Arginine",2,"Amide-Pos-000618; Amide-Pos-000620",TRUE
+"D-Fructose 1-Phosphate",2,"C18-Neg-000851; C18-Neg-000852",TRUE
+"D-Fructose-1,6-Bisphosphate",2,"Amide-Neg-001873; Amide-Pos-001279",TRUE
+"D-Gluconic Acid",2,"Amide-Neg-000918; Amide-Neg-000920",TRUE
+"D-Glyceric Acid",2,"Amide-Neg-000129; Amide-Neg-000135",TRUE
+"D-Mannose",2,"Amide-Neg-001092; Amide-Neg-001096",TRUE
+"D-Panthenol",2,"Amide-Pos-000768; C18-Pos-001025",TRUE
+"D-Ribose 5-Phosphate",2,"Amide-Neg-001243; Amide-Neg-001244",TRUE
+"Desogestrel",2,"C8-Pos-000452; C8-Pos-000580",TRUE
+"Dg(2:0_18:2)",2,"C8-Pos-001293; C8-Pos-001468",TRUE
+"Dg(3:0_15:0)",2,"C8-Pos-001241; C8-Pos-001242",TRUE
+"Dibenzoylmethane",2,"C8-Pos-000098; C8-Pos-000099",TRUE
+"Diethyl Phosphate",2,"Amide-Neg-000536; C18-Pos-000645",TRUE
+"Dihydrorobinetin",2,"C18-Neg-001159; C18-Neg-001160",TRUE
+"Diosgenin",2,"C8-Pos-001308; C8-Pos-001474",TRUE
+"Dl-Alanine",2,"Amide-Neg-000047; Amide-Neg-000049",TRUE
+"Dl-Arginine",2,"Amide-Neg-000697; C18-Pos-000780",TRUE
+"Dl-Carnitine",2,"Amide-Pos-000562; Amide-Pos-000564",TRUE
+"Dl-Lactic Acid",2,"Amide-Neg-000051; Amide-Neg-000057",TRUE
+"Dl-P-Hydroxyphenyllactic Acid",2,"Amide-Neg-000782; C18-Neg-000335",TRUE
+"Dl-Valine",2,"Amide-Pos-000236; Amide-Pos-000527",TRUE
+"Epilupeol",2,"C8-Pos-001425; C8-Pos-001426",TRUE
+"Ethyl 3-Oxo-3-(1h-Pyrazol-5-Ylamino)Propanoate",2,"Amide-Pos-000719; C18-Pos-000960",TRUE
+"Ethyl Acetoacetate",2,"Amide-Neg-000104; Amide-Neg-000109",TRUE
+"Ethyl Myristate",2,"C8-Pos-000249; C8-Pos-000251",TRUE
+"Ethyl Palmitoleate",2,"C8-Pos-000293; C8-Pos-000391",TRUE
+"Fiozujxsezuycs-Awuoprnisa-N",2,"Amide-Pos-001700; C18-Pos-003468",TRUE
+"Fructose",2,"C18-Pos-000961; C8-Pos-000006",TRUE
+"Galacturonate 1-Phosphate",2,"C18-Neg-000940; C18-Neg-000943",TRUE
+"Gamma-Glu-Glu",2,"Amide-Pos-001101; Amide-Pos-001102",TRUE
+"Geranyllinalool",2,"C8-Pos-000337; C8-Pos-000553",TRUE
+"Glu-Asp",2,"Amide-Neg-001447; Amide-Pos-000956",TRUE
+"Gly-Asp",2,"Amide-Neg-000864; Amide-Pos-000690",TRUE
+"Glycerol Monomyristate",2,"C8-Pos-000407; C8-Pos-000517",TRUE
+"Glycine",2,"Amide-Neg-000011; Amide-Neg-000017",TRUE
+"Glycolic Acid",2,"Amide-Neg-000013; Amide-Neg-000015",TRUE
+"Guanosine Monophosphate (Gmp)",2,"Amide-Neg-001938; C18-Neg-001639",TRUE
+"Guanosine-5'-Triphosphate",2,"Amide-Pos-001864; Amide-Pos-001865",TRUE
+"Hyflavin",2,"Amide-Pos-001528; C18-Pos-002625",TRUE
+"Inosine Monosphosphate",2,"C18-Neg-001569; C18-Neg-001571",TRUE
+"Inosinic Acid",2,"C18-Neg-001565; C18-Neg-001566",TRUE
+"Irgafos 168",2,"Amide-Pos-002093; C8-Pos-003286",TRUE
+"Isobutyric Acid",2,"Amide-Neg-000076; Amide-Neg-000078",TRUE
+"Ketamine",2,"C18-Pos-001262; C8-Pos-000080",TRUE
+"L-(+)-Lactic Acid",2,"Amide-Neg-000056; Amide-Neg-000066",TRUE
+"L-(+)-Tartaric Acid",2,"Amide-Neg-000517; Amide-Neg-000518",TRUE
+"L-Glutamine",2,"Amide-Neg-000486; C18-Neg-000137",TRUE
+"L-Glutathione Oxidized",2,"C18-Pos-001837; C18-Pos-001841",TRUE
+"L-Homoarginine",2,"Amide-Pos-000678; Amide-Pos-000681",TRUE
+"L-Hydroxyproline",2,"Amide-Neg-000319; Amide-Pos-000349",TRUE
+"L-Kynurenine",2,"C18-Pos-001045; C18-Pos-001046",TRUE
+"L-Malic Acid",2,"Amide-Neg-000195; Amide-Neg-000199",TRUE
+"L-Threonic Acid-1,4-Lactone",2,"Amide-Neg-000220; Amide-Neg-000230",TRUE
+"L-Tyrosine Methyl Ester",2,"Amide-Pos-000711; C18-Pos-000947",TRUE
+"Lauric Acid",2,"Amide-Neg-000958; C8-Pos-000001",TRUE
+"Lidocaine",2,"C18-Pos-001231; C8-Pos-000141",TRUE
+"Linoleic Acid",2,"Amide-Neg-001556; C8-Neg-000295",TRUE
+"Lpe 22:3",2,"C8-Pos-002411; C8-Pos-002412",TRUE
+"Lpe 24:4",2,"C8-Pos-002632; C8-Pos-002633",TRUE
+"M-Cresole",2,"Amide-Pos-000070; Amide-Pos-000071",TRUE
+"Maleic Acid",2,"Amide-Neg-000198; C18-Neg-000026",TRUE
+"Maleic Hydrazide",2,"Amide-Neg-000158; Amide-Neg-000160",TRUE
+"Meglutol",2,"Amide-Neg-000607; C18-Neg-000218",TRUE
+"Meso-Butane-1,2,3,4-Tetracarboxylic Acid",2,"Amide-Neg-001272; Amide-Neg-001274",TRUE
+"Methyl (9z)-12-(Acetyloxy)-9-Octadecenoate",2,"C18-Pos-002366; C18-Pos-002367",TRUE
+"Methyl Dihydrogen Phosphate",2,"C18-Neg-000020; C18-Neg-000022",TRUE
+"Methyl L-Tryptophanate",2,"C18-Pos-001113; C8-Pos-000067",TRUE
+"Methyl Palmitate",2,"C8-Pos-000327; C8-Pos-000433",TRUE
+"Mono(2-Ethylhexyl) Phthalate (Mehp)",2,"C8-Pos-000268; C8-Pos-000362",TRUE
+"Monolaurin",2,"C8-Pos-000245; C8-Pos-000246",TRUE
+"Muscone",2,"C18-Pos-001277; C8-Pos-000085",TRUE
+"Myristic Acid",2,"Amide-Neg-001217; C8-Neg-000086",TRUE
+"N-(3-Chlorobenzoyl)Glycine",2,"C18-Neg-000565; C18-Neg-000566",TRUE
+"N-(9-Oxodecyl)Acetamide",2,"C18-Pos-001079; C8-Pos-000049",TRUE
+"N-Acetyl-D-Glucosamine 6-Phosphate",2,"Amide-Neg-001670; Amide-Pos-001138",TRUE
+"N-Acetyl-L-Valine",2,"Amide-Neg-000574; C18-Neg-000204",TRUE
+"N-Acetylputrescine",2,"Amide-Pos-000337; C18-Pos-000359",TRUE
+"N2-Methylguanosine",2,"C18-Pos-001733; C18-Pos-001737",TRUE
+"N3,N4-Dimethyl-L-Arginine",2,"Amide-Pos-000747; Amide-Pos-000751",TRUE
+"N6,N6,N6-Trimethyl-L-Lysine",2,"Amide-Pos-000686; C18-Pos-000887",TRUE
+"Nervonic Ceramide",2,"C8-Pos-003179; C8-Pos-003180",TRUE
+"Nonaethylene Glycol",2,"Amide-Pos-001690; C18-Pos-003097",TRUE
+"Nootkatone",2,"C8-Pos-000072; C8-Pos-000074",TRUE
+"O-Phosphorylethanolamine",2,"Amide-Neg-000450; C18-Neg-000128",TRUE
+"Octadecyl 3-(3,5-Di-Tert-Butyl-4-Hydroxyphenyl)Propionate",2,"C8-Pos-002408; C8-Pos-002564",TRUE
+"Oleoyl Ethanolamide",2,"C8-Pos-000689; C8-Pos-000691",TRUE
+"Oleoyl-L-Carnitine",2,"Amide-Pos-001669; C18-Pos-003241",TRUE
+"Opeo",2,"C8-Pos-000208; C8-Pos-000211",TRUE
+"Pa(18:2_23:3)",2,"C8-Pos-004341; C8-Pos-004343",TRUE
+"Pa(29:1_20:6)",2,"C8-Neg-003516; C8-Neg-003517",TRUE
+"Palmitic Acid",2,"Amide-Neg-001408; C8-Pos-000342",TRUE
+"Palmitoleic Acid",2,"C8-Pos-000148; C8-Pos-000237",TRUE
+"Palmitoyl Sphingomyelin",2,"Amide-Pos-002167; C8-Pos-003642",TRUE
+"Pc 16:0_16:1",2,"C8-Pos-003874; C8-Pos-003881",TRUE
+"Pc 20:1_22:6",2,"C8-Pos-005029; C8-Pos-005031",TRUE
+"Pc 20:3_22:6",2,"C8-Pos-005003; C8-Pos-005005",TRUE
+"Pc 22:2_22:2",2,"C8-Pos-005248; C8-Pos-005249",TRUE
+"Pc 22:4_22:4",2,"C8-Pos-005191; C8-Pos-005194",TRUE
+"Pc 24:0_26:7",2,"C8-Pos-005635; C8-Pos-005636",TRUE
+"Pc(11:1_29:4)",2,"C8-Pos-005019; C8-Pos-005020",TRUE
+"Pc(14:1_25:7)",2,"C8-Pos-004855; C8-Pos-004856",TRUE
+"Pc(6:0_17:0cho)",2,"C8-Pos-003126; C8-Pos-003127",TRUE
+"Pe 16:0_22:5",2,"C8-Pos-004017; C8-Pos-004173",TRUE
+"Pe 18:4_24:5",2,"C8-Pos-004646; C8-Pos-004647",TRUE
+"Pe 20:2_20:2",2,"C8-Pos-004303; C8-Pos-004489",TRUE
+"Pe O-18:1_22:5",2,"C8-Neg-003238; C8-Pos-004304",TRUE
+"Pe O-28:5_15:1",2,"C8-Pos-004714; C8-Pos-004715",TRUE
+"Peg N10",2,"Amide-Pos-001756; C8-Pos-002022",TRUE
+"Peg N12",2,"Amide-Pos-001943; C8-Pos-002690",TRUE
+"Peg N7",2,"Amide-Pos-001305; C18-Pos-002054",TRUE
+"Pentanamide",2,"Amide-Pos-000095; Amide-Pos-000096",TRUE
+"Pet(16:0_27:7)",2,"C8-Pos-004866; C8-Pos-004884",TRUE
+"Phosphatidylethanolamine Lyso 22:4",2,"C18-Neg-002228; C18-Neg-002229",TRUE
+"Phosphatidylglyceride 22:6-22:5",2,"C8-Neg-003496; C8-Neg-003497",TRUE
+"Pi(16:0_20:4)",2,"C8-Pos-005036; C8-Pos-005076",TRUE
+"Pi(16:1_18:3)",2,"C8-Neg-003377; C8-Neg-003378",TRUE
+"Pi(18:0_22:6)",2,"C8-Pos-005434; C8-Pos-005435",TRUE
+"Pi(19:4_19:4)",2,"C8-Pos-005132; C8-Pos-005133",TRUE
+"Pi(22:0_12:1)",2,"C8-Neg-003396; C8-Neg-003398",TRUE
+"Piperonylic Acid",2,"Amide-Neg-000638; Amide-Neg-000640",TRUE
+"Ppg N5",2,"Amide-Pos-001243; C18-Pos-001870",TRUE
+"Propham",2,"Amide-Pos-000638; C18-Pos-000820",TRUE
+"Ps 20:2_20:2",2,"C8-Pos-004873; C8-Pos-004875",TRUE
+"Ps 20:2_20:3",2,"C8-Pos-004857; C8-Pos-004859",TRUE
+"Ps 20:3_20:4",2,"C8-Pos-004811; C8-Pos-004813",TRUE
+"Ps 20:4_20:4",2,"C8-Neg-003380; C8-Pos-004797",TRUE
+"Ps 22:4_22:4",2,"C8-Pos-005209; C8-Pos-005212",TRUE
+"Ps 22:4_22:5",2,"C8-Pos-005187; C8-Pos-005189",TRUE
+"Ps 22:4_22:6",2,"C8-Neg-003537; C8-Neg-003542",TRUE
+"Ps 22:5_22:5",2,"C8-Pos-005160; C8-Pos-005161",TRUE
+"Ps 22:6_22:6",2,"C8-Neg-003529; C8-Pos-005136",TRUE
+"Ps 24:4_22:6",2,"C8-Neg-003618; C8-Pos-005342",TRUE
+"Ps 40:5",2,"C8-Neg-003404; C8-Neg-003406",TRUE
+"Ps(16:1_26:4)",2,"C8-Neg-003486; C8-Neg-003489",TRUE
+"Ps(20:1_24:6)",2,"C8-Neg-003555; C8-Neg-003556",TRUE
+"Ps(20:5_24:4)",2,"C8-Pos-005192; C8-Pos-005196",TRUE
+"Ps(22:0_22:4)",2,"C8-Neg-003576; C8-Neg-003577",TRUE
+"Ps(23:4_21:5)",2,"C8-Neg-003546; C8-Neg-003548",TRUE
+"Pyruvic Acid",2,"Amide-Neg-000032; Amide-Neg-000033",TRUE
+"S-Adenosylmethionine",2,"Amide-Pos-001585; C18-Pos-002912",TRUE
+"S-Lactoylglutathione",2,"Amide-Pos-001535; C18-Pos-002653",TRUE
+"Sedoheptulose",2,"Amide-Neg-001340; Amide-Neg-001341",TRUE
+"Ser-Ser",2,"Amide-Pos-000616; Amide-Pos-000617",TRUE
+"Stearic Acid",2,"C8-Pos-000411; C8-Pos-000412",TRUE
+"Stearoyl Ethanolamide",2,"C18-Pos-002082; C8-Pos-000709",TRUE
+"Succinic Acid",2,"Amide-Neg-000221; Amide-Neg-000224",TRUE
+"Tetradecanoyl-L-Carnitine",2,"Amide-Pos-001507; Amide-Pos-001508",TRUE
+"Tg(20:1_24:5_20:6)",2,"C8-Pos-005843; C8-Pos-005845",TRUE
+"Thiamine",2,"Amide-Neg-001463; Amide-Pos-001055",TRUE
+"Trans-10-Heptadecenoic Acid",2,"C8-Neg-000236; C8-Neg-000237",TRUE
+"Trans-Aconitic Acid",2,"Amide-Neg-000700; C18-Neg-000281",TRUE
+"Trehalose",2,"Amide-Neg-001883; Amide-Neg-001884",TRUE
+"Triethyl Phosphate",2,"Amide-Pos-000647; C18-Pos-000839",TRUE
+"Triethylene Glycol Monobutyl Ether",2,"C18-Pos-001031; C8-Pos-000017",TRUE
+"Tripropylene Glycol Methyl Ether",2,"C18-Pos-001038; C18-Pos-001039",TRUE
+"Trometamol",2,"Amide-Pos-000266; Amide-Pos-000270",TRUE
+"Tryptophan",2,"Amide-Pos-000761; C8-Pos-000013",TRUE
+"Uridine 5'-Diphosphate",2,"Amide-Pos-001616; Amide-Pos-001617",TRUE
+"Uridine 5'-Diphosphogalactose",2,"Amide-Neg-002189; Amide-Neg-002191",TRUE
+"Uridine Triphosphate",2,"Amide-Pos-001774; Amide-Pos-001775",TRUE
+"Vidarabine Phosphate",2,"C18-Pos-002278; C18-Pos-002279",TRUE
+"Vitamin D3",2,"C8-Pos-001060; C8-Pos-001067",TRUE
+"Xanthosine",2,"C18-Neg-001022; C18-Neg-001023",TRUE
+"Yrquylsqfnxrba-Izzdovswsa-N",2,"C18-Neg-000934; C18-Neg-000935",TRUE
+"Γ-Aminobutyric Acid",2,"Amide-Neg-000114; Amide-Neg-000115",TRUE

@@ -1,0 +1,13 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Disorders of fructose metabolism (WikiPathways),1,6,11.516031893908897,0.10550022025900474,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),1,6,11.516031893908897,0.10550022025900474,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Lactate shuttle in glial cells (WikiPathways),1,7,9.601987390840575,0.12206503099494925,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Thiamine metabolic pathways (WikiPathways),1,8,8.230575221323747,0.1383505025953804,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),1,9,7.2000853977600885,0.1543608817701284,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Metabolic disorders of biological oxidation enzymes (Reactome),1,9,7.2000853977600885,0.1543608817701284,Vitamin D3,0.22680047699193295,Reactome
+Cori cycle (WikiPathways),1,10,6.394588739226959,0.17010035774394971,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Galactose Metabolism (KEGG),1,10,6.394588739226959,0.17010035774394971,D-Glucose 6-Phosphate,0.22680047699193295,KEGG
+Glucuronidation (WikiPathways),1,10,6.394588739226959,0.17010035774394971,D-Glucose 6-Phosphate,0.22680047699193295,WikiPathways
+Metabolic pathways of fibroblasts (WikiPathways),1,13,4.781973596943492,0.21573441070529287,D-Glucose 6-Phosphate,0.25137931652392514,WikiPathways
+Metabolic reprogramming in colon cancer (WikiPathways),1,14,4.408356958494109,0.2304310401469314,D-Glucose 6-Phosphate,0.25137931652392514,WikiPathways
+Amino Sugar Metabolism (KEGG),1,16,3.8107114360319954,0.2590757702531855,D-Glucose 6-Phosphate,0.2590757702531855,KEGG

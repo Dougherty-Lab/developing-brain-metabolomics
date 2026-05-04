@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='720.00pt' height='576.00pt' viewBox='0 0 720.00 576.00'>
+<g class='svglite'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+    .svglite g.glyphgroup path {
+      fill: inherit;
+      stroke: none;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA='>
+    <rect x='0.00' y='0.00' width='720.00' height='576.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpMjMyLjM4fDYxNS4wOHw0Ni43MXw1NDQuNTA='>
+    <rect x='232.38' y='46.71' width='382.70' height='497.80' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMjMyLjM4fDYxNS4wOHw0Ni43MXw1NDQuNTA=)'>
+<polyline points='314.62,544.50 314.62,46.71 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='444.31,544.50 444.31,46.71 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='574.00,544.50 574.00,46.71 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='232.38,496.33 615.08,496.33 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='232.38,416.04 615.08,416.04 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='232.38,335.75 615.08,335.75 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='232.38,255.46 615.08,255.46 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='232.38,175.17 615.08,175.17 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='232.38,94.88 615.08,94.88 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='249.78,544.50 249.78,46.71 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='379.46,544.50 379.46,46.71 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='509.15,544.50 509.15,46.71 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polygon points='591.09,101.48 604.28,101.48 604.28,88.28 591.09,88.28 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<polygon points='535.73,261.05 546.91,261.05 546.91,249.87 535.73,249.87 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<polygon points='587.62,177.66 592.59,177.66 592.59,172.68 587.62,172.68 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<circle cx='516.09' cy='335.75' r='5.96' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<circle cx='442.91' cy='496.33' r='8.89' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<polygon points='434.02,424.93 451.80,424.93 451.80,407.15 434.02,407.15 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<line x1='249.78' y1='544.50' x2='249.78' y2='46.71' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
+</g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
+<text x='227.45' y='499.20' text-anchor='end' style='font-size: 8.00px;fill: #4D4D4D; font-family: "Arial";' textLength='191.33px' lengthAdjust='spacingAndGlyphs'>Alanine, aspartate and glutamate metabolism (KEGG)</text>
+<text x='227.45' y='418.91' text-anchor='end' style='font-size: 8.00px;fill: #4D4D4D; font-family: "Arial";' textLength='218.59px' lengthAdjust='spacingAndGlyphs'>Trans-sulfuration, one-carbon metabolism a... (WikiPathways)</text>
+<text x='227.45' y='338.62' text-anchor='end' style='font-size: 8.00px;fill: #4D4D4D; font-family: "Arial";' textLength='104.11px' lengthAdjust='spacingAndGlyphs'>Nitrogen metabolism (KEGG)</text>
+<text x='227.45' y='258.33' text-anchor='end' style='font-size: 8.00px;fill: #4D4D4D; font-family: "Arial";' textLength='207.34px' lengthAdjust='spacingAndGlyphs'>Leucine, isoleucine and valine metabolism (WikiPathways)</text>
+<text x='227.45' y='178.04' text-anchor='end' style='font-size: 8.00px;fill: #4D4D4D; font-family: "Arial";' textLength='221.97px' lengthAdjust='spacingAndGlyphs'>Amino acid metabolism pathway excerpt: his... (WikiPathways)</text>
+<text x='227.45' y='97.75' text-anchor='end' style='font-size: 8.00px;fill: #4D4D4D; font-family: "Arial";' textLength='204.23px' lengthAdjust='spacingAndGlyphs'>Metabolic reprogramming in colon cancer (WikiPathways)</text>
+<text x='249.78' y='555.74' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text x='379.46' y='555.74' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>1</text>
+<text x='509.15' y='555.74' text-anchor='middle' style='font-size: 8.80px;fill: #4D4D4D; font-family: "Arial";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>2</text>
+<text x='423.73' y='568.20' text-anchor='middle' style='font-size: 11.00px; font-family: "Arial";' textLength='83.19px' lengthAdjust='spacingAndGlyphs'>log2(Odds Ratio)</text>
+<text x='631.52' y='233.15' style='font-size: 11.00px; font-family: "Arial";' textLength='47.12px' lengthAdjust='spacingAndGlyphs'>Database</text>
+<circle cx='640.16' cy='248.43' r='1.95' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<polygon points='638.20,267.66 642.11,267.66 642.11,263.75 638.20,263.75 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<text x='654.28' y='251.58' style='font-size: 8.80px; font-family: "Arial";' textLength='25.44px' lengthAdjust='spacingAndGlyphs'>KEGG</text>
+<text x='654.28' y='268.86' style='font-size: 8.80px; font-family: "Arial";' textLength='54.77px' lengthAdjust='spacingAndGlyphs'>WikiPathways</text>
+<text x='631.52' y='305.30' style='font-size: 11.00px; font-family: "Arial";' textLength='39.16px' lengthAdjust='spacingAndGlyphs'>Set size</text>
+<circle cx='641.79' cy='320.58' r='5.18' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='641.79' cy='337.89' r='6.88' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='641.79' cy='356.83' r='8.09' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<text x='657.54' y='323.73' style='font-size: 8.80px; font-family: "Arial";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>10</text>
+<text x='657.54' y='341.04' style='font-size: 8.80px; font-family: "Arial";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>15</text>
+<text x='657.54' y='359.98' style='font-size: 8.80px; font-family: "Arial";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>20</text>
+<text x='423.73' y='29.62' text-anchor='middle' style='font-size: 9.00px;fill: #666666; font-family: "Arial";' textLength='176.25px' lengthAdjust='spacingAndGlyphs'>Top 6 pathways by p-value (p &lt; 0.05 shown)</text>
+<text x='423.73' y='39.34' text-anchor='middle' style='font-size: 9.00px;fill: #666666; font-family: "Arial";' textLength='115.50px' lengthAdjust='spacingAndGlyphs'>* FDR &lt; 0.05   ** FDR &lt; 0.01</text>
+<text x='423.73' y='14.93' text-anchor='middle' style='font-size: 13.20px; font-family: "Arial";' textLength='220.12px' lengthAdjust='spacingAndGlyphs'>ORA — GW limma nominal (p &lt; 0.05)</text>
+</g>
+</g>
+</svg>

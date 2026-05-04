@@ -1,30 +1,43 @@
 # Metabolomics Processing and Analysis Functions
 
 # ============================================================================
+# Global ggplot Theme
+# ============================================================================
+# Applied once at source time; propagates to all downstream scripts.
+theme_set(
+  theme_minimal() +
+    theme(
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()
+    )
+)
+
+# ============================================================================
 # Calculate Missingness
 # ============================================================================
 # Function to calculate percentage of samples each peak is present in
 calculate_missingness <- function(data) {
   # Calculate proportion of NA values for each metabolite
-  missing_prop <- rowMeans(is.na(data[,-1]))
-  
+  missing_prop <- rowMeans(is.na(data[, -1]))
+
   # Add missingness to metabolite names
   missing_df <- data.frame(
-    metabolite = data[,1],
+    metabolite = data[, 1],
     missing_proportion = missing_prop
   )
-  
+
   return(missing_df)
 }
 
 # ============================================================================
 # Numeric
 # ============================================================================
-#function to convert to numeric
+# function to convert to numeric
 convert_to_numeric <- function(x) {
   x <- as.character(x)
   x[x == "N/A"] <- NA
-  as.numeric(x)}
+  as.numeric(x)
+}
 
 # ============================================================================
 # Impute 1/5th minimum
@@ -43,61 +56,72 @@ min_value_impute <- function(column) {
 # 3.  Remove rows that are NaN across all samples
 
 # Data Cleaning Function for Metabolomics Data
-clean_metabolomics_data <- function(peak_data, 
-                                    sample_metadata, 
-                                    compound_annotation, 
+clean_metabolomics_data <- function(peak_data,
+                                    sample_metadata,
+                                    compound_annotation,
                                     dataset_name = "dataset",
                                     sample_col_pattern = "Area\\. ",
                                     sample_col_replacement = "Sample",
                                     first_sample_col = 4) {
-  
   # Input validation
   if (!is.data.frame(peak_data)) stop("peak_data must be a data frame")
   if (!is.data.frame(sample_metadata)) stop("sample_metadata must be a data frame")
   if (!is.data.frame(compound_annotation)) stop("compound_annotation must be a data frame")
-  
+
   cat(paste0("\n=== Cleaning ", dataset_name, " ===\n"))
-  
+
   # Store original dimensions
   orig_rows <- nrow(peak_data)
   orig_cols <- ncol(peak_data)
-  
+
   # Clean compound annotation
   cat("Cleaning compound annotations...\n")
   compound_annotation_clean <- compound_annotation %>%
-    mutate(Name = gsub("\\*$", "", Name))
-  
+    mutate(
+      Name = gsub("\\*$", "", Name),
+      Name = trimws(Name),
+      Name = gsub("^Spectral Match To\\s+", "", Name),
+      Name = gsub("\\s*From Nist14\\s*$", "", Name, ignore.case = FALSE),
+      Name = trimws(Name)
+    )
+
   # Clean peak data
   cat("Cleaning peak intensity data...\n")
-  
+
   # Determine last sample column
   last_sample_col <- ncol(peak_data)
-  
+
   # Clean the data
   peak_data_clean <- peak_data %>%
-    # Remove asterisks from metabolite names
-    mutate(Name = gsub("\\*$", "", Name)) %>%
+    # Remove asterisks and NIST affixes from metabolite names
+    mutate(
+      Name = gsub("\\*$", "", Name),
+      Name = trimws(Name),
+      Name = gsub("^Spectral Match To\\s+", "", Name),
+      Name = gsub("\\s*From Nist14\\s*$", "", Name, ignore.case = FALSE),
+      Name = trimws(Name)
+    ) %>%
     # Convert sample columns to numeric
     mutate(across(all_of(first_sample_col:last_sample_col), convert_to_numeric)) %>%
     # Remove rows that are completely NA across all samples
-    filter(if_any(all_of(first_sample_col:last_sample_col), ~!is.na(.)))
-  
+    filter(if_any(all_of(first_sample_col:last_sample_col), ~ !is.na(.)))
+
   # Replace NA with NaN in sample columns for downstream functions
   peak_data_clean <- cbind(
-    peak_data_clean[, 1:(first_sample_col-1)], 
+    peak_data_clean[, 1:(first_sample_col - 1)],
     peak_data_clean[, first_sample_col:last_sample_col] %>% replace(is.na(.), NaN)
   )
-  
+
   # Rename sample columns
   cat("Renaming sample columns...\n")
   sample_col_indices <- first_sample_col:last_sample_col
   new_col_names <- names(peak_data_clean)[sample_col_indices] %>%
     sub(sample_col_pattern, sample_col_replacement, .)
   names(peak_data_clean)[sample_col_indices] <- new_col_names
-  
+
   # Clean sample metadata
   cat("Cleaning sample metadata...\n")
-  
+
   # Check if metadata has 'SampleName' column and rename to 'Sample'
   if ("SampleName" %in% names(sample_metadata)) {
     sample_metadata_clean <- sample_metadata %>%
@@ -105,16 +129,16 @@ clean_metabolomics_data <- function(peak_data,
   } else {
     sample_metadata_clean <- sample_metadata
   }
-  
+
   # Filter metadata to only samples present in peak data
   sample_cols_in_data <- names(peak_data_clean)[sample_col_indices]
   sample_metadata_clean <- sample_metadata_clean %>%
     filter(Sample %in% sample_cols_in_data)
-  
+
   # Report cleaning summary
   removed_rows <- orig_rows - nrow(peak_data_clean)
   n_samples <- length(sample_col_indices)
-  
+
   cat("\n--- Cleaning Summary ---\n")
   cat(paste0("Dataset: ", dataset_name, "\n"))
   cat(paste0("Original metabolites: ", orig_rows, "\n"))
@@ -122,32 +146,34 @@ clean_metabolomics_data <- function(peak_data,
   cat(paste0("Removed metabolites (all NA): ", removed_rows, "\n"))
   cat(paste0("Number of samples: ", n_samples, "\n"))
   cat(paste0("Samples in metadata: ", nrow(sample_metadata_clean), "\n"))
-  
+
   # Check for samples in data but not in metadata
   missing_metadata <- setdiff(sample_cols_in_data, sample_metadata_clean$Sample)
   if (length(missing_metadata) > 0) {
-    warning(paste0("Warning: ", length(missing_metadata), 
-                   " samples in peak data are missing from metadata: ",
-                   paste(missing_metadata, collapse = ", ")))
+    warning(paste0(
+      "Warning: ", length(missing_metadata),
+      " samples in peak data are missing from metadata: ",
+      paste(missing_metadata, collapse = ", ")
+    ))
   }
-  
+
   cat("\nCleaning complete!\n")
-  
+
   # Create variable names based on dataset_name
   peak_var_name <- paste0(dataset_name, "_peak_data")
   metadata_var_name <- paste0(dataset_name, "_sample_metadata")
   annotation_var_name <- paste0(dataset_name, "_compound_annotation")
-  
+
   # Assign to global environment with custom names
   assign(peak_var_name, peak_data_clean, envir = .GlobalEnv)
   assign(metadata_var_name, sample_metadata_clean, envir = .GlobalEnv)
   assign(annotation_var_name, compound_annotation_clean, envir = .GlobalEnv)
-  
+
   cat("\nCleaned data assigned to:\n")
   cat(paste0("  - ", peak_var_name, "\n"))
   cat(paste0("  - ", metadata_var_name, "\n"))
   cat(paste0("  - ", annotation_var_name, "\n"))
-  
+
   # Return list of cleaned data (also available via assignment)
   invisible(list(
     peak_data = peak_data_clean,
@@ -178,7 +204,7 @@ clean_metabolomics_data <- function(peak_data,
 #' @param remove_nonfinite Logical, whether to remove non-finite values (default: TRUE)
 #' @param gw_buckets Named list of GW bucket definitions (default: 16-18, 19-21, 22-24)
 #' @return Dataframe in long format with intensity values and metadata
-prepare_long_data <- function(dataset, 
+prepare_long_data <- function(dataset,
                               sample_metadata,
                               data_name = "data_long",
                               sample_cols = NULL,
@@ -190,7 +216,6 @@ prepare_long_data <- function(dataset,
                                 "19-21" = c(19, 21),
                                 "22-24" = c(22, 24)
                               )) {
-  
   # Determine sample columns
   if (is.null(sample_cols)) {
     # Use pattern to find sample columns
@@ -199,14 +224,14 @@ prepare_long_data <- function(dataset,
       stop("No sample columns found. Please specify sample_cols or adjust sample_pattern.")
     }
   }
-  
+
   # Get sample names
   sample_names <- names(dataset)[sample_cols]
-  
+
   cat("Preparing long-format data...\n")
   cat("  Found", length(sample_names), "samples\n")
   cat("  Dataset contains", nrow(dataset), "metabolites\n")
-  
+
   # Reshape to long format
   data_long <- dataset %>%
     pivot_longer(
@@ -214,9 +239,9 @@ prepare_long_data <- function(dataset,
       names_to = "Sample",
       values_to = "Intensity"
     )
-  
+
   cat("  Initial observations:", nrow(data_long), "\n")
-  
+
   # Remove non-finite values if requested
   if (remove_nonfinite) {
     n_before <- nrow(data_long)
@@ -227,18 +252,18 @@ prepare_long_data <- function(dataset,
       cat("  Removed", n_removed, "non-finite values\n")
     }
   }
-  
+
   # Log-transform if requested
   if (log_transform) {
     data_long <- data_long %>%
       mutate(log10 = log10(Intensity))
     cat("  Log10 transformed intensity values\n")
   }
-  
+
   # Filter metadata to samples present in dataset
   sample_metadata_filtered <- sample_metadata %>%
     filter(Sample %in% sample_names)
-  
+
   if (nrow(sample_metadata_filtered) != length(sample_names)) {
     warning(sprintf(
       "Metadata available for %d/%d samples. Some samples may lack metadata.",
@@ -246,17 +271,16 @@ prepare_long_data <- function(dataset,
       length(sample_names)
     ))
   }
-  
+
   # Create GW buckets if not already present
   if (!"GW_bucket" %in% names(sample_metadata_filtered) && "GW" %in% names(sample_metadata_filtered)) {
-    
     # Build case_when conditions from gw_buckets list
     bucket_conditions <- purrr::map2(
       names(gw_buckets),
       gw_buckets,
-      ~quo(GW >= !!.y[1] & GW <= !!.y[2] ~ !!.x)
+      ~ quo(GW >= !!.y[1] & GW <= !!.y[2] ~ !!.x)
     )
-    
+
     sample_metadata_filtered <- sample_metadata_filtered %>%
       mutate(GW_bucket = case_when(
         GW >= gw_buckets[[1]][1] & GW <= gw_buckets[[1]][2] ~ names(gw_buckets)[1],
@@ -264,37 +288,37 @@ prepare_long_data <- function(dataset,
         GW >= gw_buckets[[3]][1] & GW <= gw_buckets[[3]][2] ~ names(gw_buckets)[3],
         TRUE ~ NA_character_
       ))
-    
+
     cat("  Created GW buckets:", paste(names(gw_buckets), collapse = ", "), "\n")
   }
-  
+
   # Select metadata columns to join (all available relevant columns)
   metadata_cols <- intersect(
     names(sample_metadata_filtered),
     c("Sample", "Sex", "GW", "GW_bucket", "Batch", "Group", "Condition")
   )
-  
+
   # Add metadata to long format data
   data_long <- data_long %>%
     left_join(
-      sample_metadata_filtered %>% select(all_of(metadata_cols)),
+      sample_metadata_filtered %>% dplyr::select(all_of(metadata_cols)),
       by = "Sample"
     ) %>%
     mutate(SampleLabel = paste0(Sample, " (", Sex, ")"))
-  
+
   cat("  Added metadata columns:", paste(setdiff(metadata_cols, "Sample"), collapse = ", "), "\n")
   cat("  Final observations:", nrow(data_long), "\n")
-  
+
   # Check for missing metadata
   if (any(is.na(data_long$Sex)) || any(is.na(data_long$GW))) {
     warning("Some observations are missing Sex or GW metadata")
   }
-  
+
   # Assign to global environment with custom names
   assign(data_name, data_long, envir = .GlobalEnv)
-  
+
   cat("Done!\n\n")
-  
+
   return(data_long)
 }
 
@@ -303,17 +327,16 @@ prepare_long_data <- function(dataset,
 #' @param metadata Metadata dataframe with GW column
 #' @param buckets Named list of GW bucket definitions
 #' @return Metadata with GW_bucket column added
-create_gw_buckets <- function(metadata, 
+create_gw_buckets <- function(metadata,
                               buckets = list(
                                 "16-18" = c(16, 18),
                                 "19-21" = c(19, 21),
                                 "22-24" = c(22, 24)
                               )) {
-  
   if (!"GW" %in% names(metadata)) {
     stop("Metadata must contain a 'GW' column")
   }
-  
+
   metadata <- metadata %>%
     mutate(GW_bucket = case_when(
       GW >= buckets[[1]][1] & GW <= buckets[[1]][2] ~ names(buckets)[1],
@@ -321,9 +344,9 @@ create_gw_buckets <- function(metadata,
       GW >= buckets[[3]][1] & GW <= buckets[[3]][2] ~ names(buckets)[3],
       TRUE ~ NA_character_
     ))
-  
+
   return(metadata)
-}# ============================================================================
+} # ============================================================================
 # Helper Function for Saving Plots
 # ============================================================================
 
@@ -336,6 +359,26 @@ create_gw_buckets <- function(metadata,
 #' @param width Plot width in inches (default: 10)
 #' @param height Plot height in inches (default: 8)
 #' @param dpi Resolution for PNG (default: 300)
+
+
+# ============================================================================
+# Annotation Confidence Bolding Helper
+# ============================================================================
+
+#' Bold metabolite names in kable tables based on annotation confidence tier
+#'
+#' High-confidence compounds (Annotation_Confidence == "high", i.e. Best.Match >= 80)
+#' are wrapped in markdown bold (**name**) for knitr::kable output.
+#' Use knitr::kable(..., format = "markdown") or inside an Rmd that renders markdown.
+#'
+#' @param name Character vector of metabolite names
+#' @param confidence Character vector of Annotation_Confidence values (same length)
+#' @return Character vector with high-confidence names wrapped in **...**
+bold_high_confidence <- function(name, confidence) {
+  ifelse(!is.na(confidence) & confidence == "high",
+         paste0("**", name, "**"),
+         name)
+}
 
 # ============================================================================
 # Label Truncation Helper
@@ -362,15 +405,10 @@ truncate_labels <- function(labels, max_chars = 20, ellipsis = "...") {
 #' @return Data frame with columns: truncated_label, full_label
 #'         Only rows where truncation actually occurred are included.
 build_label_lookup <- function(full_labels, max_chars = 20) {
-  truncated <- truncate_labels(full_labels, max_chars)
   lookup <- data.frame(
-    truncated_label = truncated,
-    full_label      = full_labels,
+    full_label = full_labels,
     stringsAsFactors = FALSE
   )
-  # Only keep rows where the label was actually changed
-  lookup <- lookup[lookup$truncated_label != lookup$full_label, , drop = FALSE]
-  # Deduplicate
   lookup <- unique(lookup)
   lookup
 }
@@ -393,7 +431,7 @@ save_dual_format <- function(plot, filename, png_path = NULL, svg_path = NULL,
       bg = "transparent"
     )
   }
-  
+
   # Save SVG
   if (!is.null(svg_path)) {
     ggsave(
@@ -404,7 +442,7 @@ save_dual_format <- function(plot, filename, png_path = NULL, svg_path = NULL,
       height = height,
       bg = "transparent"
     )
-    
+
     # Save label lookup CSV alongside SVG if provided and non-empty
     if (!is.null(label_lookup) && nrow(label_lookup) > 0) {
       readr::write_csv(
@@ -419,94 +457,119 @@ save_dual_format <- function(plot, filename, png_path = NULL, svg_path = NULL,
 # Peak Intensity Visualization Functions
 # ============================================================================
 
-plot_intensity_histogram <- function(data_long, title_prefix = "", 
+plot_intensity_histogram <- function(data_long, title_prefix = "",
                                      png_path = NULL, svg_path = NULL,
                                      width = 10, height = 8, dpi = 300) {
   p <- ggplot(data_long, aes(x = log10)) +
     geom_histogram(binwidth = 0.4, fill = "steelblue", color = "black") +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Distribution of Peak Intensity"),
-         x = "Log10 Intensity",
-         y = "Number of Peaks")
-  
-  save_dual_format(p, paste0(title_prefix, "intensity_histogram"), 
-                   png_path, svg_path, width, height, dpi)
+    labs(
+      title = paste0(title_prefix, "Distribution of Peak Intensity"),
+      x = "Log10 Intensity",
+      y = "Number of Peaks"
+    )
+
+  save_dual_format(
+    p, paste0(title_prefix, "intensity_histogram"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_intensity_histogram_by_sex <- function(data_long, title_prefix = "", 
+plot_intensity_histogram_by_sex <- function(data_long, title_prefix = "",
                                             png_path = NULL, svg_path = NULL,
                                             width = 10, height = 10, dpi = 300) {
   p <- ggplot(data_long, aes(x = log10, fill = Sex)) +
     geom_histogram(binwidth = 0.4, color = "black", position = "identity", alpha = 0.6) +
+    scale_fill_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Distribution of Peak Intensity by Sex"),
-         x = "Log10 Intensity",
-         y = "Number of Peaks") +
+    labs(
+      title = paste0(title_prefix, "Distribution of Peak Intensity by Sex"),
+      x = "Log10 Intensity",
+      y = "Number of Peaks"
+    ) +
     facet_wrap(~Sex, ncol = 1)
-  
-  save_dual_format(p, paste0(title_prefix, "intensity_histogram_by_sex"), 
-                   png_path, svg_path, width, height, dpi)
+
+  save_dual_format(
+    p, paste0(title_prefix, "intensity_histogram_by_sex"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_intensity_violin <- function(data_long, title_prefix = "", 
+plot_intensity_violin <- function(data_long, title_prefix = "",
                                   png_path = NULL, svg_path = NULL,
                                   width = 12, height = 8, dpi = 300) {
   p <- ggplot(data_long, aes(x = as.factor(Sample), y = log10)) +
     geom_violin(fill = "darkorange", color = "black") +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Peak Intensity per Sample"),
-         x = "Sample",
-         y = "Log10 Intensity") +
+    labs(
+      title = paste0(title_prefix, "Peak Intensity per Sample"),
+      x = "Sample",
+      y = "Log10 Intensity"
+    ) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
-  
-  save_dual_format(p, paste0(title_prefix, "intensity_violin"), 
-                   png_path, svg_path, width, height, dpi)
+
+  save_dual_format(
+    p, paste0(title_prefix, "intensity_violin"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_intensity_violin_by_sex <- function(data_long, title_prefix = "", 
+plot_intensity_violin_by_sex <- function(data_long, title_prefix = "",
                                          png_path = NULL, svg_path = NULL,
                                          width = 12, height = 8, dpi = 300) {
-  p <- ggplot(data_long, aes(x = as.factor(SampleLabel), y = log10, fill = GW)) +
-    geom_violin(color = "black") +
-    scale_fill_viridis_c(name = "Gestational Week") +
+  p <- ggplot(data_long, aes(x = as.factor(SampleLabel), y = log10, fill = GW, color = Sex)) +
+    geom_violin(linewidth = 0.8) +
+    scale_fill_gradient(name = "Gestational Week", low = "#C8E6C9", high = "#1B5E20") +
+    scale_color_manual(name = "Sex", values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Peak Intensity per Sample by Gestational Week"),
-         x = "Sample (Sex)",
-         y = "Log10 Intensity") +
+    labs(
+      title = paste0(title_prefix, "Peak Intensity per Sample by Sex and Gestational Week"),
+      x = "Sample (Sex)",
+      y = "Log10 Intensity"
+    ) +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
-  
-  save_dual_format(p, paste0(title_prefix, "intensity_violin_by_sex"), 
-                   png_path, svg_path, width, height, dpi)
+
+  save_dual_format(
+    p, paste0(title_prefix, "intensity_violin_by_sex"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_intensity_vs_gw <- function(data_long, title_prefix = "", 
+plot_intensity_vs_gw <- function(data_long, title_prefix = "",
                                  png_path = NULL, svg_path = NULL,
                                  width = 10, height = 8, dpi = 300) {
   # Calculate mean intensity per sample
   mean_intensity_per_sample <- data_long %>%
     group_by(Sample, Sex, GW) %>%
-    summarise(mean_log10_intensity = mean(log10, na.rm = TRUE),
-              .groups = "drop")
-  
+    summarise(
+      mean_log10_intensity = mean(log10, na.rm = TRUE),
+      .groups = "drop"
+    )
+
   p <- ggplot(mean_intensity_per_sample, aes(x = GW, y = mean_log10_intensity, color = Sex)) +
     geom_point(size = 3) +
     geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+    scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Mean Peak Intensity vs Gestational Week"),
-         x = "Gestational Week",
-         y = "Mean Log10 Intensity")
-  
-  save_dual_format(p, paste0(title_prefix, "intensity_vs_GW"), 
-                   png_path, svg_path, width, height, dpi)
+    labs(
+      title = paste0(title_prefix, "Mean Peak Intensity vs Gestational Week"),
+      x = "Gestational Week",
+      y = "Mean Log10 Intensity"
+    )
+
+  save_dual_format(
+    p, paste0(title_prefix, "intensity_vs_GW"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
 # Wrapper function to generate all intensity plots
-plot_all_intensity <- function(data_long, title_prefix = "", 
+plot_all_intensity <- function(data_long, title_prefix = "",
                                png_path = NULL, svg_path = NULL,
                                width = 10, height = 8, dpi = 300) {
   plots <- list(
@@ -529,7 +592,7 @@ plot_all_intensity <- function(data_long, title_prefix = "",
 #' @param sample_cols Column indices or names containing sample data
 #' @param gw_buckets Named list of GW bucket definitions
 #' @return Dataframe with peak detection metrics per sample
-calculate_peak_detection <- function(dataset, 
+calculate_peak_detection <- function(dataset,
                                      sample_metadata,
                                      sample_cols = NULL,
                                      sample_pattern = "^Sample",
@@ -538,7 +601,6 @@ calculate_peak_detection <- function(dataset,
                                        "19-21" = c(19, 21),
                                        "22-24" = c(22, 24)
                                      )) {
-  
   # Determine sample columns
   if (is.null(sample_cols)) {
     sample_cols <- grep(sample_pattern, names(dataset), value = FALSE)
@@ -546,14 +608,14 @@ calculate_peak_detection <- function(dataset,
       stop("No sample columns found. Please specify sample_cols or adjust sample_pattern.")
     }
   }
-  
+
   # Get sample names
   sample_names <- names(dataset)[sample_cols]
-  
+
   cat("Calculating peak detection metrics...\n")
   cat("  Samples:", length(sample_names), "\n")
   cat("  Total metabolites:", nrow(dataset), "\n")
-  
+
   # Calculate detection metrics for each sample
   peak_detection_df <- data.frame(
     Sample = sample_names,
@@ -561,11 +623,11 @@ calculate_peak_detection <- function(dataset,
     total_metabolites = nrow(dataset)
   ) %>%
     mutate(detection_rate = detected_peaks / total_metabolites)
-  
+
   # Filter metadata to samples present in dataset
   sample_metadata_filtered <- sample_metadata %>%
     filter(Sample %in% sample_names)
-  
+
   # Create GW buckets if not already present
   if (!"GW_bucket" %in% names(sample_metadata_filtered) && "GW" %in% names(sample_metadata_filtered)) {
     sample_metadata_filtered <- sample_metadata_filtered %>%
@@ -576,24 +638,24 @@ calculate_peak_detection <- function(dataset,
         TRUE ~ NA_character_
       ))
   }
-  
+
   # Select metadata columns to join
   metadata_cols <- intersect(
     names(sample_metadata_filtered),
     c("Sample", "Sex", "GW", "GW_bucket", "Batch", "Group", "Condition")
   )
-  
+
   # Add metadata
   peak_detection_df <- peak_detection_df %>%
     left_join(
-      sample_metadata_filtered %>% select(all_of(metadata_cols)),
+      sample_metadata_filtered %>% dplyr::select(all_of(metadata_cols)),
       by = "Sample"
     ) %>%
     mutate(SampleLabel = paste0(Sample, " (", Sex, ")"))
-  
+
   cat("  Mean detected peaks:", round(mean(peak_detection_df$detected_peaks), 1), "\n")
   cat("  Mean detection rate:", scales::percent(mean(peak_detection_df$detection_rate)), "\n")
-  
+
   if ("Sex" %in% names(peak_detection_df)) {
     cat("\nBy Sex:\n")
     sex_summary <- peak_detection_df %>%
@@ -605,9 +667,9 @@ calculate_peak_detection <- function(dataset,
       )
     print(sex_summary)
   }
-  
+
   cat("Done!\n\n")
-  
+
   return(peak_detection_df)
 }
 
@@ -617,7 +679,6 @@ calculate_peak_detection <- function(dataset,
 #' @param sample_cols Column indices or names containing sample data (optional)
 #' @return Dataframe with missingness statistics per metabolite
 calculate_missingness <- function(dataset, sample_cols = NULL) {
-  
   # If sample_cols not specified, find all numeric columns except first few metadata columns
   if (is.null(sample_cols)) {
     # Assume columns 4 onward are samples, or use all numeric columns
@@ -627,10 +688,10 @@ calculate_missingness <- function(dataset, sample_cols = NULL) {
       sample_cols <- 4:ncol(dataset)
     }
   }
-  
+
   # Get metabolite identifiers (assuming first column)
   metabolite_id_col <- names(dataset)[1]
-  
+
   # Calculate missingness for each metabolite
   missing_stats <- data.frame(
     metabolite_id = dataset[[metabolite_id_col]],
@@ -642,7 +703,7 @@ calculate_missingness <- function(dataset, sample_cols = NULL) {
       detected_samples = total_samples - missing_count,
       detection_rate = detected_samples / total_samples
     )
-  
+
   return(missing_stats)
 }
 
@@ -653,35 +714,38 @@ calculate_missingness <- function(dataset, sample_cols = NULL) {
 #' @param sample_cols Column indices or names containing sample data
 #' @return Dataframe with missingness statistics by sex
 calculate_missingness_by_sex <- function(dataset, sample_metadata, sample_cols = NULL) {
-  
   # Determine sample columns
   if (is.null(sample_cols)) {
     sample_cols <- 4:ncol(dataset)
   }
-  
+
   sample_names <- names(dataset)[sample_cols]
-  
+
   # Filter metadata to available samples
   sample_metadata_filtered <- sample_metadata %>%
     filter(Sample %in% sample_names)
-  
+
   # Split samples by sex
-  female_samples <- sample_metadata_filtered %>% filter(Sex == "F") %>% pull(Sample)
-  male_samples <- sample_metadata_filtered %>% filter(Sex == "M") %>% pull(Sample)
-  
+  female_samples <- sample_metadata_filtered %>%
+    filter(Sex == "F") %>%
+    pull(Sample)
+  male_samples <- sample_metadata_filtered %>%
+    filter(Sex == "M") %>%
+    pull(Sample)
+
   # Calculate missingness for female samples
   female_cols <- which(names(dataset) %in% female_samples)
   missing_female <- calculate_missingness(dataset, female_cols)
   missing_female$Sex <- "F"
-  
+
   # Calculate missingness for male samples
   male_cols <- which(names(dataset) %in% male_samples)
   missing_male <- calculate_missingness(dataset, male_cols)
   missing_male$Sex <- "M"
-  
+
   # Combine
   missing_by_sex <- bind_rows(missing_female, missing_male)
-  
+
   return(missing_by_sex)
 }
 
@@ -690,15 +754,16 @@ calculate_missingness_by_sex <- function(dataset, sample_metadata, sample_cols =
 #' @param peak_detection_df Dataframe from calculate_peak_detection
 #' @return NULL (prints to console)
 summarize_peak_detection <- function(peak_detection_df) {
-  
   cat("\n=== PEAK DETECTION SUMMARY ===\n")
   cat("Total samples:", nrow(peak_detection_df), "\n")
   cat("Mean detected peaks:", round(mean(peak_detection_df$detected_peaks), 1), "\n")
   cat("SD detected peaks:", round(sd(peak_detection_df$detected_peaks), 1), "\n")
-  cat("Range:", min(peak_detection_df$detected_peaks), "-", 
-      max(peak_detection_df$detected_peaks), "\n")
+  cat(
+    "Range:", min(peak_detection_df$detected_peaks), "-",
+    max(peak_detection_df$detected_peaks), "\n"
+  )
   cat("Mean detection rate:", scales::percent(mean(peak_detection_df$detection_rate)), "\n")
-  
+
   if ("Sex" %in% names(peak_detection_df)) {
     cat("\n=== BY SEX ===\n")
     sex_summary <- peak_detection_df %>%
@@ -711,7 +776,7 @@ summarize_peak_detection <- function(peak_detection_df) {
       )
     print(sex_summary)
   }
-  
+
   if ("GW_bucket" %in% names(peak_detection_df)) {
     cat("\n=== BY GW BUCKET ===\n")
     gw_summary <- peak_detection_df %>%
@@ -724,7 +789,7 @@ summarize_peak_detection <- function(peak_detection_df) {
       )
     print(gw_summary)
   }
-  
+
   cat("\n")
 }
 
@@ -732,116 +797,136 @@ summarize_peak_detection <- function(peak_detection_df) {
 # Updated Peak Detection Visualization Functions
 # ============================================================================
 
-plot_detected_peaks_histogram <- function(peak_detection_df, title_prefix = "", 
+plot_detected_peaks_histogram <- function(peak_detection_df, title_prefix = "",
                                           png_path = NULL, svg_path = NULL,
                                           width = 10, height = 8, dpi = 300) {
-  
   if (!"detected_peaks" %in% names(peak_detection_df)) {
     stop("peak_detection_df must contain 'detected_peaks' column. Use calculate_peak_detection() first.")
   }
-  
+
   p <- ggplot(peak_detection_df, aes(x = detected_peaks)) +
     geom_histogram(binwidth = 10, fill = "steelblue", color = "black") +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Distribution of Detected Peaks Across Samples"),
-         x = "Number of Detected Peaks",
-         y = "Number of Samples") +
-    geom_vline(aes(xintercept = mean(detected_peaks)), 
-               color = "red", linetype = "dashed", size = 1)
-  
-  save_dual_format(p, paste0(title_prefix, "detected_peaks_histogram"), 
-                   png_path, svg_path, width, height, dpi)
+    labs(
+      title = paste0(title_prefix, "Distribution of Detected Peaks Across Samples"),
+      x = "Number of Detected Peaks",
+      y = "Number of Samples"
+    ) +
+    geom_vline(aes(xintercept = mean(detected_peaks)),
+      color = "red", linetype = "dashed", size = 1
+    )
+
+  save_dual_format(
+    p, paste0(title_prefix, "detected_peaks_histogram"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_detected_peaks_by_sex <- function(peak_detection_df, title_prefix = "", 
+plot_detected_peaks_by_sex <- function(peak_detection_df, title_prefix = "",
                                        png_path = NULL, svg_path = NULL,
                                        width = 10, height = 10, dpi = 300) {
-  
   if (!"detected_peaks" %in% names(peak_detection_df) || !"Sex" %in% names(peak_detection_df)) {
     stop("peak_detection_df must contain 'detected_peaks' and 'Sex' columns")
   }
-  
+
   p <- ggplot(peak_detection_df, aes(x = detected_peaks, fill = Sex)) +
     geom_histogram(binwidth = 10, color = "black", position = "identity", alpha = 0.6) +
+    scale_fill_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Distribution of Detected Peaks by Sex"),
-         x = "Number of Detected Peaks",
-         y = "Number of Samples") +
+    labs(
+      title = paste0(title_prefix, "Distribution of Detected Peaks by Sex"),
+      x = "Number of Detected Peaks",
+      y = "Number of Samples"
+    ) +
     facet_wrap(~Sex, ncol = 1)
-  
-  save_dual_format(p, paste0(title_prefix, "detected_peaks_by_sex"), 
-                   png_path, svg_path, width, height, dpi)
+
+  save_dual_format(
+    p, paste0(title_prefix, "detected_peaks_by_sex"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_detected_peaks_per_sample <- function(peak_detection_df, title_prefix = "", 
+plot_detected_peaks_per_sample <- function(peak_detection_df, title_prefix = "",
                                            png_path = NULL, svg_path = NULL,
                                            width = 12, height = 8, dpi = 300) {
-  
   if (!"detected_peaks" %in% names(peak_detection_df)) {
     stop("peak_detection_df must contain 'detected_peaks' column")
   }
-  
-  p <- ggplot(peak_detection_df, aes(x = SampleLabel, y = detected_peaks, fill = GW)) +
-    geom_bar(stat = "identity") +
-    scale_fill_viridis_c(name = "Gestational Week") +
+
+  p <- ggplot(peak_detection_df, aes(x = SampleLabel, y = detected_peaks, fill = GW, color = Sex)) +
+    geom_bar(stat = "identity", linewidth = 0.8) +
+    scale_fill_gradient(name = "Gestational Week", low = "#C8E6C9", high = "#1B5E20") +
+    scale_color_manual(name = "Sex", values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
-    labs(title = paste0(title_prefix, "Number of Detected Peaks per Sample"),
-         x = "Sample (Sex)",
-         y = "Number of Detected Peaks")
-  
-  save_dual_format(p, paste0(title_prefix, "detected_peaks_per_sample"), 
-                   png_path, svg_path, width, height, dpi)
+    labs(
+      title = paste0(title_prefix, "Number of Detected Peaks per Sample"),
+      x = "Sample (Sex)",
+      y = "Number of Detected Peaks"
+    )
+
+  save_dual_format(
+    p, paste0(title_prefix, "detected_peaks_per_sample"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_detected_peaks_vs_gw <- function(peak_detection_df, title_prefix = "", 
+plot_detected_peaks_vs_gw <- function(peak_detection_df, title_prefix = "",
                                       png_path = NULL, svg_path = NULL,
                                       width = 10, height = 8, dpi = 300) {
-  
   if (!"detected_peaks" %in% names(peak_detection_df) || !"GW" %in% names(peak_detection_df)) {
     stop("peak_detection_df must contain 'detected_peaks' and 'GW' columns")
   }
-  
+
   p <- ggplot(peak_detection_df, aes(x = GW, y = detected_peaks, color = Sex)) +
     geom_point(size = 3) +
     geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+    scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Detected Peaks vs Gestational Week"),
-         x = "Gestational Week",
-         y = "Number of Detected Peaks")
-  
-  save_dual_format(p, paste0(title_prefix, "detected_peaks_vs_GW"), 
-                   png_path, svg_path, width, height, dpi)
+    labs(
+      title = paste0(title_prefix, "Detected Peaks vs Gestational Week"),
+      x = "Gestational Week",
+      y = "Number of Detected Peaks"
+    )
+
+  save_dual_format(
+    p, paste0(title_prefix, "detected_peaks_vs_GW"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
-plot_detection_rate_vs_gw <- function(peak_detection_df, title_prefix = "", 
+plot_detection_rate_vs_gw <- function(peak_detection_df, title_prefix = "",
                                       png_path = NULL, svg_path = NULL,
                                       width = 10, height = 8, dpi = 300) {
-  
   if (!"detection_rate" %in% names(peak_detection_df) || !"GW" %in% names(peak_detection_df)) {
     stop("peak_detection_df must contain 'detection_rate' and 'GW' columns")
   }
-  
+
   p <- ggplot(peak_detection_df, aes(x = GW, y = detection_rate, color = Sex)) +
     geom_point(size = 3) +
     geom_smooth(method = "loess", se = TRUE, alpha = 0.2) +
+    scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Detection Rate vs Gestational Week"),
-         x = "Gestational Week",
-         y = "Detection Rate") +
+    labs(
+      title = paste0(title_prefix, "Detection Rate vs Gestational Week"),
+      x = "Gestational Week",
+      y = "Detection Rate"
+    ) +
     scale_y_continuous(labels = scales::percent_format(accuracy = 1))
-  
-  save_dual_format(p, paste0(title_prefix, "detection_rate_vs_GW"), 
-                   png_path, svg_path, width, height, dpi)
+
+  save_dual_format(
+    p, paste0(title_prefix, "detection_rate_vs_GW"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
 # Wrapper function to generate all detection plots
-plot_all_detection <- function(peak_detection_df, title_prefix = "", 
+plot_all_detection <- function(peak_detection_df, title_prefix = "",
                                png_path = NULL, svg_path = NULL,
                                width = 10, height = 8, dpi = 300) {
   plots <- list(
@@ -866,17 +951,16 @@ plot_all_detection <- function(peak_detection_df, title_prefix = "",
 #' @param save_path Optional path to save results as CSV
 #' @param title_prefix Optional prefix for output filenames
 #' @return List containing sample_metrics dataframe and summary_results dataframe
-test_peak_features <- function(dataset, 
-                               sample_metadata, 
+test_peak_features <- function(dataset,
+                               sample_metadata,
                                sample_cols = 4:27,
                                save_path = NULL,
                                title_prefix = "") {
-  
   # Filter metadata to samples present in dataset
   sample_names <- names(dataset)[sample_cols]
   sample_metadata_filtered <- sample_metadata %>%
     filter(Sample %in% sample_names)
-  
+
   # Create GW buckets if not already present
   if (!"GW_bucket" %in% names(sample_metadata_filtered)) {
     sample_metadata_filtered <- sample_metadata_filtered %>%
@@ -887,7 +971,7 @@ test_peak_features <- function(dataset,
         TRUE ~ NA_character_
       ))
   }
-  
+
   # Calculate sample-level metrics
   sample_metrics <- data.frame(
     Sample = sample_names,
@@ -897,72 +981,77 @@ test_peak_features <- function(dataset,
     missing_count = colSums(is.na(dataset[, sample_cols])),
     missing_proportion = colSums(is.na(dataset[, sample_cols])) / nrow(dataset)
   ) %>%
-    left_join(sample_metadata_filtered %>% select(Sample, Sex, GW, GW_bucket), 
-              by = "Sample")
-  
+    left_join(sample_metadata_filtered %>% select(Sample, Sex, GW, GW_bucket),
+      by = "Sample"
+    )
+
   # Define metrics to test
-  metrics <- c("detected_peaks", "detection_rate", "mean_intensity", 
-               "missing_proportion", "missing_count")
-  metric_labels <- c("Detected Peaks", "Detection Rate", "Mean Intensity", 
-                     "Missing Proportion", "Missing Count")
-  
+  metrics <- c(
+    "detected_peaks", "detection_rate", "mean_intensity",
+    "missing_proportion", "missing_count"
+  )
+  metric_labels <- c(
+    "Detected Peaks", "Detection Rate", "Mean Intensity",
+    "Missing Proportion", "Missing Count"
+  )
+
   # Check GW variation
   unique_gw <- n_distinct(sample_metrics$GW)
   gw_sufficient <- unique_gw > 2
-  
+
   if (!gw_sufficient) {
     cat("\nWARNING: Only ", unique_gw, " unique gestational week value(s) detected.\n")
     cat("GW-based models require >2 factor levels. Skipping GW-related analyses.\n")
     cat("Running Sex-only models.\n\n")
   }
-  
+
   # Initialize results list
   all_models <- list()
   summary_results <- data.frame()
-  
+
   # Run tests for each metric
   for (i in seq_along(metrics)) {
     metric <- metrics[i]
     label <- metric_labels[i]
-    
+
     cat("\n=== ", toupper(label), " ANALYSIS ===\n", sep = "")
-    
+
     if (gw_sufficient) {
       # Continuous GW model
       formula_cont <- as.formula(paste(metric, "~ Sex * GW"))
       model_cont <- lm(formula_cont, data = sample_metrics)
-      
+
       cat("\nLinear Model (continuous GW):\n")
       print(summary(model_cont))
       cat("\nANOVA:\n")
       print(anova(model_cont))
-      
+
       # GW bins model
       formula_bins <- as.formula(paste(metric, "~ Sex * GW_bucket"))
       model_bins <- lm(formula_bins, data = sample_metrics)
-      
+
       cat("\nLinear Model (GW bins):\n")
       print(summary(model_bins))
       cat("\nANOVA:\n")
       print(anova(model_bins))
-      
+
       # Store models
       all_models[[paste0(metric, "_continuous")]] <- model_cont
       all_models[[paste0(metric, "_bins")]] <- model_bins
-      
+
       # Extract p-values for summary table
       # Continuous model
       coef_cont <- summary(model_cont)$coefficients
       p_sex_cont <- if ("SexM" %in% rownames(coef_cont)) coef_cont["SexM", "Pr(>|t|)"] else NA
       p_gw_cont <- if ("GW" %in% rownames(coef_cont)) coef_cont["GW", "Pr(>|t|)"] else NA
       p_int_cont <- if ("SexM:GW" %in% rownames(coef_cont)) coef_cont["SexM:GW", "Pr(>|t|)"] else NA
-      
+
       # Bins model
       anova_bins <- anova(model_bins)
       p_sex_bins <- if ("Sex" %in% rownames(anova_bins)) anova_bins["Sex", "Pr(>F)"] else NA
       p_gw_bins <- if ("GW_bucket" %in% rownames(anova_bins)) anova_bins["GW_bucket", "Pr(>F)"] else NA
       p_int_bins <- if ("Sex:GW_bucket" %in% rownames(anova_bins)) anova_bins["Sex:GW_bucket", "Pr(>F)"] else NA
-      
+
       # Add to summary results
       summary_results <- bind_rows(
         summary_results,
@@ -970,27 +1059,29 @@ test_peak_features <- function(dataset,
           Variable = rep(label, 6),
           Model = rep(c("Continuous GW", "GW Bins"), each = 3),
           Term = rep(c("Sex", "GW/GW_bucket", "Sex:GW/Sex:GW_bucket"), 2),
-          P_value = c(p_sex_cont, p_gw_cont, p_int_cont,
-                      p_sex_bins, p_gw_bins, p_int_bins)
+          P_value = c(
+            p_sex_cont, p_gw_cont, p_int_cont,
+            p_sex_bins, p_gw_bins, p_int_bins
+          )
         )
       )
     } else {
       # Sex-only model when GW variation is insufficient
       formula_sex <- as.formula(paste(metric, "~ Sex"))
       model_sex <- lm(formula_sex, data = sample_metrics)
-      
+
       cat("\nLinear Model (Sex only):\n")
       print(summary(model_sex))
       cat("\nANOVA:\n")
       print(anova(model_sex))
-      
+
       # Store model
       all_models[[paste0(metric, "_sex_only")]] <- model_sex
-      
+
       # Extract p-values
       coef_sex <- summary(model_sex)$coefficients
       p_sex <- if ("SexM" %in% rownames(coef_sex)) coef_sex["SexM", "Pr(>|t|)"] else NA
-      
+
       # Add to summary results
       summary_results <- bind_rows(
         summary_results,
@@ -1003,7 +1094,7 @@ test_peak_features <- function(dataset,
       )
     }
   }
-  
+
   # Add significance annotations
   summary_results <- summary_results %>%
     mutate(
@@ -1015,26 +1106,29 @@ test_peak_features <- function(dataset,
         P_value < 0.1 ~ ".",
         TRUE ~ "NS"
       ),
-      P_value_formatted = ifelse(is.na(P_value), "NA", 
-                                 sprintf("%.4f", P_value))
+      P_value_formatted = ifelse(is.na(P_value), "NA",
+        sprintf("%.4f", P_value)
+      )
     )
-  
+
   cat("\n=== SUMMARY TABLE OF ALL STATISTICAL TESTS ===\n")
   print(summary_results)
-  
+
   # Save results if path provided
   if (!is.null(save_path)) {
-    write.csv(summary_results, 
-              file.path(save_path, paste0(title_prefix, "statistical_tests_summary.csv")), 
-              row.names = FALSE)
-    
-    write.csv(sample_metrics, 
-              file.path(save_path, paste0(title_prefix, "sample_metrics_for_testing.csv")), 
-              row.names = FALSE)
-    
+    write.csv(summary_results,
+      file.path(save_path, paste0(title_prefix, "statistical_tests_summary.csv")),
+      row.names = FALSE
+    )
+
+    write.csv(sample_metrics,
+      file.path(save_path, paste0(title_prefix, "sample_metrics_for_testing.csv")),
+      row.names = FALSE
+    )
+
     cat("\nResults saved to:", save_path, "\n")
   }
-  
+
   # Return results
   return(list(
     sample_metrics = sample_metrics,
@@ -1049,34 +1143,33 @@ test_peak_features <- function(dataset,
 #' @param metric_name Column name of the metric to test
 #' @param metric_label Human-readable label for output
 #' @return List containing continuous and bins models plus p-values
-test_single_metric <- function(sample_metrics, 
-                               metric_name, 
+test_single_metric <- function(sample_metrics,
+                               metric_name,
                                metric_label = metric_name) {
-  
   cat("\n=== ", toupper(metric_label), " ANALYSIS ===\n", sep = "")
-  
+
   # Continuous GW model
   formula_cont <- as.formula(paste(metric_name, "~ Sex * GW"))
   model_cont <- lm(formula_cont, data = sample_metrics)
-  
+
   cat("\nLinear Model (continuous GW):\n")
   print(summary(model_cont))
   cat("\nANOVA:\n")
   print(anova(model_cont))
-  
+
   # GW bins model
   formula_bins <- as.formula(paste(metric_name, "~ Sex * GW_bucket"))
   model_bins <- lm(formula_bins, data = sample_metrics)
-  
+
   cat("\nLinear Model (GW bins):\n")
   print(summary(model_bins))
   cat("\nANOVA:\n")
   print(anova(model_bins))
-  
+
   # Extract p-values
   coef_cont <- summary(model_cont)$coefficients
   anova_bins <- anova(model_bins)
-  
+
   results <- list(
     model_continuous = model_cont,
     model_bins = model_bins,
@@ -1091,7 +1184,7 @@ test_single_metric <- function(sample_metrics,
       Interaction = if ("Sex:GW_bucket" %in% rownames(anova_bins)) anova_bins["Sex:GW_bucket", "Pr(>F)"] else NA
     )
   )
-  
+
   return(results)
 }
 
@@ -1100,8 +1193,10 @@ test_single_metric <- function(sample_metrics,
 #' @param p_value Numeric p-value
 #' @return Formatted string with p-value and significance annotation
 format_p_value <- function(p_value) {
-  if (is.na(p_value)) return("NA")
-  
+  if (is.na(p_value)) {
+    return("NA")
+  }
+
   sig <- case_when(
     p_value < 0.001 ~ "***",
     p_value < 0.01 ~ "**",
@@ -1109,7 +1204,7 @@ format_p_value <- function(p_value) {
     p_value < 0.1 ~ ".",
     TRUE ~ "NS"
   )
-  
+
   sprintf("%.4f %s", p_value, sig)
 }
 
@@ -1123,13 +1218,12 @@ format_p_value <- function(p_value) {
 #' @param sample_cols Column indices or names containing sample data
 #' @param compound_annotation Optional annotation dataframe to merge
 #' @return Dataframe with metabolite abundance and annotations
-calculate_metabolite_abundance <- function(dataset, 
+calculate_metabolite_abundance <- function(dataset,
                                            sample_cols = NULL,
                                            sample_pattern = "^Sample",
                                            compound_annotation = NULL,
-                                           id_col = "Compound.ID"   # NEW PARAMETER
+                                           id_col = "Compound.ID" # NEW PARAMETER
 ) {
-  
   if (is.null(sample_cols)) {
     sample_cols <- grep(sample_pattern, names(dataset), value = TRUE)
     if (length(sample_cols) == 0) {
@@ -1138,27 +1232,25 @@ calculate_metabolite_abundance <- function(dataset,
   } else if (is.numeric(sample_cols)) {
     sample_cols <- names(dataset)[sample_cols]
   }
-  
+
   cat("Calculating metabolite abundance...\n")
   cat("  Samples:", length(sample_cols), "\n")
   cat("  Metabolites:", nrow(dataset), "\n")
-  
+
   # Select columns that exist
   keep_cols <- intersect(c(id_col, "Name", "Formula"), names(dataset))
-  
+
   metabolite_abundance <- dataset %>%
     mutate(mean_intensity = rowMeans(select(., all_of(sample_cols)), na.rm = TRUE)) %>%
     select(all_of(keep_cols), mean_intensity) %>%
     arrange(desc(mean_intensity)) %>%
-    mutate(display_name = ifelse(is.na(Name) | Name == "", 
-                                 .data[[id_col]], 
-                                 paste0(Name, " (", .data[[id_col]], ")")))
-  
+    mutate(display_name = Name)
+
   # Add annotations if provided
   if (!is.null(compound_annotation)) {
     anno_join_cols <- intersect(c(id_col, "Name"), names(compound_annotation))
     anno_select_cols <- intersect(
-      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways"),
+      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways", "Annotation_Confidence"),
       names(compound_annotation)
     )
     metabolite_abundance <- metabolite_abundance %>%
@@ -1168,7 +1260,7 @@ calculate_metabolite_abundance <- function(dataset,
       )
     cat("  Added compound annotations\n")
   }
-  
+
   cat("Done!\n\n")
   return(metabolite_abundance)
 }
@@ -1184,39 +1276,38 @@ calculate_metabolite_abundance_by_group <- function(data_long,
                                                     group_by = "Sex",
                                                     dataset = NULL,
                                                     compound_annotation = NULL,
-                                                    id_col = "Compound.ID"   # NEW PARAMETER
+                                                    id_col = "Compound.ID" # NEW PARAMETER
 ) {
-  
   # Check required columns (id_col instead of hardcoded Compound.ID)
   required_cols <- c(id_col, "Name", "Intensity", group_by)
   missing_cols <- setdiff(required_cols, names(data_long))
   if (length(missing_cols) > 0) {
     stop(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
   }
-  
+
   cat("Calculating metabolite abundance by", paste(group_by, collapse = ", "), "...\n")
-  
+
   metabolite_abundance_grouped <- data_long %>%
     group_by(across(all_of(c(id_col, "Name", group_by)))) %>%
-    summarise(mean_intensity = mean(Intensity, na.rm = TRUE),
-              .groups = "drop")
-  
+    summarise(
+      mean_intensity = mean(Intensity, na.rm = TRUE),
+      .groups = "drop"
+    )
+
   # Add Formula if dataset provided
   if (!is.null(dataset) && "Formula" %in% names(dataset) && id_col %in% names(dataset)) {
     metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
       left_join(dataset %>% select(all_of(id_col), Formula), by = id_col)
   }
-  
+
   metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
-    mutate(display_name = ifelse(is.na(Name) | Name == "", 
-                                 .data[[id_col]], 
-                                 paste0(Name, " (", .data[[id_col]], ")"))) %>%
+    mutate(display_name = Name) %>%
     arrange(across(all_of(group_by)), desc(mean_intensity))
-  
+
   # Add annotations if provided
   if (!is.null(compound_annotation)) {
     anno_select_cols <- intersect(
-      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways"),
+      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways", "Annotation_Confidence"),
       names(compound_annotation)
     )
     metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
@@ -1225,7 +1316,7 @@ calculate_metabolite_abundance_by_group <- function(data_long,
         by = intersect(c(id_col, "Name"), names(metabolite_abundance_grouped))
       )
   }
-  
+
   cat("Done!\n\n")
   return(metabolite_abundance_grouped)
 }
@@ -1253,28 +1344,33 @@ plot_top_metabolites_bar <- function(metabolite_abundance,
                                      width = 10,
                                      height = 8,
                                      dpi = 300) {
-  
   top_n_metabolites <- metabolite_abundance %>%
     slice_head(n = n)
-  
-  # Build lookup before truncating
+
   label_lookup <- build_label_lookup(top_n_metabolites$display_name)
-  top_n_metabolites <- top_n_metabolites %>%
-    mutate(display_name = truncate_labels(display_name))
-  
+
   p <- ggplot(top_n_metabolites, aes(x = reorder(display_name, mean_intensity), y = mean_intensity)) +
     geom_bar(stat = "identity", fill = "steelblue") +
+    geom_text(aes(label = display_name, y = 0,
+                fontface = ifelse(!is.na(Annotation_Confidence) & Annotation_Confidence == "high", "bold", "plain")),
+              hjust = -0.05, size = 2.5, color = "white") +
     coord_flip() +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolites"),
-         x = "Metabolite",
-         y = "Mean Peak Intensity") +
-    theme(axis.text.y = element_text(size = 8))
-  
-  save_dual_format(p, paste0(title_prefix, "top", n, "_metabolites"), 
-                   png_path, svg_path, width, height, dpi,
-                   label_lookup = label_lookup)
-  
+    labs(
+      title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolites"),
+      x = NULL,
+      y = "Mean Peak Intensity"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p, paste0(title_prefix, "top", n, "_metabolites"),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
   return(p)
 }
 
@@ -1299,41 +1395,47 @@ plot_top_metabolites_by_group <- function(metabolite_abundance_grouped,
                                           width = 14,
                                           height = 10,
                                           dpi = 300) {
-  
   top_n_by_group <- metabolite_abundance_grouped %>%
     group_by(across(all_of(group_by))) %>%
     slice_head(n = n) %>%
     ungroup()
-  
-  # Build lookup before truncating
+
   label_lookup <- build_label_lookup(top_n_by_group$display_name)
-  top_n_by_group <- top_n_by_group %>%
-    mutate(display_name = truncate_labels(display_name))
-  
+
   # Determine number of columns for faceting
   n_groups <- length(unique(top_n_by_group[[group_by]]))
   ncol <- min(n_groups, 3)
-  
-  # Adjust text size based on number of groups
-  text_size <- ifelse(n_groups <= 2, 7, 6)
-  
-  p <- ggplot(top_n_by_group, 
-              aes(x = reorder(display_name, mean_intensity), 
-                  y = mean_intensity, 
-                  fill = .data[[group_by]])) +
+
+  p <- ggplot(
+    top_n_by_group,
+    aes(
+      x = reorder(display_name, mean_intensity),
+      y = mean_intensity,
+      fill = .data[[group_by]]
+    )
+  ) +
     geom_bar(stat = "identity") +
+    geom_text(aes(label = display_name, y = 0,
+                fontface = ifelse(!is.na(Annotation_Confidence) & Annotation_Confidence == "high", "bold", "plain")),
+              hjust = -0.05, size = 2.5, color = "white") +
     coord_flip() +
     facet_wrap(as.formula(paste("~", group_by)), scales = "free", ncol = ncol) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolites by ", group_by),
-         x = "Metabolite",
-         y = "Mean Peak Intensity") +
-    theme(axis.text.y = element_text(size = text_size))
-  
-  save_dual_format(p, paste0(title_prefix, "top", n, "_metabolites_by_", tolower(group_by)), 
-                   png_path, svg_path, width, height, dpi,
-                   label_lookup = label_lookup)
-  
+    labs(
+      title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolites by ", group_by),
+      x = NULL,
+      y = "Mean Peak Intensity"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p, paste0(title_prefix, "top", n, "_metabolites_by_", tolower(group_by)),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
   return(p)
 }
 
@@ -1359,34 +1461,34 @@ prepare_heatmap_matrix <- function(dataset,
                                    impute = FALSE,
                                    impute_method = "min_fraction",
                                    min_fraction = 0.2) {
-  
   # Determine sample columns
   if (is.null(sample_cols)) {
     sample_cols <- grep(sample_pattern, names(dataset), value = TRUE)
   } else if (is.numeric(sample_cols)) {
     sample_cols <- names(dataset)[sample_cols]
   }
-  
+
   # Filter to specified metabolites and prepare matrix
   heatmap_data <- dataset %>%
     filter(Compound.ID %in% metabolite_ids) %>%
     select(Compound.ID, Name, all_of(sample_cols)) %>%
-    mutate(display_name = ifelse(is.na(Name) | Name == "", 
-                                 Compound.ID, 
-                                 paste0(Name, " (", Compound.ID, ")"))) %>%
+    mutate(display_name = ifelse(is.na(Name) | Name == "",
+      Compound.ID,
+      Name
+    )) %>%
     select(display_name, all_of(sample_cols)) %>%
     column_to_rownames("display_name") %>%
     as.matrix()
-  
+
   # Log transform if requested
   if (log_transform) {
     heatmap_data <- log10(heatmap_data + 1)
   }
-  
+
   # Handle NaN and Inf values
   heatmap_data[is.nan(heatmap_data)] <- NA
   heatmap_data[is.infinite(heatmap_data)] <- NA
-  
+
   # Impute missing values if requested
   if (impute) {
     if (impute_method == "min_fraction") {
@@ -1401,7 +1503,7 @@ prepare_heatmap_matrix <- function(dataset,
       heatmap_data[is.na(heatmap_data)] <- 0
     }
   }
-  
+
   return(heatmap_data)
 }
 
@@ -1430,16 +1532,15 @@ plot_metabolite_heatmap <- function(heatmap_matrix,
                                     width = 12,
                                     height = 16,
                                     fontsize_row = 6) {
-  
   # Prepare sample annotations if metadata provided
   sample_annotation <- NULL
   if (!is.null(sample_metadata)) {
     # Get samples present in matrix
     matrix_samples <- colnames(heatmap_matrix)
-    
+
     # Filter metadata and prepare annotation
     available_annotation_cols <- intersect(annotation_cols, names(sample_metadata))
-    
+
     if (length(available_annotation_cols) > 0) {
       sample_annotation <- sample_metadata %>%
         filter(Sample %in% matrix_samples) %>%
@@ -1447,22 +1548,23 @@ plot_metabolite_heatmap <- function(heatmap_matrix,
         column_to_rownames("Sample")
     }
   }
-  
+
   # Set NA color based on whether we have missing data
   na_col <- if (any(is.na(heatmap_matrix))) "gray90" else NULL
-  
+
   # Create heatmap
   pheatmap(heatmap_matrix,
-           scale = scale,
-           annotation_col = sample_annotation,
-           cluster_rows = cluster_rows,
-           cluster_cols = cluster_cols,
-           main = title,
-           fontsize_row = fontsize_row,
-           filename = filename,
-           width = width,
-           height = height,
-           na_col = na_col)
+    scale = scale,
+    annotation_col = sample_annotation,
+    cluster_rows = cluster_rows,
+    cluster_cols = cluster_cols,
+    main = title,
+    fontsize_row = fontsize_row,
+    filename = filename,
+    width = width,
+    height = height,
+    na_col = na_col
+  )
 }
 
 #' Generate all three versions of heatmap (unscaled, scaled, clustered)
@@ -1482,15 +1584,15 @@ plot_top_metabolites_heatmaps <- function(dataset,
                                           sample_cols = NULL,
                                           title_prefix = "",
                                           png_path = NULL,
-                                          svg_path = NULL) {
-  
+                                          svg_path = NULL,
+                                          metabolite_label = "Most Abundant") {
   # Get top N metabolites
   top_metabolites <- metabolite_abundance %>%
     slice_head(n = n) %>%
     pull(Compound.ID)
-  
+
   cat("Generating heatmaps for top", n, "metabolites...\n")
-  
+
   # Version 1: Unclustered, unscaled (with NAs preserved)
   cat("  Creating unclustered, unscaled heatmap...\n")
   matrix_unclustered_unscaled <- prepare_heatmap_matrix(
@@ -1500,7 +1602,7 @@ plot_top_metabolites_heatmaps <- function(dataset,
     log_transform = TRUE,
     impute = FALSE
   )
-  
+
   if (!is.null(png_path)) {
     plot_metabolite_heatmap(
       heatmap_matrix = matrix_unclustered_unscaled,
@@ -1508,15 +1610,15 @@ plot_top_metabolites_heatmaps <- function(dataset,
       cluster_rows = FALSE,
       cluster_cols = FALSE,
       scale = "none",
-      title = paste0(title_prefix, "Top ", n, " Metabolites - Unclustered, Unscaled"),
+      title = paste0(title_prefix, "Top ", n, " ", metabolite_label, " Metabolites - Unclustered, Unscaled"),
       filename = file.path(png_path, paste0(title_prefix, "top", n, "_heatmap_unclustered_unscaled.png"))
     )
   }
-  
+
   # Version 2: Unclustered, scaled by row
   cat("  Creating unclustered, scaled heatmap...\n")
-  matrix_unclustered_scaled <- matrix_unclustered_unscaled  # Same matrix
-  
+  matrix_unclustered_scaled <- matrix_unclustered_unscaled # Same matrix
+
   if (!is.null(png_path)) {
     plot_metabolite_heatmap(
       heatmap_matrix = matrix_unclustered_scaled,
@@ -1524,11 +1626,11 @@ plot_top_metabolites_heatmaps <- function(dataset,
       cluster_rows = FALSE,
       cluster_cols = FALSE,
       scale = "row",
-      title = paste0(title_prefix, "Top ", n, " Metabolites - Unclustered, Scaled"),
+      title = paste0(title_prefix, "Top ", n, " ", metabolite_label, " Metabolites - Unclustered, Scaled"),
       filename = file.path(png_path, paste0(title_prefix, "top", n, "_heatmap_unclustered_scaled.png"))
     )
   }
-  
+
   # Version 3: Clustered, scaled, with imputation
   cat("  Creating clustered, scaled heatmap with imputation...\n")
   matrix_clustered <- prepare_heatmap_matrix(
@@ -1540,7 +1642,7 @@ plot_top_metabolites_heatmaps <- function(dataset,
     impute_method = "min_fraction",
     min_fraction = 0.2
   )
-  
+
   if (!is.null(png_path)) {
     plot_metabolite_heatmap(
       heatmap_matrix = matrix_clustered,
@@ -1548,13 +1650,13 @@ plot_top_metabolites_heatmaps <- function(dataset,
       cluster_rows = TRUE,
       cluster_cols = TRUE,
       scale = "row",
-      title = paste0(title_prefix, "Top ", n, " Metabolites - Clustered"),
+      title = paste0(title_prefix, "Top ", n, " ", metabolite_label, "Metabolites - Clustered"),
       filename = file.path(png_path, paste0(title_prefix, "top", n, "_heatmap_clustered.png"))
     )
   }
-  
+
   cat("Done!\n\n")
-  
+
   return(list(
     unclustered_unscaled = matrix_unclustered_unscaled,
     unclustered_scaled = matrix_unclustered_scaled,
@@ -1571,17 +1673,16 @@ plot_top_metabolites_heatmaps <- function(dataset,
 #' @param metabolite_abundance Dataframe from calculate_metabolite_abundance with annotations
 #' @param category Annotation column to aggregate by (e.g., "Class", "Sub.Class", "Super.Class")
 #' @return Dataframe with category-level abundance
-calculate_category_abundance <- function(metabolite_abundance, 
+calculate_category_abundance <- function(abundance_df,
                                          category = "Class") {
-  
-  if (!category %in% names(metabolite_abundance)) {
+  if (!category %in% names(abundance_df)) {
     stop(paste("Category", category, "not found in metabolite_abundance. Did you add compound_annotation?"))
   }
-  
+
   cat("Calculating abundance by", category, "...\n")
-  
+
   # Aggregate by category
-  category_abundance <- metabolite_abundance %>%
+  category_abundance <- abundance_df %>%
     filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
     group_by(.data[[category]]) %>%
     summarise(
@@ -1590,14 +1691,14 @@ calculate_category_abundance <- function(metabolite_abundance,
       .groups = "drop"
     ) %>%
     arrange(desc(mean_intensity))
-  
+
   # Rename first column to standard name for easier downstream use
   names(category_abundance)[1] <- "category_name"
   category_abundance$category_type <- category
-  
+
   cat("  Found", nrow(category_abundance), "unique", category, "categories\n")
   cat("Done!\n\n")
-  
+
   return(category_abundance)
 }
 
@@ -1610,17 +1711,16 @@ calculate_category_abundance <- function(metabolite_abundance,
 calculate_category_abundance_by_group <- function(metabolite_abundance_grouped,
                                                   category = "Class",
                                                   group_by = "Sex") {
-  
   if (!category %in% names(metabolite_abundance_grouped)) {
     stop(paste("Category", category, "not found in data"))
   }
-  
+
   if (!group_by %in% names(metabolite_abundance_grouped)) {
     stop(paste("Group variable", group_by, "not found in data"))
   }
-  
+
   cat("Calculating", category, "abundance by", group_by, "...\n")
-  
+
   # Aggregate by category and group
   category_abundance_grouped <- metabolite_abundance_grouped %>%
     filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
@@ -1631,15 +1731,560 @@ calculate_category_abundance_by_group <- function(metabolite_abundance_grouped,
       .groups = "drop"
     ) %>%
     arrange(.data[[group_by]], desc(mean_intensity))
-  
+
   # Rename category column
   names(category_abundance_grouped)[1] <- "category_name"
   category_abundance_grouped$category_type <- category
-  
+
   cat("Done!\n\n")
-  
+
   return(category_abundance_grouped)
 }
+
+# ============================================================================
+# Annotation Category Variability Functions
+# ============================================================================
+
+#' Calculate mean CV aggregated by annotation category
+#'
+#' @param variability_df Dataframe from calculate_metabolite_variability with annotations
+#' @param category Annotation column to aggregate by (e.g., "Class", "Sub.Class")
+#' @return Dataframe with category-level mean CV, sorted descending
+calculate_category_variability <- function(variability_df,
+                                           category = "Class") {
+  if (!category %in% names(variability_df)) {
+    stop(paste("Category", category, "not found in variability_df. Did you add compound_annotation?"))
+  }
+
+  cat("Calculating variability by", category, "...\n")
+
+  category_variability <- variability_df %>%
+    filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
+    group_by(.data[[category]]) %>%
+    summarise(
+      mean_cv = mean(cv, na.rm = TRUE),
+      n_metabolites = n(),
+      .groups = "drop"
+    ) %>%
+    arrange(desc(mean_cv))
+
+  names(category_variability)[1] <- "category_name"
+  category_variability$category_type <- category
+
+  cat("  Found", nrow(category_variability), "unique", category, "categories\n")
+  cat("Done!\n\n")
+
+  return(category_variability)
+}
+
+#' Calculate category variability stratified by a grouping variable
+#'
+#' @param variability_grouped_df Dataframe from calculate_metabolite_variability_by_group
+#' @param category Annotation column to aggregate by
+#' @param group_by Grouping variable (e.g., "Sex", "GW_bucket")
+#' @return Dataframe with category-level mean CV by group
+calculate_category_variability_by_group <- function(variability_grouped_df,
+                                                    category = "Class",
+                                                    group_by = "Sex") {
+  if (!category %in% names(variability_grouped_df)) {
+    stop(paste("Category", category, "not found in data"))
+  }
+  if (!group_by %in% names(variability_grouped_df)) {
+    stop(paste("Group variable", group_by, "not found in data"))
+  }
+
+  cat("Calculating", category, "variability by", group_by, "...\n")
+
+  category_variability_grouped <- variability_grouped_df %>%
+    filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
+    group_by(.data[[category]], .data[[group_by]]) %>%
+    summarise(
+      mean_cv = mean(cv, na.rm = TRUE),
+      n_metabolites = n(),
+      .groups = "drop"
+    ) %>%
+    arrange(.data[[group_by]], desc(mean_cv))
+
+  names(category_variability_grouped)[1] <- "category_name"
+  category_variability_grouped$category_type <- category
+
+  cat("Done!\n\n")
+
+  return(category_variability_grouped)
+}
+
+#' Plot top N most variable categories as bar chart
+#'
+#' @param category_variability Dataframe from calculate_category_variability
+#' @param n Number of top categories to plot
+#' @param title_prefix Prefix for plot title and filename
+#' @param png_path Path to save PNG
+#' @param svg_path Path to save SVG
+#' @param width Plot width
+#' @param height Plot height
+#' @param dpi PNG resolution
+#' @return ggplot object
+plot_top_categories_variability_bar <- function(category_variability,
+                                                n = 20,
+                                                title_prefix = "",
+                                                png_path = NULL,
+                                                svg_path = NULL,
+                                                width = 10,
+                                                height = 8,
+                                                dpi = 300) {
+  category_type <- unique(category_variability$category_type)[1]
+
+  top_n_categories <- category_variability %>%
+    slice_head(n = n)
+
+  label_lookup <- build_label_lookup(top_n_categories$category_name)
+
+  p <- ggplot(
+    top_n_categories,
+    aes(x = reorder(category_name, mean_cv), y = mean_cv)
+  ) +
+    geom_bar(stat = "identity", fill = "darkorange") +
+    geom_text(aes(label = category_name, y = 0), hjust = -0.05, size = 2.5, color = "white") +
+    coord_flip() +
+    theme_minimal() +
+    labs(
+      title = paste0(title_prefix, "Top ", n, " Most Variable Metabolite ", category_type, "es"),
+      x = NULL,
+      y = "Mean CV (SD / Mean Raw Intensity)"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p,
+    paste0(title_prefix, "top", n, "_variable_", tolower(category_type)),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
+  return(p)
+}
+
+#' Plot top N most variable categories stratified by group
+#'
+#' @param category_variability_grouped Dataframe from calculate_category_variability_by_group
+#' @param group_by Column name to facet by
+#' @param n Number of top categories per group
+#' @param title_prefix Prefix for plot title and filename
+#' @param png_path Path to save PNG
+#' @param svg_path Path to save SVG
+#' @param width Plot width
+#' @param height Plot height
+#' @param dpi PNG resolution
+#' @return ggplot object
+plot_top_categories_variability_by_group <- function(category_variability_grouped,
+                                                     group_by = "Sex",
+                                                     n = 20,
+                                                     title_prefix = "",
+                                                     png_path = NULL,
+                                                     svg_path = NULL,
+                                                     width = 14,
+                                                     height = 10,
+                                                     dpi = 300) {
+  category_type <- unique(category_variability_grouped$category_type)[1]
+
+  top_n_by_group <- category_variability_grouped %>%
+    group_by(.data[[group_by]]) %>%
+    slice_head(n = n) %>%
+    ungroup()
+
+  label_lookup <- build_label_lookup(top_n_by_group$category_name)
+
+  n_groups <- length(unique(top_n_by_group[[group_by]]))
+  ncol <- min(n_groups, 3)
+
+  p <- ggplot(
+    top_n_by_group,
+    aes(
+      x = reorder(category_name, mean_cv),
+      y = mean_cv,
+      fill = .data[[group_by]]
+    )
+  ) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = category_name, y = 0), hjust = -0.05, size = 2.5, color = "white") +
+    coord_flip() +
+    facet_wrap(as.formula(paste("~", group_by)), scales = "free", ncol = ncol) +
+    theme_minimal() +
+    labs(
+      title = paste0(
+        title_prefix, "Top ", n, " Most Variable Metabolite ",
+        category_type, "es by ", group_by
+      ),
+      x = NULL,
+      y = "Mean CV (SD / Mean Raw Intensity)"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p,
+    paste0(
+      title_prefix, "top", n, "_variable_", tolower(category_type),
+      "_by_", tolower(group_by)
+    ),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
+  return(p)
+}
+
+#' Generate all variability visualizations for a specific annotation category
+#'
+#' Mirrors analyze_category_abundance but ranks by CV instead of mean intensity.
+#' Bar charts show mean CV; heatmap reuses plot_top_categories_heatmap (intensity
+#' display of the most variable classes).
+#'
+#' @param metabolite_variability_annotated Overall variability df with annotations
+#' @param metabolite_variability_by_sex Sex-stratified variability df with annotations
+#' @param metabolite_variability_by_gw GW-stratified variability df with annotations
+#' @param dataset Wide-format dataset (raw, for heatmap intensity)
+#' @param category Annotation category to analyze
+#' @param n_bar Number of categories for bar charts
+#' @param n_heatmap Number of categories for heatmap
+#' @param sample_metadata Sample metadata
+#' @param sample_cols Column indices for sample data
+#' @param title_prefix Title prefix
+#' @param png_path PNG save path
+#' @param svg_path SVG save path
+#' @return List of all plots and data
+analyze_category_variability <- function(metabolite_variability_annotated,
+                                         metabolite_variability_by_sex,
+                                         metabolite_variability_by_gw,
+                                         dataset,
+                                         category = "Class",
+                                         n_bar = 20,
+                                         n_heatmap = 100,
+                                         sample_metadata = NULL,
+                                         sample_cols = NULL,
+                                         title_prefix = "",
+                                         png_path = NULL,
+                                         svg_path = NULL) {
+  cat("\n=== ANALYZING", toupper(category), "VARIABILITY ===\n\n")
+
+  cat("Step 1: Calculating variability metrics...\n")
+  category_variability <- calculate_category_variability(
+    variability_df = metabolite_variability_annotated,
+    category = category
+  )
+
+  category_variability_by_sex <- calculate_category_variability_by_group(
+    variability_grouped_df = metabolite_variability_by_sex,
+    category = category,
+    group_by = "Sex"
+  )
+
+  category_variability_by_gw <- calculate_category_variability_by_group(
+    variability_grouped_df = metabolite_variability_by_gw,
+    category = category,
+    group_by = "GW_bucket"
+  )
+
+  cat("Step 2: Generating bar charts...\n")
+  plot_overall <- plot_top_categories_variability_bar(
+    category_variability = category_variability,
+    n = n_bar,
+    title_prefix = title_prefix,
+    png_path = png_path,
+    svg_path = svg_path
+  )
+
+  plot_by_sex <- plot_top_categories_variability_by_group(
+    category_variability_grouped = category_variability_by_sex,
+    group_by = "Sex",
+    n = n_bar,
+    title_prefix = title_prefix,
+    png_path = png_path,
+    svg_path = svg_path
+  )
+
+  plot_by_gw <- plot_top_categories_variability_by_group(
+    category_variability_grouped = category_variability_by_gw,
+    group_by = "GW_bucket",
+    n = n_bar,
+    title_prefix = title_prefix,
+    png_path = png_path,
+    svg_path = svg_path,
+    width = 18
+  )
+
+  cat("Step 3: Generating heatmap...\n")
+  heatmap_matrix <- plot_top_categories_heatmap(
+    dataset = dataset,
+    metabolite_abundance_annotated = metabolite_variability_annotated,
+    category_abundance = category_variability,
+    category = category,
+    n = n_heatmap,
+    sample_metadata = sample_metadata,
+    sample_cols = sample_cols,
+    title_prefix = title_prefix,
+    png_path = png_path
+  )
+
+  cat("=== COMPLETED", toupper(category), "VARIABILITY ANALYSIS ===\n\n")
+
+  return(list(
+    variability = category_variability,
+    variability_by_sex = category_variability_by_sex,
+    variability_by_gw = category_variability_by_gw,
+    plots = list(
+      overall = plot_overall,
+      by_sex  = plot_by_sex,
+      by_gw   = plot_by_gw
+    ),
+    heatmap_matrix = heatmap_matrix
+  ))
+}
+
+# ============================================================================
+# Metabolite Variability Calculation Functions
+# ============================================================================
+
+#' Calculate CV (SD / mean) for each metabolite across all samples
+#'
+#' CV is calculated on raw (untransformed) intensity values.
+#'
+#' @param dataset Wide-format dataset with metabolite rows and sample columns
+#' @param sample_cols Column indices or names containing sample data
+#' @param compound_annotation Optional annotation dataframe to merge
+#' @param id_col Name of the compound ID column
+#' @return Dataframe with metabolite CV and annotations, sorted descending by CV
+calculate_metabolite_variability <- function(dataset,
+                                             sample_cols = NULL,
+                                             sample_pattern = "^Sample",
+                                             compound_annotation = NULL,
+                                             id_col = "Compound.ID") {
+  if (is.null(sample_cols)) {
+    sample_cols <- grep(sample_pattern, names(dataset), value = TRUE)
+    if (length(sample_cols) == 0) {
+      stop("No sample columns found. Please specify sample_cols or adjust sample_pattern.")
+    }
+  } else if (is.numeric(sample_cols)) {
+    sample_cols <- names(dataset)[sample_cols]
+  }
+
+  cat("Calculating metabolite variability (CV = SD / mean)...\n")
+  cat("  Samples:", length(sample_cols), "\n")
+  cat("  Metabolites:", nrow(dataset), "\n")
+
+  keep_cols <- intersect(c(id_col, "Name", "Formula"), names(dataset))
+
+  metabolite_variability <- dataset %>%
+    mutate(
+      mean_intensity = rowMeans(dplyr::select(., all_of(sample_cols)), na.rm = TRUE),
+      sd_intensity   = apply(dplyr::select(., all_of(sample_cols)), 1, sd, na.rm = TRUE),
+      cv             = sd_intensity / mean_intensity
+    ) %>%
+    dplyr::select(all_of(keep_cols), mean_intensity, sd_intensity, cv) %>%
+    arrange(desc(cv)) %>%
+    mutate(display_name = ifelse(is.na(Name) | Name == "",
+      .data[[id_col]],
+      Name
+    ))
+
+  if (!is.null(compound_annotation)) {
+    anno_join_cols <- intersect(c(id_col, "Name"), names(compound_annotation))
+    anno_select_cols <- intersect(
+      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways", "Annotation_Confidence"),
+      names(compound_annotation)
+    )
+    metabolite_variability <- metabolite_variability %>%
+      left_join(
+        compound_annotation %>% dplyr::select(all_of(anno_select_cols)),
+        by = intersect(anno_join_cols, names(metabolite_variability))
+      )
+    cat("  Added compound annotations\n")
+  }
+
+  cat("Done!\n\n")
+  return(metabolite_variability)
+}
+
+#' Calculate CV for each metabolite stratified by a grouping variable
+#'
+#' CV is calculated on raw (untransformed) Intensity values from long-format data.
+#'
+#' @param data_long Long-format data with raw Intensity column
+#' @param group_by Character vector of column names to group by (e.g., "Sex", "GW_bucket")
+#' @param dataset Wide-format dataset (optional, to add Formula)
+#' @param compound_annotation Optional annotation dataframe to merge
+#' @param id_col Name of the compound ID column
+#' @return Dataframe with metabolite CV by group, sorted descending by CV within group
+calculate_metabolite_variability_by_group <- function(data_long,
+                                                      group_by = "Sex",
+                                                      dataset = NULL,
+                                                      compound_annotation = NULL,
+                                                      id_col = "Compound.ID") {
+  required_cols <- c(id_col, "Name", "Intensity", group_by)
+  missing_cols <- setdiff(required_cols, names(data_long))
+  if (length(missing_cols) > 0) {
+    stop(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
+  }
+
+  cat("Calculating metabolite variability (CV) by", paste(group_by, collapse = ", "), "...\n")
+
+  metabolite_variability_grouped <- data_long %>%
+    group_by(across(all_of(c(id_col, "Name", group_by)))) %>%
+    summarise(
+      mean_intensity = mean(Intensity, na.rm = TRUE),
+      sd_intensity = sd(Intensity, na.rm = TRUE),
+      cv = sd_intensity / mean_intensity,
+      .groups = "drop"
+    )
+
+  if (!is.null(dataset) && "Formula" %in% names(dataset) && id_col %in% names(dataset)) {
+    metabolite_variability_grouped <- metabolite_variability_grouped %>%
+      left_join(dataset %>% select(all_of(id_col), Formula), by = id_col)
+  }
+
+  metabolite_variability_grouped <- metabolite_variability_grouped %>%
+    mutate(display_name = ifelse(is.na(Name) | Name == "",
+      .data[[id_col]],
+      Name
+    )) %>%
+    arrange(across(all_of(group_by)), desc(cv))
+
+  if (!is.null(compound_annotation)) {
+    anno_select_cols <- intersect(
+      c(id_col, "Name", "Class", "Sub.Class", "Super.Class", "Pathways", "Annotation_Confidence"),
+      names(compound_annotation)
+    )
+    metabolite_variability_grouped <- metabolite_variability_grouped %>%
+      left_join(
+        compound_annotation %>% select(all_of(anno_select_cols)),
+        by = intersect(c(id_col, "Name"), names(metabolite_variability_grouped))
+      )
+  }
+
+  cat("Done!\n\n")
+  return(metabolite_variability_grouped)
+}
+
+# ============================================================================
+# Top Variable Metabolite Visualization Functions
+# ============================================================================
+
+#' Plot top N most variable metabolites (by CV) as bar chart
+#'
+#' @param metabolite_variability Dataframe from calculate_metabolite_variability
+#' @param n Number of top metabolites to plot
+#' @param title_prefix Prefix for plot title and filename
+#' @param png_path Path to save PNG
+#' @param svg_path Path to save SVG
+#' @param width Plot width
+#' @param height Plot height
+#' @param dpi PNG resolution
+#' @return ggplot object
+plot_top_variable_metabolites_bar <- function(metabolite_variability,
+                                              n = 20,
+                                              title_prefix = "",
+                                              png_path = NULL,
+                                              svg_path = NULL,
+                                              width = 10,
+                                              height = 8,
+                                              dpi = 300) {
+  top_n_metabolites <- metabolite_variability %>%
+    slice_head(n = n)
+
+  label_lookup <- build_label_lookup(top_n_metabolites$display_name)
+
+  p <- ggplot(top_n_metabolites, aes(x = reorder(display_name, cv), y = cv)) +
+    geom_bar(stat = "identity", fill = "darkorange") +
+    geom_text(aes(label = display_name, y = 0,
+                fontface = ifelse(!is.na(Annotation_Confidence) & Annotation_Confidence == "high", "bold", "plain")),
+              hjust = -0.05, size = 2.5, color = "white") +
+    coord_flip() +
+    theme_minimal() +
+    labs(
+      title = paste0(title_prefix, "Top ", n, " Most Variable Metabolites"),
+      x = NULL,
+      y = "CV (SD / Mean Raw Intensity)"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p, paste0(title_prefix, "top", n, "_variable_metabolites"),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
+  return(p)
+}
+
+#' Plot top N most variable metabolites stratified by group as faceted bar chart
+#'
+#' @param metabolite_variability_grouped Dataframe from calculate_metabolite_variability_by_group
+#' @param group_by Column name to facet by
+#' @param n Number of top metabolites per group
+#' @param title_prefix Prefix for plot title and filename
+#' @param png_path Path to save PNG
+#' @param svg_path Path to save SVG
+#' @param width Plot width
+#' @param height Plot height
+#' @param dpi PNG resolution
+#' @return ggplot object
+plot_top_variable_metabolites_by_group <- function(metabolite_variability_grouped,
+                                                   group_by = "Sex",
+                                                   n = 20,
+                                                   title_prefix = "",
+                                                   png_path = NULL,
+                                                   svg_path = NULL,
+                                                   width = 14,
+                                                   height = 10,
+                                                   dpi = 300) {
+  top_n_by_group <- metabolite_variability_grouped %>%
+    group_by(across(all_of(group_by))) %>%
+    slice_head(n = n) %>%
+    ungroup()
+
+  label_lookup <- build_label_lookup(top_n_by_group$display_name)
+
+  n_groups <- length(unique(top_n_by_group[[group_by]]))
+  ncol <- min(n_groups, 3)
+
+  p <- ggplot(
+    top_n_by_group,
+    aes(
+      x = reorder(display_name, cv),
+      y = cv,
+      fill = .data[[group_by]]
+    )
+  ) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(label = display_name, y = 0,
+                fontface = ifelse(!is.na(Annotation_Confidence) & Annotation_Confidence == "high", "bold", "plain")),
+              hjust = -0.05, size = 2.5, color = "white") +
+    coord_flip() +
+    facet_wrap(as.formula(paste("~", group_by)), scales = "free", ncol = ncol) +
+    theme_minimal() +
+    labs(
+      title = paste0(title_prefix, "Top ", n, " Most Variable Metabolites by ", group_by),
+      x = NULL,
+      y = "CV (SD / Mean Raw Intensity)"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p, paste0(title_prefix, "top", n, "_variable_metabolites_by_", tolower(group_by)),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
+  return(p)
+}
+
 
 # ============================================================================
 # Category Visualization Functions
@@ -1664,33 +2309,38 @@ plot_top_categories_bar <- function(category_abundance,
                                     width = 10,
                                     height = 8,
                                     dpi = 300) {
-  
   # Get category type for labeling
   category_type <- unique(category_abundance$category_type)[1]
-  
+
   top_n_categories <- category_abundance %>%
     slice_head(n = n)
-  
-  # Build lookup before truncating
+
   label_lookup <- build_label_lookup(top_n_categories$category_name)
-  top_n_categories <- top_n_categories %>%
-    mutate(category_name = truncate_labels(category_name))
-  
-  p <- ggplot(top_n_categories, 
-              aes(x = reorder(category_name, mean_intensity), y = mean_intensity)) +
+
+  p <- ggplot(
+    top_n_categories,
+    aes(x = reorder(category_name, mean_intensity), y = mean_intensity)
+  ) +
     geom_bar(stat = "identity", fill = "steelblue") +
+    geom_text(aes(label = category_name, y = 0), hjust = -0.05, size = 2.5, color = "white") +
     coord_flip() +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolite ", category_type, "es"),
-         x = category_type,
-         y = "Mean Peak Intensity") +
-    theme(axis.text.y = element_text(size = 8))
-  
-  save_dual_format(p, 
-                   paste0(title_prefix, "top", n, "_", tolower(category_type)), 
-                   png_path, svg_path, width, height, dpi,
-                   label_lookup = label_lookup)
-  
+    labs(
+      title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolite ", category_type, "es"),
+      x = NULL,
+      y = "Mean Peak Intensity"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p,
+    paste0(title_prefix, "top", n, "_", tolower(category_type)),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
   return(p)
 }
 
@@ -1715,44 +2365,52 @@ plot_top_categories_by_group <- function(category_abundance_grouped,
                                          width = 14,
                                          height = 10,
                                          dpi = 300) {
-  
   # Get category type for labeling
   category_type <- unique(category_abundance_grouped$category_type)[1]
-  
+
   top_n_by_group <- category_abundance_grouped %>%
     group_by(.data[[group_by]]) %>%
     slice_head(n = n) %>%
     ungroup()
-  
-  # Build lookup before truncating
+
   label_lookup <- build_label_lookup(top_n_by_group$category_name)
-  top_n_by_group <- top_n_by_group %>%
-    mutate(category_name = truncate_labels(category_name))
-  
+
   # Determine faceting parameters
   n_groups <- length(unique(top_n_by_group[[group_by]]))
   ncol <- min(n_groups, 3)
-  text_size <- ifelse(n_groups <= 2, 7, 6)
-  
-  p <- ggplot(top_n_by_group, 
-              aes(x = reorder(category_name, mean_intensity), 
-                  y = mean_intensity, 
-                  fill = .data[[group_by]])) +
+
+  p <- ggplot(
+    top_n_by_group,
+    aes(
+      x = reorder(category_name, mean_intensity),
+      y = mean_intensity,
+      fill = .data[[group_by]]
+    )
+  ) +
     geom_bar(stat = "identity") +
+    geom_text(aes(label = category_name, y = 0), hjust = -0.05, size = 2.5, color = "white") +
     coord_flip() +
     facet_wrap(as.formula(paste("~", group_by)), scales = "free", ncol = ncol) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Top ", n, " Most Abundant Metabolite ", 
-                        category_type, "es by ", group_by),
-         x = category_type,
-         y = "Mean Peak Intensity") +
-    theme(axis.text.y = element_text(size = text_size))
-  
-  save_dual_format(p, 
-                   paste0(title_prefix, "top", n, "_", tolower(category_type), "_by_", tolower(group_by)), 
-                   png_path, svg_path, width, height, dpi,
-                   label_lookup = label_lookup)
-  
+    labs(
+      title = paste0(
+        title_prefix, "Top ", n, " Most Abundant Metabolite ",
+        category_type, "es by ", group_by
+      ),
+      x = NULL,
+      y = "Mean Peak Intensity"
+    ) +
+    theme(
+      axis.text.y = element_blank(),
+      axis.ticks.y = element_blank()
+    )
+
+  save_dual_format(p,
+    paste0(title_prefix, "top", n, "_", tolower(category_type), "_by_", tolower(group_by)),
+    png_path, svg_path, width, height, dpi,
+    label_lookup = label_lookup
+  )
+
   return(p)
 }
 
@@ -1780,19 +2438,18 @@ prepare_category_heatmap_matrix <- function(dataset,
                                             log_transform = TRUE,
                                             impute = TRUE,
                                             min_fraction = 0.2) {
-  
   # Determine sample columns
   if (is.null(sample_cols)) {
     sample_cols <- grep(sample_pattern, names(dataset), value = TRUE)
   } else if (is.numeric(sample_cols)) {
     sample_cols <- names(dataset)[sample_cols]
   }
-  
+
   # Get metabolites in the specified categories
   metabolites_in_categories <- metabolite_abundance_annotated %>%
     filter(.data[[category]] %in% category_ids) %>%
     select(Compound.ID, !!sym(category))
-  
+
   # Aggregate intensities by category and sample
   category_heatmap_data <- metabolite_abundance_annotated %>%
     filter(.data[[category]] %in% category_ids) %>%
@@ -1804,18 +2461,18 @@ prepare_category_heatmap_matrix <- function(dataset,
     pivot_wider(names_from = Sample, values_from = mean_intensity) %>%
     column_to_rownames(category) %>%
     as.matrix()
-  
+
   # Handle NaN values
   category_heatmap_data[is.nan(category_heatmap_data)] <- NA
-  
+
   # Log transform if requested
   if (log_transform) {
     category_heatmap_data <- log10(category_heatmap_data + 1)
   }
-  
+
   # Handle Inf values
   category_heatmap_data[is.infinite(category_heatmap_data)] <- NA
-  
+
   # Impute missing values if requested
   if (impute) {
     for (i in 1:nrow(category_heatmap_data)) {
@@ -1828,7 +2485,7 @@ prepare_category_heatmap_matrix <- function(dataset,
       }
     }
   }
-  
+
   return(category_heatmap_data)
 }
 
@@ -1852,14 +2509,13 @@ plot_top_categories_heatmap <- function(dataset,
                                         sample_cols = NULL,
                                         title_prefix = "",
                                         png_path = NULL) {
-  
   # Get top N categories
   top_categories <- category_abundance %>%
     slice_head(n = n) %>%
     pull(category_name)
-  
+
   cat("Generating heatmap for top", n, category, "categories...\n")
-  
+
   # Prepare matrix
   category_matrix <- prepare_category_heatmap_matrix(
     dataset = dataset,
@@ -1871,7 +2527,7 @@ plot_top_categories_heatmap <- function(dataset,
     impute = TRUE,
     min_fraction = 0.2
   )
-  
+
   # Plot heatmap
   if (!is.null(png_path)) {
     plot_metabolite_heatmap(
@@ -1885,9 +2541,9 @@ plot_top_categories_heatmap <- function(dataset,
       fontsize_row = 6
     )
   }
-  
+
   cat("Done!\n\n")
-  
+
   return(category_matrix)
 }
 
@@ -1921,28 +2577,27 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
                                        title_prefix = "",
                                        png_path = NULL,
                                        svg_path = NULL) {
-  
   cat("\n=== ANALYZING", toupper(category), "ABUNDANCE ===\n\n")
-  
+
   # Calculate abundances
   cat("Step 1: Calculating abundance metrics...\n")
   category_abundance <- calculate_category_abundance(
-    metabolite_abundance = metabolite_abundance_annotated,
+    abundance_df = metabolite_abundance_annotated,
     category = category
   )
-  
+
   category_abundance_by_sex <- calculate_category_abundance_by_group(
     metabolite_abundance_grouped = metabolite_abundance_by_sex,
     category = category,
     group_by = "Sex"
   )
-  
+
   category_abundance_by_gw <- calculate_category_abundance_by_group(
     metabolite_abundance_grouped = metabolite_abundance_by_gw,
     category = category,
     group_by = "GW_bucket"
   )
-  
+
   # Generate visualizations
   cat("Step 2: Generating bar charts...\n")
   plot_overall <- plot_top_categories_bar(
@@ -1952,7 +2607,7 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
     png_path = png_path,
     svg_path = svg_path
   )
-  
+
   plot_by_sex <- plot_top_categories_by_group(
     category_abundance_grouped = category_abundance_by_sex,
     group_by = "Sex",
@@ -1961,7 +2616,7 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
     png_path = png_path,
     svg_path = svg_path
   )
-  
+
   plot_by_gw <- plot_top_categories_by_group(
     category_abundance_grouped = category_abundance_by_gw,
     group_by = "GW_bucket",
@@ -1971,7 +2626,7 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
     svg_path = svg_path,
     width = 18
   )
-  
+
   cat("Step 3: Generating heatmap...\n")
   heatmap_matrix <- plot_top_categories_heatmap(
     dataset = dataset,
@@ -1984,9 +2639,9 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
     title_prefix = title_prefix,
     png_path = png_path
   )
-  
+
   cat("=== COMPLETED", toupper(category), "ANALYSIS ===\n\n")
-  
+
   return(list(
     abundance = category_abundance,
     abundance_by_sex = category_abundance_by_sex,
@@ -1998,6 +2653,37 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
     ),
     heatmap_matrix = heatmap_matrix
   ))
+}
+
+
+# ============================================================================
+# Trajectory Plot Builder
+# ============================================================================
+
+#' Build a list of trajectory plots with automatic annotation confidence lookup
+#'
+#' Wraps the lapply + plot_trajectory pattern, automatically pulling
+#' Annotation_Confidence from fData(eset) for each metabolite so that
+#' high-confidence (score >= 80) titles are bolded without manual lookup.
+#'
+#' @param metabolite_names Character vector of metabolite names (must match rownames of eset)
+#' @param eset ExpressionSet with Annotation_Confidence in fData()
+#' @param title_suffixes Optional character vector of subtitle strings (same length as metabolite_names)
+#' @return Named list of ggplot objects
+build_trajectory_plots <- function(metabolite_names, eset, title_suffixes = NULL) {
+  has_confidence <- "Annotation_Confidence" %in% names(fData(eset))
+
+  lapply(seq_along(metabolite_names), function(i) {
+    nm   <- metabolite_names[i]
+    conf <- if (has_confidence && nm %in% rownames(fData(eset)))
+              fData(eset)[nm, "Annotation_Confidence"]
+            else NULL
+    suffix <- if (!is.null(title_suffixes) && length(title_suffixes) >= i)
+                title_suffixes[i]
+              else ""
+    plot_trajectory(nm, eset = eset, title_suffix = suffix,
+                    annotation_confidence = conf)
+  })
 }
 
 # ============================================================================
@@ -2014,9 +2700,8 @@ analyze_category_abundance <- function(metabolite_abundance_annotated,
 #' @param eset ExpressionSet containing exprs() and pData() with GW and Sex columns
 #' @param title_suffix Optional subtitle string (e.g. FDR/logFC annotation)
 #' @return ggplot object
-plot_trajectory <- function(metabolite_name, eset, title_suffix = "") {
-
-  intensity     <- exprs(eset)[metabolite_name, ]
+plot_trajectory <- function(metabolite_name, eset, title_suffix = "", annotation_confidence = NULL) {
+  intensity <- exprs(eset)[metabolite_name, ]
   metadata_traj <- pData(eset)
 
   traj_df <- data.frame(
@@ -2029,16 +2714,26 @@ plot_trajectory <- function(metabolite_name, eset, title_suffix = "") {
 
   ggplot(traj_df, aes(x = GW, y = Intensity, color = Sex)) +
     geom_point(size = 3, alpha = 0.8) +
-    geom_smooth(aes(group = 1), method = "lm", se = FALSE,
-                color = "grey30", linewidth = 0.7) +
-    scale_color_manual(values = c("F" = "tomato", "M" = "steelblue")) +
+    geom_smooth(aes(group = Sex),
+      method = "lm", se = FALSE,
+      linewidth = 0.7
+    ) +
+    scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
     theme_minimal() +
-    labs(x        = "Gestational Week",
-         y        = "log2 Peak Area",
-         title    = display_name,
-         subtitle = title_suffix) +
-    theme(plot.title    = element_text(hjust = 0.5),
-          plot.subtitle = element_text(hjust = 0.5, size = 9, color = "grey40"))
+    labs(
+      x = "Gestational Week",
+      y = "log2 Peak Area",
+      title = display_name,
+      subtitle = title_suffix
+    ) +
+    theme(
+      plot.title = element_text(
+        hjust = 0.5,
+        face = if (!is.null(annotation_confidence) && !is.na(annotation_confidence) &&
+                   annotation_confidence == "high") "bold" else "plain"
+      ),
+      plot.subtitle = element_text(hjust = 0.5, size = 9, color = "grey40")
+    )
 }
 
 #' Save a list of trajectory plots as paged grids
@@ -2060,19 +2755,19 @@ save_trajectory_grids <- function(plots,
                                   png_path,
                                   svg_path,
                                   plots_per_page = 4,
-                                  ncol           = 2,
-                                  width          = 12,
-                                  height         = 8) {
+                                  ncol = 2,
+                                  width = 12,
+                                  height = 8) {
   n_pages <- ceiling(length(plots) / plots_per_page)
   for (pg in seq_len(n_pages)) {
-    idx       <- ((pg - 1) * plots_per_page + 1):min(pg * plots_per_page, length(plots))
+    idx <- ((pg - 1) * plots_per_page + 1):min(pg * plots_per_page, length(plots))
     grid_plot <- cowplot::plot_grid(plotlist = plots[idx], ncol = ncol)
     save_dual_format(grid_plot,
-                     paste0(filename_prefix, "_page", pg),
-                     png_path = png_path, svg_path = svg_path,
-                     width = width, height = height)
+      paste0(filename_prefix, "_page", pg),
+      png_path = png_path, svg_path = svg_path,
+      width = width, height = height
+    )
     print(grid_plot)
   }
   invisible(NULL)
 }
-

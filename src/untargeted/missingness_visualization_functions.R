@@ -4,43 +4,53 @@
 
 # Plot: # of metabolites (y) vs % of samples missing (x) — combined
 plot_missingness_by_sample_pct <- function(missing_stats, title_prefix = "",
-                                            png_path = NULL, svg_path = NULL,
-                                            width = 10, height = 8, dpi = 300) {
+                                           png_path = NULL, svg_path = NULL,
+                                           width = 10, height = 8, dpi = 300) {
   plot_data <- missing_stats %>%
     mutate(pct_missing = missing_proportion * 100)
 
   p <- ggplot(plot_data, aes(x = pct_missing)) +
     geom_histogram(binwidth = 5, fill = "steelblue", color = "black", boundary = 0) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Metabolite Missingness Across Samples"),
-         x = "% of Samples Missing Metabolite",
-         y = "Number of Metabolites") +
+    labs(
+      title = paste0(title_prefix, "Metabolite Missingness Across Samples"),
+      x = "% of Samples Missing Metabolite",
+      y = "Number of Metabolites"
+    ) +
     scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 10))
 
-  save_dual_format(p, paste0(title_prefix, "missingness_by_sample_pct"),
-                   png_path, svg_path, width, height, dpi)
+  save_dual_format(
+    p, paste0(title_prefix, "missingness_by_sample_pct"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
 # Plot: # of metabolites (y) vs % of samples missing (x) — sex-split
 plot_missingness_by_sample_pct_by_sex <- function(missing_stats_by_sex, title_prefix = "",
-                                                    png_path = NULL, svg_path = NULL,
-                                                    width = 10, height = 10, dpi = 300) {
+                                                  png_path = NULL, svg_path = NULL,
+                                                  width = 10, height = 10, dpi = 300) {
   plot_data <- missing_stats_by_sex %>%
     mutate(pct_missing = missing_proportion * 100)
 
   p <- ggplot(plot_data, aes(x = pct_missing, fill = Sex)) +
-    geom_histogram(binwidth = 5, color = "black", position = "identity",
-                   alpha = 0.6, boundary = 0) +
+    geom_histogram(
+      binwidth = 5, color = "black", position = "identity",
+      alpha = 0.6, boundary = 0
+    ) +
     theme_minimal() +
-    labs(title = paste0(title_prefix, "Metabolite Missingness Across Samples by Sex"),
-         x = "% of Samples Missing Metabolite",
-         y = "Number of Metabolites") +
+    labs(
+      title = paste0(title_prefix, "Metabolite Missingness Across Samples by Sex"),
+      x = "% of Samples Missing Metabolite",
+      y = "Number of Metabolites"
+    ) +
     scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 10)) +
     facet_wrap(~Sex, ncol = 1)
 
-  save_dual_format(p, paste0(title_prefix, "missingness_by_sample_pct_by_sex"),
-                   png_path, svg_path, width, height, dpi)
+  save_dual_format(
+    p, paste0(title_prefix, "missingness_by_sample_pct_by_sex"),
+    png_path, svg_path, width, height, dpi
+  )
   return(p)
 }
 
@@ -50,16 +60,17 @@ plot_all_missingness <- function(missing_stats, missing_stats_by_sex = NULL,
                                  title_prefix = "",
                                  png_path = NULL, svg_path = NULL,
                                  width = 10, height = 8, dpi = 300) {
-
   plots <- list(
     missingness_by_sample_pct = plot_missingness_by_sample_pct(
-      missing_stats, title_prefix, png_path, svg_path, width, height, dpi)
+      missing_stats, title_prefix, png_path, svg_path, width, height, dpi
+    )
   )
 
   # Add sex-stratified plot if data provided
   if (!is.null(missing_stats_by_sex)) {
     plots$missingness_by_sample_pct_by_sex <- plot_missingness_by_sample_pct_by_sex(
-      missing_stats_by_sex, title_prefix, png_path, svg_path, width, height + 2, dpi)
+      missing_stats_by_sex, title_prefix, png_path, svg_path, width, height + 2, dpi
+    )
   }
 
   return(plots)
