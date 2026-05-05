@@ -1691,18 +1691,28 @@ RT_intensity_column_superclass &lt;- ggplot(metabolite_RT_intensity_superclass, 
 
 save_dual_format(RT_intensity_column_superclass, &quot;Final_RT_intensity_column_superclass&quot;, png_path = png_path, svg_path = svg_path)
 
+# Build per-facet threshold lines from density-detected thresholds
+rt_thresholds_for_plot &lt;- threshold_results$recommended_thresholds
+
 RT_intensity_column_mode_superclass &lt;- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
   geom_point(alpha = 0.6, size = 2) +
+  geom_vline(
+    data = rt_thresholds_for_plot,
+    aes(xintercept = RT_cutoff),
+    color = &quot;red&quot;, linetype = &quot;dashed&quot;, linewidth = 0.8,
+    inherit.aes = FALSE
+  ) +
   facet_wrap(~ Column + Mode, scales = &quot;free&quot;) +
   theme_minimal() +
   labs(
     title = &quot;Retention Time vs Intensity by Column and Mode&quot;,
+    subtitle = &quot;Red dashed line = RT threshold&quot;,
     x = &quot;Retention Time (min)&quot;,
     y = &quot;Log10 Mean Peak Intensity&quot;
   ) +
-  theme(legend.position = &quot;right&quot;, axis.text.x = element_text(angle = 45, hjust = 1))
-
-save_dual_format(RT_intensity_column_mode_superclass, &quot;Final_RT_intensity_column_mode_superclass&quot;, png_path = png_path, svg_path = svg_path)</code></pre>
+  theme(legend.position = &quot;right&quot;, axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+<pre><code>## Warning in geom_vline(data = rt_thresholds_for_plot, aes(xintercept =
+## RT_cutoff), : Ignoring unknown parameters: `inherit.aes`</code></pre>
 </div>
 <div id="check-column-composition-post-filtering-1" class="section level3">
 <h3>Check Column Composition Post Filtering</h3>

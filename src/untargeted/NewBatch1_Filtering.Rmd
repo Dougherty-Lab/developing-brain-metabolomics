@@ -886,18 +886,26 @@ RT_intensity_column_superclass <- ggplot(metabolite_RT_intensity_superclass, aes
 
 save_dual_format(RT_intensity_column_superclass, "Final_RT_intensity_column_superclass", png_path = png_path, svg_path = svg_path)
 
+# Build per-facet threshold lines from density-detected thresholds
+rt_thresholds_for_plot <- threshold_results$recommended_thresholds
+
 RT_intensity_column_mode_superclass <- ggplot(metabolite_RT_intensity_superclass, aes(x = RT, y = log10, color = Super.Class)) +
   geom_point(alpha = 0.6, size = 2) +
+  geom_vline(
+    data = rt_thresholds_for_plot,
+    aes(xintercept = RT_cutoff),
+    color = "red", linetype = "dashed", linewidth = 0.8,
+    inherit.aes = FALSE
+  ) +
   facet_wrap(~ Column + Mode, scales = "free") +
   theme_minimal() +
   labs(
     title = "Retention Time vs Intensity by Column and Mode",
+    subtitle = "Red dashed line = RT threshold",
     x = "Retention Time (min)",
     y = "Log10 Mean Peak Intensity"
   ) +
   theme(legend.position = "right", axis.text.x = element_text(angle = 45, hjust = 1))
-
-save_dual_format(RT_intensity_column_mode_superclass, "Final_RT_intensity_column_mode_superclass", png_path = png_path, svg_path = svg_path)
 ```
 ### Check Column Composition Post Filtering
 ```{r final_filtered_column_composition}
