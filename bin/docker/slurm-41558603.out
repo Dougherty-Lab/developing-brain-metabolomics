@@ -1,0 +1,12 @@
+==> Error: singularityce matches multiple packages.
+  Matching packages:
+    orpmone singularityce@3.8.0%gcc@8.5.0 arch=linux-rocky8-x86_64
+    wx465a4 singularityce@3.8.0%gcc@11.4.1 arch=linux-rocky9-x86_64
+  Use a more specific spec.
+
+        SSH tunnel to n003
+        ssh sneha.chaturvedi@login.htcf.wustl.edu -N -L 8787:n003:8787
+
+        Open in browser: http://localhost:8787
+
+[2026-06-03T14:44:29.626] error: *** JOB 41558603 ON n003 CANCELLED AT 2026-06-03T14:44:29 DUE to SIGNAL Terminated ***
