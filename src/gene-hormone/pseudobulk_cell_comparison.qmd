@@ -1,0 +1,233 @@
+---
+title: "Pseudobulk Cell Comparison"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    embed-resources: true
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Goals
+
+Compare pseudobulk aggregation stability across varying cell count thresholds to determine an optimal minimum-cell cutoff for downstream analysis.
+
+For each threshold N (10–200 in steps of 10), 20 random subsets of N cells per sample are drawn and Pearson r is computed between the subsampled log1p-pseudobulk and the full-sample log1p-pseudobulk.
+
+## Set Up
+
+```{r}
+#| label: load-packages
+#| output: false
+Packages <- c(
+  "tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot",
+  "edgeR", "limma", "patchwork", "svglite", "Matrix", "ggpubr"
+)
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")
+
+set.seed(123)
+```
+
+```{r}
+#| label: load-data
+comparison_cache <- readRDS("../../data/cache/pb_comparison_subset.rds")
+counts_sub    <- comparison_cache$counts_sub
+sample_labels <- comparison_cache$sample_labels
+```
+
+## Parameters
+
+Focusing on `EN-IT-Immature` cell type, which is present across all samples except 2, and restricting to two samples with \>200 cells of this type (SSD010 and SSD43).
+
+```{r}
+#| label: params
+TARGET_CELLTYPE <- "EN-IT-Immature"
+TARGET_SAMPLES  <- c("SSD10_tissue10", "SSD43_tissue43")
+THRESHOLDS <- seq(10, 200, by = 10)
+N_REPS <- 20
+SCATTER_THRESHOLDS <- c(10, 30, 50, 100, 150, 200)
+```
+
+## Extract Cell Indices and Count Matrix
+
+```{r}
+#| label: extract-cells
+cell_counts_per_sample <- sample_labels
+```
+
+## Build Full-Pseudobulk Reference
+
+```{r}
+#| label: full-pseudobulk
+full_pb_log <- lapply(TARGET_SAMPLES, function(s) {
+  idx <- which(sample_labels == s)
+  log1p(as.numeric(Matrix::rowSums(counts_sub[, idx, drop = FALSE])))
+})
+names(full_pb_log) <- TARGET_SAMPLES
+```
+
+## Simulation: Correlation vs. Threshold
+
+For each sample × threshold × replicate, randomly draw N cells (without replacement), aggregate to pseudobulk, log1p-transform, and compute Pearson r against the full pseudobulk.
+
+```{r}
+#| label: simulation
+#| cache: true
+sim_results <- purrr::map_dfr(TARGET_SAMPLES, function(s) {
+  idx_s <- which(sample_labels == s)
+  ref_log <- full_pb_log[[s]]
+
+  purrr::map_dfr(THRESHOLDS, function(n) {
+    if (n > length(idx_s)) {
+      return(NULL)
+    }
+
+    purrr::map_dfr(seq_len(N_REPS), function(rep_i) {
+      sampled <- sample(idx_s, size = n, replace = FALSE)
+      sub_log <- log1p(as.numeric(Matrix::rowSums(counts_sub[, sampled, drop = FALSE])))
+      r <- cor(ref_log, sub_log, method = "pearson")
+      tibble(sample = s, threshold = n, replicate = rep_i, r = r)
+    })
+  })
+})
+```
+
+## Plot 1: Correlation vs. Threshold
+
+Median Pearson r ± IQR across 20 draws per threshold per sample.
+
+```{r}
+#| label: plot-summary
+#| fig-width: 10
+#| fig-height: 5
+summary_df <- sim_results |>
+  group_by(sample, threshold) |>
+  summarise(
+    median_r = median(r),
+    q25      = quantile(r, 0.25),
+    q75      = quantile(r, 0.75),
+    .groups  = "drop"
+  )
+
+p_line <- ggplot(summary_df, aes(
+  x = threshold, y = median_r,
+  color = sample, fill = sample
+)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75), alpha = 0.2, color = NA) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_x_continuous(breaks = THRESHOLDS) +
+  scale_y_continuous(limits = c(NA, 1)) +
+  labs(
+    x        = "Pseudobulk cell count threshold (N)",
+    y        = "Pearson r  (subsampled vs. full pseudobulk)",
+    title    = glue("Pseudobulk stability: {TARGET_CELLTYPE}"),
+    subtitle = "Median ± IQR across 20 random draws per threshold",
+    color    = "Sample",
+    fill     = "Sample"
+  ) +
+  theme_cowplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p_line
+```
+
+## Plot 2: Gene-Level Scatter at Selected Thresholds
+
+One draw per threshold (using `set.seed` above). Points are genes with full pseudobulk \> 0 (zeros excluded to avoid a dominant zero-zero cloud). Pearson r is annotated per panel.
+
+```{r}
+#| label: plot-scatter
+#| fig-width: 14
+#| fig-height: 6
+scatter_data <- purrr::map_dfr(TARGET_SAMPLES, function(s) {
+  idx_s <- which(sample_labels == s)
+  ref_log <- full_pb_log[[s]]
+
+  # Only correlate genes expressed in the full pseudobulk
+  expressed <- ref_log > 0
+
+  purrr::map_dfr(SCATTER_THRESHOLDS, function(n) {
+    if (n > length(idx_s)) {
+      return(NULL)
+    }
+    sampled <- sample(idx_s, size = n, replace = FALSE)
+    sub_log <- log1p(as.numeric(Matrix::rowSums(counts_sub[, sampled, drop = FALSE])))
+    tibble(
+      sample    = s,
+      threshold = glue("N = {n}"),
+      full_log  = ref_log[expressed],
+      sub_log   = sub_log[expressed]
+    )
+  })
+}) |>
+  mutate(threshold = factor(threshold,
+    levels = glue("N = {SCATTER_THRESHOLDS}")
+  ))
+
+# Per-panel r annotation
+scatter_r <- scatter_data |>
+  group_by(sample, threshold) |>
+  summarise(r = cor(full_log, sub_log, method = "pearson"), .groups = "drop") |>
+  mutate(label = glue("r = {round(r, 3)}"))
+
+p_scatter <- ggplot(scatter_data, aes(x = full_log, y = sub_log)) +
+  geom_point(alpha = 0.08, size = 0.4) +
+  geom_abline(
+    slope = 1, intercept = 0, color = "firebrick",
+    linetype = "dashed", linewidth = 0.5
+  ) +
+  geom_text(
+    data = scatter_r,
+    aes(label = label),
+    x = -Inf, y = Inf,
+    hjust = -0.15, vjust = 1.8,
+    inherit.aes = FALSE,
+    size = 3
+  ) +
+  facet_grid(sample ~ threshold) +
+  labs(
+    x        = "Full pseudobulk (log1p counts)",
+    y        = "Subsampled pseudobulk (log1p counts)",
+    title    = glue("Gene-level pseudobulk at selected thresholds: {TARGET_CELLTYPE}"),
+    subtitle = "One representative draw per threshold; expressed genes only (full PB > 0)"
+  ) +
+  theme_cowplot(font_size = 10) +
+  panel_border()
+
+p_scatter
+```
+
+## Save Plots
+
+```{r}
+#| label: save-plots
+ggsave("../../results/gene-hormone/qc/pseudobulk_threshold_summary.png",
+  p_line,
+  width = 10, height = 5, dpi = 300
+)
+ggsave("../../results/gene-hormone/qc/pseudobulk_threshold_summary.svg",
+  p_line,
+  width = 10, height = 5
+)
+
+ggsave("../../results/gene-hormone/qc/pseudobulk_threshold_scatter.png",
+  p_scatter,
+  width = 14, height = 6, dpi = 300
+)
+ggsave("../../results/gene-hormone/qc/pseudobulk_threshold_scatter.svg",
+  p_scatter,
+  width = 14, height = 6
+)
+```

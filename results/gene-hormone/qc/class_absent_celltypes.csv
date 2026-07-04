@@ -1,0 +1,4 @@
+CellType,min_cells,n_samples_absent,absent_in
+Vascular,0,7,SSD08_tissue8; SSD11_tissue11; SSD15_tissue15; SSD26_tissue26; SSD40_tissue40; SSD41_tissue41; SSD48_tissue48
+Immune,0,4,SSD11_tissue11; SSD15_tissue15; SSD21_tissue21; SSD44_tissue44
+Neuron,0,4,SSD38_tissue38; SSD41_tissue41; SSD48_tissue48; SSD50_tissue50

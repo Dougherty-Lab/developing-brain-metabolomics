@@ -1,0 +1,413 @@
+---
+title: "Testosterone Gene Expression Prediction — Class"
+subtitle: "Sneha Chaturvedi, Emma Jones"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    embed-resources: true
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Goals
+
+Identify genes whose pseudobulk expression is predicted by testosterone (TT) concentration, by **class**. Analysis is **sex-separate**: XX and XY samples are modeled independently within each class.
+
+**Four models tested:**
+
+::: incremental
+-   **Base** — `~ TT`
+-   **Base + GW** — `~ TT + GW` (gestational week as additive covariate; justified by covariate testing)
+-   **Base + Batch** — `~ TT + batch1_frac` (batch1 fraction as a continuous additive covariate; both batches draw cells from the same biological samples but differ in which cells were captured)
+-   **Base + GW + Batch** — `~ TT + GW + batch1_frac` (both covariates)
+:::
+
+**Gene filter:** manual rowSums — genes with ≥ 2 counts in ≥ 3 samples per (class × Sex) group.\
+**Sample threshold:** `floor(n_group / 2)` non-zero TT samples required per group.
+
+## Set Up
+
+-   Load packages
+
+    ```{r}
+    #| label: load-packages
+    #| output: false
+    Packages <- c(
+      "tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot",
+      "edgeR", "limma", "patchwork", "svglite", "Matrix", "ggpubr"
+    )
+    lapply(Packages, library, character.only = TRUE)
+
+    source("pseudobulk_functions.R")
+
+    set.seed(123)
+    ```
+
+-   Load data
+
+    ```{r}
+    #| label: load-data
+    SSD_data <- readRDS("../../data/cache/SSD_meta_umap.rds")
+    pb_base   <- readRDS("../../data/cache/pb_base_class.rds")
+    targeted_comparison_raw <- read_xlsx("../../doc/targeted/targeted_hormones.xlsx")
+    targeted_comparison_raw$E2 <- targeted_comparison_raw$`17B-E2 (ng/mL)`
+    targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
+    targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
+    ```
+
+-   Configuration
+
+    ```{r}
+    #| label: config
+    celltype_col      <- "class"
+    sample_col        <- "Sample"
+    pb_sample_pattern <- "tissue\\d+"
+
+    out_base <- "../../results/gene-hormone/testosterone_genes_class"
+
+    for (sub in c("run_voom_lm", "run_voom_lm_gw",
+                  "run_voom_lm_batch", "run_voom_lm_gw_batch")) {
+      dir.create(file.path(out_base, sub), recursive = TRUE, showWarnings = FALSE)
+    }
+    ```
+
+## Outlier Removal
+
+Samples with TT \> Q3 + 1.5 × IQR are excluded before pseudobulk construction.
+
+```{r}
+#| label: outlier-removal
+detect_outliers <- function(data, variable) {
+  outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) +
+    1.5 * IQR(data[[variable]], na.rm = TRUE)
+  data %>% dplyr::filter(.data[[variable]] <= outlier_limit)
+}
+
+targeted_comparison_filtered_TT <- detect_outliers(targeted_comparison_raw, "TT")
+
+cat("Samples before outlier removal:", nrow(targeted_comparison_raw), "\n")
+cat("Samples after outlier removal: ", nrow(targeted_comparison_filtered_TT), "\n")
+cat("TT range after filtering:      ",
+    paste(round(range(targeted_comparison_filtered_TT$TT, na.rm = TRUE), 3),
+          collapse = " – "), "ng/mL\n")
+```
+
+## Pseudobulk
+
+Min 30 cells per (sample × class) for inclusion. `add_batch_fraction()` computes the fraction of batch1 cells per biological sample and joins it onto the pseudobulk metadata.
+
+```{r}
+#| label: build-pseudobulk
+pb_TT <- merge_hormone_metadata(
+  pb_base,
+  targeted_comparison_filtered_TT,
+  pb_sample_pattern = pb_sample_pattern,
+  min_cells         = 30
+)
+
+pb_TT <- add_batch_fraction(pb_TT, SSD_data)
+
+cat("Pseudobulk samples after merge:", nrow(pb_TT$metadata), "\n")
+cat("batch1_frac summary:\n")
+print(summary(pb_TT$metadata$batch1_frac))
+cat("NAs in batch1_frac:", sum(is.na(pb_TT$metadata$batch1_frac)), "\n")
+```
+
+## Models
+
+| Model             | Formula                      | Rationale                                                                                                                            |
+|------------------------|------------------------|------------------------|
+| Base              | `~ TT`                       | Direct TT–gene association                                                                                                           |
+| Base + GW         | `~ TT + GW`                  | GW predicts transcriptome-wide expression (covariate testing)                                                                        |
+| Base + Batch      | `~ TT + batch1_frac`      | Absorbs residual expression differences between batches; continuous encoding matches the non-bimodal batch composition |
+| Base + GW + Batch | `~ TT + GW + batch1_frac` | Both covariates adjusted simultaneously                                                                                              |
+
+All models use `analyze_hormone()`: splits by (class × Sex), applies manual gene filter, drops groups below sample threshold, fits limma-voom per group.
+
+## Base Model
+
+`~ TT` — sex-separate, no covariates.
+
+```{r}
+#| label: run-base
+res_TT_base <- analyze_hormone(
+  pb_TT$counts, pb_TT$metadata,
+  hormone               = "TT",
+  min_samples           = 10,
+  count_threshold       = 2,
+  gene_sample_threshold = 3,
+  model                 = run_voom_lm
+)
+
+summary_TT_base <- summarize_sig_genes(res_TT_base$combined_results)
+
+plot_top_genes_from_subsets(
+  res_TT_base$by_group_data,
+  output_dir = file.path(out_base, "run_voom_lm"),
+  hormone    = "TT"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_TT_base, "TT — Base (~ TT) | Class"),
+  output_dir    = file.path(out_base, "run_voom_lm"),
+  filename_base = "TT_base_sig_gene_summary"
+)
+
+write_csv(res_TT_base$combined_results,
+          file.path(out_base, "run_voom_lm", "TT_base_results.csv"))
+write_csv(summary_TT_base,
+          file.path(out_base, "run_voom_lm", "TT_base_summary.csv"))
+```
+
+::: panel-tabset
+### Significant Genes
+
+```{r}
+#| label: base-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_TT_base, "TT — Base (~ TT) | Class")
+```
+
+### Top Results
+
+```{r}
+#| label: base-top-table
+res_TT_base$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — Base model")
+```
+:::
+
+## Base + GW
+
+`~ TT + GW` — gestational week as additive covariate.
+
+```{r}
+#| label: run-gw
+res_TT_gw <- analyze_hormone(
+  pb_TT$counts, pb_TT$metadata,
+  hormone               = "TT",
+  min_samples           = 10,
+  count_threshold       = 2,
+  gene_sample_threshold = 3,
+  model                 = run_voom_lm_gw
+)
+
+summary_TT_gw <- summarize_sig_genes(res_TT_gw$combined_results)
+
+plot_top_genes_from_subsets(
+  res_TT_gw$by_group_data,
+  output_dir = file.path(out_base, "run_voom_lm_gw"),
+  hormone    = "TT"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_TT_gw, "TT — Base + GW (~ TT + GW) | Class"),
+  output_dir    = file.path(out_base, "run_voom_lm_gw"),
+  filename_base = "TT_gw_sig_gene_summary"
+)
+
+write_csv(res_TT_gw$combined_results,
+          file.path(out_base, "run_voom_lm_gw", "TT_gw_results.csv"))
+write_csv(summary_TT_gw,
+          file.path(out_base, "run_voom_lm_gw", "TT_gw_summary.csv"))
+```
+
+::: panel-tabset
+### Significant Genes
+
+```{r}
+#| label: gw-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_TT_gw, "TT — Base + GW (~ TT + GW) | Class")
+```
+
+### Top Results
+
+```{r}
+#| label: gw-top-table
+res_TT_gw$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — Base + GW model")
+```
+:::
+
+## Base + Batch
+
+`~ TT + batch1_frac` — batch1 fraction (continuous) as additive covariate.
+
+```{r}
+#| label: run-batch
+res_TT_batch <- analyze_hormone(
+  pb_TT$counts, pb_TT$metadata,
+  hormone               = "TT",
+  min_samples           = 10,
+  count_threshold       = 2,
+  gene_sample_threshold = 3,
+  model                 = run_voom_lm_batch
+)
+
+summary_TT_batch <- summarize_sig_genes(res_TT_batch$combined_results)
+
+plot_top_genes_from_subsets(
+  res_TT_batch$by_group_data,
+  output_dir = file.path(out_base, "run_voom_lm_batch"),
+  hormone    = "TT"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_TT_batch, "TT — Base + Batch (~ TT + batch1_frac) | Class"),
+  output_dir    = file.path(out_base, "run_voom_lm_batch"),
+  filename_base = "TT_batch_sig_gene_summary"
+)
+
+write_csv(res_TT_batch$combined_results,
+          file.path(out_base, "run_voom_lm_batch", "TT_batch_results.csv"))
+write_csv(summary_TT_batch,
+          file.path(out_base, "run_voom_lm_batch", "TT_batch_summary.csv"))
+```
+
+::: panel-tabset
+### Significant Genes
+
+```{r}
+#| label: batch-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_TT_batch, "TT — Base + Batch (~ TT + batch1_frac) | Class")
+```
+
+### Top Results
+
+```{r}
+#| label: batch-top-table
+res_TT_batch$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — Base + Batch model")
+```
+:::
+
+## Base + GW + Batch
+
+`~ TT + GW + batch1_frac` — gestational week and batch1 fraction as simultaneous additive covariates.
+
+```{r}
+#| label: run-gw-batch
+res_TT_gw_batch <- analyze_hormone(
+  pb_TT$counts, pb_TT$metadata,
+  hormone               = "TT",
+  min_samples           = 10,
+  count_threshold       = 2,
+  gene_sample_threshold = 3,
+  model                 = run_voom_lm_gw_batch
+)
+
+summary_TT_gw_batch <- summarize_sig_genes(res_TT_gw_batch$combined_results)
+
+plot_top_genes_from_subsets(
+  res_TT_gw_batch$by_group_data,
+  output_dir = file.path(out_base, "run_voom_lm_gw_batch"),
+  hormone    = "TT"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_TT_gw_batch,
+                        "TT — Base + GW + Batch (~ TT + GW + batch1_frac) | Class"),
+  output_dir    = file.path(out_base, "run_voom_lm_gw_batch"),
+  filename_base = "TT_gw_batch_sig_gene_summary"
+)
+
+write_csv(res_TT_gw_batch$combined_results,
+          file.path(out_base, "run_voom_lm_gw_batch", "TT_gw_batch_results.csv"))
+write_csv(summary_TT_gw_batch,
+          file.path(out_base, "run_voom_lm_gw_batch", "TT_gw_batch_summary.csv"))
+```
+
+::: panel-tabset
+### Significant Genes
+
+```{r}
+#| label: gw-batch-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_TT_gw_batch,
+                      "TT — Base + GW + Batch (~ TT + GW + batch1_frac) | Class")
+```
+
+### Top Results
+
+```{r}
+#| label: gw-batch-top-table
+res_TT_gw_batch$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — Base + GW + Batch model")
+```
+:::
+
+## Summary
+
+```{r}
+#| label: cross-model-summary
+cross_model_TT <- dplyr::bind_rows(
+  summarize_sig_genes(res_TT_base$combined_results)     %>%
+    dplyr::mutate(model = "~ TT"),
+  summarize_sig_genes(res_TT_gw$combined_results)       %>%
+    dplyr::mutate(model = "~ TT + GW"),
+  summarize_sig_genes(res_TT_batch$combined_results)    %>%
+    dplyr::mutate(model = "~ TT + batch1_frac"),
+  summarize_sig_genes(res_TT_gw_batch$combined_results) %>%
+    dplyr::mutate(model = "~ TT + GW + batch1_frac")
+)
+
+knitr::kable(
+  cross_model_TT %>%
+    dplyr::select(model, cell_type, sex, num_sig_genes) %>%
+    dplyr::arrange(model, desc(num_sig_genes)),
+  caption = "Significant genes (FDR < 0.10, |logFC| ≥ 0.25) per model"
+)
+```
+
+```{r}
+#| label: cross-model-totals
+cross_model_TT %>%
+  dplyr::group_by(model) %>%
+  dplyr::summarise(total_sig_genes = sum(num_sig_genes), .groups = "drop") %>%
+  knitr::kable(caption = "Total significant genes per model")
+```
+
+## Analysis UMAP
+
+Cells included in the testosterone analysis: from (class × XY) groups that passed all thresholds. XY cells from included groups are colored by class; all XX cells and cells from excluded classes are shown in grey.
+
+```{r}
+#| label: tt-analysis-umap
+#| fig-width: 10
+#| fig-height: 8
+plot_analysis_umap(
+  seurat_obj    = SSD_data,
+  by_group_data = res_TT_base$by_group_data,
+  title         = "Testosterone Analysis — Included Cells (XY) | Class",
+  celltype_col  = celltype_col,
+  sex_separate  = TRUE,
+  output_dir    = out_base,
+  filename_base = "TT_analysis_umap"
+)
+```

@@ -1,0 +1,238 @@
+---
+title: "Hormone Receptor Gene Expression"
+subtitle: "Sneha Chaturvedi, Emma Jones"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    embed-resources: true
+    chalkboard: true
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Goals
+
+Examine expression of gonadal hormone receptor genes across cell types in the
+fetal brain snRNA-seq dataset.
+
+**Receptors examined:**
+
+::: incremental
+- **Nuclear receptors:** AR, ESR1, ESR2, PGR
+- **Gonadotropin receptors:** FSHR, LHCGR, GNRHR
+- **Prostaglandin E receptors:** PTGER1–4
+- **Thyroid hormone receptors:** THRA, THRB
+- **Membrane progesterone receptors:** PAQR5, PAQR7, PAQR8, PGRMC1, PGRMC2
+:::
+
+## Set Up
+
+```{r}
+#| label: load-packages
+Packages <- c(
+  "tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot",
+  "edgeR", "limma", "patchwork", "svglite", "Matrix", "viridis"
+)
+lapply(Packages, library, character.only = TRUE)
+
+set.seed(123)
+```
+
+```{r}
+#| label: load-data
+SSD_data <- readRDS("../../data/cache/receptor_expr_object.rds")
+DefaultAssay(SSD_data) <- "RNA"
+Idents(SSD_data)       <- "celltype"
+```
+
+```{r}
+#| label: receptor-genes
+receptor_genes <- c(
+  "ESR1", "ESR2", "PGR", "AR",
+  "FSHR", "LHCGR", "GNRHR",
+  "PTGER1", "PTGER2", "PTGER3", "PTGER4",
+  "THRA", "THRB",
+  "PAQR7", "PAQR8", "PAQR5", "PGRMC1", "PGRMC2"
+)
+
+# Confirm which genes are present in the assay
+cat("Receptor genes in assay:",
+    sum(receptor_genes %in% rownames(SSD_data)), "/", length(receptor_genes), "\n")
+cat("Missing:", setdiff(receptor_genes, rownames(SSD_data)), "\n")
+```
+
+## Cell Type UMAP
+
+```{r}
+#| label: dimplot
+#| fig-width: 10
+#| fig-height: 7
+DimPlot(SSD_data, group.by = "celltype", label = TRUE, repel = TRUE) +
+  theme(legend.position = "right")
+```
+
+## VlnPlots — Key Nuclear Receptors
+
+::: panel-tabset
+### AR
+
+```{r}
+#| label: vln-ar
+#| fig-width: 12
+#| fig-height: 5
+VlnPlot(SSD_data, features = "AR", group.by = "celltype", pt.size = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+```
+
+### ESR1
+
+```{r}
+#| label: vln-esr1
+#| fig-width: 12
+#| fig-height: 5
+VlnPlot(SSD_data, features = "ESR1", group.by = "celltype", pt.size = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+```
+
+### ESR2
+
+```{r}
+#| label: vln-esr2
+#| fig-width: 12
+#| fig-height: 5
+VlnPlot(SSD_data, features = "ESR2", group.by = "celltype", pt.size = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+```
+
+### PGR
+
+```{r}
+#| label: vln-pgr
+#| fig-width: 12
+#| fig-height: 5
+VlnPlot(SSD_data, features = "PGR", group.by = "celltype", pt.size = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "none")
+```
+:::
+
+## FeaturePlots — Key Nuclear Receptors
+
+::: panel-tabset
+### AR
+
+```{r}
+#| label: feat-ar
+#| fig-width: 8
+#| fig-height: 6
+FeaturePlot(SSD_data, features = "AR",
+            cols = c("lightgrey", "#440154FF"), alpha = 0.7)
+```
+
+### ESR1
+
+```{r}
+#| label: feat-esr1
+#| fig-width: 8
+#| fig-height: 6
+FeaturePlot(SSD_data, features = "ESR1",
+            cols = c("lightgrey", "#440154FF"), alpha = 0.7)
+```
+
+### ESR2
+
+```{r}
+#| label: feat-esr2
+#| fig-width: 8
+#| fig-height: 6
+FeaturePlot(SSD_data, features = "ESR2",
+            cols = c("lightgrey", "#440154FF"), alpha = 0.7)
+```
+
+### PGR
+
+```{r}
+#| label: feat-pgr
+#| fig-width: 8
+#| fig-height: 6
+FeaturePlot(SSD_data, features = "PGR",
+            cols = c("lightgrey", "#440154FF"), alpha = 0.7)
+```
+
+### All Receptors
+
+```{r}
+#| label: feat-all
+#| fig-width: 20
+#| fig-height: 10
+FeaturePlot(SSD_data, features = receptor_genes,
+            cols = c("lightgrey", "#440154FF"), alpha = 0.7,
+            ncol = 6)
+```
+:::
+
+## ESR2 Expression by Cell Type
+
+Percentage of ESR2-expressing cells per cell type at three expression
+thresholds (applied to the log-normalized RNA data layer).
+
+```{r}
+#| label: esr2-pct
+#| fig-width: 12
+#| fig-height: 8
+esr2_expr <- as.numeric(
+  GetAssayData(SSD_data, assay = "RNA", layer = "data")["ESR2", ]
+)
+SSD_data$esr2_expr <- esr2_expr
+
+esr2_pct <- SSD_data@meta.data %>%
+  dplyr::group_by(celltype) %>%
+  dplyr::summarise(
+    `Any (> 0)`    = mean(esr2_expr > 0)   * 100,
+    `Medium (> 1)` = mean(esr2_expr > 1)   * 100,
+    `High (> 1.5)` = mean(esr2_expr > 1.5) * 100,
+    .groups = "drop"
+  ) %>%
+  tidyr::pivot_longer(cols = -celltype,
+                      names_to = "threshold", values_to = "pct") %>%
+  dplyr::mutate(threshold = factor(threshold,
+                                   levels = c("Any (> 0)", "Medium (> 1)", "High (> 1.5)")))
+
+ggplot(esr2_pct, aes(x = celltype, y = pct, fill = pct)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ threshold, ncol = 1, scales = "free_y") +
+  scale_fill_viridis_c() +
+  theme_minimal(base_size = 12) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "right") +
+  labs(x = "Cell Type", y = "% ESR2-expressing cells",
+       fill = "% ESR2+",
+       title = "ESR2 Expression by Cell Type")
+```
+
+## Save Plots
+
+```{r}
+#| label: save-plots
+dir.create("../../results/targeted/single_cell_plots", showWarnings = FALSE, recursive = TRUE)
+
+# All-receptor UMAP panel
+FeaturePlot(SSD_data, features = receptor_genes,
+            cols = c("lightgrey", "#440154FF"), alpha = 0.7, ncol = 6)
+ggsave("../../results/targeted/single_cell_plots/hormone_receptors_umap.png",
+       width = 20, height = 10, dpi = 300)
+
+# ESR2 percentage plot
+last_plot()
+```

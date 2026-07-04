@@ -1,0 +1,9 @@
+CellType,min_cells,n_samples_absent,absent_in
+Oligodendrocyte,0,35,SSD01_tissue1; SSD02_tissue2; SSD03_tissue3; SSD06_tissue6; SSD07_tissue7; SSD08_tissue8; SSD11_tissue11; SSD12_tissue12; SSD15_tissue15; SSD17_tissue17; SSD19_tissue19; SSD20_tissue20; SSD21_tissue21; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD25_tissue25; SSD26_tissue26; SSD27_tissue27; SSD30_tissue30; SSD31_tissue31; SSD32_tissue32; SSD33_tissue33; SSD35_tissue35; SSD36_tissue36; SSD37_tissue37; SSD38_tissue38; SSD39_tissue39; SSD40_tissue40; SSD41_tissue41; SSD43_tissue43; SSD44_tissue44; SSD46_tissue46; SSD47_tissue47; SSD48_tissue48
+Vascular,0,7,SSD08_tissue8; SSD11_tissue11; SSD15_tissue15; SSD26_tissue26; SSD40_tissue40; SSD41_tissue41; SSD48_tissue48
+IPC-EN,0,5,SSD03_tissue3; SSD07_tissue7; SSD11_tissue11; SSD21_tissue21; SSD41_tissue41
+Cajal-Retzius cell,0,4,SSD38_tissue38; SSD41_tissue41; SSD48_tissue48; SSD50_tissue50
+IPC-Glia,0,4,SSD02_tissue2; SSD33_tissue33; SSD46_tissue46; SSD48_tissue48
+Microglia,0,4,SSD11_tissue11; SSD15_tissue15; SSD21_tissue21; SSD44_tissue44
+Radial glia,0,2,SSD11_tissue11; SSD21_tissue21
+EN-DL,0,1,SSD48_tissue48

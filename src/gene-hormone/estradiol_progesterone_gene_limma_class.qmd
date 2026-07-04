@@ -1,0 +1,734 @@
+---
+title: "Estradiol & Progesterone Gene Expression Prediction — Class"
+subtitle: "Sneha Chaturvedi, Emma Jones"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    embed-resources: true
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Goals
+
+Identify genes whose pseudobulk expression is predicted by estradiol (E2) and progesterone (P4) concentration, by **class**. Both hormones are analyzed **sex-combined**: XX and XY samples are pooled, with Sex optionally included as an additive covariate.
+
+**Four models tested per hormone:**
+
+::: incremental
+-   **Base** — `~ hormone`
+-   **Base + Sex** — `~ hormone + Sex`
+-   **Base + Batch** — `~ hormone + batch1_frac`
+-   **Base + Sex + Batch** — `~ hormone + Sex + batch1_frac`
+:::
+
+All four models use `analyze_hormone_combined()`. The **sex guard** — dropping groups where fewer than 2 sexes are present after hormone filtering — applies to every model.
+
+**Gene filter:** manual rowSums — genes with ≥ 2 counts in ≥ 3 samples per class.\
+**Sample threshold:** `floor(n_group / 2)` non-zero hormone samples required per class.
+
+## Set Up
+
+-   Load packages
+
+    ```{r}
+    #| label: load-packages
+    #| output: false
+    Packages <- c(
+      "tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot",
+      "edgeR", "limma", "patchwork", "svglite", "Matrix", "ggpubr"
+    )
+    lapply(Packages, library, character.only = TRUE)
+
+    source("pseudobulk_functions.R")
+
+    set.seed(123)
+    ```
+
+-   Load data
+
+    ```{r}
+    #| label: load-data
+    SSD_data <- readRDS("../../data/cache/SSD_meta_umap.rds")
+    pb_base  <- readRDS("../../data/cache/pb_base_class.rds")
+    targeted_comparison_raw <- read_xlsx("../../doc/targeted/targeted_hormones.xlsx")
+    targeted_comparison_raw$E2 <- targeted_comparison_raw$`17B-E2 (ng/mL)`
+    targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
+    targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
+    ```
+
+-   Configuration
+
+    ```{r}
+    #| label: config
+    celltype_col      <- "class"
+    sample_col        <- "Sample"
+    pb_sample_pattern <- "tissue\\d+"
+
+    out_e2 <- "../../results/gene-hormone/estradiol_genes_class"
+    out_p4 <- "../../results/gene-hormone/progesterone_genes_class"
+
+    for (sub in c("run_voom_lm", "run_voom_lm_sex",
+                  "run_voom_lm_batch", "run_voom_lm_sex_batch")) {
+      dir.create(file.path(out_e2, sub), recursive = TRUE, showWarnings = FALSE)
+      dir.create(file.path(out_p4, sub), recursive = TRUE, showWarnings = FALSE)
+    }
+    ```
+
+## Outlier Removal
+
+Samples with hormone \> Q3 + 1.5 × IQR are excluded per hormone before pseudobulk construction.
+
+```{r}
+#| label: outlier-removal
+detect_outliers <- function(data, variable) {
+  outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) +
+    1.5 * IQR(data[[variable]], na.rm = TRUE)
+  data %>% dplyr::filter(.data[[variable]] <= outlier_limit)
+}
+
+targeted_comparison_filtered_E2 <- detect_outliers(targeted_comparison_raw, "E2")
+targeted_comparison_filtered_P4 <- detect_outliers(targeted_comparison_raw, "P4")
+
+cat(
+  "E2 — before:", nrow(targeted_comparison_raw),
+  "  after:", nrow(targeted_comparison_filtered_E2), "\n"
+)
+cat(
+  "P4 — before:", nrow(targeted_comparison_raw),
+  "  after:", nrow(targeted_comparison_filtered_P4), "\n"
+)
+cat("E2 range after filtering:      ",
+    paste(round(range(targeted_comparison_filtered_E2$E2, na.rm = TRUE), 3),
+          collapse = " – "), "ng/mL\n")
+cat("P4 range after filtering:      ",
+    paste(round(range(targeted_comparison_filtered_P4$P4, na.rm = TRUE), 3),
+          collapse = " – "), "ng/mL\n")
+
+outliers_E2 <- dplyr::anti_join(targeted_comparison_raw,
+                                targeted_comparison_filtered_E2, by = "Sample")
+outliers_P4 <- dplyr::anti_join(targeted_comparison_raw,
+                                targeted_comparison_filtered_P4, by = "Sample")
+
+cat("E2 outliers removed:",
+    if (nrow(outliers_E2)) paste(outliers_E2$Sample, collapse = ", ") else "none", "\n")
+cat("P4 outliers removed:",
+    if (nrow(outliers_P4)) paste(outliers_P4$Sample, collapse = ", ") else "none", "\n")
+```
+
+## Pseudobulk
+
+Min 30 cells per (sample × class) for inclusion. `add_batch_fraction()` computes the fraction of batch1 cells per biological sample and joins it onto the pseudobulk metadata for each hormone.
+
+```{r}
+#| label: build-pseudobulk
+pb_E2 <- merge_hormone_metadata(
+  pb_base, targeted_comparison_filtered_E2,
+  pb_sample_pattern = pb_sample_pattern, min_cells = 30
+) %>% add_batch_fraction(SSD_data)
+
+pb_P4 <- merge_hormone_metadata(
+  pb_base, targeted_comparison_filtered_P4,
+  pb_sample_pattern = pb_sample_pattern, min_cells = 30
+) %>% add_batch_fraction(SSD_data)
+
+cat(
+  "E2 pseudobulk samples:", nrow(pb_E2$metadata),
+  "  NAs in batch1_frac:", sum(is.na(pb_E2$metadata$batch1_frac)), "\n"
+)
+cat("E2 batch1_frac summary:\n")
+print(summary(pb_E2$metadata$batch1_frac))
+cat(
+  "P4 pseudobulk samples:", nrow(pb_P4$metadata),
+  "  NAs in batch1_frac:", sum(is.na(pb_P4$metadata$batch1_frac)), "\n"
+)
+cat("P4 batch1_frac summary:\n")
+print(summary(pb_P4$metadata$batch1_frac))
+```
+
+## Models
+
+| Model | Formula | Notes |
+|---|---|---|
+| Base | `~ hormone` | Combined-sample estimate; no adjustment |
+| Base + Sex | `~ hormone + Sex` | Controls for sex-linked expression differences |
+| Base + Batch | `~ hormone + batch1_frac` | Batch1 fraction per sample (continuous); absorbs residual batch composition differences |
+| Base + Sex + Batch | `~ hormone + Sex + batch1_frac` | Both adjustments |
+
+## Estradiol
+
+### Base
+
+`~ E2` — sex-combined, no covariates.
+
+```{r}
+#| label: e2-base-run
+res_E2_base <- analyze_hormone_combined(
+  pb_E2$counts, pb_E2$metadata,
+  hormone = "E2", model = run_voom_lm, min_samples = 21
+)
+
+summary_E2_base <- summarize_sig_genes(res_E2_base$combined_results)
+
+plot_top_genes_from_subsets(
+  res_E2_base$by_group_data,
+  output_dir = file.path(out_e2, "run_voom_lm"),
+  hormone    = "E2"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_E2_base, "E2 — Base (~ E2) | Class"),
+  output_dir    = file.path(out_e2, "run_voom_lm"),
+  filename_base = "E2_base_sig_gene_summary"
+)
+
+write_csv(
+  res_E2_base$combined_results,
+  file.path(out_e2, "run_voom_lm", "E2_base_results.csv")
+)
+write_csv(
+  summary_E2_base,
+  file.path(out_e2, "run_voom_lm", "E2_base_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: e2-base-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_E2_base, "E2 — Base (~ E2) | Class")
+```
+
+#### Top Results
+
+```{r}
+#| label: e2-base-top-table
+res_E2_base$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — E2 Base")
+```
+:::
+
+### Base + Sex
+
+`~ E2 + Sex`
+
+```{r}
+#| label: e2-sex-run
+res_E2_sex <- analyze_hormone_combined(
+  pb_E2$counts, pb_E2$metadata,
+  hormone = "E2", model = run_voom_lm_sex, min_samples = 21
+)
+
+summary_E2_sex <- summarize_sig_genes(res_E2_sex$combined_results)
+
+plot_top_genes_from_subsets(
+  res_E2_sex$by_group_data,
+  output_dir = file.path(out_e2, "run_voom_lm_sex"),
+  hormone    = "E2"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_E2_sex, "E2 — Base + Sex (~ E2 + Sex) | Class"),
+  output_dir    = file.path(out_e2, "run_voom_lm_sex"),
+  filename_base = "E2_sex_sig_gene_summary"
+)
+
+write_csv(
+  res_E2_sex$combined_results,
+  file.path(out_e2, "run_voom_lm_sex", "E2_sex_results.csv")
+)
+write_csv(
+  summary_E2_sex,
+  file.path(out_e2, "run_voom_lm_sex", "E2_sex_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: e2-sex-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_E2_sex, "E2 — Base + Sex (~ E2 + Sex) | Class")
+```
+
+#### Top Results
+
+```{r}
+#| label: e2-sex-top-table
+res_E2_sex$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — E2 Base + Sex")
+```
+:::
+
+### Base + Batch
+
+`~ E2 + batch1_frac`
+
+```{r}
+#| label: e2-batch-run
+res_E2_batch <- analyze_hormone_combined(
+  pb_E2$counts, pb_E2$metadata,
+  hormone = "E2", model = run_voom_lm_batch, min_samples = 21
+)
+
+summary_E2_batch <- summarize_sig_genes(res_E2_batch$combined_results)
+
+plot_top_genes_from_subsets(
+  res_E2_batch$by_group_data,
+  output_dir = file.path(out_e2, "run_voom_lm_batch"),
+  hormone    = "E2"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_E2_batch, "E2 — Base + Batch (~ E2 + batch1_frac) | Class"),
+  output_dir    = file.path(out_e2, "run_voom_lm_batch"),
+  filename_base = "E2_batch_sig_gene_summary"
+)
+
+write_csv(
+  res_E2_batch$combined_results,
+  file.path(out_e2, "run_voom_lm_batch", "E2_batch_results.csv")
+)
+write_csv(
+  summary_E2_batch,
+  file.path(out_e2, "run_voom_lm_batch", "E2_batch_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: e2-batch-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_E2_batch, "E2 — Base + Batch (~ E2 + batch1_frac) | Class")
+```
+
+#### Top Results
+
+```{r}
+#| label: e2-batch-top-table
+res_E2_batch$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — E2 Base + Batch")
+```
+:::
+
+### Base + Sex + Batch
+
+`~ E2 + Sex + batch1_frac`
+
+```{r}
+#| label: e2-sex-batch-run
+res_E2_sex_batch <- analyze_hormone_combined(
+  pb_E2$counts, pb_E2$metadata,
+  hormone = "E2", model = run_voom_lm_sex_batch, min_samples = 21
+)
+
+summary_E2_sex_batch <- summarize_sig_genes(res_E2_sex_batch$combined_results)
+
+plot_top_genes_from_subsets(
+  res_E2_sex_batch$by_group_data,
+  output_dir = file.path(out_e2, "run_voom_lm_sex_batch"),
+  hormone    = "E2"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(
+    summary_E2_sex_batch,
+    "E2 — Base + Sex + Batch (~ E2 + Sex + batch1_frac) | Class"
+  ),
+  output_dir    = file.path(out_e2, "run_voom_lm_sex_batch"),
+  filename_base = "E2_sex_batch_sig_gene_summary"
+)
+
+write_csv(
+  res_E2_sex_batch$combined_results,
+  file.path(out_e2, "run_voom_lm_sex_batch", "E2_sex_batch_results.csv")
+)
+write_csv(
+  summary_E2_sex_batch,
+  file.path(out_e2, "run_voom_lm_sex_batch", "E2_sex_batch_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: e2-sex-batch-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(
+  summary_E2_sex_batch,
+  "E2 — Base + Sex + Batch (~ E2 + Sex + batch1_frac) | Class"
+)
+```
+
+#### Top Results
+
+```{r}
+#| label: e2-sex-batch-top-table
+res_E2_sex_batch$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — E2 Base + Sex + Batch")
+```
+:::
+
+## Progesterone
+
+### Base
+
+`~ P4` — sex-combined, no covariates.
+
+```{r}
+#| label: p4-base-run
+res_P4_base <- analyze_hormone_combined(
+  pb_P4$counts, pb_P4$metadata,
+  hormone = "P4", model = run_voom_lm, min_samples = 21
+)
+
+summary_P4_base <- summarize_sig_genes(res_P4_base$combined_results)
+
+plot_top_genes_from_subsets(
+  res_P4_base$by_group_data,
+  output_dir = file.path(out_p4, "run_voom_lm"),
+  hormone    = "P4"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_P4_base, "P4 — Base (~ P4) | Class"),
+  output_dir    = file.path(out_p4, "run_voom_lm"),
+  filename_base = "P4_base_sig_gene_summary"
+)
+
+write_csv(
+  res_P4_base$combined_results,
+  file.path(out_p4, "run_voom_lm", "P4_base_results.csv")
+)
+write_csv(
+  summary_P4_base,
+  file.path(out_p4, "run_voom_lm", "P4_base_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: p4-base-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_P4_base, "P4 — Base (~ P4) | Class")
+```
+
+#### Top Results
+
+```{r}
+#| label: p4-base-top-table
+res_P4_base$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — P4 Base")
+```
+:::
+
+### Base + Sex
+
+`~ P4 + Sex`
+
+```{r}
+#| label: p4-sex-run
+res_P4_sex <- analyze_hormone_combined(
+  pb_P4$counts, pb_P4$metadata,
+  hormone = "P4", model = run_voom_lm_sex, min_samples = 21
+)
+
+summary_P4_sex <- summarize_sig_genes(res_P4_sex$combined_results)
+
+plot_top_genes_from_subsets(
+  res_P4_sex$by_group_data,
+  output_dir = file.path(out_p4, "run_voom_lm_sex"),
+  hormone    = "P4"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_P4_sex, "P4 — Base + Sex (~ P4 + Sex) | Class"),
+  output_dir    = file.path(out_p4, "run_voom_lm_sex"),
+  filename_base = "P4_sex_sig_gene_summary"
+)
+
+write_csv(
+  res_P4_sex$combined_results,
+  file.path(out_p4, "run_voom_lm_sex", "P4_sex_results.csv")
+)
+write_csv(
+  summary_P4_sex,
+  file.path(out_p4, "run_voom_lm_sex", "P4_sex_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: p4-sex-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_P4_sex, "P4 — Base + Sex (~ P4 + Sex) | Class")
+```
+
+#### Top Results
+
+```{r}
+#| label: p4-sex-top-table
+res_P4_sex$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — P4 Base + Sex")
+```
+:::
+
+### Base + Batch
+
+`~ P4 + batch1_frac`
+
+```{r}
+#| label: p4-batch-run
+res_P4_batch <- analyze_hormone_combined(
+  pb_P4$counts, pb_P4$metadata,
+  hormone = "P4", model = run_voom_lm_batch, min_samples = 21
+)
+
+summary_P4_batch <- summarize_sig_genes(res_P4_batch$combined_results)
+
+plot_top_genes_from_subsets(
+  res_P4_batch$by_group_data,
+  output_dir = file.path(out_p4, "run_voom_lm_batch"),
+  hormone    = "P4"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(summary_P4_batch, "P4 — Base + Batch (~ P4 + batch1_frac) | Class"),
+  output_dir    = file.path(out_p4, "run_voom_lm_batch"),
+  filename_base = "P4_batch_sig_gene_summary"
+)
+
+write_csv(
+  res_P4_batch$combined_results,
+  file.path(out_p4, "run_voom_lm_batch", "P4_batch_results.csv")
+)
+write_csv(
+  summary_P4_batch,
+  file.path(out_p4, "run_voom_lm_batch", "P4_batch_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: p4-batch-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(summary_P4_batch, "P4 — Base + Batch (~ P4 + batch1_frac) | Class")
+```
+
+#### Top Results
+
+```{r}
+#| label: p4-batch-top-table
+res_P4_batch$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — P4 Base + Batch")
+```
+:::
+
+### Base + Sex + Batch
+
+`~ P4 + Sex + batch1_frac`
+
+```{r}
+#| label: p4-sex-batch-run
+res_P4_sex_batch <- analyze_hormone_combined(
+  pb_P4$counts, pb_P4$metadata,
+  hormone = "P4", model = run_voom_lm_sex_batch, min_samples = 21
+)
+
+summary_P4_sex_batch <- summarize_sig_genes(res_P4_sex_batch$combined_results)
+
+plot_top_genes_from_subsets(
+  res_P4_sex_batch$by_group_data,
+  output_dir = file.path(out_p4, "run_voom_lm_sex_batch"),
+  hormone    = "P4"
+)
+
+save_dual_format(
+  plot_sig_gene_summary(
+    summary_P4_sex_batch,
+    "P4 — Base + Sex + Batch (~ P4 + Sex + batch1_frac) | Class"
+  ),
+  output_dir    = file.path(out_p4, "run_voom_lm_sex_batch"),
+  filename_base = "P4_sex_batch_sig_gene_summary"
+)
+
+write_csv(
+  res_P4_sex_batch$combined_results,
+  file.path(out_p4, "run_voom_lm_sex_batch", "P4_sex_batch_results.csv")
+)
+write_csv(
+  summary_P4_sex_batch,
+  file.path(out_p4, "run_voom_lm_sex_batch", "P4_sex_batch_summary.csv")
+)
+```
+
+::: panel-tabset
+#### Significant Genes
+
+```{r}
+#| label: p4-sex-batch-sig-plot
+#| fig-width: 10
+#| fig-height: 5
+plot_sig_gene_summary(
+  summary_P4_sex_batch,
+  "P4 — Base + Sex + Batch (~ P4 + Sex + batch1_frac) | Class"
+)
+```
+
+#### Top Results
+
+```{r}
+#| label: p4-sex-batch-top-table
+res_P4_sex_batch$combined_results %>%
+  dplyr::arrange(adj.P.Val) %>%
+  dplyr::select(gene, cell_type, sex, logFC, adj.P.Val) %>%
+  head(10) %>%
+  knitr::kable(digits = 4, caption = "Top 10 hits — P4 Base + Sex + Batch")
+```
+:::
+
+## Summary
+
+```{r}
+#| label: e2-cross-model-summary
+cross_model_E2 <- dplyr::bind_rows(
+  summarize_sig_genes(res_E2_base$combined_results) %>%
+    dplyr::mutate(model = "~ E2"),
+  summarize_sig_genes(res_E2_sex$combined_results) %>%
+    dplyr::mutate(model = "~ E2 + Sex"),
+  summarize_sig_genes(res_E2_batch$combined_results) %>%
+    dplyr::mutate(model = "~ E2 + batch1_frac"),
+  summarize_sig_genes(res_E2_sex_batch$combined_results) %>%
+    dplyr::mutate(model = "~ E2 + Sex + batch1_frac")
+)
+
+knitr::kable(
+  cross_model_E2 %>%
+    dplyr::select(model, cell_type, num_sig_genes) %>%
+    dplyr::arrange(model, desc(num_sig_genes)),
+  caption = "E2: significant genes (FDR < 0.10, |logFC| ≥ 0.25) per model"
+)
+```
+
+```{r}
+#| label: p4-cross-model-summary
+cross_model_P4 <- dplyr::bind_rows(
+  summarize_sig_genes(res_P4_base$combined_results) %>%
+    dplyr::mutate(model = "~ P4"),
+  summarize_sig_genes(res_P4_sex$combined_results) %>%
+    dplyr::mutate(model = "~ P4 + Sex"),
+  summarize_sig_genes(res_P4_batch$combined_results) %>%
+    dplyr::mutate(model = "~ P4 + batch1_frac"),
+  summarize_sig_genes(res_P4_sex_batch$combined_results) %>%
+    dplyr::mutate(model = "~ P4 + Sex + batch1_frac")
+)
+
+knitr::kable(
+  cross_model_P4 %>%
+    dplyr::select(model, cell_type, num_sig_genes) %>%
+    dplyr::arrange(model, desc(num_sig_genes)),
+  caption = "P4: significant genes (FDR < 0.10, |logFC| ≥ 0.25) per model"
+)
+```
+
+```{r}
+#| label: combined-totals
+dplyr::bind_rows(
+  cross_model_E2 %>%
+    dplyr::group_by(model) %>%
+    dplyr::summarise(total_sig_genes = sum(num_sig_genes), .groups = "drop") %>%
+    dplyr::mutate(hormone = "E2"),
+  cross_model_P4 %>%
+    dplyr::group_by(model) %>%
+    dplyr::summarise(total_sig_genes = sum(num_sig_genes), .groups = "drop") %>%
+    dplyr::mutate(hormone = "P4")
+) %>%
+  dplyr::select(hormone, model, total_sig_genes) %>%
+  knitr::kable(caption = "Total significant genes per hormone and model")
+```
+
+## E2 Analysis UMAP
+
+Cells included in the estradiol analysis: from class groups that passed all thresholds (outlier removal, ≥ 30 cells per pseudobulk sample, gene filter, non-zero E2 sample threshold, and sex guard requiring both sexes present). All four E2 models operate on identical groups. Cells are colored by class.
+
+```{r}
+#| label: e2-analysis-umap
+#| fig-width: 10
+#| fig-height: 8
+plot_analysis_umap(
+  seurat_obj    = SSD_data,
+  by_group_data = res_E2_base$by_group_data,
+  title         = "Estradiol Analysis — Included Cells | Class",
+  celltype_col  = celltype_col,
+  sex_separate  = FALSE,
+  output_dir    = out_e2,
+  filename_base = "E2_analysis_umap"
+)
+```
+
+## P4 Analysis UMAP
+
+Cells included in the progesterone analysis: from class groups that passed all thresholds. Outlier removal for P4 is independent of E2, so the included sample set may differ between hormones. Cells are colored by class.
+
+```{r}
+#| label: p4-analysis-umap
+#| fig-width: 10
+#| fig-height: 8
+plot_analysis_umap(
+  seurat_obj    = SSD_data,
+  by_group_data = res_P4_base$by_group_data,
+  title         = "Progesterone Analysis — Included Cells | Class",
+  celltype_col  = celltype_col,
+  sex_separate  = FALSE,
+  output_dir    = out_p4,
+  filename_base = "P4_analysis_umap"
+)
+```

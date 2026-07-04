@@ -1,0 +1,26 @@
+CellType,min_cells,n_samples_absent,absent_in
+EN-L2_3-IT,0,38,SSD01_tissue1; SSD02_tissue2; SSD03_tissue3; SSD06_tissue6; SSD07_tissue7; SSD08_tissue8; SSD09_tissue9; SSD10_tissue10; SSD11_tissue11; SSD15_tissue15; SSD17_tissue17; SSD18_tissue18; SSD19_tissue19; SSD21_tissue21; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD25_tissue25; SSD26_tissue26; SSD27_tissue27; SSD31_tissue31; SSD32_tissue32; SSD33_tissue33; SSD34_tissue34; SSD35_tissue35; SSD37_tissue37; SSD38_tissue38; SSD39_tissue39; SSD40_tissue40; SSD41_tissue41; SSD42_tissue42; SSD44_tissue44; SSD45_tissue45; SSD46_tissue46; SSD47_tissue47; SSD48_tissue48; SSD49_tissue49; SSD50_tissue50
+EN-L5-ET,0,38,SSD01_tissue1; SSD02_tissue2; SSD03_tissue3; SSD06_tissue6; SSD08_tissue8; SSD09_tissue9; SSD10_tissue10; SSD11_tissue11; SSD12_tissue12; SSD15_tissue15; SSD17_tissue17; SSD18_tissue18; SSD19_tissue19; SSD20_tissue20; SSD21_tissue21; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD25_tissue25; SSD26_tissue26; SSD27_tissue27; SSD30_tissue30; SSD32_tissue32; SSD33_tissue33; SSD34_tissue34; SSD35_tissue35; SSD36_tissue36; SSD37_tissue37; SSD38_tissue38; SSD39_tissue39; SSD41_tissue41; SSD42_tissue42; SSD43_tissue43; SSD45_tissue45; SSD46_tissue46; SSD47_tissue47; SSD48_tissue48; SSD50_tissue50
+IN-Mix-LAMP5,0,38,SSD01_tissue1; SSD02_tissue2; SSD03_tissue3; SSD06_tissue6; SSD08_tissue8; SSD09_tissue9; SSD10_tissue10; SSD11_tissue11; SSD12_tissue12; SSD15_tissue15; SSD19_tissue19; SSD20_tissue20; SSD21_tissue21; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD25_tissue25; SSD26_tissue26; SSD27_tissue27; SSD30_tissue30; SSD33_tissue33; SSD34_tissue34; SSD35_tissue35; SSD36_tissue36; SSD37_tissue37; SSD38_tissue38; SSD39_tissue39; SSD40_tissue40; SSD41_tissue41; SSD42_tissue42; SSD43_tissue43; SSD44_tissue44; SSD45_tissue45; SSD46_tissue46; SSD47_tissue47; SSD48_tissue48; SSD49_tissue49; SSD50_tissue50
+Oligodendrocyte-Immature,0,35,SSD01_tissue1; SSD02_tissue2; SSD03_tissue3; SSD06_tissue6; SSD07_tissue7; SSD08_tissue8; SSD11_tissue11; SSD12_tissue12; SSD15_tissue15; SSD17_tissue17; SSD19_tissue19; SSD20_tissue20; SSD21_tissue21; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD25_tissue25; SSD26_tissue26; SSD27_tissue27; SSD30_tissue30; SSD31_tissue31; SSD32_tissue32; SSD33_tissue33; SSD35_tissue35; SSD36_tissue36; SSD37_tissue37; SSD38_tissue38; SSD39_tissue39; SSD40_tissue40; SSD41_tissue41; SSD43_tissue43; SSD44_tissue44; SSD46_tissue46; SSD47_tissue47; SSD48_tissue48
+EN-L5-IT,0,29,SSD02_tissue2; SSD07_tissue7; SSD08_tissue8; SSD09_tissue9; SSD10_tissue10; SSD11_tissue11; SSD15_tissue15; SSD18_tissue18; SSD19_tissue19; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD26_tissue26; SSD27_tissue27; SSD30_tissue30; SSD31_tissue31; SSD33_tissue33; SSD36_tissue36; SSD38_tissue38; SSD40_tissue40; SSD42_tissue42; SSD43_tissue43; SSD44_tissue44; SSD45_tissue45; SSD46_tissue46; SSD47_tissue47; SSD48_tissue48; SSD49_tissue49; SSD50_tissue50
+Astrocyte-Fibrous,0,19,SSD01_tissue1; SSD02_tissue2; SSD06_tissue6; SSD08_tissue8; SSD18_tissue18; SSD19_tissue19; SSD21_tissue21; SSD22_tissue22; SSD23_tissue23; SSD25_tissue25; SSD26_tissue26; SSD27_tissue27; SSD30_tissue30; SSD31_tissue31; SSD35_tissue35; SSD36_tissue36; SSD38_tissue38; SSD44_tissue44; SSD50_tissue50
+RG-tRG,0,15,SSD02_tissue2; SSD03_tissue3; SSD07_tissue7; SSD10_tissue10; SSD11_tissue11; SSD12_tissue12; SSD18_tissue18; SSD21_tissue21; SSD26_tissue26; SSD37_tissue37; SSD39_tissue39; SSD41_tissue41; SSD44_tissue44; SSD45_tissue45; SSD50_tissue50
+Unknown,0,13,SSD02_tissue2; SSD03_tissue3; SSD12_tissue12; SSD15_tissue15; SSD19_tissue19; SSD20_tissue20; SSD21_tissue21; SSD23_tissue23; SSD25_tissue25; SSD26_tissue26; SSD30_tissue30; SSD35_tissue35; SSD36_tissue36
+RG-oRG,0,12,SSD03_tissue3; SSD07_tissue7; SSD11_tissue11; SSD12_tissue12; SSD18_tissue18; SSD21_tissue21; SSD26_tissue26; SSD36_tissue36; SSD37_tissue37; SSD41_tissue41; SSD42_tissue42; SSD44_tissue44
+EN-L4-IT,0,10,SSD08_tissue8; SSD09_tissue9; SSD10_tissue10; SSD17_tissue17; SSD19_tissue19; SSD22_tissue22; SSD23_tissue23; SSD24_tissue24; SSD25_tissue25; SSD30_tissue30
+IN-CGE-SNCG,0,7,SSD01_tissue1; SSD12_tissue12; SSD15_tissue15; SSD19_tissue19; SSD24_tissue24; SSD42_tissue42; SSD46_tissue46
+IN-CGE-VIP,0,7,SSD09_tissue9; SSD10_tissue10; SSD15_tissue15; SSD17_tissue17; SSD19_tissue19; SSD33_tissue33; SSD48_tissue48
+Vascular,0,7,SSD08_tissue8; SSD11_tissue11; SSD15_tissue15; SSD26_tissue26; SSD40_tissue40; SSD41_tissue41; SSD48_tissue48
+EN-L6-CT,0,5,SSD10_tissue10; SSD19_tissue19; SSD23_tissue23; SSD25_tissue25; SSD48_tissue48
+IPC-EN,0,5,SSD03_tissue3; SSD07_tissue7; SSD11_tissue11; SSD21_tissue21; SSD41_tissue41
+Cajal-Retzius cell,0,4,SSD38_tissue38; SSD41_tissue41; SSD48_tissue48; SSD50_tissue50
+IPC-Glia,0,4,SSD02_tissue2; SSD33_tissue33; SSD46_tissue46; SSD48_tissue48
+Microglia,0,4,SSD11_tissue11; SSD15_tissue15; SSD21_tissue21; SSD44_tissue44
+EN-L6-IT,0,2,SSD19_tissue19; SSD48_tissue48
+EN-Non-IT-Immature,0,2,SSD19_tissue19; SSD48_tissue48
+IN-MGE-PV,0,2,SSD17_tissue17; SSD48_tissue48
+RG-vRG,0,2,SSD11_tissue11; SSD21_tissue21
+EN-L5_6-NP,0,1,SSD48_tissue48
+EN-L6b,0,1,SSD48_tissue48
+IN-dLGE-Immature,0,1,SSD11_tissue11

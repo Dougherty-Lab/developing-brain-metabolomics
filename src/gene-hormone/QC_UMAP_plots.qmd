@@ -1,0 +1,399 @@
+---
+title: "Cell Type Characterization — QC & UMAP"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Goals
+
+Characterize cell type composition and visualize UMAP embedding of the cleaned, reclustered snRNA-seq dataset (filtering and reclustering handled by `filter_recluster.R`; pseudobulk caching by `prep_data.R`).
+
+1. **Cell count QC** — per-sample count tables and bar charts across three classification levels (`celltype`, `subclass`, `class`), with breakdowns by sex and gestational week.
+2. **UMAP visualizations** — Harmony-corrected embedding (`umap.rna`) colored by cell type classification, sex, gestational week, and batch.
+
+## Set Up
+
+```{r}
+#| label: load-packages
+#| output: false
+packages <- c(
+  "tidyverse", "Seurat", "patchwork", "cowplot",
+  "knitr", "kableExtra", "svglite", "scales"
+)
+lapply(packages, library, character.only = TRUE)
+
+set.seed(123)
+```
+
+```{r}
+#| label: config
+# Metadata columns
+celltype_cols <- c("celltype", "subclass", "class")
+sample_col    <- "Sample"
+sex_col       <- "genotype" # "XX" = female, "XY" = male
+gw_col        <- "age"
+batch_col     <- "batch"
+
+# Colors
+sex_colors  <- c("XX" = "#FFC20A", "XY" = "#571C90")
+gw_palette  <- colorRampPalette(c("#C8E6C9", "#1B5E20"))
+
+# Absence threshold: flag cell types with fewer than this many cells in any sample
+absence_threshold <- 0
+
+# Output directories
+dir_qc   <- "../../results/gene-hormone/qc"
+dir_umap <- "../../results/gene-hormone/umap"
+dir.create(dir_qc,                          recursive = TRUE, showWarnings = FALSE)
+dir.create(dir_umap,                        recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path(dir_umap, "svg"),      recursive = TRUE, showWarnings = FALSE)
+```
+
+```{r}
+#| label: load-data
+SSD_data <- readRDS("../../data/cache/SSD_meta_umap.rds")
+
+meta <- SSD_data@meta.data %>%
+  as_tibble(rownames = "cell_barcode")
+
+all_samples <- unique(meta[[sample_col]])
+
+cat("Cells:", ncol(SSD_data), "\n")
+cat("Samples:", paste(sort(all_samples), collapse = ", "), "\n")
+cat("Reductions:", paste(names(SSD_data@reductions), collapse = ", "), "\n")
+```
+
+## Per-Sample Metadata Summary
+
+```{r}
+#| label: sample-summary
+sample_meta <- meta %>%
+  distinct(.data[[sample_col]], .data[[sex_col]], .data[[gw_col]]) %>%
+  rename(Sample = all_of(sample_col), Sex = all_of(sex_col), GW = all_of(gw_col)) %>%
+  arrange(GW, Sex)
+
+kable(sample_meta, caption = "Sample metadata summary") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+
+total_per_sample <- meta %>%
+  count(.data[[sample_col]], .data[[sex_col]], .data[[gw_col]], name = "total_cells") %>%
+  rename(Sample = all_of(sample_col), Sex = all_of(sex_col), GW = all_of(gw_col)) %>%
+  arrange(GW, Sex)
+
+kable(total_per_sample, caption = "Total cells per sample") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+```
+
+## Cell Count QC — Helper Functions
+
+```{r}
+#| label: qc-helpers
+build_count_table <- function(meta, celltype_col, sample_col) {
+  meta %>%
+    count(.data[[sample_col]], .data[[celltype_col]], name = "n") %>%
+    group_by(.data[[sample_col]]) %>%
+    mutate(pct = round(100 * n / sum(n), 2)) %>%
+    ungroup() %>%
+    rename(CellType = all_of(celltype_col), Sample = all_of(sample_col))
+}
+
+flag_absent <- function(count_df, all_samples, threshold = 0) {
+  count_df %>%
+    tidyr::complete(Sample = all_samples, CellType, fill = list(n = 0, pct = 0)) %>%
+    group_by(CellType) %>%
+    summarise(
+      min_cells        = min(n),
+      n_samples_absent = sum(n <= threshold),
+      absent_in        = paste(Sample[n <= threshold], collapse = "; "),
+      .groups = "drop"
+    ) %>%
+    filter(n_samples_absent > 0) %>%
+    arrange(desc(n_samples_absent))
+}
+
+plot_count_bar <- function(count_df, title, fill_palette = NULL) {
+  p <- ggplot(count_df, aes(x = Sample, y = n, fill = CellType)) +
+    geom_bar(stat = "identity", position = "stack") +
+    labs(title = title, x = "Sample", y = "Cell count", fill = "Cell type") +
+    theme_cowplot(12) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "right")
+  if (!is.null(fill_palette)) p <- p + scale_fill_manual(values = fill_palette)
+  p
+}
+
+plot_prop_bar <- function(count_df, title, fill_palette = NULL) {
+  p <- ggplot(count_df, aes(x = Sample, y = pct, fill = CellType)) +
+    geom_bar(stat = "identity", position = "stack") +
+    labs(title = title, x = "Sample", y = "% of cells", fill = "Cell type") +
+    scale_y_continuous(limits = c(0, 100)) +
+    theme_cowplot(12) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "right")
+  if (!is.null(fill_palette)) p <- p + scale_fill_manual(values = fill_palette)
+  p
+}
+```
+
+## Cell Counts by Classification Level
+
+```{r}
+#| label: qc-loop
+#| results: asis
+#| fig-width: 14
+#| fig-height: 7
+
+cat("::: panel-tabset\n\n")
+
+for (ct_col in celltype_cols) {
+  cat("###", ct_col, "\n\n")
+
+  ct_counts <- build_count_table(meta, ct_col, sample_col)
+
+  ct_wide_n <- ct_counts %>%
+    dplyr::select(Sample, CellType, n) %>%
+    pivot_wider(names_from = Sample, values_from = n, values_fill = 0)
+
+  ct_wide_pct <- ct_counts %>%
+    dplyr::select(Sample, CellType, pct) %>%
+    pivot_wider(names_from = Sample, values_from = pct, values_fill = 0)
+
+  cat("#### Absolute counts\n\n")
+  print(
+    kable(ct_wide_n, caption = paste("Cell counts per sample —", ct_col)) %>%
+      kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE, font_size = 11)
+  )
+
+  cat("\n\n#### Percentage of total cells per sample\n\n")
+  print(
+    kable(ct_wide_pct, caption = paste("% of cells per sample —", ct_col)) %>%
+      kable_styling(bootstrap_options = c("striped", "hover"), full_width = TRUE, font_size = 11)
+  )
+
+  absent <- flag_absent(ct_counts, all_samples, threshold = absence_threshold)
+  if (nrow(absent) > 0) {
+    cat("\n\n**Cell types absent (≤", absence_threshold, "cells) in at least one sample:**\n\n")
+    print(
+      kable(absent,
+        col.names = c("Cell type", "Min cells", "N samples absent", "Absent in"),
+        caption   = paste("Absent cell types —", ct_col)
+      ) %>%
+        kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+        row_spec(0, bold = TRUE)
+    )
+  } else {
+    cat("\n\n*All cell types present in all samples.*\n\n")
+  }
+
+  p_abs  <- plot_count_bar(ct_counts, paste("Cell counts by sample —", ct_col))
+  p_prop <- plot_prop_bar(ct_counts, paste("% composition by sample —", ct_col))
+
+  cat("\n\n#### Stacked bar charts\n\n")
+  print(p_abs + p_prop + plot_layout(guides = "collect"))
+  ggsave(file.path(dir_qc, paste0(ct_col, "_counts_by_sample.png")),
+    plot = p_abs + p_prop + plot_layout(guides = "collect"),
+    width = 16, height = 7, dpi = 150
+  )
+
+  # By sex
+  ct_sex <- meta %>%
+    count(.data[[sample_col]], .data[[sex_col]], .data[[ct_col]], name = "n") %>%
+    group_by(.data[[sample_col]], .data[[sex_col]]) %>%
+    mutate(pct = round(100 * n / sum(n), 2)) %>%
+    ungroup() %>%
+    rename(Sample = all_of(sample_col), Sex = all_of(sex_col), CellType = all_of(ct_col))
+
+  p_sex_abs <- ggplot(ct_sex, aes(x = Sample, y = n, fill = CellType)) +
+    geom_bar(stat = "identity", position = "stack") +
+    facet_wrap(~Sex, scales = "free_x",
+      labeller = labeller(Sex = c("XX" = "Female (XX)", "XY" = "Male (XY)"))) +
+    labs(title = paste("Cell counts by sample and sex —", ct_col),
+      x = "Sample", y = "Cell count", fill = "Cell type") +
+    theme_cowplot(11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          strip.text  = element_text(face = "bold"))
+
+  p_sex_prop <- ggplot(ct_sex, aes(x = Sample, y = pct, fill = CellType)) +
+    geom_bar(stat = "identity", position = "stack") +
+    facet_wrap(~Sex, scales = "free_x",
+      labeller = labeller(Sex = c("XX" = "Female (XX)", "XY" = "Male (XY)"))) +
+    labs(title = paste("% composition by sex —", ct_col),
+      x = "Sample", y = "% of cells", fill = "Cell type") +
+    scale_y_continuous(limits = c(0, 100)) +
+    theme_cowplot(11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          strip.text  = element_text(face = "bold"))
+
+  cat("\n\n#### By sex\n\n")
+  print(p_sex_abs / p_sex_prop + plot_layout(guides = "collect"))
+  ggsave(file.path(dir_qc, paste0(ct_col, "_counts_by_sex.png")),
+    plot = p_sex_abs / p_sex_prop + plot_layout(guides = "collect"),
+    width = 14, height = 12, dpi = 150
+  )
+
+  # By GW
+  ct_gw <- meta %>%
+    count(.data[[sample_col]], .data[[gw_col]], .data[[ct_col]], name = "n") %>%
+    group_by(.data[[sample_col]], .data[[gw_col]]) %>%
+    mutate(pct = round(100 * n / sum(n), 2)) %>%
+    ungroup() %>%
+    rename(Sample = all_of(sample_col), GW = all_of(gw_col), CellType = all_of(ct_col)) %>%
+    mutate(GW = factor(GW, levels = sort(unique(GW))))
+
+  gw_levels <- levels(ct_gw$GW)
+  gw_cols   <- setNames(gw_palette(length(gw_levels)), gw_levels)
+
+  ct_gw_total <- meta %>%
+    count(.data[[gw_col]], .data[[ct_col]], name = "n") %>%
+    rename(GW = all_of(gw_col), CellType = all_of(ct_col)) %>%
+    mutate(GW = factor(GW, levels = sort(unique(GW))))
+
+  p_gw_total <- ggplot(ct_gw_total, aes(x = CellType, y = n, fill = GW)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_manual(values = gw_cols) +
+    labs(title = paste("Total cells per cell type across GW —", ct_col),
+      x = "Cell type", y = "Total cell count", fill = "GW") +
+    theme_cowplot(11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  p_gw_prop <- ggplot(ct_gw, aes(x = GW, y = pct, fill = CellType)) +
+    geom_bar(stat = "identity", position = "stack") +
+    facet_wrap(~Sample) +
+    labs(title = paste("% composition by GW —", ct_col),
+      x = "GW", y = "% of cells", fill = "Cell type") +
+    scale_y_continuous(limits = c(0, 100)) +
+    theme_cowplot(10) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          strip.text  = element_text(face = "bold"))
+
+  cat("\n\n#### By gestational week\n\n")
+  print(p_gw_total)
+  print(p_gw_prop)
+  ggsave(file.path(dir_qc, paste0(ct_col, "_counts_by_gw.png")),
+    plot = p_gw_total / p_gw_prop + plot_layout(guides = "collect"),
+    width = 14, height = 14, dpi = 150
+  )
+
+  write_csv(ct_wide_n,   file.path(dir_qc, paste0(ct_col, "_counts_wide.csv")))
+  write_csv(ct_wide_pct, file.path(dir_qc, paste0(ct_col, "_pct_wide.csv")))
+  if (nrow(absent) > 0) {
+    write_csv(absent, file.path(dir_qc, paste0(ct_col, "_absent_celltypes.csv")))
+  }
+}
+
+cat(":::\n")
+```
+
+## UMAP — Helper Functions
+
+```{r}
+#| label: umap-helpers
+plot_umap <- function(obj, group_by, title, cols = NULL,
+                      reduction = "umap.rna", label = TRUE,
+                      label_size = 3, pt_size = 0.3, na_color = "grey80") {
+  DimPlot(obj,
+    reduction  = reduction,
+    group.by   = group_by,
+    label      = label,
+    label.size = label_size,
+    pt.size    = pt_size,
+    cols       = cols,
+    repel      = TRUE,
+    na.value   = na_color
+  ) +
+    labs(title = title) +
+    theme_cowplot(12) +
+    theme(legend.position = "right",
+          plot.title = element_text(face = "bold", size = 13))
+}
+
+save_umap <- function(plot, filename, width = 10, height = 8) {
+  ggsave(file.path(dir_umap, paste0(filename, ".png")),
+    plot, width = width, height = height, dpi = 150)
+  ggsave(file.path(dir_umap, "svg", paste0(filename, ".svg")),
+    plot, width = width, height = height)
+  invisible(plot)
+}
+```
+
+## UMAP — Cell Type Classifications
+
+```{r}
+#| label: umap-celltypes
+#| fig-width: 10
+#| fig-height: 8
+for (ct_col in celltype_cols) {
+  p <- plot_umap(SSD_data,
+    group_by   = ct_col,
+    title      = paste("UMAP —", ct_col),
+    label      = TRUE,
+    label_size = 3
+  )
+  print(p)
+  save_umap(p, paste0("umap_", ct_col))
+}
+```
+
+## UMAP — Sex & Gestational Week
+
+```{r}
+#| label: umap-sex-gw
+#| fig-width: 18
+#| fig-height: 8
+gw_vals   <- sort(unique(SSD_data@meta.data[[gw_col]]))
+gw_colors <- setNames(gw_palette(length(gw_vals)), gw_vals)
+
+p_sex <- plot_umap(SSD_data,
+  group_by = sex_col,
+  title    = "UMAP — Genotype (sex)",
+  cols     = sex_colors,
+  label    = FALSE
+) +
+  scale_color_manual(values = sex_colors,
+    labels = c("XX" = "Female (XX)", "XY" = "Male (XY)"))
+
+p_gw <- plot_umap(SSD_data,
+  group_by = gw_col,
+  title    = "UMAP — Gestational Week",
+  cols     = gw_colors,
+  label    = FALSE
+)
+
+p_sex + p_gw
+save_umap(p_sex, "umap_sex")
+save_umap(p_gw,  "umap_gw")
+save_umap(p_sex + p_gw, "umap_sex_gw_combined", width = 18, height = 8)
+```
+
+## UMAP — Batch
+
+```{r}
+#| label: umap-batch
+#| fig-width: 10
+#| fig-height: 8
+batch_vals   <- sort(unique(SSD_data@meta.data[[batch_col]]))
+batch_colors <- setNames(scales::hue_pal()(length(batch_vals)), batch_vals)
+
+p_batch <- plot_umap(SSD_data,
+  group_by = batch_col,
+  title    = "UMAP — Batch",
+  cols     = batch_colors,
+  label    = FALSE
+)
+
+p_batch
+save_umap(p_batch, "umap_batch")
+```
+
+# END

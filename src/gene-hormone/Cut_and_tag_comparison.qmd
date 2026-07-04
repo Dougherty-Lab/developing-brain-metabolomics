@@ -1,0 +1,241 @@
+---
+title: "CUT&Tag Binding Overlap with Hormone-Associated DEGs"
+subtitle: "Sneha Chaturvedi, Emma Jones"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    chalkboard: true
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Goals
+
+Determine whether significant hormone-associated DEGs are directly bound by
+their cognate receptor, using CUT&Tag consensus peaks from the same samples.
+
+**Receptor → hormone pairing**
+
+::: incremental
+- **AR** (androgen receptor) → **testosterone** (male samples)
+- **ESR1** (ER⍺) → **estradiol** (both sexes)
+:::
+
+::: notes
+ESR2 (ER⍺/ERβ CUT&Tag for ESR2) did not yield usable peaks and is excluded.
+Progesterone is not compared here: there is no PGR CUT&Tag track (only AR and
+ESR1 succeeded), so P4 DEGs have no cognate-binding reference in this assay.
+:::
+
+CUT&Tag binding is a presence/absence signal with no direction, so overlaps are
+**set membership only** (no logFC sign-concordance test here).
+
+## Set Up
+
+```{r}
+#| label: load-packages
+Packages <- c("tidyverse", "glue", "patchwork", "svglite", "knitr")
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")
+
+set.seed(123)
+
+out_dir <- "../../results/targeted/cut_and_tag"
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+```
+
+```{r}
+#| label: load-de-results
+# TT: sex-separate GW model; retain males only.
+# E2: sex-combined Sex model.
+# Significance: FDR < 0.10 AND |logFC| >= 0.25 (matches hormone-script graphs).
+TT_results <- read_csv(
+  "../../results/targeted/testosterone_genes/run_voom_lm_gw/TT_gw_results.csv",
+  show_col_types = FALSE
+)
+E2_results <- read_csv(
+  "../../results/targeted/estradiol_genes/run_voom_lm_sex/E2_sex_results.csv",
+  show_col_types = FALSE
+)
+
+TT_sig <- filter_sig(TT_results, sex_filter = "M")
+E2_sig <- filter_sig(E2_results)
+
+cat("TT sig (male):", nrow(TT_sig), "gene-cell_type rows,",
+    length(unique(TT_sig$gene)), "unique genes\n")
+cat("E2 sig (combined):", nrow(E2_sig), "gene-cell_type rows,",
+    length(unique(E2_sig$gene)), "unique genes\n")
+```
+
+```{r}
+#| label: load-cut-and-tag
+# Two gene-set variants per TF: all annotated peaks, and promoter-proximal
+# (|distanceToTSS| < 3000 bp, ChIPseeker default; Yu, Wang & He 2015).
+AR   <- load_cut_and_tag_geneset("../../doc/cut&tag/AR_consensus_anno.csv")
+ESR1 <- load_cut_and_tag_geneset("../../doc/cut&tag/ESR1_consensus_anno.csv")
+
+ct_sizes <- tibble::tibble(
+  TF            = c("AR", "ESR1"),
+  all_genes     = c(length(AR$all_genes),      length(ESR1$all_genes)),
+  promoter_genes = c(length(AR$promoter_genes), length(ESR1$promoter_genes))
+)
+
+knitr::kable(ct_sizes, caption = "CUT&Tag bound-gene set sizes (all vs promoter-proximal)")
+```
+
+## Overlap Assembly — Helper
+
+Collapses CUT&Tag peaks to one row per gene (nearest-TSS peak) for annotation,
+then intersects with the significant DE table. Presentation-only; the reusable
+set logic lives in `pseudobulk_functions.R`.
+
+```{r}
+#| label: overlap-helper
+build_ct_overlap <- function(sig_df, ct, window = c("all", "promoter")) {
+  window   <- match.arg(window)
+  gene_set <- if (window == "promoter") ct$promoter_genes else ct$all_genes
+  peak_tbl <- if (window == "promoter") {
+    dplyr::filter(ct$table, promoter_proximal)
+  } else {
+    ct$table
+  }
+
+  gene_meta <- peak_tbl %>%
+    dplyr::group_by(hgnc_symbol) %>%
+    dplyr::summarise(
+      n_peaks            = dplyr::n(),
+      min_abs_dist_tss   = min(abs(distanceToTSS)),
+      nearest_annotation = annotation[which.min(abs(distanceToTSS))],
+      .groups = "drop"
+    )
+
+  overlap_sig_with_geneset(sig_df, gene_set) %>%
+    dplyr::left_join(gene_meta, by = c("gene" = "hgnc_symbol")) %>%
+    dplyr::select(gene, cell_type, sex, logFC, adj.P.Val,
+                  n_peaks, min_abs_dist_tss, nearest_annotation) %>%
+    dplyr::arrange(adj.P.Val)
+}
+```
+
+## AR × Testosterone (Male)
+
+::: panel-tabset
+### All annotated peaks
+
+```{r}
+#| label: ar-tt-all
+ar_tt_all <- build_ct_overlap(TT_sig, AR, "all")
+cat("AR-bound (all) × TT sig:", length(unique(ar_tt_all$gene)), "unique genes\n")
+write_csv(ar_tt_all, file.path(out_dir, "ar_tt_overlap_all.csv"))
+knitr::kable(ar_tt_all, digits = 4, caption = "AR-bound (all peaks) ∩ TT DEGs (male)")
+```
+
+### Promoter-proximal
+
+```{r}
+#| label: ar-tt-promoter
+ar_tt_prom <- build_ct_overlap(TT_sig, AR, "promoter")
+cat("AR-bound (promoter) × TT sig:", length(unique(ar_tt_prom$gene)), "unique genes\n")
+write_csv(ar_tt_prom, file.path(out_dir, "ar_tt_overlap_promoter.csv"))
+knitr::kable(ar_tt_prom, digits = 4, caption = "AR-bound (promoter-proximal) ∩ TT DEGs (male)")
+```
+:::
+
+## ESR1 × Estradiol
+
+::: panel-tabset
+### All annotated peaks
+
+```{r}
+#| label: esr1-e2-all
+esr1_e2_all <- build_ct_overlap(E2_sig, ESR1, "all")
+cat("ESR1-bound (all) × E2 sig:", length(unique(esr1_e2_all$gene)), "unique genes\n")
+write_csv(esr1_e2_all, file.path(out_dir, "esr1_e2_overlap_all.csv"))
+knitr::kable(esr1_e2_all, digits = 4, caption = "ESR1-bound (all peaks) ∩ E2 DEGs")
+```
+
+### Promoter-proximal
+
+```{r}
+#| label: esr1-e2-promoter
+esr1_e2_prom <- build_ct_overlap(E2_sig, ESR1, "promoter")
+cat("ESR1-bound (promoter) × E2 sig:", length(unique(esr1_e2_prom$gene)), "unique genes\n")
+write_csv(esr1_e2_prom, file.path(out_dir, "esr1_e2_overlap_promoter.csv"))
+knitr::kable(esr1_e2_prom, digits = 4, caption = "ESR1-bound (promoter-proximal) ∩ E2 DEGs")
+```
+:::
+
+## Overlap Summary
+
+Unique bound-and-associated genes per receptor × window, alongside the total
+significant genes available to overlap.
+
+```{r}
+#| label: summary-table
+overlap_summary <- tibble::tibble(
+  Comparison = c("AR × TT (male)", "AR × TT (male)",
+                 "ESR1 × E2",      "ESR1 × E2"),
+  Window     = c("all", "promoter", "all", "promoter"),
+  `DEGs (unique)` = c(length(unique(TT_sig$gene)), length(unique(TT_sig$gene)),
+                      length(unique(E2_sig$gene)), length(unique(E2_sig$gene))),
+  `Bound & assoc. (unique)` = c(
+    length(unique(ar_tt_all$gene)),   length(unique(ar_tt_prom$gene)),
+    length(unique(esr1_e2_all$gene)), length(unique(esr1_e2_prom$gene))
+  )
+) %>%
+  dplyr::mutate(`% of DEGs bound` = round(
+    100 * `Bound & assoc. (unique)` / `DEGs (unique)`, 1
+  ))
+
+write_csv(overlap_summary, file.path(out_dir, "cut_and_tag_overlap_summary.csv"))
+knitr::kable(overlap_summary, caption = "CUT&Tag overlap summary")
+```
+
+```{r}
+#| label: summary-plot
+#| fig-width: 9
+#| fig-height: 5
+plot_df <- overlap_summary %>%
+  dplyr::mutate(
+    Comparison = factor(Comparison, levels = c("AR × TT (male)", "ESR1 × E2")),
+    Window     = factor(Window, levels = c("all", "promoter"))
+  )
+
+p_ct <- ggplot(plot_df,
+               aes(x = Comparison, y = `Bound & assoc. (unique)`, fill = Window)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.6) +
+  geom_text(aes(label = `Bound & assoc. (unique)`),
+            position = position_dodge(width = 0.7), vjust = -0.4, size = 4) +
+  labs(title = "Hormone DEGs directly bound by cognate receptor",
+       x = NULL, y = "# bound & associated genes", fill = "Peak window") +
+  scale_fill_manual(values = c("all" = "#9ecae1", "promoter" = "#3182bd")) +
+  theme_minimal(base_size = 13)
+
+p_ct
+
+save_dual_format(p_ct, out_dir, "cut_and_tag_overlap_summary",
+                 width = 9, height = 5)
+```
+
+## Notes
+
+::: incremental
+- **ESR2 (ERβ)** CUT&Tag excluded — the assay did not yield usable consensus peaks.
+- **Progesterone** excluded — no PGR CUT&Tag track exists in this dataset, so P4
+  DEGs have no cognate-binding reference.
+- Overlaps are **membership only**; CUT&Tag binding carries no direction, so no
+  sign-concordance test is applied (unlike the literature comparisons in
+  `SFARI_DEG.qmd`).
+- The **promoter-proximal** set (|distanceToTSS| < 3 kb) is the more conservative,
+  regulatory-relevant definition and feeds the integrative panel in
+  `compare_gene_results.qmd`.
+:::

@@ -1,0 +1,380 @@
+---
+title: "SFARI Gene Overlap with Hormone-Associated DEGs"
+subtitle: "Sneha Chaturvedi, Emma Jones"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    embed-resources: true
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+## Goals
+
+Determine whether significant hormone-associated DEGs overlap with SFARI autism
+risk genes (<https://gene.sfari.org/database/human-gene/>) and with published
+androgen-response gene lists.
+
+**Gene lists compared:**
+
+::: incremental
+- **SFARI** — high-confidence risk genes (score ≤ 2)
+- **Human brain organoid androgen response** — [Kelava et al. 2021, *Nature*](https://www.nature.com/articles/s41586-021-04330-4)
+- **Mouse embryonic neural stem/progenitor cells** — [Bramble et al. 2016, *Sci Rep*](https://www.nature.com/articles/srep36916)
+- **Single-cell 17-tissue mouse androgen atlas** — [Li et al. 2024, *Nature*](https://www.nature.com/articles/s41586-024-07291-6)
+:::
+
+## Set Up
+
+```{r}
+#| label: load-packages
+Packages <- c(
+  "tidyverse", "Seurat", "readxl", "glue", "cowplot",
+  "edgeR", "limma", "patchwork", "svglite", "Matrix"
+)
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")
+
+set.seed(123)
+```
+
+```{r}
+#| label: load-gene-lists
+SFARI_Gene <- read_csv(
+  "../../doc/gene_lists/SFARI-Gene_genes_05-01-2026release_07-04-2026export.csv",
+  col_types = cols(status = col_skip())
+)
+
+# High-confidence SFARI genes only (scores 1 and 2)
+SFARI_Gene_filt <- SFARI_Gene %>% dplyr::filter(`gene-score` <= 2)
+
+androgen_response_up   <- read_csv("../../doc/targeted/Upregulated_DEGs.csv",   col_names = FALSE)
+androgen_response_down <- read_csv("../../doc/targeted/Downregulated_DEGs.csv", col_names = FALSE)
+
+mouse_response     <- read_csv("../../doc/targeted/converted_sex_tt_mouse.csv")
+singlecell_response <- read_xlsx(
+  "../../doc/targeted/li_2024_sex_diff_degs.xlsx",
+  sheet = "AASB-DEGs", skip = 1
+)
+```
+
+```{r}
+#| label: load-de-results
+# TT: sex-separate GW model (run_voom_lm_gw); retain males for SFARI comparison.
+# E2 / P4: sex-combined Sex model (run_voom_lm_sex); no sex filter needed.
+TT_results <- read_csv(
+  "../../results/targeted/testosterone_genes/run_voom_lm_gw/TT_gw_results.csv"
+)
+E2_results <- read_csv(
+  "../../results/targeted/estradiol_genes/run_voom_lm_sex/E2_sex_results.csv"
+)
+P4_results <- read_csv(
+  "../../results/targeted/progesterone_genes/run_voom_lm_sex/P4_sex_results.csv"
+)
+
+TT_sig <- TT_results %>%
+  dplyr::filter(sex == "M", adj.P.Val < 0.10, abs(logFC) >= 0.25)
+
+E2_sig <- E2_results %>%
+  dplyr::filter(adj.P.Val < 0.10, abs(logFC) >= 0.25)
+
+P4_sig <- P4_results %>%
+  dplyr::filter(adj.P.Val < 0.10, abs(logFC) >= 0.25)
+
+cat("TT sig (male, FDR < 0.10):", nrow(TT_sig), "gene-cell_type rows\n")
+cat("E2 sig (combined, FDR < 0.10):", nrow(E2_sig), "gene-cell_type rows\n")
+cat("P4 sig (combined, FDR < 0.10):", nrow(P4_sig), "gene-cell_type rows\n")
+```
+
+## SFARI Intersection — Tables
+
+High-confidence SFARI genes (score ≤ 2) overlapping with significant DEGs.
+
+::: panel-tabset
+### Testosterone (Male)
+
+```{r}
+#| label: tt-sfari-table
+TT_SFARI_shared <- TT_sig %>%
+  dplyr::filter(gene %in% SFARI_Gene_filt$`gene-symbol`) %>%
+  dplyr::left_join(
+    SFARI_Gene_filt %>% dplyr::select(`gene-symbol`, `gene-score`),
+    by = c("gene" = "gene-symbol")
+  ) %>%
+  dplyr::arrange(`gene-score`, adj.P.Val)
+
+cat("TT × SFARI overlap (unique genes):", length(unique(TT_SFARI_shared$gene)), "\n")
+
+TT_SFARI_shared %>%
+  dplyr::select(gene, `gene-score`, cell_type, logFC, adj.P.Val) %>%
+  knitr::kable(digits = 4, caption = "TT — SFARI-overlapping hits (male, FDR < 0.10)")
+```
+
+### Estradiol
+
+```{r}
+#| label: e2-sfari-table
+E2_SFARI_shared <- E2_sig %>%
+  dplyr::filter(gene %in% SFARI_Gene_filt$`gene-symbol`) %>%
+  dplyr::left_join(
+    SFARI_Gene_filt %>% dplyr::select(`gene-symbol`, `gene-score`),
+    by = c("gene" = "gene-symbol")
+  ) %>%
+  dplyr::arrange(`gene-score`, adj.P.Val)
+
+cat("E2 × SFARI overlap (unique genes):", length(unique(E2_SFARI_shared$gene)), "\n")
+
+E2_SFARI_shared %>%
+  dplyr::select(gene, `gene-score`, cell_type, logFC, adj.P.Val) %>%
+  knitr::kable(digits = 4, caption = "E2 — SFARI-overlapping hits (combined, FDR < 0.10)")
+```
+
+### Progesterone
+
+```{r}
+#| label: p4-sfari-table
+P4_SFARI_shared <- P4_sig %>%
+  dplyr::filter(gene %in% SFARI_Gene_filt$`gene-symbol`) %>%
+  dplyr::left_join(
+    SFARI_Gene_filt %>% dplyr::select(`gene-symbol`, `gene-score`),
+    by = c("gene" = "gene-symbol")
+  ) %>%
+  dplyr::arrange(`gene-score`, adj.P.Val)
+
+cat("P4 × SFARI overlap (unique genes):", length(unique(P4_SFARI_shared$gene)), "\n")
+
+P4_SFARI_shared %>%
+  dplyr::select(gene, `gene-score`, cell_type, logFC, adj.P.Val) %>%
+  knitr::kable(digits = 4, caption = "P4 — SFARI-overlapping hits (combined, FDR < 0.10)")
+```
+:::
+
+## SFARI Summary — Helper Functions
+
+Local functions for SFARI-score-stratified bar charts. Named distinctly to
+avoid masking `summarize_sig_genes()` and `plot_sig_gene_summary()` from
+`pseudobulk_functions.R`.
+
+```{r}
+#| label: sfari-helpers
+summarize_sfari_by_score <- function(results, SFARI_Gene,
+                                     fdr_cutoff   = 0.10,
+                                     logfc_cutoff = 0.25) {
+  results %>%
+    dplyr::filter(adj.P.Val < fdr_cutoff, abs(logFC) >= logfc_cutoff) %>%
+    dplyr::left_join(
+      SFARI_Gene %>% dplyr::select(`gene-symbol`, `gene-score`),
+      by = c("gene" = "gene-symbol")
+    ) %>%
+    dplyr::mutate(
+      score_group = dplyr::if_else(
+        is.na(`gene-score`), "Not SFARI", as.character(`gene-score`)
+      ),
+      score_group = factor(score_group, levels = c("1", "2", "3", "4", "Not SFARI"))
+    ) %>%
+    dplyr::count(cell_type, score_group, name = "num_sig_genes")
+}
+
+plot_sfari_summary <- function(summary_df, title) {
+  ggplot(summary_df, aes(x = cell_type, y = num_sig_genes, fill = score_group)) +
+    geom_bar(stat = "identity", position = "stack") +
+    geom_text(
+      aes(label = num_sig_genes),
+      position = position_stack(vjust = 0.5),
+      color = "white", size = 3.5
+    ) +
+    labs(title = title, x = "Cell Type",
+         y = "# Significant Genes", fill = "SFARI Gene Score") +
+    theme_minimal(base_size = 13) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    scale_fill_manual(values = c(
+      "1"        = "#bdd7e7",
+      "2"        = "#6baed6",
+      "3"        = "#3182bd",
+      "4"        = "#08519c",
+      "Not SFARI" = "gray80"
+    ))
+}
+```
+
+## SFARI Summary — Charts
+
+Stacked bars show all significant genes by cell type, coloured by SFARI gene
+score. "Not SFARI" = gene not in the SFARI database.
+
+::: panel-tabset
+### Testosterone (Male)
+
+```{r}
+#| label: tt-sfari-plot
+#| fig-width: 12
+#| fig-height: 6
+summary_tt <- summarize_sfari_by_score(
+  TT_results %>% dplyr::filter(sex == "M"), SFARI_Gene
+)
+
+p_tt <- plot_sfari_summary(
+  summary_tt, "TT — Significant Genes by Cell Type (male, ~ TT + GW)"
+)
+
+p_tt
+
+dir.create("../../results/targeted/SFARI_testosterone_plots",
+           showWarnings = FALSE, recursive = TRUE)
+ggsave("../../results/targeted/SFARI_testosterone_plots/combined_SFARI_score_summary_male.png",
+       p_tt, width = 12, height = 6, dpi = 300)
+```
+
+### Estradiol
+
+```{r}
+#| label: e2-sfari-plot
+#| fig-width: 12
+#| fig-height: 6
+summary_e2 <- summarize_sfari_by_score(E2_results, SFARI_Gene)
+
+p_e2 <- plot_sfari_summary(
+  summary_e2, "E2 — Significant Genes by Cell Type (combined, ~ E2 + Sex)"
+)
+
+p_e2
+
+dir.create("../../results/targeted/SFARI_estradiol_plots",
+           showWarnings = FALSE, recursive = TRUE)
+ggsave("../../results/targeted/SFARI_estradiol_plots/combined_SFARI_score_summary.png",
+       p_e2, width = 12, height = 6, dpi = 300)
+```
+
+### Progesterone
+
+```{r}
+#| label: p4-sfari-plot
+#| fig-width: 12
+#| fig-height: 6
+summary_p4 <- summarize_sfari_by_score(P4_results, SFARI_Gene)
+
+p_p4 <- plot_sfari_summary(
+  summary_p4, "P4 — Significant Genes by Cell Type (combined, ~ P4 + Sex)"
+)
+
+p_p4
+
+dir.create("../../results/targeted/SFARI_progesterone_plots",
+           showWarnings = FALSE, recursive = TRUE)
+ggsave("../../results/targeted/SFARI_progesterone_plots/combined_SFARI_score_summary.png",
+       p_p4, width = 12, height = 6, dpi = 300)
+```
+:::
+
+## External Androgen-Response Gene Lists
+
+Comparing TT male significant DEGs against two published human/mouse androgen
+response gene lists. Mouse stem-cell symbols are pre-converted to human
+(see `converted_sex_tt_mouse.csv`); single-cell mouse data requires biomaRt
+conversion in the next section.
+
+```{r}
+#| label: external-overlap
+androgen_response_all  <- c(androgen_response_up$X1, androgen_response_down$X1)
+mouse_response_genes   <- mouse_response$symbol_human
+
+# Raznahan 2021 organoid paper
+ar_shared <- intersect(androgen_response_all, TT_sig$gene)
+cat("TT × organoid androgen response:", length(ar_shared), "genes\n")
+print(ar_shared)
+
+# Yoon 2016 mouse neural stem cells (pre-converted)
+mouse_shared <- intersect(mouse_response_genes, TT_sig$gene)
+cat("\nTT × mouse neural stem cells:", length(mouse_shared), "genes\n")
+print(mouse_shared)
+```
+
+## Mouse Gene Conversion (Li 2024)
+
+Converts Li et al. 2024 mouse gene symbols to human orthologs via the Ensembl
+compara homology table. **Note:** loads biomaRt and AnnotationDbi, which mask
+several dplyr/tidyverse functions — run after all plotting code.
+
+```{r}
+#| label: mouse-conversion
+#| cache: true
+library(data.table)
+library(biomaRt)
+library(AnnotationDbi)
+library(org.Mm.eg.db)
+library(org.Hs.eg.db)
+
+singlecell_needs_converting <- singlecell_response$Gene_symbol
+
+url <- "https://ftp.ensembl.org/pub/current_tsv/ensembl-compara/homologies/mus_musculus/Compara.114.protein_default.homologies.tsv.gz"
+orthologs <- as.data.frame(fread(url))
+
+# Filter 1:1 human orthologs
+mouse2human_1to1 <- orthologs %>%
+  dplyr::filter(homology_species == "homo_sapiens",
+                homology_type    == "ortholog_one2one")
+
+# Map Ensembl IDs → gene symbols
+mouse_symbols <- mapIds(
+  org.Mm.eg.db,
+  keys     = mouse2human_1to1$gene_stable_id,
+  column   = "SYMBOL",
+  keytype  = "ENSEMBL",
+  multiVals = "first"
+)
+human_symbols <- mapIds(
+  org.Hs.eg.db,
+  keys     = mouse2human_1to1$homology_gene_stable_id,
+  column   = "SYMBOL",
+  keytype  = "ENSEMBL",
+  multiVals = "first"
+)
+
+mouse2human_1to1$mouse_symbol <- mouse_symbols
+mouse2human_1to1$human_symbol <- human_symbols
+
+converted <- mouse2human_1to1 %>%
+  dplyr::filter(mouse_symbol %in% singlecell_needs_converting)
+
+converted_human_genes <- unique(converted$human_symbol)
+cat("Mouse single-cell genes converted to human:", length(converted_human_genes), "\n")
+```
+
+## Li 2024 Overlap
+
+```{r}
+#| label: singlecell-overlap
+sc_shared <- intersect(converted_human_genes, TT_sig$gene)
+cat("TT × Li 2024 single-cell mouse (human orthologs):", length(sc_shared), "genes\n")
+print(sc_shared)
+```
+
+## Summary
+
+```{r}
+#| label: summary-table
+tibble::tibble(
+  `Gene List`   = c(
+    "SFARI (score ≤ 2)",
+    "Organoid androgen response (Raznahan 2021)",
+    "Mouse neural stem cells (Yoon 2016)",
+    "Single-cell mouse atlas (Li 2024)"
+  ),
+  `TT × List`   = c(
+    length(unique(TT_SFARI_shared$gene)),
+    length(ar_shared),
+    length(mouse_shared),
+    length(sc_shared)
+  )
+) %>%
+  knitr::kable(caption = "TT male DEG overlap with external gene lists")
+```
