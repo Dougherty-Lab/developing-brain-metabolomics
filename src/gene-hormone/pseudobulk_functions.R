@@ -604,11 +604,11 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone,
     clean_name    <- gsub("/", "-",
                           paste0(metadata_sub$cell_type[1], "_", label_sex))
 
-    ggsave(file.path(output_dir, paste0(clean_name, "_top_genes.png")),
-           plot = combined_plot,
-           width = 10,
-           height = 6 + ceiling(length(plot_list) / 2),
-           dpi = 300)
+    save_dual_format(combined_plot,
+                     output_dir,
+                     paste0(clean_name, "_top_genes"),
+                     width  = 10,
+                     height = 6 + ceiling(length(plot_list) / 2))
     message("  Saved plot for ", clean_name)
   })
 }

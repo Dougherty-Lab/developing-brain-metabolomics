@@ -1,8 +1,0 @@
-Metric,Value
-Total genes tested,23092
-FDR < 0.05,0
-FDR < 0.1,0
-FDR < 0.2,0
-Median adj.P.Val,0.951
-Mean |logFC|,1.958
-Max |logFC|,18.494
