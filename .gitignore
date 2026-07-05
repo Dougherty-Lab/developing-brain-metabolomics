@@ -11,6 +11,12 @@
 *.sif
 *.csv
 
+# Large Results CSVs
+results/gene-hormone/gene_hormone_csv/
+
+#slurm output files
+bin/docker/slurm-*.out
+
 # User-specific files
 .Ruserdata
 
