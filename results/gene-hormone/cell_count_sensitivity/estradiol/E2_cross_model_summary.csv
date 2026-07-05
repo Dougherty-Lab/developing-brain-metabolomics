@@ -1,0 +1,5 @@
+cell_type,sex,num_sig_genes,model
+IN-MGE-Immature,combined,1,~ E2 + cell_count
+IN-MGE-Immature,combined,1,~ E2 + Sex + cell_count
+IN-MGE-Immature,combined,1,~ E2 + batch1_frac + cell_count
+IN-MGE-Immature,combined,1,~ E2 + Sex + batch1_frac + cell_count
