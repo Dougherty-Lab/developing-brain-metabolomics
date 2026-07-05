@@ -1,0 +1,5 @@
+hormone,pool_size,model,total_sig
+E2,39,base,1
+E2,39,batch,1
+E2,39,sex,1
+E2,39,sex_batch,1
