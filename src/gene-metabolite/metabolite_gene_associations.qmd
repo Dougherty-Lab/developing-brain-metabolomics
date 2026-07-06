@@ -1,0 +1,251 @@
+---
+title: "Metabolite–Gene Associations"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Overview
+
+Reads the parquet archive written by `metabolite_gene_limma.R` and does all
+thresholding, global-FDR, annotation, and figures here — so screen changes never
+re-run the loop.
+
+- **Model (per metabolite):** gene counts ~ `metab + GW + Sex + batch1_frac`, split by cell type; voom.
+- **Interpretation:** `logFC` = Δ(gene log2-CPM) per **1 SD** of the standardised metabolite. These are **associations**, not directional predictions.
+- **Primary screen:** within-(metabolite × cell type) `adj.P.Val < 0.10` **and** `|logFC| ≥ 0.25`.
+- **Global FDR:** BH across every metabolite × cell type × gene test, carried as a reference column.
+
+## Set Up
+
+```{r}
+#| label: load-packages
+Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "UpSetR")
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")   # save_dual_format()
+set.seed(123)
+```
+
+```{r}
+#| label: config
+parquet_dir  <- "../../results/gene-metabolite/parquet"
+annot_path   <- "../../results/untargeted/batch2_metabolite_annotations_flagged.csv"
+out_dir      <- "../../results/gene-metabolite"
+svg_dir      <- file.path(out_dir, "svg")
+csv_dir      <- file.path(out_dir, "csv")
+for (d in c(out_dir, svg_dir, csv_dir)) dir.create(d, recursive = TRUE, showWarnings = FALSE)
+
+FDR_WITHIN <- 0.10   # primary screen (within metabolite x cell type)
+LFC_MIN    <- 0.25   # per-SD effect-size floor
+FDR_GLOBAL <- 0.10   # reference global BH threshold
+LABEL_CHARS <- 30    # metabolite-name clip length for plot labels
+
+# Clip long metabolite names for plotting only (data keeps full Name). Names
+# longer than `n` get an ellipsis; if two clips collide, the 2nd+ get "#2","#3"
+# so bars stay distinct. Returns the input tibble with a `label` column added;
+# write the paired label<->Name lookup beside each figure's SVG.
+add_plot_label <- function(df, name_col = "Name", n = LABEL_CHARS) {
+  short <- ifelse(nchar(df[[name_col]]) > n,
+                  paste0(substr(df[[name_col]], 1, n), "\u2026"),
+                  df[[name_col]])
+  idx   <- stats::ave(seq_along(short), short, FUN = seq_along)   # 1,2,3 within group
+  short[idx > 1] <- paste0(short[idx > 1], "#", idx[idx > 1])
+  df$label <- short
+  df
+}
+```
+
+## Open the archive (lazy)
+
+`open_dataset()` reads only the columns/rows a query touches, so the multi-GB
+archive is never loaded whole.
+
+```{r}
+#| label: open-dataset
+ds <- open_dataset(parquet_dir)
+
+n_tests    <- nrow(ds)                                   # total tests (cheap)
+n_metab    <- ds |> distinct(Compound.ID) |> collect() |> nrow()
+n_celltype <- ds |> distinct(cell_type)  |> collect() |> nrow()
+
+cat(sprintf("Total tests: %s | metabolites: %d | cell types: %d\n",
+            format(n_tests, big.mark = ","), n_metab, n_celltype))
+```
+
+## Global BH (memory-light)
+
+Any test with global FDR < 0.10 must have a small raw p-value, so we only pull
+candidates (`P.Value < 0.05`) and rank them against the full test count `m`.
+This reproduces the exact BH adjustment those rows would receive over all
+`n_tests` without collecting the whole archive.
+
+```{r}
+#| label: global-bh
+bh_global <- function(p, m) {
+  o   <- order(p)
+  ro  <- order(o)
+  adj <- p[o] * m / seq_along(p[o])
+  adj <- rev(cummin(rev(adj)))
+  pmin(adj[ro], 1)
+}
+
+candidates <- ds |>
+  filter(P.Value < 0.05) |>
+  collect() |>
+  mutate(FDR_global = bh_global(P.Value, n_tests))
+
+cat(sprintf("Candidate rows (p < 0.05): %s\n",
+            format(nrow(candidates), big.mark = ",")))
+```
+
+## Annotation join + primary screen
+
+```{r}
+#| label: annotate-and-filter
+annot <- read_csv(annot_path, show_col_types = FALSE) |>
+  dplyr::select(Compound.ID, Super.Class, Class, Sub.Class, Pathways, KEGG,
+         Exogenous_Flag, Annotation_Confidence)
+
+hits <- candidates |>
+  filter(adj.P.Val < FDR_WITHIN, abs(logFC) >= LFC_MIN) |>
+  left_join(annot, by = "Compound.ID") |>
+  arrange(cell_type, Compound.ID, adj.P.Val)
+
+write_csv(hits, file.path(csv_dir, "metabolite_gene_hits.csv"))
+
+cat(sprintf("Primary hits (within FDR < %.2f & |logFC| >= %.2f): %s\n",
+            FDR_WITHIN, LFC_MIN, format(nrow(hits), big.mark = ",")))
+cat(sprintf("  ...also global FDR < %.2f: %s\n",
+            FDR_GLOBAL, format(sum(hits$FDR_global < FDR_GLOBAL), big.mark = ",")))
+```
+
+## Recurrence — genes across metabolites
+
+Genes that track the most distinct metabolites (a gene appearing broadly may be
+a hub of metabolic coupling, or a covariate-driven artefact worth inspecting).
+
+```{r}
+#| label: gene-recurrence
+gene_recur <- hits |>
+  group_by(gene) |>
+  summarise(n_metabolites = n_distinct(Compound.ID),
+            n_cell_types  = n_distinct(cell_type),
+            n_tests       = n(), .groups = "drop") |>
+  arrange(desc(n_metabolites))
+
+top_genes <- gene_recur |> slice_head(n = 25)
+
+p_gene <- ggplot(top_genes,
+                 aes(x = reorder(gene, n_metabolites), y = n_metabolites)) +
+  geom_col(fill = "steelblue", alpha = 0.85) +
+  coord_flip() +
+  labs(x = "Gene", y = "Distinct metabolites associated",
+       title = "Top recurrent genes across metabolites") +
+  theme_cowplot(12)
+
+save_dual_format(p_gene, out_dir, "recurrence_genes", width = 8, height = 7)
+print(p_gene)
+```
+
+## Recurrence — metabolites across genes
+
+```{r}
+#| label: metabolite-recurrence
+metab_recur <- hits |>
+  group_by(Compound.ID, Name, Super.Class, Class) |>
+  summarise(n_genes      = n_distinct(gene),
+            n_cell_types = n_distinct(cell_type), .groups = "drop") |>
+  arrange(desc(n_genes))
+
+top_metab <- metab_recur |> slice_head(n = 25) |> add_plot_label()
+
+# Full Name <-> clipped label lookup, paired with the SVG.
+write_csv(top_metab |> dplyr::select(label, Name, Compound.ID, Super.Class, Class),
+          file.path(svg_dir, "recurrence_metabolites_labels.csv"))
+
+p_metab <- ggplot(top_metab,
+                  aes(x = reorder(label, n_genes), y = n_genes, fill = Super.Class)) +
+  geom_col(alpha = 0.85) +
+  coord_flip() +
+  labs(x = "Metabolite", y = "Distinct genes associated",
+       title = "Top recurrent metabolites across genes") +
+  theme_cowplot(12) +
+  theme(legend.position = "right")
+
+save_dual_format(p_metab, out_dir, "recurrence_metabolites", width = 10, height = 7)
+print(p_metab)
+```
+
+## Recurrence — cell types
+
+```{r}
+#| label: celltype-recurrence
+ct_recur <- hits |>
+  group_by(cell_type) |>
+  summarise(n_associations = n(),
+            n_metabolites  = n_distinct(Compound.ID),
+            n_genes        = n_distinct(gene), .groups = "drop") |>
+  arrange(desc(n_associations))
+
+p_ct <- ggplot(ct_recur,
+               aes(x = reorder(cell_type, n_metabolites), y = n_metabolites)) +
+  geom_col(fill = "darkorange", alpha = 0.85) +
+  coord_flip() +
+  labs(x = "Cell type", y = "Distinct metabolites associated",
+       title = "Distinct metabolites by cell type") +
+  theme_cowplot(12)
+
+save_dual_format(p_ct, out_dir, "recurrence_celltypes", width = 8, height = 6)
+print(p_ct)
+
+knitr::kable(ct_recur, caption = "Hit counts per cell type")
+```
+
+## Gene sharing across cell types (UpSet)
+
+Which genes are shared vs. cell-type-specific in their metabolite associations.
+
+```{r}
+#| label: upset-genes
+#| fig-width: 10
+#| fig-height: 6
+gene_by_ct <- hits |>
+  distinct(gene, cell_type) |>
+  mutate(present = 1L) |>
+  pivot_wider(names_from = cell_type, values_from = present, values_fill = 0L)
+
+ct_cols <- setdiff(colnames(gene_by_ct), "gene")
+
+if (length(ct_cols) >= 2 && nrow(gene_by_ct) > 0) {
+  UpSetR::upset(
+    as.data.frame(gene_by_ct), sets = ct_cols,
+    nsets = length(ct_cols), nintersects = NA,   # keep all non-empty intersections
+    order.by = "freq", keep.order = TRUE
+  )
+} else {
+  cat("Not enough cell types / genes for an UpSet plot.\n")
+}
+```
+
+## Save recurrence tables
+
+```{r}
+#| label: save-tables
+write_csv(gene_recur,  file.path(csv_dir, "recurrence_genes.csv"))
+write_csv(metab_recur, file.path(csv_dir, "recurrence_metabolites.csv"))
+write_csv(ct_recur,    file.path(csv_dir, "recurrence_celltypes.csv"))
+cat("Recurrence tables written to", csv_dir, "\n")
+```

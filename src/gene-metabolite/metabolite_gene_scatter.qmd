@@ -1,0 +1,159 @@
+---
+title: "Metabolite–Gene Scatter Check (Top 20)"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Purpose
+
+First-pass QC on the top-20 global-FDR metabolite–gene associations: for each
+pair, a side-by-side scatter of **raw** expression vs. the metabolite (left) and
+the **covariate-adjusted** partial-residual view (right). The right panel's slope
+is the `lm` approximation of the modeled effect; because limma fit
+precision-weighted counts, it is close to but not identical to the reported
+logFC. Reads the shared `top20_pairs.csv` so the figures match `check_hit_nonzero.R`.
+
+## Setup — rebuild from cached objects
+
+```{r}
+#| label: setup
+suppressPackageStartupMessages({
+  library(tidyverse); library(edgeR); library(patchwork)
+})
+source("pseudobulk_functions.R")     # merge_hormone_metadata, save_dual_format
+source("metabolite_functions.R")     # build_metab_covariates, metabolite transform helpers
+set.seed(123)
+
+cache_dir    <- "../../data/cache"
+metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
+hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
+pairs_csv    <- "../../results/gene-metabolite/csv/top20_pairs.csv"
+out_dir      <- "../../results/gene-metabolite/scatter-plots"
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+
+MIN_CELLS <- 30
+```
+
+```{r}
+#| label: load
+pb_base     <- readRDS(file.path(cache_dir, "pb_base.rds"))
+batch_props <- readRDS(file.path(cache_dir, "batch_props_sample.rds"))
+
+targeted_comparison_raw <- readxl::read_xlsx(hormone_xlsx)
+targeted_comparison_raw$E2 <- targeted_comparison_raw$`17B-E2 (ng/mL)`
+targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
+targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
+
+pb <- build_metab_covariates(pb_base, targeted_comparison_raw, batch_props,
+                             min_cells = MIN_CELLS)
+
+metab_mat <- read_metabolite_matrix(metab_path)
+metab_z   <- transform_metabolite_matrix(metab_mat)
+# pre-standardization value (log2(x+1) -> min/5 impute), for the raw-scale panel
+metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute))
+dimnames(metab_log) <- dimnames(metab_mat)
+
+pairs <- readr::read_csv(pairs_csv, show_col_types = FALSE)
+
+# per-row keys for pb$counts (rownames = "sample_id.cell_type")
+rn        <- rownames(pb$counts)
+row_samp  <- sub("^([^.]+)\\..*$", "\\1", rn)
+row_ct    <- sub("^[^.]+\\.(.*)$",  "\\1", rn)
+metab_col <- metab_sample_to_pb(colnames(metab_z), row_samp)
+
+# cell_count column name can vary across pipeline versions; resolve once
+cc_col <- intersect(c("cell_count", "n_cells", "ncells"), colnames(pb$metadata))[1]
+```
+
+## Plot builder
+
+```{r}
+#| label: builder
+make_pair_plot <- function(cid, gene, ct, meta_name) {
+  idx  <- which(row_ct == ct)
+  mcol <- metab_col[idx]
+  pos  <- match(mcol, colnames(metab_z))
+  mval <- metab_z[cid, pos]                                 # standardised metabolite
+  keep <- !is.na(mval) & gene %in% colnames(pb$counts)
+  rows_use <- idx[keep]
+  if (length(rows_use) < 3) return(NULL)
+
+  # log1p(CPM) within the modeled subset (matches plot_top_genes_from_subsets)
+  csub <- t(pb$counts[rows_use, , drop = FALSE])            # genes x samples
+  expr <- as.numeric(log1p(edgeR::cpm(csub, log = FALSE)[gene, ]))
+
+  md <- pb$metadata[rn[rows_use], ]
+  df <- tibble(
+    metab      = as.numeric(mval[keep]),                    # z-scored (model scale)
+    metab_raw  = as.numeric(metab_log[cid, pos[keep]]),     # log2(x+1), pre-z
+    expr       = expr,
+    cell_count = if (!is.na(cc_col)) md[[cc_col]] else NA_real_,
+    Sex        = md$Sex,
+    GW         = md$GW,
+    batch1_frac = md$batch1_frac
+  )
+
+  base_layers <- list(
+    geom_point(size = 2, alpha = 0.8),
+    geom_smooth(method = "lm", se = TRUE),
+    scale_color_viridis_c(),
+    scale_shape_manual(values = c("M" = 16, "F" = 17)),
+    theme_minimal(base_size = 13)
+  )
+
+  # PANEL 1: raw metabolite scale, log2(x+1) -- shows the true x-distribution
+  #          (a lone low-abundance sample sits far out here, revealing leverage)
+  p_raw <- ggplot(df, aes(metab_raw, expr, color = cell_count, shape = Sex)) +
+    base_layers + labs(title = "Metabolite log2(x+1)", x = meta_name, y = "log1p(CPM)")
+
+  # PANEL 2: INT-transformed metabolite (model scale), marginal
+  p_mid <- ggplot(df, aes(metab, expr, color = cell_count, shape = Sex)) +
+    base_layers + labs(title = "INT (raw expr)",
+                       x = paste0(meta_name, " (INT)"), y = "log1p(CPM)")
+
+  # PANEL 3: partial residual on the covariates this group actually modeled
+  covs  <- c("GW", "Sex", "batch1_frac")
+  keepc <- covs[vapply(covs, function(cv) length(unique(df[[cv]])) >= 2, logical(1))]
+  fit   <- lm(reformulate(c("metab", keepc), response = "expr"), data = df)
+  df$part <- resid(fit) + coef(fit)[["metab"]] * df$metab
+
+  p_adj <- ggplot(df, aes(metab, part, color = cell_count, shape = Sex)) +
+    base_layers +
+    labs(title = "INT (adjusted)",
+         x = paste0(meta_name, " (INT)"), y = "log1p(CPM), adjusted")
+
+  (p_raw | p_mid | p_adj) +
+    plot_annotation(title = paste0(gene, "  ~  ", meta_name, "   (", ct, ")")) +
+    plot_layout(guides = "collect")
+}
+```
+
+## Generate one file per pair
+
+```{r}
+#| label: generate
+#| results: asis
+for (i in seq_len(nrow(pairs))) {
+  r  <- pairs[i, ]
+  pl <- make_pair_plot(r$Compound.ID, r$gene, r$cell_type, r$Name)
+  if (is.null(pl)) { message("Skipping ", r$gene, " / ", r$Name); next }
+
+  base <- gsub("[^A-Za-z0-9]+", "-",
+               paste(r$Compound.ID, r$gene, r$cell_type, sep = "_"))
+  save_dual_format(pl, out_dir, base, width = 16, height = 5)
+  print(pl)
+}
+cat("\nSaved", nrow(pairs), "scatter pairs to", out_dir, "\n")
+```
