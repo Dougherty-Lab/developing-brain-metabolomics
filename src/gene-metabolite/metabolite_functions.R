@@ -75,18 +75,55 @@ rank_int <- function(x) {
   stats::qnorm((r - 0.375) / (n + 0.25))
 }
 
-#' Per-metabolite transform: min/5 impute -> rank-inverse-normal.
+#' Per-metabolite transform, three selectable methods (row-wise, features x samples):
+#'   "int"          min/5 impute -> rank-inverse-normal      (leverage-robust; default)
+#'   "zscore"       log2(x+1) -> min/5 impute -> z-score      (original)
+#'   "zscore_trim"  log2(x+1) -> IQR-trim observed outliers (excluded, set NA)
+#'                  -> min/5 impute the originally-missing -> z-score
 #'
-#' INT operates on ranks, so a prior log2(x+1) would be a monotonic no-op and is
-#' omitted. Imputation runs first so filled samples have a defined rank; min/5
-#' keeps them smallest, so the rank order (and thus the INT result) is identical
-#' whether imputation is done on the raw or log scale.
-transform_metabolite_matrix <- function(mat) {
-  imputed <- t(apply(mat, 1, min_value_impute))     # NaN -> min(non-NA)/5
-  intd    <- t(apply(imputed, 1, rank_int))         # rank-inverse-normal
-  dimnames(intd)         <- dimnames(mat)
-  attr(intd, "name_lookup") <- attr(mat, "name_lookup")
-  intd
+#' For "zscore_trim", outliers are EXCLUDED (kept NA so downstream drops the
+#' sample), not winsorized; only originally-missing values are imputed. Trimming
+#' runs on observed values BEFORE imputation so fences reflect true data. IQR
+#' fence is Q1 - 0.75*IQR / Q3 + 0.75*IQR, matching the hormone-measurement
+#' convention (stricter than Tukey's 1.5x; Tukey 1977, Exploratory Data Analysis).
+transform_metabolite_matrix <- function(mat, method = c("int", "zscore", "zscore_trim")) {
+  method <- match.arg(method)
+  fn <- switch(method,
+    int         = .tf_int,
+    zscore      = .tf_zscore,
+    zscore_trim = .tf_zscore_trim
+  )
+  out <- t(apply(mat, 1, fn))
+  dimnames(out)            <- dimnames(mat)
+  attr(out, "name_lookup") <- attr(mat, "name_lookup")
+  out
+}
+
+.zscore_vec <- function(v) {
+  s <- stats::sd(v, na.rm = TRUE)
+  if (is.na(s) || s == 0) return(rep(NA_real_, length(v)))
+  (v - mean(v, na.rm = TRUE)) / s          # NA positions stay NA -> excluded
+}
+
+.tf_int <- function(x) rank_int(min_value_impute(x))
+
+.tf_zscore <- function(x) .zscore_vec(min_value_impute(log2(x + 1)))
+
+.tf_zscore_trim <- function(x) {
+  logged  <- log2(x + 1)
+  orig_na <- is.na(logged)                 # originally-missing samples
+  obs     <- logged[!orig_na]
+  if (length(obs) < 2) return(rep(NA_real_, length(x)))
+
+  qs  <- stats::quantile(obs, c(0.25, 0.75), names = FALSE)
+  iqr <- qs[2] - qs[1]
+  lo  <- qs[1] - 0.75 * iqr
+  hi  <- qs[2] + 0.75 * iqr
+
+  v <- logged
+  v[!orig_na & (logged < lo | logged > hi)] <- NA   # trim outliers -> excluded
+  v[orig_na] <- min(v, na.rm = TRUE) / 5            # impute ONLY original missing
+  .zscore_vec(v)
 }
 
 

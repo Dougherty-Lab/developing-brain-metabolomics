@@ -18,12 +18,13 @@ execute:
 
 ## Purpose
 
-First-pass QC on the top-20 global-FDR metabolite–gene associations: for each
-pair, a side-by-side scatter of **raw** expression vs. the metabolite (left) and
-the **covariate-adjusted** partial-residual view (right). The right panel's slope
-is the `lm` approximation of the modeled effect; because limma fit
-precision-weighted counts, it is close to but not identical to the reported
-logFC. Reads the shared `top20_pairs.csv` so the figures match `check_hit_nonzero.R`.
+First-pass QC on the top-20 pairs, three panels per pair:
+**raw** (`log2(x+1)`, all samples — outliers still present), **outlier-trimmed**
+(the `zscore_trim` predictor; trimmed samples drop out, so the panel shows the
+modeled set), and **outlier-trimmed adjusted** (partial residual on the trimmed
+subset). Comparing panel 1 vs 2 shows exactly which samples the IQR trim removes
+and how the slope responds. The adjusted slope is the `lm` approximation of the
+modeled effect (close to, not identical to, limma's precision-weighted logFC).
 
 ## Setup — rebuild from cached objects
 
@@ -33,14 +34,19 @@ suppressPackageStartupMessages({
   library(tidyverse); library(edgeR); library(patchwork)
 })
 source("pseudobulk_functions.R")     # merge_hormone_metadata, save_dual_format
-source("metabolite_functions.R")     # build_metab_covariates, metabolite transform helpers
+source("metabolite_functions.R")     # build_metab_covariates, transforms, mapping
 set.seed(123)
+
+# METHOD sets the middle/right-panel transform. "zscore_trim" = IQR outlier
+# removal; keep "int" to view the INT run instead.
+METHOD    <- "zscore_trim"           # "int" | "zscore" | "zscore_trim"
+suffix    <- if (METHOD == "int") "" else paste0("-", METHOD)
 
 cache_dir    <- "../../data/cache"
 metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
 hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
-pairs_csv    <- "../../results/gene-metabolite/csv/top20_pairs.csv"
-out_dir      <- "../../results/gene-metabolite/scatter-plots"
+pairs_csv    <- "../../results/gene-metabolite/csv/top20_pairs.csv"   # pairs to plot
+out_dir      <- paste0("../../results/gene-metabolite/scatter-plots", suffix)
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 MIN_CELLS <- 30
@@ -60,20 +66,17 @@ pb <- build_metab_covariates(pb_base, targeted_comparison_raw, batch_props,
                              min_cells = MIN_CELLS)
 
 metab_mat <- read_metabolite_matrix(metab_path)
-metab_z   <- transform_metabolite_matrix(metab_mat)
-# pre-standardization value (log2(x+1) -> min/5 impute), for the raw-scale panel
+metab_tx  <- transform_metabolite_matrix(metab_mat, method = METHOD)   # trimmed predictor
+# raw-scale value for panel 1: log2(x+1) -> min/5 impute, NO trimming (all samples)
 metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute))
 dimnames(metab_log) <- dimnames(metab_mat)
 
 pairs <- readr::read_csv(pairs_csv, show_col_types = FALSE)
 
-# per-row keys for pb$counts (rownames = "sample_id.cell_type")
 rn        <- rownames(pb$counts)
-row_samp  <- sub("^([^.]+)\\..*$", "\\1", rn)
 row_ct    <- sub("^[^.]+\\.(.*)$",  "\\1", rn)
-metab_col <- metab_sample_to_pb(colnames(metab_z), row_samp)
+metab_col <- metab_sample_to_pb(colnames(metab_tx), sub("^([^.]+)\\..*$", "\\1", rn))
 
-# cell_count column name can vary across pipeline versions; resolve once
 cc_col <- intersect(c("cell_count", "n_cells", "ncells"), colnames(pb$metadata))[1]
 ```
 
@@ -82,22 +85,19 @@ cc_col <- intersect(c("cell_count", "n_cells", "ncells"), colnames(pb$metadata))
 ```{r}
 #| label: builder
 make_pair_plot <- function(cid, gene, ct, meta_name) {
-  idx  <- which(row_ct == ct)
-  mcol <- metab_col[idx]
-  pos  <- match(mcol, colnames(metab_z))
-  mval <- metab_z[cid, pos]                                 # standardised metabolite
-  keep <- !is.na(mval) & gene %in% colnames(pb$counts)
-  rows_use <- idx[keep]
+  idx     <- which(row_ct == ct)
+  pos     <- match(metab_col[idx], colnames(metab_tx))
+  present <- !is.na(pos) & gene %in% colnames(pb$counts)   # metabolite measured/imputed
+  rows_use <- idx[present]; pos_p <- pos[present]
   if (length(rows_use) < 3) return(NULL)
 
-  # log1p(CPM) within the modeled subset (matches plot_top_genes_from_subsets)
-  csub <- t(pb$counts[rows_use, , drop = FALSE])            # genes x samples
+  csub <- t(pb$counts[rows_use, , drop = FALSE])           # genes x samples
   expr <- as.numeric(log1p(edgeR::cpm(csub, log = FALSE)[gene, ]))
 
   md <- pb$metadata[rn[rows_use], ]
   df <- tibble(
-    metab      = as.numeric(mval[keep]),                    # z-scored (model scale)
-    metab_raw  = as.numeric(metab_log[cid, pos[keep]]),     # log2(x+1), pre-z
+    metab_raw  = as.numeric(metab_log[cid, pos_p]),        # all present samples
+    metab_trim = as.numeric(metab_tx[cid,  pos_p]),        # NA = outlier trimmed out
     expr       = expr,
     cell_count = if (!is.na(cc_col)) md[[cc_col]] else NA_real_,
     Sex        = md$Sex,
@@ -113,28 +113,32 @@ make_pair_plot <- function(cid, gene, ct, meta_name) {
     theme_minimal(base_size = 13)
   )
 
-  # PANEL 1: raw metabolite scale, log2(x+1) -- shows the true x-distribution
-  #          (a lone low-abundance sample sits far out here, revealing leverage)
+  # PANEL 1: raw log2(x+1), ALL samples -- outliers still present
   p_raw <- ggplot(df, aes(metab_raw, expr, color = cell_count, shape = Sex)) +
-    base_layers + labs(title = "Metabolite log2(x+1)", x = meta_name, y = "log1p(CPM)")
+    base_layers + labs(title = "Raw (log2, all samples)", x = meta_name, y = "log1p(CPM)")
 
-  # PANEL 2: INT-transformed metabolite (model scale), marginal
-  p_mid <- ggplot(df, aes(metab, expr, color = cell_count, shape = Sex)) +
-    base_layers + labs(title = "INT (raw expr)",
-                       x = paste0(meta_name, " (INT)"), y = "log1p(CPM)")
+  # PANEL 2: outlier-trimmed predictor -- trimmed samples drop out (NA)
+  dft <- df |> filter(!is.na(metab_trim))
+  p_mid <- ggplot(dft, aes(metab_trim, expr, color = cell_count, shape = Sex)) +
+    base_layers + labs(title = "Outlier-trimmed",
+                       x = paste0(meta_name, " (trimmed z)"), y = "log1p(CPM)")
 
-  # PANEL 3: partial residual on the covariates this group actually modeled
-  covs  <- c("GW", "Sex", "batch1_frac")
-  keepc <- covs[vapply(covs, function(cv) length(unique(df[[cv]])) >= 2, logical(1))]
-  fit   <- lm(reformulate(c("metab", keepc), response = "expr"), data = df)
-  df$part <- resid(fit) + coef(fit)[["metab"]] * df$metab
+  # PANEL 3: partial residual on the trimmed subset + that group's covariates
+  if (nrow(dft) < 4 || length(unique(dft$metab_trim)) < 2) {
+    combined <- (p_raw | p_mid)
+  } else {
+    covs  <- c("GW", "Sex", "batch1_frac")
+    keepc <- covs[vapply(covs, function(cv) length(unique(dft[[cv]])) >= 2, logical(1))]
+    fit   <- lm(reformulate(c("metab_trim", keepc), response = "expr"), data = dft)
+    dft$part <- resid(fit) + coef(fit)[["metab_trim"]] * dft$metab_trim
+    p_adj <- ggplot(dft, aes(metab_trim, part, color = cell_count, shape = Sex)) +
+      base_layers +
+      labs(title = "Outlier-trimmed (adjusted)",
+           x = paste0(meta_name, " (trimmed z)"), y = "log1p(CPM), adjusted")
+    combined <- (p_raw | p_mid | p_adj)
+  }
 
-  p_adj <- ggplot(df, aes(metab, part, color = cell_count, shape = Sex)) +
-    base_layers +
-    labs(title = "INT (adjusted)",
-         x = paste0(meta_name, " (INT)"), y = "log1p(CPM), adjusted")
-
-  (p_raw | p_mid | p_adj) +
+  combined +
     plot_annotation(title = paste0(gene, "  ~  ", meta_name, "   (", ct, ")")) +
     plot_layout(guides = "collect")
 }

@@ -1,0 +1,252 @@
+---
+title: "Metabolite–Gene Stability Filter (outlier-trimmed run)"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Purpose
+
+For the outlier-trimmed (`zscore_trim`) global-FDR hits, keep only associations
+whose metabolite-slope sign is robust to removing **any single sample**. Uses
+`dfbeta` (coefficient change per single deletion; Belsley, Kuh & Welsch 1980) so
+the check is one fit per gene, not N refits. Then: stable-vs-unstable counts, the
+recurrence trio recomputed on stable hits, and top-20 stable scatters.
+
+## Setup
+
+```{r}
+#| label: setup
+Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "edgeR", "patchwork")
+lapply(Packages, library, character.only = TRUE)
+source("pseudobulk_functions.R")     # save_dual_format(), merge_hormone_metadata()
+source("metabolite_functions.R")     # build_metab_covariates(), transforms, mapping
+set.seed(123)
+
+METHOD <- "zscore_trim"
+suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
+
+parquet_dir <- if (METHOD == "int") "../../results/gene-metabolite/parquet" else sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
+
+annot_path  <- "../../results/untargeted/batch2_metabolite_annotations_flagged.csv"
+out_dir     <- "../../results/gene-metabolite"
+fig_dir     <- file.path(out_dir, paste0("stability", suffix))          # bars + recurrence
+csv_dir     <- file.path(out_dir, paste0("csv", suffix))
+scatter_dir <- file.path(out_dir, paste0("scatter-plots", suffix), "stable")
+for (d in c(fig_dir, csv_dir, scatter_dir)) dir.create(d, recursive = TRUE, showWarnings = FALSE)
+
+FDR_GLOBAL <- 0.10
+LFC_MIN    <- 0.25
+LABEL_CHARS <- 30
+
+add_plot_label <- function(df, name_col = "Name", n = LABEL_CHARS) {
+  short <- ifelse(nchar(df[[name_col]]) > n,
+                  paste0(substr(df[[name_col]], 1, n), "\u2026"), df[[name_col]])
+  idx <- stats::ave(seq_along(short), short, FUN = seq_along)
+  short[idx > 1] <- paste0(short[idx > 1], "#", idx[idx > 1])
+  df$label <- short; df
+}
+bh_global <- function(p, m) {
+  o <- order(p); ro <- order(o)
+  adj <- p[o] * m / seq_along(p[o]); adj <- rev(cummin(rev(adj)))
+  pmin(adj[ro], 1)
+}
+```
+
+```{r}
+#| label: load-model-objects
+cache_dir    <- "../../data/cache"
+metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
+hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
+
+pb_base     <- readRDS(file.path(cache_dir, "pb_base.rds"))
+batch_props <- readRDS(file.path(cache_dir, "batch_props_sample.rds"))
+targeted_comparison_raw <- readxl::read_xlsx(hormone_xlsx)
+targeted_comparison_raw$E2 <- targeted_comparison_raw$`17B-E2 (ng/mL)`
+targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
+targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
+
+pb       <- build_metab_covariates(pb_base, targeted_comparison_raw, batch_props, min_cells = 30)
+metab_mat <- read_metabolite_matrix(metab_path)
+metab_tx <- transform_metabolite_matrix(metab_mat, method = METHOD)   # trimmed predictor
+metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute)); dimnames(metab_log) <- dimnames(metab_mat)
+
+rn        <- rownames(pb$counts)
+row_ct    <- sub("^[^.]+\\.(.*)$", "\\1", rn)
+metab_col <- metab_sample_to_pb(colnames(metab_tx), sub("^([^.]+)\\..*$", "\\1", rn))
+cc_col    <- intersect(c("cell_count", "n_cells", "ncells"), colnames(pb$metadata))[1]
+```
+
+## Global-FDR hits
+
+```{r}
+#| label: hits
+ds <- open_dataset(parquet_dir); n_tests <- nrow(ds)
+annot <- read_csv(annot_path, show_col_types = FALSE) |>
+  dplyr::select(Compound.ID, Super.Class, Class, Sub.Class, Pathways, KEGG,
+                Exogenous_Flag, Annotation_Confidence)
+
+hits <- ds |> filter(P.Value < 0.05) |> collect() |>
+  mutate(FDR_global = bh_global(P.Value, n_tests)) |>
+  filter(FDR_global < FDR_GLOBAL, abs(logFC) >= LFC_MIN) |>
+  left_join(annot, by = "Compound.ID")
+
+cat(sprintf("Global-FDR hits: %s\n", format(nrow(hits), big.mark = ",")))
+```
+
+## Single-deletion stability (sign-robust)
+
+```{r}
+#| label: stability
+# stable = removing ANY one sample never flips the metabolite slope's sign.
+# dfbeta gives coef change per single deletion -> coef_without_i = b - dfbeta_i.
+stable_group <- function(cid, ct, genes) {
+  idx  <- which(row_ct == ct)
+  mv   <- metab_tx[cid, match(metab_col[idx], colnames(metab_tx))]
+  keep <- !is.na(mv); rows_use <- idx[keep]
+  md   <- pb$metadata[rn[rows_use], ]
+  lib  <- rowSums(pb$counts[rows_use, , drop = FALSE])
+  base <- tibble(metab_trim = as.numeric(mv[keep]),
+                 GW = md$GW, Sex = md$Sex, batch1_frac = md$batch1_frac)
+  covs  <- c("GW", "Sex", "batch1_frac")
+  keepc <- covs[vapply(covs, function(cv) length(unique(base[[cv]])) >= 2, logical(1))]
+  fml   <- reformulate(c("metab_trim", keepc), response = "expr")
+
+  purrr::map_dfr(genes, function(g) {
+    if (!g %in% colnames(pb$counts)) return(tibble(gene = g, stable = NA))
+    df <- base; df$expr <- log1p(pb$counts[rows_use, g] / lib * 1e6)
+    if (length(unique(df$metab_trim)) < 2 || nrow(df) < length(keepc) + 3)
+      return(tibble(gene = g, stable = NA))
+    fit <- lm(fml, data = df)
+    b   <- coef(fit)[["metab_trim"]]
+    db  <- stats::dfbeta(fit)[, "metab_trim"]
+    tibble(gene = g, stable = all(sign(b - db) == sign(b)))
+  })
+}
+
+reporter <- hits |> group_by(Compound.ID, cell_type) |>
+  group_modify(~ stable_group(.y$Compound.ID, .y$cell_type, .x$gene)) |> ungroup()
+hits <- hits |> left_join(reporter, by = c("Compound.ID", "cell_type", "gene"))
+
+stable_hits <- hits |> filter(stable %in% TRUE)
+write_csv(stable_hits, file.path(csv_dir, "metabolite_gene_hits_stable.csv"))
+
+cat(sprintf("Stable (sign-robust to any 1-sample drop): %s / %s (%.1f%%)\n",
+            format(nrow(stable_hits), big.mark = ","),
+            format(nrow(hits), big.mark = ","),
+            100 * mean(hits$stable %in% TRUE)))
+```
+
+## Stable vs. unstable
+
+```{r}
+#| label: count-bar
+counts <- hits |>
+  mutate(status = ifelse(stable %in% TRUE, "stable", "unstable")) |>
+  count(status)
+
+p_cnt <- ggplot(counts, aes(status, n, fill = status)) +
+  geom_col(alpha = 0.85, show.legend = FALSE) +
+  geom_text(aes(label = scales::comma(n)), vjust = -0.3) +
+  scale_fill_manual(values = c(stable = "steelblue", unstable = "grey60")) +
+  labs(x = NULL, y = "Hits", title = "Sign-stability of global-FDR hits") +
+  theme_cowplot(13)
+save_dual_format(p_cnt, fig_dir, "stability_counts", width = 5, height = 5)
+print(p_cnt)
+```
+
+## Recurrence on stable hits
+
+```{r}
+#| label: recurrence
+gene_recur <- stable_hits |> group_by(gene) |>
+  summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop") |>
+  slice_max(n_metabolites, n = 25)
+p_g <- ggplot(gene_recur, aes(reorder(gene, n_metabolites), n_metabolites)) +
+  geom_col(fill = "steelblue", alpha = 0.85) + coord_flip() +
+  labs(x = "Gene", y = "Distinct metabolites", title = "Stable: top genes") + theme_cowplot(12)
+save_dual_format(p_g, fig_dir, "stable_recurrence_genes", width = 8, height = 7); print(p_g)
+
+metab_recur <- stable_hits |> group_by(Compound.ID, Name, Super.Class) |>
+  summarise(n_genes = n_distinct(gene), .groups = "drop") |>
+  slice_max(n_genes, n = 25) |> add_plot_label()
+write_csv(metab_recur |> dplyr::select(label, Name, Compound.ID),
+          file.path(fig_dir, "stable_recurrence_metabolites_labels.csv"))
+p_m <- ggplot(metab_recur, aes(reorder(label, n_genes), n_genes, fill = Super.Class)) +
+  geom_col(alpha = 0.85) + coord_flip() +
+  labs(x = "Metabolite", y = "Distinct genes", title = "Stable: top metabolites") + theme_cowplot(12)
+save_dual_format(p_m, fig_dir, "stable_recurrence_metabolites", width = 10, height = 7); print(p_m)
+
+ct_recur <- stable_hits |> group_by(cell_type) |>
+  summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop")
+p_c <- ggplot(ct_recur, aes(reorder(cell_type, n_metabolites), n_metabolites)) +
+  geom_col(fill = "darkorange", alpha = 0.85) + coord_flip() +
+  labs(x = "Cell type", y = "Distinct metabolites", title = "Stable: by cell type") + theme_cowplot(12)
+save_dual_format(p_c, fig_dir, "stable_recurrence_celltypes", width = 8, height = 6); print(p_c)
+```
+
+## Top-20 stable scatters (outlier-trimmed panels)
+
+```{r}
+#| label: scatter-builder
+make_pair_plot <- function(cid, gene, ct, meta_name) {
+  idx <- which(row_ct == ct); pos <- match(metab_col[idx], colnames(metab_tx))
+  present <- !is.na(pos) & gene %in% colnames(pb$counts)
+  rows_use <- idx[present]; pos_p <- pos[present]
+  if (length(rows_use) < 3) return(NULL)
+  expr <- as.numeric(log1p(edgeR::cpm(t(pb$counts[rows_use, , drop = FALSE]), log = FALSE)[gene, ]))
+  md <- pb$metadata[rn[rows_use], ]
+  df <- tibble(metab_raw = as.numeric(metab_log[cid, pos_p]),
+               metab_trim = as.numeric(metab_tx[cid, pos_p]), expr = expr,
+               cell_count = if (!is.na(cc_col)) md[[cc_col]] else NA_real_,
+               Sex = md$Sex, GW = md$GW, batch1_frac = md$batch1_frac)
+  bl <- list(geom_point(size = 2, alpha = 0.8), geom_smooth(method = "lm", se = TRUE),
+             scale_color_viridis_c(), scale_shape_manual(values = c("M" = 16, "F" = 17)),
+             theme_minimal(base_size = 13))
+  p_raw <- ggplot(df, aes(metab_raw, expr, color = cell_count, shape = Sex)) + bl +
+    labs(title = "Raw (log2, all samples)", x = meta_name, y = "log1p(CPM)")
+  dft <- df |> filter(!is.na(metab_trim))
+  p_mid <- ggplot(dft, aes(metab_trim, expr, color = cell_count, shape = Sex)) + bl +
+    labs(title = "Outlier-trimmed", x = paste0(meta_name, " (trimmed z)"), y = "log1p(CPM)")
+  covs <- c("GW", "Sex", "batch1_frac")
+  keepc <- covs[vapply(covs, function(cv) length(unique(dft[[cv]])) >= 2, logical(1))]
+  fit <- lm(reformulate(c("metab_trim", keepc), response = "expr"), data = dft)
+  dft$part <- resid(fit) + coef(fit)[["metab_trim"]] * dft$metab_trim
+  p_adj <- ggplot(dft, aes(metab_trim, part, color = cell_count, shape = Sex)) + bl +
+    labs(title = "Outlier-trimmed (adjusted)", x = paste0(meta_name, " (trimmed z)"),
+         y = "log1p(CPM), adjusted")
+  (p_raw | p_mid | p_adj) +
+    plot_annotation(title = paste0(gene, "  ~  ", meta_name, "   (", ct, ")")) +
+    plot_layout(guides = "collect")
+}
+```
+
+```{r}
+#| label: scatter-generate
+#| results: asis
+top20 <- stable_hits |>
+  arrange(FDR_global, desc(abs(logFC))) |>
+  distinct(Compound.ID, .keep_all = TRUE) |>
+  slice_head(n = 20)
+
+for (i in seq_len(nrow(top20))) {
+  r  <- top20[i, ]
+  pl <- make_pair_plot(r$Compound.ID, r$gene, r$cell_type, r$Name)
+  if (is.null(pl)) next
+  base <- gsub("[^A-Za-z0-9]+", "-", paste(r$Compound.ID, r$gene, r$cell_type, sep = "_"))
+  save_dual_format(pl, scatter_dir, base, width = 16, height = 5)
+  print(pl)
+}
+cat("\nSaved", nrow(top20), "stable scatters to", scatter_dir, "\n")
+```

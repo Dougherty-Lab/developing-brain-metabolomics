@@ -1,6 +1,6 @@
 ---
 title: "Metabolite–Gene Associations"
-subtitle: "Sneha Chaturvedi"
+subtitle: "Sneha Chaturvedi, Emma Jones"
 date: today
 format:
   revealjs:
@@ -32,20 +32,51 @@ re-run the loop.
 
 ```{r}
 #| label: load-packages
-Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "UpSetR")
+Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "UpSetR", "edgeR")
 lapply(Packages, library, character.only = TRUE)
 
-source("pseudobulk_functions.R")   # save_dual_format()
+source("pseudobulk_functions.R")     # save_dual_format(), merge_hormone_metadata()
+source("metabolite_functions.R")     # build_metab_covariates(), INT transform, mapping
 set.seed(123)
 ```
 
 ```{r}
+#| label: load-model-objects
+# METHOD selects which transform run to analyze; it sets the parquet read below
+# AND the reporter's predictor transform, so they can never mismatch.
+METHOD <- "zscore_trim"                        # "int" | "zscore" | "zscore_trim"
+suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
+parquet_dir <- if (METHOD == "int") {"../../results/gene-metabolite/parquet"} else {sprintf("../../results/gene-metabolite/parquet-%s", METHOD)}
+
+# Rebuild the modeled objects (needed only for the LOO / Cook's reporter below).
+cache_dir    <- "../../data/cache"
+metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
+hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
+
+pb_base     <- readRDS(file.path(cache_dir, "pb_base.rds"))
+batch_props <- readRDS(file.path(cache_dir, "batch_props_sample.rds"))
+targeted_comparison_raw <- readxl::read_xlsx(hormone_xlsx)
+targeted_comparison_raw$E2 <- targeted_comparison_raw$`17B-E2 (ng/mL)`
+targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
+targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
+
+pb       <- build_metab_covariates(pb_base, targeted_comparison_raw, batch_props,
+                                   min_cells = 30)
+metab_tx <- transform_metabolite_matrix(read_metabolite_matrix(metab_path),
+                                        method = METHOD)   # matches the parquet run
+
+rn        <- rownames(pb$counts)
+row_ct    <- sub("^[^.]+\\.(.*)$", "\\1", rn)
+metab_col <- metab_sample_to_pb(colnames(metab_tx), sub("^([^.]+)\\..*$", "\\1", rn))
+```
+
+```{r}
 #| label: config
-parquet_dir  <- "../../results/gene-metabolite/parquet"
+# parquet_dir + suffix come from the load-model-objects chunk (METHOD switch).
 annot_path   <- "../../results/untargeted/batch2_metabolite_annotations_flagged.csv"
 out_dir      <- "../../results/gene-metabolite"
-svg_dir      <- file.path(out_dir, "svg")
-csv_dir      <- file.path(out_dir, "csv")
+svg_dir      <- file.path(out_dir, paste0("svg", suffix))   # method-keyed: no clobber
+csv_dir      <- file.path(out_dir, paste0("csv", suffix))
 for (d in c(out_dir, svg_dir, csv_dir)) dir.create(d, recursive = TRUE, showWarnings = FALSE)
 
 FDR_WITHIN <- 0.10   # primary screen (within metabolite x cell type)
@@ -111,25 +142,75 @@ cat(sprintf("Candidate rows (p < 0.05): %s\n",
             format(nrow(candidates), big.mark = ",")))
 ```
 
-## Annotation join + primary screen
+## Global-FDR hits + stability reporter
 
 ```{r}
 #| label: annotate-and-filter
 annot <- read_csv(annot_path, show_col_types = FALSE) |>
-  dplyr::select(Compound.ID, Super.Class, Class, Sub.Class, Pathways, KEGG,
-         Exogenous_Flag, Annotation_Confidence)
+  dplyr::select(Compound.ID, Super.Class, Class, Sub.Class, Pathways, KEGG, Exogenous_Flag, Annotation_Confidence)
 
+# Primary screen = global FDR (BH across all tests) & |logFC|. Within-FDR
+# (adj.P.Val) is retained as a carried column.
 hits <- candidates |>
-  filter(adj.P.Val < FDR_WITHIN, abs(logFC) >= LFC_MIN) |>
+  filter(FDR_global < FDR_GLOBAL, abs(logFC) >= LFC_MIN) |>
   left_join(annot, by = "Compound.ID") |>
-  arrange(cell_type, Compound.ID, adj.P.Val)
+  arrange(cell_type, Compound.ID, FDR_global)
 
+cat(sprintf("Global-FDR hits (FDR < %.2f & |logFC| >= %.2f): %s\n",
+            FDR_GLOBAL, LFC_MIN, format(nrow(hits), big.mark = ",")))
+```
+
+```{r}
+#| label: stability-reporter
+# Per hit, REPORTER columns (do not gate significance -- filter on them later):
+#   n_nonzero    modeled samples with raw count >= 2
+#   max_cooks    max Cook's distance in the lm(log1p(CPM) ~ metab + covariates)
+#   loo_unstable dropping the most influential sample flips the metabolite slope
+#                or halves |slope| -> small-n fragility (Squair et al. 2021,
+#                Nat Commun 12:5692). INT bounds leverage, so a TRUE here is a
+#                thin association, not a single extreme-value artefact.
+report_group <- function(cid, ct, genes) {
+  idx      <- which(row_ct == ct)
+  mv       <- metab_tx[cid, match(metab_col[idx], colnames(metab_tx))]
+  keep     <- !is.na(mv)
+  rows_use <- idx[keep]
+  md       <- pb$metadata[rn[rows_use], ]
+  lib      <- rowSums(pb$counts[rows_use, , drop = FALSE])     # library size / sample
+  base     <- tibble(metab = as.numeric(mv[keep]),
+                     GW = md$GW, Sex = md$Sex, batch1_frac = md$batch1_frac)
+  covs  <- c("GW", "Sex", "batch1_frac")
+  keepc <- covs[vapply(covs, function(cv) length(unique(base[[cv]])) >= 2, logical(1))]
+  fml   <- reformulate(c("metab", keepc), response = "expr")
+
+  purrr::map_dfr(genes, function(g) {
+    if (!g %in% colnames(pb$counts))
+      return(tibble(gene = g, n_nonzero = NA_integer_,
+                    max_cooks = NA_real_, loo_unstable = NA))
+    cnt <- pb$counts[rows_use, g]
+    df  <- base; df$expr <- log1p(cnt / lib * 1e6)             # log1p(CPM)
+    if (length(unique(df$metab)) < 2 || nrow(df) < 4)
+      return(tibble(gene = g, n_nonzero = sum(cnt >= 2),
+                    max_cooks = NA_real_, loo_unstable = NA))
+    fit <- lm(fml, data = df)
+    cd  <- cooks.distance(fit); b <- coef(fit)[["metab"]]
+    b2  <- coef(lm(fml, data = df[-which.max(cd), ]))[["metab"]]
+    tibble(gene = g, n_nonzero = sum(cnt >= 2), max_cooks = max(cd),
+           loo_unstable = sign(b2) != sign(b) || abs(b2) < 0.5 * abs(b))
+  })
+}
+
+reporter <- hits |>
+  group_by(Compound.ID, cell_type) |>
+  group_modify(~ report_group(.y$Compound.ID, .y$cell_type, .x$gene)) |>
+  ungroup()
+
+hits <- hits |> left_join(reporter, by = c("Compound.ID", "cell_type", "gene"))
 write_csv(hits, file.path(csv_dir, "metabolite_gene_hits.csv"))
 
-cat(sprintf("Primary hits (within FDR < %.2f & |logFC| >= %.2f): %s\n",
-            FDR_WITHIN, LFC_MIN, format(nrow(hits), big.mark = ",")))
-cat(sprintf("  ...also global FDR < %.2f: %s\n",
-            FDR_GLOBAL, format(sum(hits$FDR_global < FDR_GLOBAL), big.mark = ",")))
+cat(sprintf("Reporter added. loo_unstable: %s of %s hits (%.1f%%) flagged fragile.\n",
+            format(sum(hits$loo_unstable, na.rm = TRUE), big.mark = ","),
+            format(nrow(hits), big.mark = ","),
+            100 * mean(hits$loo_unstable, na.rm = TRUE)))
 ```
 
 ## Recurrence — genes across metabolites

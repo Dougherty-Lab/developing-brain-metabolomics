@@ -23,7 +23,6 @@ suppressPackageStartupMessages({
   library(limma)
   library(arrow)
 })
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-metabolite/")
 
 source("pseudobulk_functions.R")     # build_pseudobulk, merge_hormone_metadata, .safe_vars
 source("metabolite_functions.R")     # metabolite transform + analysis helpers
@@ -34,8 +33,16 @@ set.seed(123)
 cache_dir   <- "../../data/cache"
 metab_path  <- "../../results/untargeted/batch2_peak_area_clean.csv"
 hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
-out_dir     <- "../../results/gene-metabolite/parquet"
 
+# Predictor transform for this run. "int" (leverage-robust, current run) writes
+# to .../parquet; any other method writes to .../parquet-<method> so a second
+# run cannot clobber the first. For the outlier-trim comparison:  METHOD <- "zscore_trim"
+METHOD  <- "zscore_trim"                       # "int" | "zscore" | "zscore_trim"
+out_dir <- if (METHOD == "int") {
+  "../../results/gene-metabolite/parquet"
+} else {
+  sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
+}
 MIN_CELLS   <- 30    # min cells per (sample x cell type), matches hormone pipeline
 MIN_SAMPLES <- 10    # min samples per cell-type group to fit a model
 
@@ -59,12 +66,12 @@ pb <- build_metab_covariates(
 cat(sprintf("Pseudobulk samples: %d | cell types: %d\n",
             nrow(pb$metadata), dplyr::n_distinct(pb$metadata$cell_type)))
 
-# ---- metabolite matrix: log2(x+1) -> min/5 impute -> z-score -----------------
+# ---- metabolite matrix: transform per METHOD (see top) -----------------------
 metab_mat   <- read_metabolite_matrix(metab_path)
-metab_z     <- transform_metabolite_matrix(metab_mat)
+metab_z     <- transform_metabolite_matrix(metab_mat, method = METHOD)
 name_lookup <- attr(metab_z, "name_lookup")
-cat(sprintf("Metabolites: %d | metabolite samples: %d\n",
-            nrow(metab_z), ncol(metab_z)))
+cat(sprintf("Transform: %s | metabolites: %d | metabolite samples: %d\n",
+            METHOD, nrow(metab_z), ncol(metab_z)))
 
 # Map metabolite SampleNN columns -> pb sample order (NA where a pb sample has
 # no metabolite measurement). Built once; reused for every metabolite.
