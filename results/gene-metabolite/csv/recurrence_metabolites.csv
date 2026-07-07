@@ -1,489 +1,455 @@
 Compound.ID,Name,Super.Class,Class,n_genes,n_cell_types
-C8-Pos-005561,Pc(22:5cooh_25:8),Lipids and lipid-like molecules,Glycerophospholipids,6233,8
-Amide-Neg-000089,Methanesulfonic Acid,Organic acids and derivatives,Organic sulfonic acids and derivatives,5992,8
-Amide-Pos-000710,Meglumine,Organic oxygen compounds,Organooxygen compounds,4724,7
-C8-Neg-003398,Pi(22:0_12:1),Lipids and lipid-like molecules,Glycerophospholipids,4391,7
-Amide-Neg-000118,3-Hydroxybutyric Acid,Organic acids and derivatives,Hydroxy acids and derivatives,3956,8
-C8-Neg-003656,Pe(19:1cooh_28:3),Lipids and lipid-like molecules,Glycerophospholipids,3528,7
-C8-Pos-000148,Palmitoleic Acid,Lipids and lipid-like molecules,Fatty Acyls,2997,7
-Amide-Pos-000091,1-Aminocyclopropanecarboxylic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,2791,9
-C8-Neg-003439,Dgdg(18:0_11:1),Lipids and lipid-like molecules,Glycerolipids,2781,4
-C8-Pos-000616,Progesterone,Lipids and lipid-like molecules,Steroids and steroid derivatives,2449,10
-C8-Neg-003596,Ps(23:2_21:0),Lipids and lipid-like molecules,Glycerophospholipids,2130,7
-C8-Pos-000855,Dipropyleneglycol Dibenzoate,Benzenoids,Benzene and substituted derivatives,2105,8
-C18-Pos-002092,Adenosine 3'5'-Cyclic Monophosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,1964,5
-Amide-Pos-000686,"N6,N6,N6-Trimethyl-L-Lysine",Organic acids and derivatives,Carboxylic acids and derivatives,1850,6
-C8-Pos-000495,"17-(1-Hydroxyethyl)-10,13-Dimethyl-2,3,6,7,8,9,10,11,12,13,14,15,16,17-Tetradecahydro-1h-Cyclopenta[A]Phenanthren-3-One",Lipids and lipid-like molecules,Steroids and steroid derivatives,1683,5
-C8-Pos-005016,Pc(28:6_10:0cooh),Lipids and lipid-like molecules,Glycerophospholipids,1524,4
-Amide-Neg-000697,Dl-Arginine,Organic acids and derivatives,Carboxylic acids and derivatives,1298,5
-C8-Pos-000740,Geranylgeranylacetone,Lipids and lipid-like molecules,Prenol lipids,1298,6
-Amide-Neg-000314,Mesaconic Acid,Lipids and lipid-like molecules,Fatty Acyls,1284,6
-C8-Pos-004759,Pe(O-20:1_22:6),Lipids and lipid-like molecules,Glycerophospholipids,1259,6
-Amide-Neg-000484,L-Lysine,Organic acids and derivatives,Carboxylic acids and derivatives,1245,4
-C18-Pos-001811,N-Acetyl-1-Aspartylglutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1145,5
-C8-Neg-003546,Ps(23:4_21:5),Lipids and lipid-like molecules,Glycerophospholipids,1137,4
-Amide-Pos-000690,Gly-Asp,Organic acids and derivatives,Carboxylic acids and derivatives,1079,3
-Amide-Neg-000866,N-Acetyl-L-Methionine,Organic acids and derivatives,Carboxylic acids and derivatives,1067,6
-Amide-Pos-001387,Asp-Pro-Asn,Organic acids and derivatives,Carboxylic acids and derivatives,951,5
-C8-Pos-000610,"2-Methyl-5-{2-[2-(4-Methyl-3,6-Dioxocyclohexa-1,4-Dienyl)Ethoxy]Ethyl}Benzo-1,4-Quinone",Organic oxygen compounds,Organooxygen compounds,937,4
-C18-Pos-001549,Triethyl Citrate,Organic acids and derivatives,Carboxylic acids and derivatives,883,3
-C8-Pos-003685,Pe(O-26:3_7:0),Lipids and lipid-like molecules,Glycerophospholipids,843,4
-Amide-Pos-000376,L(+)-Ornithine,Organic acids and derivatives,Carboxylic acids and derivatives,830,4
-C8-Pos-005193,Pc(20:0_22:5),Lipids and lipid-like molecules,Glycerophospholipids,813,3
-Amide-Neg-000001,Acrylic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,810,2
-Amide-Neg-000158,Maleic Hydrazide,Organoheterocyclic compounds,Diazines,802,2
-Amide-Pos-001105,Υ-L-Glutamyl-L-Glutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,749,7
-C8-Pos-004891,Pet(20:0_23:6),Lipids and lipid-like molecules,Glycerophospholipids,725,4
-Amide-Pos-000658,Trans-3-Indoleacrylic Acid,Organoheterocyclic compounds,Indoles and derivatives,722,5
-C8-Pos-000350,Citroflex 2,Organic acids and derivatives,Carboxylic acids and derivatives,714,4
-Amide-Neg-000486,L-Glutamine,Organic acids and derivatives,Carboxylic acids and derivatives,701,6
-C8-Pos-004964,Bmp 22:5_22:6,Lipids and lipid-like molecules,Glycerophospholipids,701,2
-C8-Pos-004035,Lpe 38:6,Lipids and lipid-like molecules,Glycerophospholipids,678,4
-C8-Neg-003419,Ps(23:1_17:2),Lipids and lipid-like molecules,Glycerophospholipids,677,3
-Amide-Pos-000372,Asparagine,Organic acids and derivatives,Carboxylic acids and derivatives,673,4
-C8-Pos-004801,Pc(16:1cooh_23:3),Lipids and lipid-like molecules,Glycerophospholipids,667,2
-C8-Pos-004612,Pc(9:0cho_26:1),Lipids and lipid-like molecules,Glycerophospholipids,661,3
-C8-Neg-003657,Ps(17:1_29:3),Lipids and lipid-like molecules,Glycerophospholipids,641,5
-Amide-Neg-000149,2-Furoic Acid,Organoheterocyclic compounds,Furans,640,9
-C8-Pos-005012,Pc(17:4cooh_23:5),Lipids and lipid-like molecules,Glycerophospholipids,628,2
-C18-Pos-001113,Methyl L-Tryptophanate,Organic acids and derivatives,Carboxylic acids and derivatives,590,9
-Amide-Pos-000849,Carnosine,Organic acids and derivatives,Peptidomimetics,560,3
-C8-Neg-000519,4-Dodecylbenzenesulfonic Acid,Benzenoids,Benzene and substituted derivatives,558,8
-Amide-Neg-000078,Isobutyric Acid,Organic acids and derivatives,Carboxylic acids and derivatives,543,2
-C8-Neg-003462,Pc(17:3_20:1),Lipids and lipid-like molecules,Glycerophospholipids,529,8
-C8-Pos-000806,Glycerol Monooleate,Lipids and lipid-like molecules,Glycerolipids,528,2
-C18-Pos-001292,"Bis(2,2,6,6-Tetramethyl-4-Piperidyl)Sebacate",Lipids and lipid-like molecules,Fatty Acyls,514,4
-Amide-Neg-000219,N-Acetylglycine,Organic acids and derivatives,Carboxylic acids and derivatives,499,3
-C8-Neg-003343,Pg(20:3_20:4),Lipids and lipid-like molecules,Glycerophospholipids,498,4
-Amide-Pos-001107,L-Saccharopine,Organic acids and derivatives,Carboxylic acids and derivatives,494,5
-C18-Pos-000207,Caprolactam,Organoheterocyclic compounds,Lactams,479,4
-C8-Pos-005464,Pc(26:6_21:6cho),Lipids and lipid-like molecules,Glycerophospholipids,471,4
-C8-Pos-005110,Pe(O-14:0_32:0),Lipids and lipid-like molecules,Glycerophospholipids,468,8
-C8-Pos-001592,"2-[{[(1s,4s,6s)-4-({5-[4-(Dimethylamino)Phenyl]-1,3,4-Oxadiazol-2-Yl}Methyl)-6-Isopropyl-3-Methyl-2-Cyclohexen-1-Yl]Methyl}(Methyl)Amino]Ethanol",Lipids and lipid-like molecules,Prenol lipids,453,9
-C8-Pos-000342,Palmitic Acid,Lipids and lipid-like molecules,Fatty Acyls,446,4
-Amide-Pos-000996,2'-Deoxyadenosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,442,5
-C18-Pos-002114,Nicotinamide Adenine Dinucleotide (Nad+),"Nucleosides, nucleotides, and analogues",(5'->5')-dinucleotides,438,3
-C8-Neg-000383,(Rac)-Idroxioleic Acid,Lipids and lipid-like molecules,Fatty Acyls,427,4
-C8-Neg-003658,Pc(19:2cooh_21:6),Lipids and lipid-like molecules,Glycerophospholipids,407,1
-C8-Pos-001521,Triethyleneglycol Bis(2-Ethylhexanoate),Lipids and lipid-like molecules,Fatty Acyls,396,1
-C18-Pos-000695,2-Aminocaprylate,Organic acids and derivatives,Carboxylic acids and derivatives,392,1
-Amide-Neg-001329,Spongouridin,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleosides,391,2
-C8-Pos-000612,"4-Hydroxy-6-[2-(2-Methyl-1,2,4a,5,6,7,8,8a-Octahydronaphthalen-1-Yl)Ethyl]Oxan-2-One",Organoheterocyclic compounds,Lactones,388,4
-C18-Pos-000931,"1,3-Benzodioxolylbutanamine (Bdb)",Organoheterocyclic compounds,Benzodioxoles,374,3
-Amide-Neg-000678,Dehydroascorbic Acid,Organoheterocyclic compounds,Lactones,366,3
-Amide-Neg-000171,Glutaric Anhydride,Organoheterocyclic compounds,Lactones,360,6
-C8-Pos-004445,Pc(P-12:1_26:4),Lipids and lipid-like molecules,Glycerophospholipids,338,5
-C8-Pos-004866,Pet(16:0_27:7),Lipids and lipid-like molecules,Glycerophospholipids,337,2
-C8-Pos-003694,Tg(15:1cooh_24:0),Lipids and lipid-like molecules,Glycerolipids,332,4
-C8-Pos-003929,Tg(28:6_14:3cho),Lipids and lipid-like molecules,Glycerolipids,329,6
-C8-Pos-004340,Pc(19:1_15:0),Lipids and lipid-like molecules,Glycerophospholipids,321,3
-C8-Pos-003901,Dl-Dipalmitoylphosphatidylcholine,Lipids and lipid-like molecules,Glycerophospholipids,313,6
-Amide-Neg-001331,Pseudouridine,"Nucleosides, nucleotides, and analogues",Nucleoside and nucleotide analogues,296,3
-Amide-Pos-000085,Cyclohexylamine,Organic nitrogen compounds,Organonitrogen compounds,292,4
-Amide-Pos-001103,L-Glutarylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,288,3
-Amide-Neg-000235,D-Threonine,Organic acids and derivatives,Carboxylic acids and derivatives,266,3
-C8-Neg-002622,Lpc(23:6),Lipids and lipid-like molecules,Glycerophospholipids,249,2
-C8-Neg-002832,Oahfa(15:1_25:3),Lipids and lipid-like molecules,Fatty acyls,236,3
-C8-Pos-004650,Tg(39:10_9:2cho),Lipids and lipid-like molecules,Glycerolipids,230,2
-C8-Pos-004574,1-Palmitoyl-2-Docosahexaenoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,224,8
-Amide-Neg-000135,D-Glyceric Acid,Organic oxygen compounds,Organooxygen compounds,214,3
-C8-Pos-005132,Pi(19:4_19:4),Lipids and lipid-like molecules,Glycerophospholipids,201,6
-Amide-Neg-000647,"6-Chloro-5-Methyl-1h-1,2,3-Benzotriazole",Organoheterocyclic compounds,Benzotriazoles,197,5
-C8-Pos-002397,Tg(18:1_3:0_4:0cooh),Lipids and lipid-like molecules,Glycerolipids,196,4
-Amide-Pos-000314,4-Piperidinecarboxamide,Organoheterocyclic compounds,Piperidines,186,5
-C8-Pos-004731,Pe 18:0_24:5,Lipids and lipid-like molecules,Glycerophospholipids,185,4
-C8-Neg-003644,Pc(21:1cooh_23:6),Lipids and lipid-like molecules,Glycerophospholipids,183,3
-C18-Pos-002054,Peg N7,Organic oxygen compounds,Organooxygen compounds,179,4
-Amide-Pos-000230,Prolinamide,Organic acids and derivatives,Carboxylic acids and derivatives,162,3
-C8-Pos-003874,Pc 16:0_16:1,Lipids and lipid-like molecules,Glycerophospholipids,162,1
-Amide-Pos-000461,4-Quinolinol,Organoheterocyclic compounds,Quinolines and derivatives,157,3
-C8-Pos-003565,Cerp(D18:0_20:3),Lipids and lipid-like molecules,Sphingolipids,154,5
-Amide-Neg-000523,Xanthine,Organoheterocyclic compounds,Imidazopyrimidines,151,2
-C8-Neg-002972,Oahfa(15:1_27:4),Lipids and lipid-like molecules,Fatty acyls,151,4
-C8-Pos-004333,Pe(17:5cho_22:6),Lipids and lipid-like molecules,Glycerophospholipids,146,4
-C18-Neg-002092,1-Stearoyl-2-Hydroxy-Sn-Glycero-3-Phosphoethanolamine,Lipids and lipid-like molecules,Glycerophospholipids,145,7
-C8-Pos-005013,Pc(18:2_20:4cooh),Lipids and lipid-like molecules,Glycerophospholipids,145,8
-Amide-Neg-000787,D-(-)-Mannitol,Organic oxygen compounds,Organooxygen compounds,143,3
-Amide-Neg-000015,Glycolic Acid,Organic acids and derivatives,Hydroxy acids and derivatives,140,3
-Amide-Neg-000344,L-Ornithine,Organic acids and derivatives,Carboxylic acids and derivatives,139,5
-Amide-Neg-000574,N-Acetyl-L-Valine,Organic acids and derivatives,Carboxylic acids and derivatives,136,8
-Amide-Pos-002120,Dihydronicotinamide-Adenine Dinucleotide,"Nucleosides, nucleotides, and analogues",(5'->5')-dinucleotides,136,7
-C18-Pos-001159,Biotin,Organoheterocyclic compounds,Biotin and derivatives,135,8
-Amide-Neg-000316,Acetyl-D-Alanine,Organic acids and derivatives,Carboxylic acids and derivatives,131,3
-C18-Pos-000567,Phloretic Acid,Phenylpropanoids and polyketides,Phenylpropanoic acids,128,6
-C8-Pos-004947,Pc O-42:6,Lipids and lipid-like molecules,Glycerophospholipids,127,4
-C8-Pos-001413,Miltefosine,Organic nitrogen compounds,Organonitrogen compounds,125,2
-Amide-Neg-000587,2-Oxoadipic Acid,Organic acids and derivatives,Keto acids and derivatives,122,2
-Amide-Pos-000747,"N3,N4-Dimethyl-L-Arginine",Organic acids and derivatives,Carboxylic acids and derivatives,120,3
-C8-Pos-003179,Nervonic Ceramide,Lipids and lipid-like molecules,Sphingolipids,116,3
-C8-Pos-003290,Tg(2:0_11:0_23:4),Lipids and lipid-like molecules,Glycerolipids,109,4
-Amide-Pos-000661,N8-Acetylspermidine,Organic acids and derivatives,Carboximidic acids and derivatives,108,6
-C8-Pos-001297,Bis(4-Ethylbenzylidene)Sorbitol,Organoheterocyclic compounds,Dioxanes,108,4
-Amide-Pos-001947,Udp-Β-D-Glucose (Sodium Salt),"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,107,2
-Amide-Pos-000240,"N,N-Diethylethanolamine",Organic nitrogen compounds,Organonitrogen compounds,106,4
-Amide-Pos-000913,Anserine,Organic acids and derivatives,Peptidomimetics,105,5
-C8-Neg-000301,Ala-Pro-Asn,Organic acids and derivatives,Carboxylic acids and derivatives,105,2
-C18-Pos-001343,3-Hydroxybutyrylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,104,6
-C8-Neg-003216,Sqdg(2:0_28:0),Lipids and lipid-like molecules,Glycerolipids,102,2
-Amide-Pos-001270,2-Acetamido-N-Β-Aspartyl-2-Deoxyhexopyranosylamine,Organic oxygen compounds,Organooxygen compounds,99,3
-C8-Neg-003377,Pi(16:1_18:3),Lipids and lipid-like molecules,Glycerophospholipids,99,4
-C8-Pos-005192,Ps(20:5_24:4),Lipids and lipid-like molecules,Glycerophospholipids,98,2
-Amide-Pos-001317,N-Acetyl-Neuraminic Acid,Organic oxygen compounds,Organooxygen compounds,96,2
-C8-Pos-001076,Bis(Methylbenzylidene)Sorbitol,Phenylpropanoids and polyketides,Cinnamyl alcohols,96,8
-C8-Pos-000022,Chalcone,Phenylpropanoids and polyketides,"Linear 1,3-diarylpropanoids",94,4
-Amide-Neg-001321,Cytidine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleosides,93,4
-Amide-Pos-001385,"[2,2'-Biquinoline]-4,4'-Dicarboxylic Acid",Organoheterocyclic compounds,Quinolines and derivatives,92,6
-C8-Pos-000208,Opeo,Benzenoids,Benzene and substituted derivatives,92,3
-C18-Pos-000839,Triethyl Phosphate,Organic acids and derivatives,Organic phosphoric acids and derivatives,90,1
-C18-Pos-001575,Asp-Phe,Organic acids and derivatives,Carboxylic acids and derivatives,90,2
-C8-Pos-005313,Pe(21:4cooh_24:6),Lipids and lipid-like molecules,Glycerophospholipids,87,3
-C8-Pos-004874,Pc(6:0cooh_30:1),Lipids and lipid-like molecules,Glycerophospholipids,84,1
-Amide-Pos-000144,2-Aminoisobutyric Acid,Organic acids and derivatives,Carboxylic acids and derivatives,79,4
-Amide-Neg-000405,L-Threonic Acid Calcium Salt,Organic oxygen compounds,Organooxygen compounds,77,3
-Amide-Neg-000142,Pyrrole-2-Carboxylic Acid,Organoheterocyclic compounds,Pyrroles,72,1
-Amide-Neg-001943,5'-Xanthylic Acid,"Nucleosides, nucleotides, and analogues",Purine nucleotides,72,5
-Amide-Pos-000319,L-Glutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,70,5
-Amide-Pos-000836,Cystathionine,Organic acids and derivatives,Carboxylic acids and derivatives,68,8
-C8-Pos-004266,Ganglioside-Gm1(D18:1/18:0),Lipids and lipid-like molecules,Sphingolipids,67,2
-C8-Pos-000787,1-Linoleoyl Glycerol,Lipids and lipid-like molecules,Fatty Acyls,64,4
-C8-Pos-002985,Pc(11:2cho_11:2),Lipids and lipid-like molecules,Glycerophospholipids,63,6
-C18-Pos-001951,Gln-Gly-Ile,Organic acids and derivatives,Carboxylic acids and derivatives,61,5
-Amide-Pos-000561,Acetyl-Β-Methylcholine,Organic nitrogen compounds,Organonitrogen compounds,60,4
-C8-Pos-005761,Pc(22:3cho_28:6),Lipids and lipid-like molecules,Glycerophospholipids,60,5
-C8-Pos-000407,Glycerol Monomyristate,Lipids and lipid-like molecules,Glycerolipids,59,3
-C18-Neg-000218,Meglutol,Lipids and lipid-like molecules,Fatty Acyls,58,4
-Amide-Neg-000051,Dl-Lactic Acid,Organic acids and derivatives,Hydroxy acids and derivatives,56,3
-Amide-Neg-000479,4-(Acetylamino)Butanoic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,56,2
-Amide-Pos-000363,Leucine,Organic acids and derivatives,Carboxylic acids and derivatives,54,6
-Amide-Neg-000851,Α-Cyano-3-Hydroxycinnamic Acid,Phenylpropanoids and polyketides,Cinnamic acids and derivatives,51,4
-C18-Pos-001025,D-Panthenol,Organic oxygen compounds,Organooxygen compounds,51,6
-C8-Pos-005214,Pc(14:1_28:3),Lipids and lipid-like molecules,Glycerophospholipids,50,5
-Amide-Neg-000605,D-(+)-Glucose,Organic oxygen compounds,Organooxygen compounds,49,4
-Amide-Neg-000753,N-Formyl-L-Methionine,Organic acids and derivatives,Carboxylic acids and derivatives,48,3
-Amide-Pos-000715,N-Methyl-D-Glucamine,Organic oxygen compounds,Organooxygen compounds,47,2
-C18-Pos-002221,Cocamidopropyl Betaine,Organic acids and derivatives,Carboxylic acids and derivatives,46,5
-C8-Pos-000483,5'-S-Methyl-5'-Thioadenosine,"Nucleosides, nucleotides, and analogues",5'-deoxyribonucleosides,45,2
-C8-Pos-000506,D-Erythro-Sphinganine,Organic nitrogen compounds,Organonitrogen compounds,45,2
-Amide-Neg-000307,Citraconic Acid,Lipids and lipid-like molecules,Fatty Acyls,44,6
-C8-Pos-000832,1-Stearoylglycerol,Lipids and lipid-like molecules,Glycerolipids,44,2
-C18-Pos-002454,Guanosine-5'-Monophosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,42,2
-C8-Pos-000209,Ppg N4,Organic oxygen compounds,Organooxygen compounds,41,4
+Amide-Neg-000118,3-Hydroxybutyric Acid,Organic acids and derivatives,Hydroxy acids and derivatives,5385,7
+C8-Neg-003439,Dgdg(18:0_11:1),Lipids and lipid-like molecules,Glycerolipids,4038,5
+C8-Pos-003685,Pe(O-26:3_7:0),Lipids and lipid-like molecules,Glycerophospholipids,4026,4
+Amide-Neg-000697,Dl-Arginine,Organic acids and derivatives,Carboxylic acids and derivatives,3027,6
+Amide-Neg-000344,L-Ornithine,Organic acids and derivatives,Carboxylic acids and derivatives,2912,6
+Amide-Neg-000484,L-Lysine,Organic acids and derivatives,Carboxylic acids and derivatives,2795,6
+C8-Pos-000616,Progesterone,Lipids and lipid-like molecules,Steroids and steroid derivatives,2369,6
+Amide-Neg-000149,2-Furoic Acid,Organoheterocyclic compounds,Furans,2367,9
+Amide-Pos-000710,Meglumine,Organic oxygen compounds,Organooxygen compounds,2352,7
+C8-Neg-003656,Pe(19:1cooh_28:3),Lipids and lipid-like molecules,Glycerophospholipids,2237,5
+C8-Pos-000342,Palmitic Acid,Lipids and lipid-like molecules,Fatty Acyls,1976,6
+Amide-Neg-000171,Glutaric Anhydride,Organoheterocyclic compounds,Lactones,1962,5
+C8-Pos-000148,Palmitoleic Acid,Lipids and lipid-like molecules,Fatty Acyls,1852,7
+C8-Pos-004759,Pe(O-20:1_22:6),Lipids and lipid-like molecules,Glycerophospholipids,1806,5
+Amide-Neg-000314,Mesaconic Acid,Lipids and lipid-like molecules,Fatty Acyls,1802,6
+C8-Pos-000495,"17-(1-Hydroxyethyl)-10,13-Dimethyl-2,3,6,7,8,9,10,11,12,13,14,15,16,17-Tetradecahydro-1h-Cyclopenta[A]Phenanthren-3-One",Lipids and lipid-like molecules,Steroids and steroid derivatives,1767,3
+Amide-Neg-000078,Isobutyric Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1705,4
+Amide-Neg-000219,N-Acetylglycine,Organic acids and derivatives,Carboxylic acids and derivatives,1696,1
+Amide-Neg-000089,Methanesulfonic Acid,Organic acids and derivatives,Organic sulfonic acids and derivatives,1610,6
+Amide-Neg-000104,Ethyl Acetoacetate,Organic acids and derivatives,Keto acids and derivatives,1521,4
+C8-Pos-000740,Geranylgeranylacetone,Lipids and lipid-like molecules,Prenol lipids,1248,8
+C8-Pos-004991,Pc(18:1_22:6),Lipids and lipid-like molecules,Glycerophospholipids,1245,1
+Amide-Neg-000015,Glycolic Acid,Organic acids and derivatives,Hydroxy acids and derivatives,1223,5
+Amide-Neg-000333,2-Methylsuccinic Acid,Lipids and lipid-like molecules,Fatty Acyls,1045,3
+C8-Pos-004947,Pc O-42:6,Lipids and lipid-like molecules,Glycerophospholipids,1003,6
+C8-Neg-003462,Pc(17:3_20:1),Lipids and lipid-like molecules,Glycerophospholipids,995,6
+Amide-Neg-001321,Cytidine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleosides,990,4
+Amide-Pos-001947,Udp-Β-D-Glucose (Sodium Salt),"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,918,3
+Amide-Neg-000158,Maleic Hydrazide,Organoheterocyclic compounds,Diazines,853,2
+C8-Pos-000350,Citroflex 2,Organic acids and derivatives,Carboxylic acids and derivatives,848,3
+Amide-Neg-000235,D-Threonine,Organic acids and derivatives,Carboxylic acids and derivatives,819,3
+Amide-Neg-000587,2-Oxoadipic Acid,Organic acids and derivatives,Keto acids and derivatives,813,1
+C8-Pos-003992,Bismepa(18:0_19:1),Lipids and lipid-like molecules,"Derivatized lipids (biotinylation, diazomethane)",807,4
+C18-Pos-001425,(2r)-3-Hydroxyisovaleroylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,806,4
+C18-Neg-001236,"5,5-Dimethyl-2-{[(2-Phenylacetyl)Amino]Methyl}-1,3-Thiazolane-4-Carboxylic Acid",Organic acids and derivatives,Carboxylic acids and derivatives,775,2
+C8-Pos-004333,Pe(17:5cho_22:6),Lipids and lipid-like molecules,Glycerophospholipids,729,4
+Amide-Pos-000996,2'-Deoxyadenosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,702,2
+C18-Pos-001549,Triethyl Citrate,Organic acids and derivatives,Carboxylic acids and derivatives,696,2
+C8-Neg-003407,Pc(27:6_8:1cooh),Lipids and lipid-like molecules,Glycerophospholipids,690,1
+C8-Pos-005193,Pc(20:0_22:5),Lipids and lipid-like molecules,Glycerophospholipids,664,3
+C8-Neg-003628,Pc(30:8_11:3cooh),Lipids and lipid-like molecules,Glycerophospholipids,645,4
+Amide-Pos-000690,Gly-Asp,Organic acids and derivatives,Carboxylic acids and derivatives,638,4
+C8-Pos-004921,Tg(49:11_2:0),Lipids and lipid-like molecules,Glycerolipids,602,5
+C8-Neg-003546,Ps(23:4_21:5),Lipids and lipid-like molecules,Glycerophospholipids,587,1
+C8-Pos-004574,1-Palmitoyl-2-Docosahexaenoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,585,5
+C8-Neg-003529,Ps 22:6_22:6,Lipids and lipid-like molecules,Glycerophospholipids,564,4
+Amide-Neg-000486,L-Glutamine,Organic acids and derivatives,Carboxylic acids and derivatives,541,4
+C8-Pos-000787,1-Linoleoyl Glycerol,Lipids and lipid-like molecules,Fatty Acyls,541,4
+C18-Pos-002054,Peg N7,Organic oxygen compounds,Organooxygen compounds,490,3
+C18-Pos-001575,Asp-Phe,Organic acids and derivatives,Carboxylic acids and derivatives,448,2
+C8-Neg-003657,Ps(17:1_29:3),Lipids and lipid-like molecules,Glycerophospholipids,439,5
+C18-Pos-000695,2-Aminocaprylate,Organic acids and derivatives,Carboxylic acids and derivatives,435,1
+Amide-Pos-000372,Asparagine,Organic acids and derivatives,Carboxylic acids and derivatives,424,3
+C8-Pos-005464,Pc(26:6_21:6cho),Lipids and lipid-like molecules,Glycerophospholipids,413,6
+C8-Neg-000383,(Rac)-Idroxioleic Acid,Lipids and lipid-like molecules,Fatty Acyls,406,4
+Amide-Neg-000108,2-Oxobutanoic Acid,Organic acids and derivatives,Keto acids and derivatives,405,3
+C18-Pos-001292,"Bis(2,2,6,6-Tetramethyl-4-Piperidyl)Sebacate",Lipids and lipid-like molecules,Fatty Acyls,403,2
+C8-Pos-004650,Tg(39:10_9:2cho),Lipids and lipid-like molecules,Glycerolipids,393,1
+C8-Pos-003694,Tg(15:1cooh_24:0),Lipids and lipid-like molecules,Glycerolipids,389,3
+C8-Pos-004266,Ganglioside-Gm1(D18:1/18:0),Lipids and lipid-like molecules,Sphingolipids,382,3
+C8-Pos-004866,Pet(16:0_27:7),Lipids and lipid-like molecules,Glycerophospholipids,369,2
+C8-Neg-001716,Lpi(O-14:1),Lipids and lipid-like molecules,Glycerophospholipids,354,3
+C8-Pos-003474,"1,2-Dimyristoyl-Sn-Glycero-3-Pc",Lipids and lipid-like molecules,Glycerophospholipids,353,6
+C8-Pos-003901,Dl-Dipalmitoylphosphatidylcholine,Lipids and lipid-like molecules,Glycerophospholipids,352,4
+C8-Pos-000382,D-Sphingosine,Organic nitrogen compounds,Organonitrogen compounds,350,3
+C8-Pos-003929,Tg(28:6_14:3cho),Lipids and lipid-like molecules,Glycerolipids,350,3
+Amide-Neg-000678,Dehydroascorbic Acid,Organoheterocyclic compounds,Lactones,333,2
+C8-Neg-000519,4-Dodecylbenzenesulfonic Acid,Benzenoids,Benzene and substituted derivatives,329,6
+C8-Pos-004340,Pc(19:1_15:0),Lipids and lipid-like molecules,Glycerophospholipids,312,2
+C8-Pos-002985,Pc(11:2cho_11:2),Lipids and lipid-like molecules,Glycerophospholipids,311,3
+Amide-Neg-001331,Pseudouridine,"Nucleosides, nucleotides, and analogues",Nucleoside and nucleotide analogues,276,3
+C8-Pos-000407,Glycerol Monomyristate,Lipids and lipid-like molecules,Glycerolipids,268,4
+Amide-Neg-000094,Levulinic Acid,Organic acids and derivatives,Keto acids and derivatives,258,6
+Amide-Neg-002218,Cytidine-5'-Monophospho-N-Acetylneuraminic Acid,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,248,2
+C18-Pos-000219,N-Methylcyclohexylamine,Organic nitrogen compounds,Organonitrogen compounds,241,1
+C8-Neg-003398,Pi(22:0_12:1),Lipids and lipid-like molecules,Glycerophospholipids,232,3
+C8-Pos-005020,Pc(11:1_29:4),Lipids and lipid-like molecules,Glycerophospholipids,231,3
+C8-Pos-005132,Pi(19:4_19:4),Lipids and lipid-like molecules,Glycerophospholipids,230,5
+C18-Pos-001113,Methyl L-Tryptophanate,Organic acids and derivatives,Carboxylic acids and derivatives,220,7
+C8-Pos-002397,Tg(18:1_3:0_4:0cooh),Lipids and lipid-like molecules,Glycerolipids,214,5
+Amide-Neg-001329,Spongouridin,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleosides,213,1
+Amide-Pos-001625,Glu-Glu-Glu,Organic acids and derivatives,Carboxylic acids and derivatives,204,4
+C8-Pos-001297,Bis(4-Ethylbenzylidene)Sorbitol,Organoheterocyclic compounds,Dioxanes,183,5
+C8-Pos-004750,Pe 21:2_21:2,Lipids and lipid-like molecules,Glycerophospholipids,182,7
+Amide-Pos-000661,N8-Acetylspermidine,Organic acids and derivatives,Carboximidic acids and derivatives,177,4
+C18-Pos-002017,Uridine Monophosphate,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,177,2
+C8-Neg-003596,Ps(23:2_21:0),Lipids and lipid-like molecules,Glycerophospholipids,176,6
+C8-Pos-001222,Peg N8,Organic oxygen compounds,Organooxygen compounds,175,5
+C8-Pos-004875,Ps 20:2_20:2,Lipids and lipid-like molecules,Glycerophospholipids,172,2
+C8-Neg-003491,Pg(20:4_24:8),Lipids and lipid-like molecules,Glycerophospholipids,169,4
+C18-Pos-001025,D-Panthenol,Organic oxygen compounds,Organooxygen compounds,167,1
+C8-Pos-001400,Lubiprostone,Lipids and lipid-like molecules,Fatty Acyls,162,2
+Amide-Pos-000363,Leucine,Organic acids and derivatives,Carboxylic acids and derivatives,161,3
+Amide-Neg-000647,"6-Chloro-5-Methyl-1h-1,2,3-Benzotriazole",Organoheterocyclic compounds,Benzotriazoles,152,5
+C8-Pos-000022,Chalcone,Phenylpropanoids and polyketides,"Linear 1,3-diarylpropanoids",152,6
+C8-Pos-004445,Pc(P-12:1_26:4),Lipids and lipid-like molecules,Glycerophospholipids,148,3
+C8-Pos-001413,Miltefosine,Organic nitrogen compounds,Organonitrogen compounds,145,1
+C18-Neg-000283,Octanedioic Acid,Lipids and lipid-like molecules,Fatty Acyls,140,1
+Amide-Pos-000376,L(+)-Ornithine,Organic acids and derivatives,Carboxylic acids and derivatives,134,4
+Amide-Neg-000787,D-(-)-Mannitol,Organic oxygen compounds,Organooxygen compounds,133,3
+C8-Pos-003575,Dg(21:1_19:4),Lipids and lipid-like molecules,Glycerolipids,129,2
+Amide-Neg-000142,Pyrrole-2-Carboxylic Acid,Organoheterocyclic compounds,Pyrroles,118,1
+Amide-Neg-000135,D-Glyceric Acid,Organic oxygen compounds,Organooxygen compounds,111,3
+Amide-Pos-001218,"Cytidine 2',3'-Cyclic Monophosphoric Acid","Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,110,1
+C18-Pos-002294,Inosine-5'-Monophosphate (Imp),"Nucleosides, nucleotides, and analogues",Purine nucleotides,108,3
+Amide-Pos-000240,"N,N-Diethylethanolamine",Organic nitrogen compounds,Organonitrogen compounds,107,5
+C8-Neg-003644,Pc(21:1cooh_23:6),Lipids and lipid-like molecules,Glycerophospholipids,106,4
+C18-Pos-002221,Cocamidopropyl Betaine,Organic acids and derivatives,Carboxylic acids and derivatives,102,2
+Amide-Pos-000085,Cyclohexylamine,Organic nitrogen compounds,Organonitrogen compounds,98,3
+C8-Pos-004874,Pc(6:0cooh_30:1),Lipids and lipid-like molecules,Glycerophospholipids,98,1
+Amide-Neg-000851,Α-Cyano-3-Hydroxycinnamic Acid,Phenylpropanoids and polyketides,Cinnamic acids and derivatives,96,3
+Amide-Neg-000866,N-Acetyl-L-Methionine,Organic acids and derivatives,Carboxylic acids and derivatives,93,3
+Amide-Neg-000781,D-Tyrosine,Organic acids and derivatives,Carboxylic acids and derivatives,92,1
+Amide-Pos-000715,N-Methyl-D-Glucamine,Organic oxygen compounds,Organooxygen compounds,88,2
+C8-Pos-004801,Pc(16:1cooh_23:3),Lipids and lipid-like molecules,Glycerophospholipids,85,4
+C8-Pos-000208,Opeo,Benzenoids,Benzene and substituted derivatives,80,3
+C8-Neg-000301,Ala-Pro-Asn,Organic acids and derivatives,Carboxylic acids and derivatives,78,2
+C8-Pos-005313,Pe(21:4cooh_24:6),Lipids and lipid-like molecules,Glycerophospholipids,78,3
+C8-Pos-004035,Lpe 38:6,Lipids and lipid-like molecules,Glycerophospholipids,75,3
+C18-Pos-001811,N-Acetyl-1-Aspartylglutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,68,2
+C8-Pos-004731,Pe 18:0_24:5,Lipids and lipid-like molecules,Glycerophospholipids,67,4
+C8-Pos-004870,Pe(15:0_27:7),Lipids and lipid-like molecules,Glycerophospholipids,63,4
+C8-Pos-004871,Pe(20:5_22:2),Lipids and lipid-like molecules,Glycerophospholipids,61,3
+Amide-Pos-000319,L-Glutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,60,7
+C8-Pos-004593,Pc(32:2_4:0),Lipids and lipid-like molecules,Glycerophospholipids,58,2
+Amide-Pos-000561,Acetyl-Β-Methylcholine,Organic nitrogen compounds,Organonitrogen compounds,56,3
+C8-Pos-005214,Pc(14:1_28:3),Lipids and lipid-like molecules,Glycerophospholipids,53,1
+C8-Pos-004612,Pc(9:0cho_26:1),Lipids and lipid-like molecules,Glycerophospholipids,49,3
+Amide-Pos-001446,Glutathionesulfonic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,47,3
+C8-Pos-004641,N-Nervonoyl-D-Erythro-Sphingosylphosphorylcholine,Lipids and lipid-like molecules,Sphingolipids,44,4
+Amide-Neg-000479,4-(Acetylamino)Butanoic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,43,1
+C8-Neg-003216,Sqdg(2:0_28:0),Lipids and lipid-like molecules,Glycerolipids,43,1
+C8-Pos-000820,Docosanamide,Lipids and lipid-like molecules,Fatty Acyls,43,3
+C8-Pos-004831,2-Docosahexaenoyl-1-Stearoyl-Sn-Glycero-3-Phosphoserine,Lipids and lipid-like molecules,Glycerophospholipids,43,1
+C18-Neg-000218,Meglutol,Lipids and lipid-like molecules,Fatty Acyls,42,3
+C8-Neg-003538,Pc(20:4cooh_23:6),Lipids and lipid-like molecules,Glycerophospholipids,41,4
+C8-Pos-004628,Pc(9:0_28:7),Lipids and lipid-like molecules,Glycerophospholipids,41,1
+Amide-Pos-000244,3-Isopropoxypropylamine,Organic oxygen compounds,Organooxygen compounds,39,1
 Amide-Pos-002257,1-Stearoyl-2-Oleoyl-Sn-Glycero-3-Phosphoethanolamine,Lipids and lipid-like molecules,Glycerophospholipids,39,1
-C8-Pos-000033,"1,3-Diphenylacetone",Phenylpropanoids and polyketides,"Linear 1,3-diarylpropanoids",38,3
-C8-Pos-000696,Octabenzone,Benzenoids,Benzene and substituted derivatives,38,5
-Amide-Neg-000332,Dl-Xylose,Organic oxygen compounds,Organooxygen compounds,37,4
-C8-Pos-004019,Pa(18:1_20:0),Lipids and lipid-like molecules,Glycerophospholipids,37,2
-C8-Pos-001222,Peg N8,Organic oxygen compounds,Organooxygen compounds,32,3
-C8-Pos-005692,Pc(22:3cho_27:6),Lipids and lipid-like molecules,Glycerophospholipids,32,2
-Amide-Pos-001703,Guanosine 5'-Diphosphate (Gdp),"Nucleosides, nucleotides, and analogues",Purine nucleotides,30,3
-C8-Neg-003529,Ps 22:6_22:6,Lipids and lipid-like molecules,Glycerophospholipids,27,6
-C8-Pos-000593,Glycerol Monopalmitate,Lipids and lipid-like molecules,Glycerolipids,27,4
-C8-Pos-005188,Pe(22:2_21:4cooh),Lipids and lipid-like molecules,Glycerophospholipids,27,4
-Amide-Pos-000025,Putrescine,Organic nitrogen compounds,Organonitrogen compounds,26,4
-Amide-Pos-000244,3-Isopropoxypropylamine,Organic oxygen compounds,Organooxygen compounds,26,1
-C18-Pos-000645,Diethyl Phosphate,Organic acids and derivatives,Organic phosphoric acids and derivatives,26,2
-C8-Pos-000245,Monolaurin,Lipids and lipid-like molecules,Glycerolipids,26,2
-C8-Pos-000335,Galaxolidone,Organoheterocyclic compounds,Benzopyrans,26,4
-C8-Pos-004871,Pe(20:5_22:2),Lipids and lipid-like molecules,Glycerophospholipids,26,3
-Amide-Neg-000297,O-Acetylserine,Organic acids and derivatives,Carboxylic acids and derivatives,25,2
-Amide-Pos-000167,Amifampridine,Organoheterocyclic compounds,Pyridines and derivatives,25,4
-C8-Pos-001637,"2,5-Bis(5-Tert-Butyl-Benzoxazol-2-Yl)Thiophene",Organoheterocyclic compounds,Benzoxazoles,25,6
-C8-Pos-003050,Tg(29:3cooh_2:0),Lipids and lipid-like molecules,Glycerolipids,25,4
-C8-Pos-004631,Pc(15:1cho_22:2),Lipids and lipid-like molecules,Glycerophospholipids,25,1
-Amide-Pos-001195,"Dodecanamide,N-[3-(Dimethyloxidoamino)Propyl]",Lipids and lipid-like molecules,Fatty Acyls,24,2
-C8-Pos-002923,2-(5-Oxovaleryl)Phosphatidylcholine,Lipids and lipid-like molecules,Glycerophospholipids,24,1
-C8-Pos-004870,Pe(15:0_27:7),Lipids and lipid-like molecules,Glycerophospholipids,24,2
-C8-Pos-005755,Pc(36:6_13:4cooh),Lipids and lipid-like molecules,Glycerophospholipids,24,2
-C8-Neg-003479,Ps(18:0_24:6),Lipids and lipid-like molecules,Glycerophospholipids,23,1
-Amide-Neg-000032,Pyruvic Acid,Organic acids and derivatives,Keto acids and derivatives,22,3
-Amide-Pos-000718,Ethyl 3-Oxo-3-(1h-Pyrazol-5-Ylamino)Propanoate,Organic nitrogen compounds,Organonitrogen compounds,22,5
-Amide-Pos-000616,Ser-Ser,Organic acids and derivatives,Carboxylic acids and derivatives,21,2
-C8-Pos-003535,Pe 16:1_16:1,Lipids and lipid-like molecules,Glycerophospholipids,21,5
-C8-Pos-000820,Docosanamide,Lipids and lipid-like molecules,Fatty Acyls,20,2
-Amide-Pos-000092,3-[(2-Hydroxyethyl)Amino]-1-Propanol,Organic nitrogen compounds,Organonitrogen compounds,19,3
-C18-Pos-000832,L-Tyrosine,Organic acids and derivatives,Carboxylic acids and derivatives,19,2
-C8-Pos-001073,Cer(D15:2_7:0),Lipids and lipid-like molecules,Sphingolipids,19,3
-C8-Pos-003357,Dg(4:0_34:6),Lipids and lipid-like molecules,Glycerolipids,19,2
-C8-Pos-004362,"1,3,5-Tris(3,5-Di-Tert-Butyl-4-Hydroxybenzyl)-1,3,5-Triazine-2,4,6(1h,3h,5h)-Trione",Benzenoids,Benzene and substituted derivatives,19,3
-C8-Pos-005152,Pc(10:0cooh_30:8),Lipids and lipid-like molecules,Glycerophospholipids,19,2
-C8-Neg-003538,Pc(20:4cooh_23:6),Lipids and lipid-like molecules,Glycerophospholipids,18,3
-C8-Pos-000470,Peg N13,Organic oxygen compounds,Organooxygen compounds,18,4
-C8-Pos-001359,Gly-Met-Arg,Organic acids and derivatives,Carboxylic acids and derivatives,18,5
-C18-Neg-001640,2'-Guanylic Acid,Organic oxygen compounds,Organooxygen compounds,17,1
-C8-Pos-002320,Peg N11,Organic oxygen compounds,Organooxygen compounds,17,4
-C8-Pos-004263,Tg(32:4cooh_12:0),Lipids and lipid-like molecules,Glycerolipids,17,2
-Amide-Neg-000141,"2,6-Dihydroxypyridine Hcl",Organoheterocyclic compounds,Pyridines and derivatives,16,7
-Amide-Pos-000599,1-Methylhistidine,Organic acids and derivatives,Carboxylic acids and derivatives,16,7
-C8-Pos-000337,Geranyllinalool,Lipids and lipid-like molecules,Prenol lipids,16,4
-Amide-Neg-000108,2-Oxobutanoic Acid,Organic acids and derivatives,Keto acids and derivatives,15,2
-C18-Pos-003241,Oleoyl-L-Carnitine,Lipids and lipid-like molecules,Fatty Acyls,15,3
-Amide-Neg-000729,L-Ascorbic Acid,Organoheterocyclic compounds,Dihydrofurans,14,4
-C8-Neg-003628,Pc(30:8_11:3cooh),Lipids and lipid-like molecules,Glycerophospholipids,14,4
-C8-Pos-000327,Methyl Palmitate,Lipids and lipid-like molecules,Fatty Acyls,14,3
-C8-Pos-000414,Piperine,Alkaloids and derivatives,NA,14,3
-C8-Pos-003127,Pc(6:0_17:0cho),Lipids and lipid-like molecules,Glycerophospholipids,14,2
-Amide-Pos-000467,Acetylcholine,Organic nitrogen compounds,Organonitrogen compounds,13,2
-Amide-Pos-000866,Pro-Asp,Organic acids and derivatives,Carboxylic acids and derivatives,13,1
-C8-Pos-004202,Pe(18:0_20:4),Lipids and lipid-like molecules,Glycerophospholipids,13,2
-Amide-Pos-001056,Thiamine,Organoheterocyclic compounds,Diazines,12,3
-Amide-Pos-001625,Glu-Glu-Glu,Organic acids and derivatives,Carboxylic acids and derivatives,12,3
-C8-Pos-000080,Ketamine,Benzenoids,Benzene and substituted derivatives,12,1
-C8-Pos-004641,N-Nervonoyl-D-Erythro-Sphingosylphosphorylcholine,Lipids and lipid-like molecules,Sphingolipids,12,3
+C8-Pos-005761,Pc(22:3cho_28:6),Lipids and lipid-like molecules,Glycerophospholipids,39,5
+C8-Neg-003377,Pi(16:1_18:3),Lipids and lipid-like molecules,Glycerophospholipids,37,2
+C8-Pos-004202,Pe(18:0_20:4),Lipids and lipid-like molecules,Glycerophospholipids,37,1
+C8-Pos-004446,Pc 38:4,Lipids and lipid-like molecules,Glycerophospholipids,36,2
+Amide-Neg-000405,L-Threonic Acid Calcium Salt,Organic oxygen compounds,Organooxygen compounds,35,4
+Amide-Neg-001061,2-Deoxyribose 5-Phosphate,Organic oxygen compounds,Organooxygen compounds,35,1
+Amide-Neg-000933,L-N-Acetylhistidine,Organic acids and derivatives,Carboxylic acids and derivatives,32,2
+Amide-Pos-000616,Ser-Ser,Organic acids and derivatives,Carboxylic acids and derivatives,32,2
+Amide-Pos-001703,Guanosine 5'-Diphosphate (Gdp),"Nucleosides, nucleotides, and analogues",Purine nucleotides,32,4
+C8-Pos-000855,Dipropyleneglycol Dibenzoate,Benzenoids,Benzene and substituted derivatives,31,5
+Amide-Pos-000718,Ethyl 3-Oxo-3-(1h-Pyrazol-5-Ylamino)Propanoate,Organic nitrogen compounds,Organonitrogen compounds,30,2
+C8-Pos-001076,Bis(Methylbenzylidene)Sorbitol,Phenylpropanoids and polyketides,Cinnamyl alcohols,30,7
+C18-Neg-001407,1-Β-D-Arabinofuranosyluracil 5'-Monophosphate,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,29,2
+C8-Pos-000335,Galaxolidone,Organoheterocyclic compounds,Benzopyrans,28,1
+C8-Pos-004631,Pc(15:1cho_22:2),Lipids and lipid-like molecules,Glycerophospholipids,28,2
+C18-Pos-000567,Phloretic Acid,Phenylpropanoids and polyketides,Phenylpropanoic acids,27,3
+C8-Pos-003357,Dg(4:0_34:6),Lipids and lipid-like molecules,Glycerolipids,27,1
+C8-Pos-004891,Pet(20:0_23:6),Lipids and lipid-like molecules,Glycerophospholipids,27,1
+Amide-Pos-000686,"N6,N6,N6-Trimethyl-L-Lysine",Organic acids and derivatives,Carboxylic acids and derivatives,26,3
+C8-Pos-002923,2-(5-Oxovaleryl)Phosphatidylcholine,Lipids and lipid-like molecules,Glycerophospholipids,26,1
+C8-Pos-003535,Pe 16:1_16:1,Lipids and lipid-like molecules,Glycerophospholipids,26,4
+Amide-Neg-000402,Allopurinol,Organoheterocyclic compounds,Pyrazolopyrimidines,22,2
+C18-Pos-001855,L-Glutathione (Reduced),Organic acids and derivatives,Carboxylic acids and derivatives,22,3
+C8-Neg-003479,Ps(18:0_24:6),Lipids and lipid-like molecules,Glycerophospholipids,21,1
+C8-Pos-000337,Geranyllinalool,Lipids and lipid-like molecules,Prenol lipids,21,4
+Amide-Pos-001105,Υ-L-Glutamyl-L-Glutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,20,3
+Amide-Neg-000297,O-Acetylserine,Organic acids and derivatives,Carboxylic acids and derivatives,19,2
+C18-Pos-002454,Guanosine-5'-Monophosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,19,2
+Amide-Pos-000092,3-[(2-Hydroxyethyl)Amino]-1-Propanol,Organic nitrogen compounds,Organonitrogen compounds,18,4
+C8-Neg-003516,Pa(29:1_20:6),Lipids and lipid-like molecules,Glycerophospholipids,18,3
+C8-Pos-001521,Triethyleneglycol Bis(2-Ethylhexanoate),Lipids and lipid-like molecules,Fatty Acyls,18,1
+Amide-Neg-000783,Dl-P-Hydroxyphenyllactic Acid,Benzenoids,Benzene and substituted derivatives,17,4
+C18-Pos-000645,Diethyl Phosphate,Organic acids and derivatives,Organic phosphoric acids and derivatives,17,1
+C18-Pos-000925,S-Adenosyl-L-Homocysteine,"Nucleosides, nucleotides, and analogues",5'-deoxyribonucleosides,17,1
+C8-Neg-003343,Pg(20:3_20:4),Lipids and lipid-like molecules,Glycerophospholipids,17,3
+C8-Neg-003604,Pg(24:1_22:7),Lipids and lipid-like molecules,Glycerophospholipids,17,2
+C8-Neg-003637,Dgdg(6:0_28:2),Lipids and lipid-like molecules,Glycerolipids,17,1
+Amide-Neg-000288,N-Acetyl-Serine,Organic acids and derivatives,Carboxylic acids and derivatives,16,1
+Amide-Pos-000314,4-Piperidinecarboxamide,Organoheterocyclic compounds,Piperidines,16,2
+Amide-Pos-001056,Thiamine,Organoheterocyclic compounds,Diazines,16,3
+Amide-Pos-000836,Cystathionine,Organic acids and derivatives,Carboxylic acids and derivatives,15,5
+C18-Pos-001159,Biotin,Organoheterocyclic compounds,Biotin and derivatives,15,2
+C8-Neg-003713,Pc(20:3_25:5),Lipids and lipid-like molecules,Glycerophospholipids,15,3
+C8-Pos-000497,Palmitoyl Ethanolamide,Organic acids and derivatives,Carboximidic acids and derivatives,15,2
+C8-Neg-003382,Cl(23:1_19:4cho_22:4_22:4cho),Lipids and lipid-like molecules,Glycerophospholipids,14,5
+C8-Pos-000806,Glycerol Monooleate,Lipids and lipid-like molecules,Glycerolipids,14,2
+C8-Pos-001101,Bis(2-Ethylhexyl) Adipate,Lipids and lipid-like molecules,Fatty Acyls,14,3
+C8-Pos-003614,Tg(36:6_4:0),Lipids and lipid-like molecules,Glycerolipids,14,3
+Amide-Pos-000155,L-Serine,Organic acids and derivatives,Carboxylic acids and derivatives,13,3
+C8-Neg-003470,Pc(20:2cho_22:5),Lipids and lipid-like molecules,Glycerophospholipids,13,1
+C8-Pos-000209,Ppg N4,Organic oxygen compounds,Organooxygen compounds,13,4
+C8-Pos-001637,"2,5-Bis(5-Tert-Butyl-Benzoxazol-2-Yl)Thiophene",Organoheterocyclic compounds,Benzoxazoles,13,4
+Amide-Neg-000605,D-(+)-Glucose,Organic oxygen compounds,Organooxygen compounds,12,3
+C8-Neg-003404,Ps 40:5,Lipids and lipid-like molecules,Glycerophospholipids,12,1
+C8-Pos-000245,Monolaurin,Lipids and lipid-like molecules,Glycerolipids,12,2
 C8-Pos-005260,Tg(15:0_15:0_24:6),Lipids and lipid-like molecules,Glycerolipids,12,2
-Amide-Neg-000145,Histamine,Organic nitrogen compounds,Organonitrogen compounds,11,2
-Amide-Neg-002218,Cytidine-5'-Monophospho-N-Acetylneuraminic Acid,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,11,4
-Amide-Pos-000621,Citrulline,Organic acids and derivatives,Carboxylic acids and derivatives,11,4
-C18-Pos-001439,Phenylacetylglutamine,Organic acids and derivatives,Carboxylic acids and derivatives,11,6
-C8-Pos-001012,2-Arachidonoyl Glycerol,Lipids and lipid-like molecules,Endocannabinoids,11,2
-C8-Pos-003575,Dg(21:1_19:4),Lipids and lipid-like molecules,Glycerolipids,11,2
-Amide-Neg-000094,Levulinic Acid,Organic acids and derivatives,Keto acids and derivatives,10,3
-Amide-Pos-000781,Phosphoserine,Organic acids and derivatives,Carboxylic acids and derivatives,10,3
-Amide-Pos-001042,Lhnfrfaovvpesm-Crgcijnfna-N,Organic oxygen compounds,Organooxygen compounds,10,4
-Amide-Pos-001139,N-Acetyl-D-Glucosamine 6-Phosphate,Organic oxygen compounds,Organooxygen compounds,10,3
-C18-Neg-000965,"2-(6-Hydroxy-1-Methyl-2-Methylidene-9-Propan-2-Yl-5-Oxatricyclo[5.4.0.03,8]Undecan-4-Yl)Acetic Acid",Lipids and lipid-like molecules,Prenol lipids,10,2
-C18-Neg-001236,"5,5-Dimethyl-2-{[(2-Phenylacetyl)Amino]Methyl}-1,3-Thiazolane-4-Carboxylic Acid",Organic acids and derivatives,Carboxylic acids and derivatives,10,5
-Amide-Neg-000291,Dl-Pyroglutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,9,2
-Amide-Pos-000171,Cytosine,Organoheterocyclic compounds,Diazines,9,3
-Amide-Pos-002283,2-Oleoyl-1-Palmitoyl-Sn-Glycero-3-Phosphoserine,Lipids and lipid-like molecules,Glycerophospholipids,9,2
-C18-Neg-000934,Yrquylsqfnxrba-Izzdovswsa-N,Lipids and lipid-like molecules,Prenol lipids,9,2
-C18-Pos-001000,2-Hydroxy-3-Methoxy-4-(1-Methoxypropan-2-Yl)-2h-Furan-5-One,Organoheterocyclic compounds,Dihydrofurans,9,3
-C18-Pos-001412,Glucose 1-Phosphate,Organic oxygen compounds,Organooxygen compounds,9,2
-C8-Pos-001060,Vitamin D3,Lipids and lipid-like molecules,Steroids and steroid derivatives,9,2
-C8-Pos-004446,Pc 38:4,Lipids and lipid-like molecules,Glycerophospholipids,9,2
-Amide-Neg-000402,Allopurinol,Organoheterocyclic compounds,Pyrazolopyrimidines,8,2
-Amide-Pos-000349,L-Hydroxyproline,Organic acids and derivatives,Carboxylic acids and derivatives,8,5
-Amide-Pos-000383,Adenine,Organoheterocyclic compounds,Imidazopyrimidines,8,3
-Amide-Pos-001446,Glutathionesulfonic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,8,3
-C8-Neg-000295,Linoleic Acid,Lipids and lipid-like molecules,Fatty Acyls,8,1
-C8-Neg-003407,Pc(27:6_8:1cooh),Lipids and lipid-like molecules,Glycerophospholipids,8,5
-C8-Neg-003604,Pg(24:1_22:7),Lipids and lipid-like molecules,Glycerophospholipids,8,1
-C8-Pos-004510,Pc(20:0_18:1),Lipids and lipid-like molecules,Glycerophospholipids,8,2
-C8-Pos-004916,Pe(21:0_21:5),Lipids and lipid-like molecules,Glycerophospholipids,8,4
-Amide-Neg-000252,Meso-Erythritol,Organic oxygen compounds,Organooxygen compounds,7,1
-Amide-Pos-000604,D-Histidine Methyl Ester,Organic acids and derivatives,Carboxylic acids and derivatives,7,3
-C18-Pos-000375,L-Isoleucine,Organic acids and derivatives,Carboxylic acids and derivatives,7,5
-C18-Pos-000763,N-Acetylglutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,7,2
-C18-Pos-002279,Vidarabine Phosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,7,4
-C18-Pos-004585,1-Oleoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,7,1
-C8-Neg-002453,Pc(14:0_4:1cho),Lipids and lipid-like molecules,Glycerophospholipids,7,4
-C8-Neg-003516,Pa(29:1_20:6),Lipids and lipid-like molecules,Glycerophospholipids,7,1
-C8-Neg-003585,Pc(12:1_28:3),Lipids and lipid-like molecules,Glycerophospholipids,7,4
-C8-Neg-003610,Pc(19:5cooh_25:8),Lipids and lipid-like molecules,Glycerophospholipids,7,5
-C8-Neg-003713,Pc(20:3_25:5),Lipids and lipid-like molecules,Glycerophospholipids,7,2
-C8-Pos-004352,Tg(20:2cho_26:3),Lipids and lipid-like molecules,Glycerolipids,7,1
-C8-Pos-005440,Pi(20:4_20:4),Lipids and lipid-like molecules,Glycerophospholipids,7,1
-Amide-Neg-000011,Glycine,Organic acids and derivatives,Carboxylic acids and derivatives,6,5
-Amide-Neg-000116,Malonic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,6,2
-Amide-Neg-000195,L-Malic Acid,Organic acids and derivatives,Hydroxy acids and derivatives,6,4
-Amide-Neg-001697,Udp-N-Acetylglucosamine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,6,2
-Amide-Pos-001025,5-Methylcytidine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleosides,6,2
-C18-Pos-001855,L-Glutathione (Reduced),Organic acids and derivatives,Carboxylic acids and derivatives,6,4
-C8-Neg-001710,Lpc(14:0),Lipids and lipid-like molecules,Glycerophospholipids,6,4
-C8-Neg-003382,Cl(23:1_19:4cho_22:4_22:4cho),Lipids and lipid-like molecules,Glycerophospholipids,6,4
-C8-Pos-003714,Pc(O-10:0_23:2),Lipids and lipid-like molecules,Glycerophospholipids,6,3
-Amide-Neg-001445,D-Mannitol 1-Phosphate,Organic oxygen compounds,Organooxygen compounds,5,4
-Amide-Pos-000068,Sarcosine,Organic acids and derivatives,Carboxylic acids and derivatives,5,3
-Amide-Pos-000072,Hypotaurine,Organic acids and derivatives,Sulfinic acids and derivatives,5,1
-Amide-Pos-000097,Choline,Organic nitrogen compounds,Organonitrogen compounds,5,3
-Amide-Pos-000155,L-Serine,Organic acids and derivatives,Carboxylic acids and derivatives,5,3
-Amide-Pos-000872,(R)-Butyrylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,5,2
-Amide-Pos-001360,"D-Myo-Inositol-1,2-Diphosphate",Organic oxygen compounds,Organooxygen compounds,5,3
-Amide-Pos-001779,Cytidine 5'-Diphosphocholine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,5,2
-Amide-Pos-002176,"1,2-Dipentadecanoyl-Sn-Glycero-3-Phosphocholine",Lipids and lipid-like molecules,Glycerophospholipids,5,1
-C18-Pos-000742,Uric Acid,Organoheterocyclic compounds,Imidazopyrimidines,5,4
-C18-Pos-001618,Guanosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,5,2
-C8-Neg-003594,Pe(22:3_26:5),Lipids and lipid-like molecules,Glycerophospholipids,5,2
-C8-Pos-000497,Palmitoyl Ethanolamide,Organic acids and derivatives,Carboximidic acids and derivatives,5,1
-C8-Pos-000501,(±)5-Hepe,Lipids and lipid-like molecules,Fatty Acyls,5,2
-C8-Pos-001474,Diosgenin,Lipids and lipid-like molecules,Prenol lipids,5,2
-C8-Pos-002093,Limonin,Lipids and lipid-like molecules,Prenol lipids,5,2
+Amide-Pos-000097,Choline,Organic nitrogen compounds,Organonitrogen compounds,11,1
+C18-Pos-001951,Gln-Gly-Ile,Organic acids and derivatives,Carboxylic acids and derivatives,11,2
+C8-Pos-002320,Peg N11,Organic oxygen compounds,Organooxygen compounds,11,3
+Amide-Pos-000171,Cytosine,Organoheterocyclic compounds,Diazines,10,4
+Amide-Pos-000960,Pro-Glu,Organic acids and derivatives,Carboxylic acids and derivatives,10,2
+Amide-Pos-001107,L-Saccharopine,Organic acids and derivatives,Carboxylic acids and derivatives,10,4
+Amide-Pos-002120,Dihydronicotinamide-Adenine Dinucleotide,"Nucleosides, nucleotides, and analogues",(5'->5')-dinucleotides,10,6
+C8-Pos-000483,5'-S-Methyl-5'-Thioadenosine,"Nucleosides, nucleotides, and analogues",5'-deoxyribonucleosides,10,2
+C8-Pos-001012,2-Arachidonoyl Glycerol,Lipids and lipid-like molecules,Endocannabinoids,10,2
+C8-Pos-001597,Bis(2-Ethylhexyl) Sebacate,Lipids and lipid-like molecules,Fatty Acyls,10,4
+C8-Pos-003942,Pe(16:1_20:4),Lipids and lipid-like molecules,Glycerophospholipids,10,2
+Amide-Pos-001139,N-Acetyl-D-Glucosamine 6-Phosphate,Organic oxygen compounds,Organooxygen compounds,9,4
+Amide-Pos-001548,Phthalylsulfathiazole,Benzenoids,Benzene and substituted derivatives,9,3
+Amide-Pos-001779,Cytidine 5'-Diphosphocholine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,9,2
+C8-Pos-000033,"1,3-Diphenylacetone",Phenylpropanoids and polyketides,"Linear 1,3-diarylpropanoids",9,2
+C8-Pos-000470,Peg N13,Organic oxygen compounds,Organooxygen compounds,9,4
+C8-Pos-000768,Penicillin G,Organic acids and derivatives,Carboxylic acids and derivatives,9,1
+C8-Pos-003565,Cerp(D18:0_20:3),Lipids and lipid-like molecules,Sphingolipids,9,3
+Amide-Neg-000252,Meso-Erythritol,Organic oxygen compounds,Organooxygen compounds,8,3
+Amide-Pos-000349,L-Hydroxyproline,Organic acids and derivatives,Carboxylic acids and derivatives,8,1
+Amide-Pos-000866,Pro-Asp,Organic acids and derivatives,Carboxylic acids and derivatives,8,1
+Amide-Pos-000902,2-Sc S-(2-Succinyl)-L-Cysteine,Organic acids and derivatives,Carboxylic acids and derivatives,8,3
+C8-Pos-000593,Glycerol Monopalmitate,Lipids and lipid-like molecules,Glycerolipids,8,3
+C8-Pos-001809,"2-(2h-Benzotriazol-2-Yl)-4,6-Bis(1-Methyl-1-Phenylethyl)Phenol",Phenylpropanoids and polyketides,Diarylheptanoids,8,1
+C8-Pos-003944,Pc(O-24:5_10:0),Lipids and lipid-like molecules,Glycerophospholipids,8,2
+C8-Pos-004302,Pc(18:1_16:2),Lipids and lipid-like molecules,Glycerophospholipids,8,2
+C8-Pos-004362,"1,3,5-Tris(3,5-Di-Tert-Butyl-4-Hydroxybenzyl)-1,3,5-Triazine-2,4,6(1h,3h,5h)-Trione",Benzenoids,Benzene and substituted derivatives,8,2
+C8-Pos-004762,Pc(24:6_14:1),Lipids and lipid-like molecules,Glycerophospholipids,8,2
+C8-Pos-005192,Ps(20:5_24:4),Lipids and lipid-like molecules,Glycerophospholipids,8,2
+C8-Pos-005440,Pi(20:4_20:4),Lipids and lipid-like molecules,Glycerophospholipids,8,1
+C8-Pos-005843,Tg(20:1_24:5_20:6),Lipids and lipid-like molecules,Glycerolipids,8,3
+Amide-Pos-000872,(R)-Butyrylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,7,1
+Amide-Pos-000913,Anserine,Organic acids and derivatives,Peptidomimetics,7,3
+Amide-Pos-001385,"[2,2'-Biquinoline]-4,4'-Dicarboxylic Acid",Organoheterocyclic compounds,Quinolines and derivatives,7,2
+C18-Neg-000934,Yrquylsqfnxrba-Izzdovswsa-N,Lipids and lipid-like molecules,Prenol lipids,7,3
+C18-Pos-000207,Caprolactam,Organoheterocyclic compounds,Lactams,7,2
+C18-Pos-001618,Guanosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,7,2
+C18-Pos-003241,Oleoyl-L-Carnitine,Lipids and lipid-like molecules,Fatty Acyls,7,4
+C8-Neg-003255,Ps(19:1_17:2),Lipids and lipid-like molecules,Glycerophospholipids,7,2
+C8-Pos-000414,Piperine,Alkaloids and derivatives,NA,7,2
+C8-Pos-003290,Tg(2:0_11:0_23:4),Lipids and lipid-like molecules,Glycerolipids,7,5
+C8-Pos-004336,"1-Hexadecanoyl-2-(5z,8z,11z,14z-Eicosatetraenoyl)-Sn-Glycero-3-Phosphocholine",Lipids and lipid-like molecules,Glycerophospholipids,7,2
+C8-Pos-004916,Pe(21:0_21:5),Lipids and lipid-like molecules,Glycerophospholipids,7,4
+Amide-Neg-000523,Xanthine,Organoheterocyclic compounds,Imidazopyrimidines,6,1
+Amide-Neg-001041,Phosphocreatine,Organic acids and derivatives,Carboxylic acids and derivatives,6,2
+Amide-Pos-000068,Sarcosine,Organic acids and derivatives,Carboxylic acids and derivatives,6,2
+Amide-Pos-000467,Acetylcholine,Organic nitrogen compounds,Organonitrogen compounds,6,1
+Amide-Pos-000604,D-Histidine Methyl Ester,Organic acids and derivatives,Carboxylic acids and derivatives,6,4
+Amide-Pos-001103,L-Glutarylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,6,3
+Amide-Pos-002309,1-Octadecanoyl-2-Octadecenoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,6,1
+C18-Pos-000832,L-Tyrosine,Organic acids and derivatives,Carboxylic acids and derivatives,6,2
+C8-Neg-002321,"(2s)-2-Hydroxy-3-[(Hydroxy{[(1s,2r,3r,4s,5s,6r)-2,3,4,5,6-Pentahydroxycyclohexyl]Oxy}Phosphoryl)Oxy]Propyl (12z)-12-Octadecenoate",Lipids and lipid-like molecules,Glycerophospholipids,6,3
+C8-Pos-000327,Methyl Palmitate,Lipids and lipid-like molecules,Fatty Acyls,6,3
+C8-Pos-000612,"4-Hydroxy-6-[2-(2-Methyl-1,2,4a,5,6,7,8,8a-Octahydronaphthalen-1-Yl)Ethyl]Oxan-2-One",Organoheterocyclic compounds,Lactones,6,1
+C8-Pos-004273,Pe(O-16:2_22:3),Lipids and lipid-like molecules,Glycerophospholipids,6,2
+C8-Pos-004510,Pc(20:0_18:1),Lipids and lipid-like molecules,Glycerophospholipids,6,1
+C8-Pos-005189,Ps 22:4_22:5,Lipids and lipid-like molecules,Glycerophospholipids,6,1
+C8-Pos-005302,Pe(26:4_19:6cooh),Lipids and lipid-like molecules,Glycerophospholipids,6,2
+C8-Pos-005692,Pc(22:3cho_27:6),Lipids and lipid-like molecules,Glycerophospholipids,6,3
+C8-Pos-005755,Pc(36:6_13:4cooh),Lipids and lipid-like molecules,Glycerophospholipids,6,1
+Amide-Neg-000051,Dl-Lactic Acid,Organic acids and derivatives,Hydroxy acids and derivatives,5,3
+Amide-Neg-000196,Maleic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,5,3
+Amide-Neg-000323,6-Aminocaproic Acid,Lipids and lipid-like molecules,Fatty Acyls,5,3
+Amide-Neg-000658,Dihydroxyacetone Phosphate,Organic oxygen compounds,Organooxygen compounds,5,4
+Amide-Neg-001943,5'-Xanthylic Acid,"Nucleosides, nucleotides, and analogues",Purine nucleotides,5,1
+Amide-Pos-000200,Creatine,Organic acids and derivatives,Carboxylic acids and derivatives,5,2
+Amide-Pos-000316,D-Lysine,Organic acids and derivatives,Carboxylic acids and derivatives,5,1
+Amide-Pos-001585,S-Adenosylmethionine,"Nucleosides, nucleotides, and analogues",5'-deoxyribonucleosides,5,2
+C18-Neg-000965,"2-(6-Hydroxy-1-Methyl-2-Methylidene-9-Propan-2-Yl-5-Oxatricyclo[5.4.0.03,8]Undecan-4-Yl)Acetic Acid",Lipids and lipid-like molecules,Prenol lipids,5,1
+C18-Pos-000375,L-Isoleucine,Organic acids and derivatives,Carboxylic acids and derivatives,5,1
+C18-Pos-002279,Vidarabine Phosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,5,1
+C8-Neg-000086,Myristic Acid,Lipids and lipid-like molecules,Fatty Acyls,5,1
+C8-Neg-000295,Linoleic Acid,Lipids and lipid-like molecules,Fatty Acyls,5,1
+C8-Pos-001060,Vitamin D3,Lipids and lipid-like molecules,Steroids and steroid derivatives,5,2
+C8-Pos-001474,Diosgenin,Lipids and lipid-like molecules,Prenol lipids,5,3
+C8-Pos-002093,Limonin,Lipids and lipid-like molecules,Prenol lipids,5,4
 C8-Pos-003759,Pe 16:0_18:1,Lipids and lipid-like molecules,Glycerophospholipids,5,2
-C8-Pos-003830,Pe(P-11:0_23:0),Lipids and lipid-like molecules,Glycerophospholipids,5,3
-C8-Pos-004336,"1-Hexadecanoyl-2-(5z,8z,11z,14z-Eicosatetraenoyl)-Sn-Glycero-3-Phosphocholine",Lipids and lipid-like molecules,Glycerophospholipids,5,2
-C8-Pos-004921,Tg(49:11_2:0),Lipids and lipid-like molecules,Glycerolipids,5,2
-C8-Pos-005843,Tg(20:1_24:5_20:6),Lipids and lipid-like molecules,Glycerolipids,5,3
-Amide-Neg-000288,N-Acetyl-Serine,Organic acids and derivatives,Carboxylic acids and derivatives,4,2
-Amide-Neg-000749,"N2-[5-Phenyl-4-(Trifluoromethyl)-1,3-Thiazol-2-Yl]Thiophene-2-Carboxamide",Organoheterocyclic compounds,Azoles,4,2
-Amide-Neg-001874,"D-Fructose 1,6-Bisphosphate",Organic oxygen compounds,Organooxygen compounds,4,2
-Amide-Neg-002264,2-Oleoyl-1-Stearoyl-Sn-Glycero-3-Phosphoserine,Lipids and lipid-like molecules,Glycerophospholipids,4,2
-Amide-Pos-000010,Crotonic Acid,Lipids and lipid-like molecules,Fatty Acyls,4,2
+Amide-Neg-000574,N-Acetyl-L-Valine,Organic acids and derivatives,Carboxylic acids and derivatives,4,1
 Amide-Pos-000193,Creatinine,Organic acids and derivatives,Carboxylic acids and derivatives,4,1
-Amide-Pos-000296,5-Methylcytosine,Organoheterocyclic compounds,Diazines,4,3
-Amide-Pos-000620,D-Arginine,Organic acids and derivatives,Carboxylic acids and derivatives,4,2
-Amide-Pos-001381,O-Dodecanoylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,4,1
-Amide-Pos-002226,N-(Octadecanoyl)Sphing-4-Enine-1-Phosphocholine,Lipids and lipid-like molecules,Sphingolipids,4,1
-C18-Pos-000721,L-Phenylalanine,Organic acids and derivatives,Carboxylic acids and derivatives,4,1
-C18-Pos-000925,S-Adenosyl-L-Homocysteine,"Nucleosides, nucleotides, and analogues",5'-deoxyribonucleosides,4,2
-C18-Pos-001141,Tetraglyme,Organic oxygen compounds,Organooxygen compounds,4,4
-C18-Pos-001644,Adenylyl(3'-5')Cytidine,"Nucleosides, nucleotides, and analogues",(3'->5')-dinucleotides and analogues,4,4
-C18-Pos-001845,L-Glutathione Oxidized Hexhydrate,Organic acids and derivatives,Carboxylic acids and derivatives,4,4
-C18-Pos-002009,5'-Cytidylic Acid,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,4,1
-C18-Pos-002636,S-4-(2-Oxo-Butyl)Glutathione,Organic acids and derivatives,Carboxylic acids and derivatives,4,4
-C8-Pos-001736,Tg(5:0_10:0_6:1cho),Lipids and lipid-like molecules,Glycerolipids,4,2
-C8-Pos-001872,Pe(O-10:0_6:0),Lipids and lipid-like molecules,Glycerophospholipids,4,2
-C8-Pos-002408,"Octadecyl 3-(3,5-Di-Tert-Butyl-4-Hydroxyphenyl)Propionate",Lipids and lipid-like molecules,Fatty Acyls,4,2
-C8-Pos-004667,Tg(5:0_15:0cho_28:3),Lipids and lipid-like molecules,Glycerolipids,4,3
-C8-Pos-005548,Pg(O-29:8_21:6),Lipids and lipid-like molecules,Glycerophospholipids,4,2
-Amide-Neg-000047,Dl-Alanine,Organic acids and derivatives,Carboxylic acids and derivatives,3,3
-Amide-Neg-000114,Γ-Aminobutyric Acid,Organic acids and derivatives,Carboxylic acids and derivatives,3,3
-Amide-Neg-001243,D-Ribose 5-Phosphate,Organic oxygen compounds,Organooxygen compounds,3,2
-Amide-Pos-000094,3-(Ethenyloxy)Propan-1-Amine,Organic oxygen compounds,Organooxygen compounds,3,2
-Amide-Pos-000224,D-Proline,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
-Amide-Pos-000447,L-2-Aminoadipic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,3,1
-Amide-Pos-000757,Sb01966,Organic oxygen compounds,Organooxygen compounds,3,2
-Amide-Pos-000761,Tryptophan,Organoheterocyclic compounds,Indoles and derivatives,3,3
-Amide-Pos-001132,1-Methyladenosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,3,1
+Amide-Pos-000461,4-Quinolinol,Organoheterocyclic compounds,Quinolines and derivatives,4,1
+Amide-Pos-000757,Sb01966,Organic oxygen compounds,Organooxygen compounds,4,2
+Amide-Pos-000860,L-Ergothioneine,Organic acids and derivatives,Carboxylic acids and derivatives,4,2
+Amide-Pos-001617,Uridine 5'-Diphosphate,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,4,3
+C18-Pos-000742,Uric Acid,Organoheterocyclic compounds,Imidazopyrimidines,4,1
+C18-Pos-001332,Hypaphorine,Organic acids and derivatives,Carboxylic acids and derivatives,4,1
+C8-Neg-000367,Myristyl Sulfate,Organic acids and derivatives,Organic sulfuric acids and derivatives,4,3
+C8-Neg-002972,Oahfa(15:1_27:4),Lipids and lipid-like molecules,Fatty acyls,4,2
+C8-Neg-003730,Pc(18:3cho_26:8),Lipids and lipid-like molecules,Glycerophospholipids,4,1
+C8-Pos-000582,Monopalmitolein (9c),Lipids and lipid-like molecules,Glycerolipids,4,2
+C8-Pos-000610,"2-Methyl-5-{2-[2-(4-Methyl-3,6-Dioxocyclohexa-1,4-Dienyl)Ethoxy]Ethyl}Benzo-1,4-Quinone",Organic oxygen compounds,Organooxygen compounds,4,1
+C8-Pos-000696,Octabenzone,Benzenoids,Benzene and substituted derivatives,4,1
+C8-Pos-000832,1-Stearoylglycerol,Lipids and lipid-like molecules,Glycerolipids,4,1
+C8-Pos-001359,Gly-Met-Arg,Organic acids and derivatives,Carboxylic acids and derivatives,4,4
+C8-Pos-003314,Peg N14,Organic oxygen compounds,Organooxygen compounds,4,3
+C8-Pos-003642,Palmitoyl Sphingomyelin,Lipids and lipid-like molecules,Sphingolipids,4,3
+C8-Pos-004019,Pa(18:1_20:0),Lipids and lipid-like molecules,Glycerophospholipids,4,2
+C8-Pos-004803,Pi(O-16:2_18:3),Lipids and lipid-like molecules,Glycerophospholipids,4,3
+C8-Pos-004964,Bmp 22:5_22:6,Lipids and lipid-like molecules,Glycerophospholipids,4,2
+C8-Pos-005016,Pc(28:6_10:0cooh),Lipids and lipid-like molecules,Glycerophospholipids,4,3
+C8-Pos-005188,Pe(22:2_21:4cooh),Lipids and lipid-like molecules,Glycerophospholipids,4,2
+Amide-Neg-000729,L-Ascorbic Acid,Organoheterocyclic compounds,Dihydrofurans,3,2
+Amide-Neg-000753,N-Formyl-L-Methionine,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
+Amide-Neg-001092,D-Mannose,Organic oxygen compounds,Organooxygen compounds,3,2
+Amide-Neg-001697,Udp-N-Acetylglucosamine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,3,2
+Amide-Pos-000091,1-Aminocyclopropanecarboxylic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,3,1
+Amide-Pos-000236,Dl-Valine,Organic acids and derivatives,Carboxylic acids and derivatives,3,1
+Amide-Pos-000317,L-Pyroglutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
+Amide-Pos-000563,5-Methyl D-Glutamate,Organic acids and derivatives,Carboxylic acids and derivatives,3,3
+Amide-Pos-000599,1-Methylhistidine,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
+Amide-Pos-000621,Citrulline,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
+Amide-Pos-000635,Cysteinylglycine,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
+Amide-Pos-001185,7-Methylguanosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,3,2
+Amide-Pos-001381,O-Dodecanoylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,3,2
 Amide-Pos-001508,Tetradecanoyl-L-Carnitine,Lipids and lipid-like molecules,Fatty Acyls,3,3
-Amide-Pos-001677,Adenosine 5'-Diphosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,3,2
+Amide-Pos-001528,Hyflavin,Organoheterocyclic compounds,Pteridines and derivatives,3,1
 Amide-Pos-001865,Guanosine-5'-Triphosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,3,2
-C18-Neg-000283,Octanedioic Acid,Lipids and lipid-like molecules,Fatty Acyls,3,1
-C18-Pos-000286,Nicotinamide,Organoheterocyclic compounds,Pyridines and derivatives,3,1
-C18-Pos-000393,L-Aspartic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,3,3
-C18-Pos-000888,(2s)-2-[(2-Azaniumylacetyl)Amino]-4-Methylpentanoate,Organic acids and derivatives,Carboxylic acids and derivatives,3,2
-C18-Pos-001046,L-Kynurenine,Organic oxygen compounds,Organooxygen compounds,3,2
-C18-Pos-001332,Hypaphorine,Organic acids and derivatives,Carboxylic acids and derivatives,3,1
-C18-Pos-002507,2-(Alpha-D-Mannopyranosyl)-L-Tryptophan,Organoheterocyclic compounds,Indoles and derivatives,3,2
-C8-Neg-000086,Myristic Acid,Lipids and lipid-like molecules,Fatty Acyls,3,1
-C8-Neg-003470,Pc(20:2cho_22:5),Lipids and lipid-like molecules,Glycerophospholipids,3,1
-C8-Neg-003807,Sqdg(14:0_30:6),Lipids and lipid-like molecules,Glycerolipids,3,2
-C8-Pos-000582,Monopalmitolein (9c),Lipids and lipid-like molecules,Glycerolipids,3,1
-C8-Pos-000764,"2,3-Dihydroxypropyl 13-Methyltetradecanoate",Lipids and lipid-like molecules,Glycerolipids,3,2
-C8-Pos-001101,Bis(2-Ethylhexyl) Adipate,Lipids and lipid-like molecules,Fatty Acyls,3,1
-C8-Pos-001809,"2-(2h-Benzotriazol-2-Yl)-4,6-Bis(1-Methyl-1-Phenylethyl)Phenol",Phenylpropanoids and polyketides,Diarylheptanoids,3,2
-C8-Pos-004762,Pc(24:6_14:1),Lipids and lipid-like molecules,Glycerophospholipids,3,2
-C8-Pos-005046,Ps(18:3_24:4),Lipids and lipid-like molecules,Glycerophospholipids,3,1
-Amide-Neg-000296,"5,5-Dimethyloxazolidine-2,4-Dione",Organoheterocyclic compounds,Azolidines,2,1
-Amide-Neg-000340,Xylose,Organic oxygen compounds,Organooxygen compounds,2,2
-Amide-Neg-000557,N-Acetyl-L-Aspartic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
-Amide-Neg-000933,L-N-Acetylhistidine,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
-Amide-Neg-001041,Phosphocreatine,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
-Amide-Neg-001431,D-Glucose 6-Phosphate,Organic oxygen compounds,Organooxygen compounds,2,1
+Amide-Pos-002226,N-(Octadecanoyl)Sphing-4-Enine-1-Phosphocholine,Lipids and lipid-like molecules,Sphingolipids,3,2
+C18-Neg-001640,2'-Guanylic Acid,Organic oxygen compounds,Organooxygen compounds,3,2
+C18-Pos-000538,Indole-3-Carboxaldehyde,Organoheterocyclic compounds,Indoles and derivatives,3,2
+C18-Pos-001000,2-Hydroxy-3-Methoxy-4-(1-Methoxypropan-2-Yl)-2h-Furan-5-One,Organoheterocyclic compounds,Dihydrofurans,3,1
+C18-Pos-001141,Tetraglyme,Organic oxygen compounds,Organooxygen compounds,3,3
+C18-Pos-001837,L-Glutathione Oxidized,Organic acids and derivatives,Carboxylic acids and derivatives,3,1
+C18-Pos-002636,S-4-(2-Oxo-Butyl)Glutathione,Organic acids and derivatives,Carboxylic acids and derivatives,3,1
+C18-Pos-002703,N6-Succinyladenosine; Lc-Tdda; Ce10,"Nucleosides, nucleotides, and analogues",Purine nucleosides,3,2
+C8-Neg-000556,"7(Z),10(Z),13(Z),16(Z)-Docosatetraenoic Acid",Lipids and lipid-like molecules,Fatty Acyls,3,1
+C8-Neg-003585,Pc(12:1_28:3),Lipids and lipid-like molecules,Glycerophospholipids,3,1
+C8-Neg-003610,Pc(19:5cooh_25:8),Lipids and lipid-like molecules,Glycerophospholipids,3,2
+C8-Neg-003619,Ps(22:3_24:7),Lipids and lipid-like molecules,Glycerophospholipids,3,2
+C8-Neg-003658,Pc(19:2cooh_21:6),Lipids and lipid-like molecules,Glycerophospholipids,3,1
+C8-Pos-000098,Dibenzoylmethane,Phenylpropanoids and polyketides,"Linear 1,3-diarylpropanoids",3,2
+C8-Pos-000501,(±)5-Hepe,Lipids and lipid-like molecules,Fatty Acyls,3,2
+C8-Pos-001973,Lpc 14:0-Sn2,Lipids and lipid-like molecules,Glycerophospholipids,3,2
+C8-Pos-002038,1-Palmitoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,3,2
+C8-Pos-002633,Lpe 24:4,Lipids and lipid-like molecules,Glycerophospholipids,3,1
+C8-Pos-002684,Tg(15:1cho_15:2),Lipids and lipid-like molecules,Glycerolipids,3,2
+C8-Pos-004173,Pe 16:0_22:5,Lipids and lipid-like molecules,Glycerophospholipids,3,1
+C8-Pos-005152,Pc(10:0cooh_30:8),Lipids and lipid-like molecules,Glycerophospholipids,3,2
+Amide-Neg-000011,Glycine,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
+Amide-Neg-000116,Malonic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
+Amide-Neg-000449,O-Phosphocolamine,Organic acids and derivatives,Organic phosphoric acids and derivatives,2,2
+Amide-Neg-000499,D-(+)-Ribonic Acid Gamma-Lactone,Organic oxygen compounds,Organooxygen compounds,2,1
+Amide-Neg-000766,I-Inositol,Organic oxygen compounds,Organooxygen compounds,2,2
+Amide-Neg-001422,Adenosine Triphosphate (Atp),"Nucleosides, nucleotides, and analogues",Purine nucleotides,2,2
+Amide-Neg-001431,D-Glucose 6-Phosphate,Organic oxygen compounds,Organooxygen compounds,2,2
 Amide-Neg-001626,Uridine 5'-Diphosphoglucuronic Acid,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,2,1
-Amide-Pos-000200,Creatine,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
-Amide-Pos-000236,Dl-Valine,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
-Amide-Pos-000316,D-Lysine,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
+Amide-Neg-001874,"D-Fructose 1,6-Bisphosphate",Organic oxygen compounds,Organooxygen compounds,2,1
+Amide-Neg-002264,2-Oleoyl-1-Stearoyl-Sn-Glycero-3-Phosphoserine,Lipids and lipid-like molecules,Glycerophospholipids,2,2
+Amide-Pos-000026,Beta-Alanine,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
+Amide-Pos-000224,D-Proline,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
+Amide-Pos-000296,5-Methylcytosine,Organoheterocyclic compounds,Diazines,2,1
+Amide-Pos-000303,1h-Imidazole-1-Acetic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,2,3
 Amide-Pos-000448,Proline Betaine,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
-Amide-Pos-000563,5-Methyl D-Glutamate,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
-Amide-Pos-000636,6-Chloropicolinic Acid,Organoheterocyclic compounds,Pyridines and derivatives,2,2
+Amide-Pos-000583,D-Phenylalanine,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
 Amide-Pos-001017,Glycerophosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,2,2
+Amide-Pos-001042,Lhnfrfaovvpesm-Crgcijnfna-N,Organic oxygen compounds,Organooxygen compounds,2,2
+Amide-Pos-001102,Gamma-Glu-Glu,Organic acids and derivatives,Carboxylic acids and derivatives,2,1
 Amide-Pos-001479,Xanthosine 5'-Monophosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,2,1
-Amide-Pos-001528,Hyflavin,Organoheterocyclic compounds,Pteridines and derivatives,2,1
-Amide-Pos-001617,Uridine 5'-Diphosphate,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,2,2
-Amide-Pos-002228,1-Oleoyl-2-Myristoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C18-Neg-000020,Methyl Dihydrogen Phosphate,Organic acids and derivatives,Organic phosphoric acids and derivatives,2,1
-C18-Pos-000219,N-Methylcyclohexylamine,Organic nitrogen compounds,Organonitrogen compounds,2,1
-C18-Pos-000820,Propham,Benzenoids,Benzene and substituted derivatives,2,1
-C18-Pos-001733,N2-Methylguanosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,2,1
-C18-Pos-004537,1-Linoleoyl-Sn-Glycero-3-Phosphorylcholine,Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C8-Neg-000367,Myristyl Sulfate,Organic acids and derivatives,Organic sulfuric acids and derivatives,2,4
-C8-Neg-000556,"7(Z),10(Z),13(Z),16(Z)-Docosatetraenoic Acid",Lipids and lipid-like molecules,Fatty Acyls,2,1
-C8-Neg-003242,Cl(18:0_17:1cho_22:4_22:4),Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Neg-003418,Ps(15:0_25:3),Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Neg-003556,Ps(20:1_24:6),Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C8-Neg-003637,Dgdg(6:0_28:2),Lipids and lipid-like molecules,Glycerolipids,2,1
-C8-Pos-000007,9-Methoxy-9-Oxononanoic Acid,Lipids and lipid-like molecules,Fatty Acyls,2,2
-C8-Pos-000909,Sphp(D16:2),Lipids and lipid-like molecules,Sphingolipids,2,2
-C8-Pos-001006,Citroflex 4,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
-C8-Pos-001061,Cholest-4-En-3-One,Lipids and lipid-like molecules,Steroids and steroid derivatives,2,1
-C8-Pos-001356,Citroflex A-4,Organic acids and derivatives,Carboxylic acids and derivatives,2,2
-C8-Pos-001450,Xawlprcylccvfp-Cvlifihmsa-N,Lipids and lipid-like molecules,Prenol lipids,2,2
-C8-Pos-001973,Lpc 14:0-Sn2,Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Pos-002633,Lpe 24:4,Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Pos-003314,Peg N14,Organic oxygen compounds,Organooxygen compounds,2,2
-C8-Pos-003614,Tg(36:6_4:0),Lipids and lipid-like molecules,Glycerolipids,2,2
-C8-Pos-003944,Pc(O-24:5_10:0),Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C8-Pos-004173,Pe 16:0_22:5,Lipids and lipid-like molecules,Glycerophospholipids,2,2
+Amide-Pos-001770,Cytidine 5'-Triphosphate,Organic oxygen compounds,Organooxygen compounds,2,2
+C18-Pos-000931,"1,3-Benzodioxolylbutanamine (Bdb)",Organoheterocyclic compounds,Benzodioxoles,2,2
+C18-Pos-001104,Propionylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,2,1
+C18-Pos-001412,Glucose 1-Phosphate,Organic oxygen compounds,Organooxygen compounds,2,2
+C18-Pos-001644,Adenylyl(3'-5')Cytidine,"Nucleosides, nucleotides, and analogues",(3'->5')-dinucleotides and analogues,2,1
+C18-Pos-001870,Ppg N5,Organic oxygen compounds,Organooxygen compounds,2,2
+C18-Pos-002092,Adenosine 3'5'-Cyclic Monophosphate,"Nucleosides, nucleotides, and analogues",Purine nucleotides,2,2
+C8-Neg-003242,Cl(18:0_17:1cho_22:4_22:4),Lipids and lipid-like molecules,Glycerophospholipids,2,1
+C8-Pos-000642,"16-Hydroxycleroda-3,13-Dien-15,16-Olide",Lipids and lipid-like molecules,Prenol lipids,2,1
+C8-Pos-000764,"2,3-Dihydroxypropyl 13-Methyltetradecanoate",Lipids and lipid-like molecules,Glycerolipids,2,2
+C8-Pos-001592,"2-[{[(1s,4s,6s)-4-({5-[4-(Dimethylamino)Phenyl]-1,3,4-Oxadiazol-2-Yl}Methyl)-6-Isopropyl-3-Methyl-2-Cyclohexen-1-Yl]Methyl}(Methyl)Amino]Ethanol",Lipids and lipid-like molecules,Prenol lipids,2,2
+C8-Pos-001872,Pe(O-10:0_6:0),Lipids and lipid-like molecules,Glycerophospholipids,2,1
+C8-Pos-003179,Nervonic Ceramide,Lipids and lipid-like molecules,Sphingolipids,2,1
+C8-Pos-004072,Pe(O-17:3_21:1),Lipids and lipid-like molecules,Glycerophospholipids,2,1
 C8-Pos-004203,Pc(O-29:1_5:0),Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C8-Pos-004241,Hex1cer(D24:2_12:0),Lipids and lipid-like molecules,Sphingolipids,2,1
-C8-Pos-004302,Pc(18:1_16:2),Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Pos-004339,Tg(O-27:8_21:6),Lipids and lipid-like molecules,Glycerolipids,2,1
-C8-Pos-004421,Tg(11:0_9:2cho_26:8),Lipids and lipid-like molecules,Glycerolipids,2,1
-C8-Pos-004750,Pe 21:2_21:2,Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Pos-004855,Pc(14:1_25:7),Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C8-Pos-004898,"1,2-Dieicosenoyl-Sn-Glycero-3-Phosphocholine",Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Pos-005020,Pc(11:1_29:4),Lipids and lipid-like molecules,Glycerophospholipids,2,2
-C8-Pos-005326,Pi(29:7_11:0),Lipids and lipid-like molecules,Glycerophospholipids,2,1
-C8-Pos-005546,Pc(19:4cho_29:7),Lipids and lipid-like molecules,Glycerophospholipids,2,1
-Amide-Neg-000119,"D,L-Serine",Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+C8-Pos-004250,1-(1z-Octadecenyl)-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,2,2
+C8-Pos-004898,"1,2-Dieicosenoyl-Sn-Glycero-3-Phosphocholine",Lipids and lipid-like molecules,Glycerophospholipids,2,1
+C8-Pos-005012,Pc(17:4cooh_23:5),Lipids and lipid-like molecules,Glycerophospholipids,2,2
+C8-Pos-005434,Pi(18:0_22:6),Lipids and lipid-like molecules,Glycerophospholipids,2,1
+Amide-Neg-000001,Acrylic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Neg-000047,Dl-Alanine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Neg-000114,Γ-Aminobutyric Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Neg-000145,Histamine,Organic nitrogen compounds,Organonitrogen compounds,1,1
+Amide-Neg-000214,L-Valine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 Amide-Neg-000220,"L-Threonic Acid-1,4-Lactone",Organoheterocyclic compounds,Lactones,1,1
-Amide-Neg-000323,6-Aminocaproic Acid,Lipids and lipid-like molecules,Fatty Acyls,1,1
-Amide-Neg-000333,2-Methylsuccinic Acid,Lipids and lipid-like molecules,Fatty Acyls,1,1
-Amide-Neg-000449,O-Phosphocolamine,Organic acids and derivatives,Organic phosphoric acids and derivatives,1,1
-Amide-Neg-000499,D-(+)-Ribonic Acid Gamma-Lactone,Organic oxygen compounds,Organooxygen compounds,1,1
-Amide-Neg-000781,D-Tyrosine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-Amide-Neg-000783,Dl-P-Hydroxyphenyllactic Acid,Benzenoids,Benzene and substituted derivatives,1,1
-Amide-Neg-000876,Citric Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-Amide-Neg-001092,D-Mannose,Organic oxygen compounds,Organooxygen compounds,1,1
-Amide-Neg-001422,Adenosine Triphosphate (Atp),"Nucleosides, nucleotides, and analogues",Purine nucleotides,1,1
-Amide-Neg-001873,"D-Fructose-1,6-Bisphosphate",Organic oxygen compounds,Organooxygen compounds,1,1
+Amide-Neg-000291,Dl-Pyroglutamic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Neg-000296,"5,5-Dimethyloxazolidine-2,4-Dione",Organoheterocyclic compounds,Azolidines,1,1
+Amide-Neg-000316,Acetyl-D-Alanine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Neg-000340,Xylose,Organic oxygen compounds,Organooxygen compounds,1,1
+Amide-Neg-000749,"N2-[5-Phenyl-4-(Trifluoromethyl)-1,3-Thiazol-2-Yl]Thiophene-2-Carboxamide",Organoheterocyclic compounds,Azoles,1,1
+Amide-Neg-001445,D-Mannitol 1-Phosphate,Organic oxygen compounds,Organooxygen compounds,1,1
 Amide-Neg-002149,Uridine 5'-Triphosphate Sodium Salt,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,1,1
-Amide-Pos-000026,Beta-Alanine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Pos-000010,Crotonic Acid,Lipids and lipid-like molecules,Fatty Acyls,1,1
 Amide-Pos-000235,"N,N-Dimethyl-Beta-Alanine Hcl",Organic nitrogen compounds,Organonitrogen compounds,1,1
-Amide-Pos-000303,1h-Imidazole-1-Acetic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Pos-000270,Trometamol,Organic nitrogen compounds,Organonitrogen compounds,1,1
+Amide-Pos-000331,L-Pipecolinic Acid,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 Amide-Pos-000336,N-Acetylputrescine,Organic acids and derivatives,Carboximidic acids and derivatives,1,1
 Amide-Pos-000365,Triethanolamine,Organic nitrogen compounds,Organonitrogen compounds,1,1
+Amide-Pos-000475,Dl-Glutamine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 Amide-Pos-000503,Guanine,Organoheterocyclic compounds,Imidazopyrimidines,1,1
 Amide-Pos-000536,L-Histidine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-Amide-Pos-000583,D-Phenylalanine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Pos-000620,D-Arginine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Pos-000658,Trans-3-Indoleacrylic Acid,Organoheterocyclic compounds,Indoles and derivatives,1,1
 Amide-Pos-000682,"Ne,Ne,Ne-Trimethyllysine",Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Pos-000747,"N3,N4-Dimethyl-L-Arginine",Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 Amide-Pos-000754,Acetyl-L-Carnitine,Lipids and lipid-like molecules,Fatty Acyls,1,1
-Amide-Pos-000860,L-Ergothioneine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-Amide-Pos-000902,2-Sc S-(2-Succinyl)-L-Cysteine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+Amide-Pos-000781,Phosphoserine,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 Amide-Pos-000937,Cytarabine,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleosides,1,1
+Amide-Pos-000987,Asp-Asp,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 Amide-Pos-001016,3-Ketocarbofuran,Organoheterocyclic compounds,Benzofurans,1,1
-Amide-Pos-001102,Gamma-Glu-Glu,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-Amide-Pos-001548,Phthalylsulfathiazole,Benzenoids,Benzene and substituted derivatives,1,1
+Amide-Pos-001132,1-Methyladenosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,1,1
+Amide-Pos-001195,"Dodecanamide,N-[3-(Dimethyloxidoamino)Propyl]",Lipids and lipid-like molecules,Fatty Acyls,1,1
+Amide-Pos-001270,2-Acetamido-N-Β-Aspartyl-2-Deoxyhexopyranosylamine,Organic oxygen compounds,Organooxygen compounds,1,1
+Amide-Pos-001317,N-Acetyl-Neuraminic Acid,Organic oxygen compounds,Organooxygen compounds,1,1
 Amide-Pos-001621,Cytidine 5'-Diphosphate,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,1,1
 Amide-Pos-001983,Gdp-L-Fucose,"Nucleosides, nucleotides, and analogues",Purine nucleotides,1,1
-Amide-Pos-002273,Lecithin,Lipids and lipid-like molecules,Glycerophospholipids,1,1
-Amide-Pos-002307,"1,2-Dioleoyl-Sn-Glycero-3-Phosphatidylcholine",Lipids and lipid-like molecules,Glycerophospholipids,1,1
-Amide-Pos-002316,Pe(18:0_22:6),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C18-Pos-000384,Cis-4-Hydroxy-D-Proline,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-C18-Pos-000538,Indole-3-Carboxaldehyde,Organoheterocyclic compounds,Indoles and derivatives,1,1
+Amide-Pos-002283,2-Oleoyl-1-Palmitoyl-Sn-Glycero-3-Phosphoserine,Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C18-Neg-001023,Xanthosine,"Nucleosides, nucleotides, and analogues",Purine nucleosides,1,1
+C18-Pos-000888,(2s)-2-[(2-Azaniumylacetyl)Amino]-4-Methylpentanoate,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
 C18-Pos-001015,D-(+)-Tryptophan,Organoheterocyclic compounds,Indoles and derivatives,1,1
 C18-Pos-001031,Triethylene Glycol Monobutyl Ether,Organic oxygen compounds,Organooxygen compounds,1,1
 C18-Pos-001333,Asp-Leu,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-C18-Pos-001425,(2r)-3-Hydroxyisovaleroylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,1,1
-C18-Pos-002017,Uridine Monophosphate,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,1,1
-C18-Pos-002294,Inosine-5'-Monophosphate (Imp),"Nucleosides, nucleotides, and analogues",Purine nucleotides,1,1
+C18-Pos-002009,5'-Cytidylic Acid,"Nucleosides, nucleotides, and analogues",Pyrimidine nucleotides,1,1
+C18-Pos-002114,Nicotinamide Adenine Dinucleotide (Nad+),"Nucleosides, nucleotides, and analogues",(5'->5')-dinucleotides,1,1
+C18-Pos-002507,2-(Alpha-D-Mannopyranosyl)-L-Tryptophan,Organoheterocyclic compounds,Indoles and derivatives,1,1
 C18-Pos-002570,Myristoyl-L-Carnitine,Lipids and lipid-like molecules,Fatty Acyls,1,1
-C18-Pos-002703,N6-Succinyladenosine; Lc-Tdda; Ce10,"Nucleosides, nucleotides, and analogues",Purine nucleosides,1,1
-C18-Pos-002968,Acetyltributyl Citrate,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
-C8-Neg-000223,Dodecyl Sulfate,Organic acids and derivatives,Organic sulfuric acids and derivatives,1,1
-C8-Neg-000566,Docosatrienoic Acid,Lipids and lipid-like molecules,Fatty Acyls,1,1
-C8-Neg-002641,Lpc(23:5),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Neg-003063,Pi(O-5:0_21:0),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C18-Pos-004585,1-Oleoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Neg-000540,"All-Cis-4,7,10,13,16-Docosapentaenoic Acid",Lipids and lipid-like molecules,Fatty Acyls,1,1
+C8-Neg-002453,Pc(14:0_4:1cho),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Neg-003418,Ps(15:0_25:3),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Neg-003419,Ps(23:1_17:2),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Neg-003487,Pe(19:1cooh_24:4),Lipids and lipid-like molecules,Glycerophospholipids,1,1
 C8-Neg-003489,Ps(16:1_26:4),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Neg-003554,Ps(24:2_20:5),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Neg-003578,Pc(19:1cooh_23:3),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Neg-003730,Pc(18:3cho_26:8),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-000098,Dibenzoylmethane,Phenylpropanoids and polyketides,"Linear 1,3-diarylpropanoids",1,1
-C8-Pos-000141,Lidocaine,Benzenoids,Benzene and substituted derivatives,1,1
-C8-Pos-000382,D-Sphingosine,Organic nitrogen compounds,Organonitrogen compounds,1,1
-C8-Pos-000642,"16-Hydroxycleroda-3,13-Dien-15,16-Olide",Lipids and lipid-like molecules,Prenol lipids,1,1
-C8-Pos-000682,Midazolam,Organoheterocyclic compounds,Benzodiazepines,1,1
-C8-Pos-000887,5-(Z-Heptadec-8-Enyl) Resorcinol,Benzenoids,Phenols,1,1
+C8-Neg-003509,Ps(14:2_29:7),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Neg-003577,Ps(22:0_22:4),Lipids and lipid-like molecules,Glycerophospholipids,1,2
+C8-Neg-003687,Pi(17:3_25:6),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Neg-003807,Sqdg(14:0_30:6),Lipids and lipid-like molecules,Glycerolipids,1,1
+C8-Pos-000007,9-Methoxy-9-Oxononanoic Acid,Lipids and lipid-like molecules,Fatty Acyls,1,1
 C8-Pos-001064,4-Cholestenone,Lipids and lipid-like molecules,Steroids and steroid derivatives,1,1
-C8-Pos-001241,Dg(3:0_15:0),Lipids and lipid-like molecules,Glycerolipids,1,1
-C8-Pos-001317,Solanidine,Lipids and lipid-like molecules,Steroids and steroid derivatives,1,1
-C8-Pos-001332,Palmitoylcarnitine,Lipids and lipid-like molecules,Fatty Acyls,1,1
+C8-Pos-001073,Cer(D15:2_7:0),Lipids and lipid-like molecules,Sphingolipids,1,1
+C8-Pos-001356,Citroflex A-4,Organic acids and derivatives,Carboxylic acids and derivatives,1,1
+C8-Pos-001450,Xawlprcylccvfp-Cvlifihmsa-N,Lipids and lipid-like molecules,Prenol lipids,1,1
 C8-Pos-001468,Dg(2:0_18:2),Lipids and lipid-like molecules,Glycerolipids,1,1
-C8-Pos-001597,Bis(2-Ethylhexyl) Sebacate,Lipids and lipid-like molecules,Fatty Acyls,1,1
-C8-Pos-001621,3-Hydroxystigmast-5-En-7-One,Lipids and lipid-like molecules,Steroids and steroid derivatives,1,1
-C8-Pos-002038,1-Palmitoyl-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-002408,"Octadecyl 3-(3,5-Di-Tert-Butyl-4-Hydroxyphenyl)Propionate",Lipids and lipid-like molecules,Fatty Acyls,1,1
 C8-Pos-002542,Lpc 20:3-Sn1,Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-002819,Pe(7:0_16:0cho),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-003474,"1,2-Dimyristoyl-Sn-Glycero-3-Pc",Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-003942,Pe(16:1_20:4),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004072,Pe(O-17:3_21:1),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004250,1-(1z-Octadecenyl)-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004273,Pe(O-16:2_22:3),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004303,Pe 20:2_20:2,Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004529,Dg(25:3_25:7),Lipids and lipid-like molecules,Glycerolipids,1,1
-C8-Pos-004628,Pc(9:0_28:7),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004803,Pi(O-16:2_18:3),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-004831,2-Docosahexaenoyl-1-Stearoyl-Sn-Glycero-3-Phosphoserine,Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-005189,Ps 22:4_22:5,Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-005302,Pe(26:4_19:6cooh),Lipids and lipid-like molecules,Glycerophospholipids,1,1
-C8-Pos-005434,Pi(18:0_22:6),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-002720,Lpc 22:6-Sn1,Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-003050,Tg(29:3cooh_2:0),Lipids and lipid-like molecules,Glycerolipids,1,1
+C8-Pos-003127,Pc(6:0_17:0cho),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-003714,Pc(O-10:0_23:2),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-003830,Pe(P-11:0_23:0),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-003874,Pc 16:0_16:1,Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-004104,Tg(O-25:8_2:0_19:4),Lipids and lipid-like molecules,Glycerolipids,1,1
+C8-Pos-004263,Tg(32:4cooh_12:0),Lipids and lipid-like molecules,Glycerolipids,1,1
+C8-Pos-004352,Tg(20:2cho_26:3),Lipids and lipid-like molecules,Glycerolipids,1,1
+C8-Pos-004421,Tg(11:0_9:2cho_26:8),Lipids and lipid-like molecules,Glycerolipids,1,1
+C8-Pos-004505,Pe(P-19:4_23:5),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-005046,Ps(18:3_24:4),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-005208,Pc(15:1cooh_27:7),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-005326,Pi(29:7_11:0),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-005548,Pg(O-29:8_21:6),Lipids and lipid-like molecules,Glycerophospholipids,1,1
+C8-Pos-005561,Pc(22:5cooh_25:8),Lipids and lipid-like molecules,Glycerophospholipids,1,1
 C8-Pos-005741,Pc(28:1_21:0cooh),Lipids and lipid-like molecules,Glycerophospholipids,1,1
