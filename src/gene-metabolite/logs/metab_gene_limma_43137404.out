@@ -1,0 +1,13 @@
+Job ID     : 43137404
+Start time : Tue Jul  7 20:09:58 CDT 2026
+Node       : n131
+SIF        : /scratch/jdlab/sneha/developing-brain-metabolomics/bin/docker/developing-brain-metabolomics_1.0.4.sif
+Script dir : /scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-metabolite
+---
+Pseudobulk samples: 483 | cell types: 27
+Transform: zscore_trim | metabolites: 600 | metabolite samples: 24
+pb samples matched to a metabolite column: 241 / 483
+[23.98922 mins] 50/600 metabolites processed (50 with results)
+[47.74874 mins] 100/600 metabolites processed (100 with results)
+[1.194466 hours] 150/600 metabolites processed (150 with results)
+[1.58862 hours] 200/600 metabolites processed (200 with results)

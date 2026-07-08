@@ -9,6 +9,7 @@
 # Large Data and Singularity files
 *.rds
 *.sif
+*.parquet
 
 # Large Results CSVs
 results/gene-hormone/gene_hormone_csv/
