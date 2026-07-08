@@ -1,0 +1,406 @@
+---
+title: "Batch2 Exogenous Compound Flagging"
+author: "Sneha M. Chaturvedi"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+---
+
+
+
+# Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r set_paths}
+annotation_path <- "../../results/untargeted/batch2_metabolite_annotations.csv"
+output_csv_path <- "../../results/untargeted/csv"
+output_path     <- "../../results/untargeted/batch2_metabolite_annotations_flagged.csv"
+candidates_path <- file.path(output_csv_path, "batch2_candidate_exogenous_flags.csv")
+
+dir.create(output_csv_path, recursive = TRUE, showWarnings = FALSE)
+```
+
+```{r load_annotation}
+annotation <- read_csv(annotation_path, show_col_types = FALSE)
+cat("Compounds loaded:", nrow(annotation), "\n")
+```
+
+```{r source}
+source("functions.R")
+```
+---
+
+# Flag Definitions
+
+Two flag levels are used:
+
+- **`instrument_contaminant`**: Procedural artifacts from lab consumables, plastics, solvents, or industrial chemicals. These have no biological origin and are excluded from all downstream analyses.
+- **`environmental_exposure`**: Pharmaceuticals, pesticides, dietary compounds, or synthetic hormones that may reflect genuine maternal/fetal exposure. These are retained in the main analysis but reported separately.
+- **`review_needed`**: NIST14 spectral match entries where compound identity is uncertain. Resolved manually (see below).
+
+Compounds with `NA` are presumed endogenous.
+
+---
+
+# Known Compounds
+
+Compounds previously identified in project notes or resolved from manual NIST14 review.
+
+```{r known_compounds}
+known_instrument_contaminants <- c(
+  # From project notes
+  "erucamide",                    # C22:1 fatty acid amide; plastic slip agent
+  "octinoxate",                   # UV filter / sunscreen agent
+  "n,n'-diphenylguanidine",       # rubber accelerator / plasticizer additive
+  "levoglucosan",                 # combustion product (biomass burning)
+  "2-methylbenzoic acid",         # industrial solvent / toluene oxidation product
+  "muscone",                      # synthetic fragrance (macrocyclic musk)
+  # Resolved from NIST14 spectral match review
+  "decaethylene glycol",          # PEG-10; synthetic polymer / lab consumable leachate
+  "decanedioic acid, bis(2-ethylhexyl) ester",  # dioctyl sebacate; plasticizer
+  "bis(2-ethylhexyl) sebacate",   # alias for above; same compound, different name
+  "didodecyl 3,3'-thiodipropionate",              # plastic antioxidant / stabilizer
+  "Irgafos 168",                  # plastic antioxidant / stabilizer
+  "Victoria Pure Blue Bo",        # standard
+  # Identified in metabolite-gene and metabolite-hormone review
+  "methanesulfonic acid",         # industrial acid; common HPLC mobile-phase additive
+  "meglumine",                    # N-methyl-D-glucamine; pharma excipient in contrast agents
+  "triethyl citrate",             # synthetic citrate triester plasticizer/pharma excipient (≠ endogenous citrate)
+  "dipropyleneglycol dibenzoate", # industrial plasticizer / coalescent solvent
+  "peg n7",                       # polyethylene glycol oligomer; synthetic polymer leachate
+  "peg n8",                       # polyethylene glycol oligomer; synthetic polymer leachate
+  "peg n11",                      # polyethylene glycol oligomer; synthetic polymer leachate
+  "peg n13",                      # polyethylene glycol oligomer; synthetic polymer leachate
+  "peg n14",                      # polyethylene glycol oligomer; synthetic polymer leachate
+  "6-chloro-5-methyl-1h-1,2,3-benzotriazole",              # chlorinated benzotriazole UV stabilizer / biocide
+  "2-(2h-benzotriazol-2-yl)-4,6-bis(1-methyl-1-phenylethyl)phenol", # Tinuvin 234; UV absorber in plastics
+  "octadecyl 3-(3,5-di-tert-butyl-4-hydroxyphenyl)propionate",      # Irganox 1076; polyolefin antioxidant
+  "bis(2,2,6,6-tetramethyl-4-piperidyl)sebacate",                   # Tinuvin 770; hindered amine light stabilizer
+  "bis(2-ethylhexyl) adipate"     # DEHA plasticizer
+)
+
+known_environmental_exposures <- c(
+  "norgestrel",      # synthetic progestin (oral contraceptive)
+  "methasterone",    # anabolic-androgenic synthetic steroid
+  "minoxidil",       # vasodilator; topical/oral hair-loss or antihypertensive medication
+  # Identified in metabolite-gene and metabolite-hormone review
+  "ketamine",        # dissociative anesthetic; required for surgical tissue procurement
+  "lidocaine",       # local anesthetic amide; required for surgical tissue procurement
+  "midazolam",       # benzodiazepine sedative; required for surgical tissue procurement
+  "fentanyl",        # synthetic opioid analgesic; required for surgical tissue procurement
+  "piperine"         # alkaloid from black pepper (Piper nigrum); maternal dietary exposure
+)
+
+cat("Known instrument contaminants:", length(known_instrument_contaminants), "\n")
+cat("Known environmental exposures:", length(known_environmental_exposures), "\n")
+```
+
+---
+
+# Keyword Patterns
+
+```{r keyword_patterns}
+# Instrument contaminants: plasticizers, industrial chemicals, slip agents,
+# surfactants, PFAS, UV stabilizers, flame retardants, synthetic musks
+instrument_contaminant_patterns <- paste(
+  "phthalate", "diethylhexyl", "dioctyl", "dibutyl",
+  "bisphenol",
+  "tributyl phosphate", "triphenyl phosphate",
+  "siloxane", "dimethylsilyl", "polydimethyl",
+  "erucamide", "oleamide", "stearamide", "behenamide",
+  "triton", "tween", "brij", "span [0-9]",
+  "nonylphenol", "octylphenol",
+  "perfluoro", "fluorotelomer",
+  "benzophenone", "octinoxate", "avobenzone", "oxybenzone",
+  "octocrylene", "homosalate",
+  "tris(2-chloroethyl)", "hexabromocyclododecane",
+  "levoglucosan", "mannosan", "galactosan",
+  "diphenylguanidine","benzothiazole",
+  "muscone", "galaxolide", "tonalide", "\\bmusk\\b", "Irgafos", "Pure Blue",
+  "butylated hydroxytoluene", "\\bBHT\\b",
+  "butylated hydroxyanisole", "\\bBHA\\b",
+  sep = "|"
+)
+
+# Environmental exposures: synthetic steroids, pharmaceuticals, pesticides,
+# preservatives, dietary stimulants.
+# NOTE: levothyroxine/thyroxine (identical to endogenous T4) and progesterone
+# (endogenous and biologically critical in fetal brain) are intentionally excluded.
+environmental_exposure_patterns <- paste(
+  # Synthetic hormones (contraceptives, anabolic steroids, SERMs)
+  "norgestrel", "levonorgestrel", "medroxyprogesterone", "megestrol",
+  "norethindrone", "gestodene", "desogestrel", "etonogestrel",
+  "methasterone", "nandrolone", "stanozolol", "trenbolone",
+  "boldenone", "oxandrolone", "methandrostenolone",
+  "ethinylestradiol", "diethylstilbestrol", "\\bDES\\b",
+  "tamoxifen", "clomiphene",
+  # Synthetic glucocorticoids (distinct from endogenous cortisol/cortisone by name)
+  "betamethasone", "dexamethasone", "\\bprednisone\\b", "prednisolone",
+  # NSAIDs / analgesics
+  "ibuprofen", "naproxen", "acetaminophen", "paracetamol",
+  "\\baspirin\\b", "acetylsalicyl",
+  # Cardiovascular / metabolic
+  "metformin", "atorvastatin", "simvastatin", "lovastatin",
+  "lisinopril", "amlodipine", "metoprolol",
+  "labetalol", "hydralazine", "nifedipine", "methyldopa", "minoxidil",
+  # CNS (SSRIs, SNRIs, benzodiazepines, antiepileptics)
+  "fluoxetine", "sertraline", "paroxetine", "venlafaxine",
+  "lorazepam", "diazepam", "alprazolam",
+  "lamotrigine", "valproic acid", "\\bvalproate\\b", "valproex",
+  # Antibiotics
+  "amoxicillin", "azithromycin", "doxycycline",
+  # Antiemetic
+  "ondansetron",
+  # Antihistamine
+  "diphenhydramine",
+  # Dietary stimulants
+  "caffeine", "theobromine", "theophylline",
+  # Pesticides
+  "atrazine", "glyphosate", "chlorpyrifos", "permethrin",
+  "cypermethrin", "deltamethrin", "malathion",
+  # Preservatives
+  "methylparaben", "ethylparaben", "propylparaben", "butylparaben",
+  "\\bparaben\\b",
+  sep = "|"
+)
+
+# ClassyFire taxonomy classes that are predominantly synthetic/exogenous
+exogenous_superclass <- c("Organohalogens")
+exogenous_class      <- c(
+  "Organochlorides", "Organobromides",
+  "Chlorofluorocarbons", "Synthetic dyes", "Anabolic steroids"
+)
+```
+
+---
+
+# Apply Flags
+
+```{r apply_flags}
+# Compounds requiring manual spectrum review before a final exogenous decision.
+# These are retained in analyses but excluded from downstream reports until resolved.
+review_needed_compounds <- c(
+  "dl-p-hydroxyphenyllactic acid"  # High score (95.1) but SMILES is a hydroperoxide
+                                    # inconsistent with the endogenous tyrosine catabolite
+                                    # p-HPLA (HMDB0000755); no HMDB/CAS in record.
+                                    # Requires manual spectrum verification.
+)
+
+flag_df <- annotation %>%
+  mutate(Name_lower = str_to_lower(Name)) %>%
+  # Step 1: boolean flag columns
+  mutate(
+    flag_known_instrument    = Name_lower %in% known_instrument_contaminants,
+    flag_known_exposure      = Name_lower %in% known_environmental_exposures,
+    flag_review_needed       = Name_lower %in% review_needed_compounds,
+    flag_pattern_instrument  = str_detect(Name_lower,
+                                 regex(instrument_contaminant_patterns, ignore_case = TRUE)),
+    flag_pattern_exposure    = str_detect(Name_lower,
+                                 regex(environmental_exposure_patterns, ignore_case = TRUE)),
+    flag_taxonomy_instrument = (Super.Class %in% exogenous_superclass) |
+                               (Class %in% exogenous_class)
+  ) %>%
+  # Step 2: Exogenous_Flag
+  # review_needed is checked first so it is not overridden by pattern matches
+  mutate(
+    Exogenous_Flag = case_when(
+      flag_review_needed
+        ~ "review_needed",
+      flag_known_instrument | flag_pattern_instrument | flag_taxonomy_instrument
+        ~ "instrument_contaminant",
+      flag_known_exposure | flag_pattern_exposure
+        ~ "environmental_exposure",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  # Step 3: Flag_Reason
+  mutate(
+    Flag_Reason = case_when(
+      flag_review_needed       ~ "SMILES inconsistent with stated identity; manual spectrum review required before exclusion",
+      flag_known_instrument    ~ "Known instrument contaminant (project notes or NIST14 review)",
+      flag_known_exposure      ~ "Known synthetic pharmaceutical or steroid (project notes)",
+      flag_pattern_instrument  ~ "Name matches industrial or contaminant keyword pattern",
+      flag_pattern_exposure    ~ "Name matches pharmaceutical or pesticide keyword pattern",
+      flag_taxonomy_instrument ~ "ClassyFire taxonomy flags synthetic or halogenated class",
+      TRUE ~ NA_character_
+    )
+  ) %>%
+  select(-Name_lower, -starts_with("flag_", ignore.case = FALSE))
+```
+
+---
+
+# Summary
+
+```{r summary}
+annotation_flagged <- flag_df %>%
+  # Annotation confidence tiers based on Best.Match score
+  # Tiers: 80+ high, 70-79 medium, 60-69 low
+  # High-confidence (80+) compounds are bolded in tables throughout downstream reports
+  mutate(
+    Annotation_Confidence = case_when(
+      Best.Match >= 80 ~ "high",
+      Best.Match >= 70 ~ "medium",
+      Best.Match >= 60 ~ "low",
+      TRUE             ~ NA_character_
+    )
+  )
+
+cat("=== Exogenous Flagging Summary ===\n")
+cat("Total compounds:", nrow(annotation_flagged), "\n")
+cat("Presumed endogenous (NA):",
+    sum(is.na(annotation_flagged$Exogenous_Flag)), "\n\n")
+
+flag_counts <- annotation_flagged %>%
+  filter(!is.na(Exogenous_Flag)) %>%
+  count(Exogenous_Flag)
+print(flag_counts)
+```
+
+## Instrument Contaminants
+
+```{r show_instrument}
+annotation_flagged %>%
+  filter(Exogenous_Flag == "instrument_contaminant") %>%
+  select(Compound.ID, Name, Best.Match, Annotation_Confidence, Super.Class, Class, Flag_Reason) %>%
+  arrange(Name) %>%
+  mutate(Name = bold_high_confidence(Name, Annotation_Confidence)) %>%
+  knitr::kable(caption = "Instrument Contaminants — excluded from all analyses. **Bold** = high confidence (score ≥ 80)")
+```
+
+## Environmental Exposures
+
+```{r show_exposures}
+annotation_flagged %>%
+  filter(Exogenous_Flag == "environmental_exposure") %>%
+  select(Compound.ID, Name, Best.Match, Annotation_Confidence, Super.Class, Class, Flag_Reason) %>%
+  arrange(Name) %>%
+  mutate(Name = bold_high_confidence(Name, Annotation_Confidence)) %>%
+  knitr::kable(caption = "Environmental Exposures — removed from main analysis. **Bold** = high confidence (score ≥ 80)")
+```
+
+## Remaining Review Needed
+
+```{r show_review}
+remaining_review <- annotation_flagged %>%
+  filter(Exogenous_Flag == "review_needed")
+
+if (nrow(remaining_review) == 0) {
+  cat("No compounds remaining in review_needed.\n")
+} else {
+  remaining_review %>%
+    select(Compound.ID, Name, Super.Class, Class, Flag_Reason) %>%
+    knitr::kable(caption = "Still requires manual review")
+}
+```
+
+---
+
+# Annotation Confidence Tiers
+
+Compounds are assigned a confidence tier based on `Best.Match` spectral score. The score
+distribution is flat from 60–88 then rises sharply at ≥90, with no natural sub-break
+in the low-medium range. Tiers are defined as:
+
+| Tier | Score | Interpretation |
+|---|---|---|
+| `high` | ≥ 80 | Strong spectral match; high identification confidence; **bolded in tables** |
+| `medium` | 70–79 | Acceptable for untargeted metabolomics |
+| `low` | 60–69 | Borderline; interpret with caution |
+
+```{r confidence_tier_summary}
+tier_counts <- annotation_flagged %>%
+  count(Annotation_Confidence) %>%
+  mutate(Annotation_Confidence = factor(Annotation_Confidence,
+                                        levels = c("high", "medium", "low"))) %>%
+  arrange(Annotation_Confidence)
+
+print(tier_counts)
+
+ggplot(annotation_flagged, aes(x = Best.Match, fill = Annotation_Confidence)) +
+  geom_histogram(binwidth = 2, color = "white", linewidth = 0.2) +
+  scale_fill_manual(
+    values = c(high = "#2166ac", medium = "#92c5de", low = "#f4a582"),
+    na.value = "grey70",
+    name = "Confidence"
+  ) +
+  geom_vline(xintercept = c(75, 90), linetype = "dashed", color = "grey30") +
+  theme_minimal() +
+  labs(
+    title = "Annotation Score Distribution with Confidence Tiers",
+    x = "Best Match Score",
+    y = "Compound Count"
+  )
+```
+
+---
+
+# Save Outputs
+
+```{r save}
+# Full annotation with Exogenous_Flag, Flag_Reason, and Annotation_Confidence columns
+write_csv(annotation_flagged, output_path)
+cat("Flagged annotation saved to:", output_path, "\n")
+
+# Candidate review table (flagged only)
+candidates <- annotation_flagged %>%
+  filter(!is.na(Exogenous_Flag)) %>%
+  select(Compound.ID, Name, Super.Class, Class, Sub.Class,
+         Best.Match, Annotation_Confidence,
+         Exogenous_Flag, Flag_Reason) %>%
+  arrange(Exogenous_Flag, Name)
+
+write_csv(candidates, candidates_path)
+cat("Candidate review table saved to:", candidates_path, "\n")
+cat("Total flagged compounds:", nrow(candidates), "\n")
+```
+
+---
+
+# Save Clean Peak Area Dataset
+
+Removes all exogenous compounds (both `instrument_contaminant` and `environmental_exposure`)
+from the peak area matrix and saves `batch2_peak_area_clean.csv`. This is the file read
+by all downstream analysis scripts — no filtering is needed there.
+
+```{r save_clean_peak_area}
+peak_area_path  <- "../../results/untargeted/batch2_peak_area_values.csv"
+clean_peak_path <- "../../results/untargeted/batch2_peak_area_clean.csv"
+
+batch2_peak_area <- read_csv(peak_area_path, show_col_types = FALSE)
+
+# review_needed compounds are retained in the peak area file until manual spectrum
+# review is complete; only confirmed instrument_contaminant and environmental_exposure are removed.
+exogenous_ids <- annotation_flagged %>%
+  filter(Exogenous_Flag %in% c("instrument_contaminant", "environmental_exposure")) %>%
+  pull(Compound.ID)
+
+n_before <- nrow(batch2_peak_area)
+batch2_peak_area_clean <- batch2_peak_area %>%
+  filter(!Compound.ID %in% exogenous_ids)
+n_after <- nrow(batch2_peak_area_clean)
+
+cat("=== Clean Peak Area Dataset ===\n")
+cat("Compounds before removal:", n_before, "\n")
+cat("Exogenous removed:       ", n_before - n_after, "\n")
+cat("  instrument_contaminant:", sum(annotation_flagged$Exogenous_Flag == "instrument_contaminant", na.rm = TRUE), "\n")
+cat("  environmental_exposure:", sum(annotation_flagged$Exogenous_Flag == "environmental_exposure", na.rm = TRUE), "\n")
+cat("  review_needed (retained):", sum(annotation_flagged$Exogenous_Flag == "review_needed", na.rm = TRUE), "\n")
+cat("Compounds remaining:     ", n_after, "\n\n")
+
+cat("--- Removed environmental exposures ---\n")
+annotation_flagged %>%
+  filter(Exogenous_Flag == "environmental_exposure") %>%
+  select(Compound.ID, Name, Best.Match, Annotation_Confidence, Flag_Reason) %>%
+  arrange(Name) %>%
+  mutate(Name = bold_high_confidence(Name, Annotation_Confidence)) %>%
+  knitr::kable(caption = "Environmental exposures removed. **Bold** = high confidence (score >= 80)")
+
+write_csv(batch2_peak_area_clean, clean_peak_path)
+cat("Clean peak area saved to:", clean_peak_path, "\n")
+```

@@ -1,7 +1,7 @@
 ---
 title: "Batch 2 Metabolomics Visualization"
 author: "Sneha M. Chaturvedi"
-date: "Last Updated January 25, 2026"
+date: "`r Sys.Date()`"
 output: 
   html_document:
     toc: true
@@ -10,14 +10,14 @@ output:
 # Set Up
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
- 
+
 Packages <- c("tidyverse", "readxl", "stats", "ggfortify", "ggrepel", "svglite", "pheatmap")
 
-lapply(Packages, library, character.only=TRUE)
+lapply(Packages, library, character.only = TRUE)
 ```
 
 ```{r source_function, include=FALSE}
-#Source Functions
+# Source Functions
 source("functions.R")
 source("missingness_visualization_functions.R")
 ```
@@ -26,21 +26,25 @@ source("missingness_visualization_functions.R")
 png_path <- "../../results/untargeted/batch2_clean"
 svg_path <- "../../results/untargeted/batch2_clean/svg"
 csv_path <- "../../results/untargeted/batch2_clean/csv"
+
+dir.create(png_path, recursive = TRUE, showWarnings = FALSE)
+dir.create(svg_path, recursive = TRUE, showWarnings = FALSE)
+dir.create(csv_path, recursive = TRUE, showWarnings = FALSE)
 ```
 
 ## Load Dataset(s)
 
 ```{r LoadDataset, include=FALSE}
-#Peak Area Values
-batch2_peak_area = read_csv('../../results/untargeted/Batch2_peak_area_values.csv', show_col_types = FALSE)
+# Peak Area Values
+batch2_peak_area <- read_csv("../../results/untargeted/batch2_peak_area_clean.csv", show_col_types = FALSE)
 
-#Metabolite Annotations
-batch2_compound_annotation = read_csv('../../results/untargeted/Batch2_metabolite_annotations.csv', show_col_types = FALSE)
+# Metabolite Annotations
+batch2_compound_annotation <- read_csv("../../results/untargeted/batch2_metabolite_annotations_flagged.csv", show_col_types = FALSE)
 
-#Sample Metadata
-batch2_sample_metadata = read_csv('../../results/untargeted/Batch2_sample_metadata.csv', show_col_types = FALSE)
+# Sample Metadata
+batch2_sample_metadata <- read_csv("../../results/untargeted/batch2_sample_metadata.csv", show_col_types = FALSE)
 ```
-
+ 
 ```{r log_transform, include=FALSE}
 # Create a log10-transformed copy for abundance calculations
 # batch2_peak_area stays raw so prepare_long_data can handle its own log transform
@@ -53,9 +57,11 @@ batch2_peak_area_log[, sample_cols_idx] <- lapply(
   function(x) log10(as.numeric(x) + 1)
 )
 
-cat("Log10-transformed copy created: batch2_peak_area_log\n")
-cat("Intensity range after transform:",
-    range(unlist(batch2_peak_area_log[, sample_cols_idx]), na.rm = TRUE), "\n")
+cat("Log10-transformed copy created: newbatch2_peak_area_log\n")
+cat(
+  "Intensity range after transform:",
+  range(unlist(batch2_peak_area_log[, sample_cols_idx]), na.rm = TRUE), "\n"
+)
 ```
 
 # Peak Features
@@ -281,6 +287,153 @@ pathways_results <- analyze_category_abundance(
 
 print(pathways_results)
 ```
+# Variable Peaks
+ 
+## Individual Metabolites
+```{r calculate_variability}
+metabolite_variability <- calculate_metabolite_variability(
+  dataset = batch2_peak_area,
+  sample_cols = 4:27,
+  compound_annotation = batch2_compound_annotation
+)
+
+metabolite_variability_by_sex <- calculate_metabolite_variability_by_group(
+  data_long = batch2_long,
+  group_by = "Sex",
+  dataset = batch2_peak_area,
+  compound_annotation = batch2_compound_annotation
+)
+
+metabolite_variability_by_gw <- calculate_metabolite_variability_by_group(
+  data_long = batch2_long,
+  group_by = "GW_bucket",
+  dataset = batch2_peak_area,
+  compound_annotation = batch2_compound_annotation
+)
+```
+ 
+```{r variability_bargraphs}
+top_variable_bar <- plot_top_variable_metabolites_bar(
+  metabolite_variability = metabolite_variability,
+  n = 20,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+top_variable_by_group_sex <- plot_top_variable_metabolites_by_group(
+  metabolite_variability_grouped = metabolite_variability_by_sex,
+  group_by = "Sex",
+  n = 20,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+top_variable_by_group_gw <- plot_top_variable_metabolites_by_group(
+  metabolite_variability_grouped = metabolite_variability_by_gw,
+  group_by = "GW_bucket",
+  n = 20,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path,
+  width = 18
+)
+
+print(top_variable_bar)
+print(top_variable_by_group_sex)
+print(top_variable_by_group_gw)
+```
+
+```{r variability_heatmaps}
+heatmaps_variable <- plot_top_metabolites_heatmaps(
+  dataset = batch2_peak_area,
+  metabolite_abundance = metabolite_variability,
+  n = 100,
+  sample_metadata = batch2_sample_metadata,
+  sample_cols = 4:11,
+  title_prefix = "batch2 clean variable ",
+  png_path = png_path,
+  metabolite_label = "Most Variable"
+)
+```
+
+### Metabolite Class
+```{r variability_class}
+class_variability_results <- analyze_category_variability(
+  metabolite_variability_annotated = metabolite_variability,
+  metabolite_variability_by_sex = metabolite_variability_by_sex,
+  metabolite_variability_by_gw = metabolite_variability_by_gw,
+  dataset = batch2_peak_area,
+  category = "Class",
+  n_bar = 20,
+  n_heatmap = 100,
+  sample_metadata = batch2_sample_metadata,
+  sample_cols = 4:27,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+print(class_variability_results)
+```
+ 
+```{r variability_subclass}
+subclass_variability_results <- analyze_category_variability(
+  metabolite_variability_annotated = metabolite_variability,
+  metabolite_variability_by_sex = metabolite_variability_by_sex,
+  metabolite_variability_by_gw = metabolite_variability_by_gw,
+  dataset = batch2_peak_area,
+  category = "Sub.Class",
+  n_bar = 20,
+  n_heatmap = 100,
+  sample_metadata = batch2_sample_metadata,
+  sample_cols = 4:27,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+print(subclass_variability_results)
+```
+ 
+```{r variability_superclass}
+superclass_variability_results <- analyze_category_variability(
+  metabolite_variability_annotated = metabolite_variability,
+  metabolite_variability_by_sex = metabolite_variability_by_sex,
+  metabolite_variability_by_gw = metabolite_variability_by_gw,
+  dataset = batch2_peak_area,
+  category = "Super.Class",
+  n_bar = 20,
+  n_heatmap = 100,
+  sample_metadata = batch2_sample_metadata,
+  sample_cols = 4:27,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+print(superclass_variability_results)
+```
+ 
+```{r variability_pathways}
+pathways_variability_results <- analyze_category_variability(
+  metabolite_variability_annotated = metabolite_variability,
+  metabolite_variability_by_sex = metabolite_variability_by_sex,
+  metabolite_variability_by_gw = metabolite_variability_by_gw,
+  dataset = batch2_peak_area,
+  category = "Pathways",
+  n_bar = 20,
+  n_heatmap = 100,
+  sample_metadata = batch2_sample_metadata,
+  sample_cols = 4:27,
+  title_prefix = "batch2 clean ",
+  png_path = png_path,
+  svg_path = svg_path
+)
+
+print(pathways_variability_results)
+```
 
 ## Annotation Completeness
 ```{r annotation_completeness}
@@ -291,69 +444,89 @@ annotation_categories <- c("Super.Class", "Class", "Sub.Class", "Pathways")
 annotation_completeness <- batch2_compound_annotation %>%
   filter(Compound.ID %in% batch2_peak_area$Compound.ID) %>%
   summarise(across(all_of(annotation_categories),
-                   list(
-                     n_missing  = ~sum(is.na(.) | . == ""),
-                     n_present  = ~sum(!is.na(.) & . != ""),
-                     pct_missing = ~round(100 * mean(is.na(.) | . == ""), 1)
-                   ),
-                   .names = "{.col}__{.fn}")) %>%
+    list(
+      n_missing = ~ sum(is.na(.) | . == ""),
+      n_present = ~ sum(!is.na(.) & . != ""),
+      pct_missing = ~ round(100 * mean(is.na(.) | . == ""), 1)
+    ),
+    .names = "{.col}__{.fn}"
+  )) %>%
   pivot_longer(everything(),
-               names_to  = c("Category", ".value"),
-               names_sep = "__") %>%
-  mutate(Total = n_missing + n_present,
-         Category = factor(Category, levels = annotation_categories))
+    names_to  = c("Category", ".value"),
+    names_sep = "__"
+  ) %>%
+  mutate(
+    Total = n_missing + n_present,
+    Category = factor(Category, levels = annotation_categories)
+  )
 
 # Print summary table
 cat("\n=== ANNOTATION COMPLETENESS SUMMARY ===\n")
 print(annotation_completeness %>%
-        dplyr::select(Category, n_present, n_missing, Total, pct_missing) %>%
-        rename("Annotated" = n_present, "Missing" = n_missing,
-               "% Missing" = pct_missing))
+  dplyr::select(Category, n_present, n_missing, Total, pct_missing) %>%
+  rename(
+    "Annotated" = n_present, "Missing" = n_missing,
+    "% Missing" = pct_missing
+  ))
 
 # Stacked bar: annotated vs missing per category
 annotation_completeness_long <- annotation_completeness %>%
   dplyr::select(Category, n_present, n_missing) %>%
   pivot_longer(c(n_present, n_missing),
-               names_to  = "Status",
-               values_to = "Count") %>%
+    names_to  = "Status",
+    values_to = "Count"
+  ) %>%
   mutate(Status = recode(Status,
-                         "n_present" = "Annotated",
-                         "n_missing" = "Missing"))
+    "n_present" = "Annotated",
+    "n_missing" = "Missing"
+  ))
 
-p_annotation_completeness <- ggplot(annotation_completeness_long,
-                                    aes(x = Category, y = Count, fill = Status)) +
+p_annotation_completeness <- ggplot(
+  annotation_completeness_long,
+  aes(x = Category, y = Count, fill = Status)
+) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = Count),
-            position = position_stack(vjust = 0.5),
-            color = "white", size = 4, fontface = "bold") +
+    position = position_stack(vjust = 0.5),
+    color = "white", size = 4, fontface = "bold"
+  ) +
   scale_fill_manual(values = c("Annotated" = "#2E86AB", "Missing" = "#E84855")) +
   theme_minimal() +
-  labs(title = "batch2 clean Annotation Completeness by Category",
-       x = "Annotation Category",
-       y = "Number of Metabolites",
-       fill = "Status") +
+  labs(
+    title = "batch2 clean Annotation Completeness by Category",
+    x = "Annotation Category",
+    y = "Number of Metabolites",
+    fill = "Status"
+  ) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(p_annotation_completeness, "batch2 clean annotation_completeness",
-                 png_path = png_path, svg_path = svg_path)
+  png_path = png_path, svg_path = svg_path
+)
 print(p_annotation_completeness)
 
 # Percent-missing bar for a cleaner at-a-glance view
-p_annotation_pct_missing <- ggplot(annotation_completeness,
-                                   aes(x = Category, y = pct_missing, fill = Category)) +
+p_annotation_pct_missing <- ggplot(
+  annotation_completeness,
+  aes(x = Category, y = pct_missing, fill = Category)
+) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(pct_missing, "%")),
-            vjust = -0.4, size = 4) +
+    vjust = -0.4, size = 4
+  ) +
   scale_fill_viridis_d(guide = "none") +
   scale_y_continuous(limits = c(0, 105), expand = c(0, 0)) +
   theme_minimal() +
-  labs(title = "batch2 clean % Metabolites Missing Annotation by Category",
-       x = "Annotation Category",
-       y = "% Missing") +
+  labs(
+    title = "batch2 clean % Metabolites Missing Annotation by Category",
+    x = "Annotation Category",
+    y = "% Missing"
+  ) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(p_annotation_pct_missing, "batch2 clean annotation_pct_missing",
-                 png_path = png_path, svg_path = svg_path)
+  png_path = png_path, svg_path = svg_path
+)
 print(p_annotation_pct_missing)
 ```
 
@@ -394,9 +567,11 @@ sample_elbow <- ggplot(elbow_data, aes(x = PC, y = VarExp)) +
   geom_line() +
   geom_point() +
   theme_minimal() +
-  labs(x = "Principal Component",
-       y = "Variance Explained (%)",
-       title = "Scree Plot of PCA Variance Explained by Samples") +
+  labs(
+    x = "Principal Component",
+    y = "Variance Explained (%)",
+    title = "Scree Plot of PCA Variance Explained by Samples"
+  ) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(sample_elbow, "sample_elbow", png_path = png_path, svg_path = svg_path)
@@ -407,9 +582,11 @@ sample_pca <- ggplot(sample_scores, aes(x = PC1, y = PC2, label = Sample)) +
   geom_point(aes(color = Sample), size = 3) +
   geom_text(vjust = -1, hjust = -0.1) +
   theme_minimal() +
-  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
-       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]), 
-       title = "PCA of Sample Variation")
+  labs(
+    x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+    y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+    title = "PCA of Sample Variation"
+  )
 
 save_dual_format(sample_pca, "sample_pca", png_path = png_path, svg_path = svg_path)
 print(sample_pca)
@@ -419,10 +596,12 @@ sample_pca1x2_sex <- ggplot(sample_scores, aes(x = PC1, y = PC2, color = Sex, la
   geom_point(size = 3) +
   geom_text_repel(size = 3, max.overlaps = 10) +
   theme_minimal() +
-  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
-       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
-       title = "Sample PCA by Sex") +
-  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  labs(
+    x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+    y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+    title = "Sample PCA by Sex"
+  ) +
+  scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(sample_pca1x2_sex, "sample_pca1x2_sex", png_path = png_path, svg_path = svg_path)
@@ -432,10 +611,12 @@ sample_pca2x3_sex <- ggplot(sample_scores, aes(x = PC2, y = PC3, color = Sex, la
   geom_point(size = 3) +
   geom_text_repel(size = 3, max.overlaps = 10) +
   theme_minimal() +
-  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
-       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
-       title = "Sample PCA by Sex") +
-  scale_color_manual(values = c("F" = "#FF69B4", "M" = "#4169E1")) +
+  labs(
+    x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+    y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+    title = "Sample PCA by Sex"
+  ) +
+  scale_color_manual(values = c("F" = "#FFC20A", "M" = "#571C90")) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(sample_pca2x3_sex, "sample_pca2x3_sex", png_path = png_path, svg_path = svg_path)
@@ -446,10 +627,12 @@ sample_pca1x2_gw <- ggplot(sample_scores, aes(x = PC1, y = PC2, color = GW, labe
   geom_point(size = 3) +
   geom_text_repel(size = 3, max.overlaps = 10) +
   theme_minimal() +
-  labs(x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
-       y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
-       title = "Sample PCA by Gestational Week") +
-  scale_color_viridis_c() +
+  labs(
+    x = sprintf("PC1 (%.1f%%)", var_explained_samples[1]),
+    y = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+    title = "Sample PCA by Gestational Week"
+  ) +
+  scale_color_gradient(name = "Gestational Week", low = "#C8E6C9", high = "#1B5E20") +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(sample_pca1x2_gw, "sample_pca1x2_gw", png_path = png_path, svg_path = svg_path)
@@ -459,10 +642,12 @@ sample_pca2x3_gw <- ggplot(sample_scores, aes(x = PC2, y = PC3, color = GW, labe
   geom_point(size = 3) +
   geom_text_repel(size = 3, max.overlaps = 10) +
   theme_minimal() +
-  labs(x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
-       y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
-       title = "Sample PCA by Gestational Week") +
-  scale_color_viridis_c() +
+  labs(
+    x = sprintf("PC2 (%.1f%%)", var_explained_samples[2]),
+    y = sprintf("PC3 (%.1f%%)", var_explained_samples[3]),
+    title = "Sample PCA by Gestational Week"
+  ) +
+  scale_color_gradient(name = "Gestational Week", low = "#C8E6C9", high = "#1B5E20") +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(sample_pca2x3_gw, "sample_pca2x3_gw", png_path = png_path, svg_path = svg_path)
@@ -470,23 +655,24 @@ print(sample_pca2x3_gw)
 
 # PCA of metabolite variation
 # Prepare data for PCA (metabolites as rows, samples as columns)
+# Compound.ID set as rownames so PCA scores can be safely joined to annotations
 metabolites_matrix <- batch2_peak_area_log %>%
-  dplyr::select(starts_with("Sample"))
+  dplyr::select(starts_with("Sample")) %>%
+  as.matrix()
+rownames(metabolites_matrix) <- batch2_peak_area_log$Compound.ID
 
 metabolites_matrix <- apply(metabolites_matrix, 2, min_value_impute)
 
 # Perform PCA
 pca_metabolites <- prcomp(metabolites_matrix, scale. = TRUE)
 
-# Filter annotation to only include compounds present in peak area
-compounds_in_peak <- unique(batch2_peak_area$Compound.ID)
-
-batch2_compound_annotation <- batch2_compound_annotation %>%
-  filter(Compound.ID %in% compounds_in_peak)
-
-# Convert PCA results to data frame and add metabolite labels
-metabolite_scores <- as.data.frame(pca_metabolites$x)
-metabolite_scores$Name <- batch2_compound_annotation$Name
+# Convert PCA results to data frame and join Name by Compound.ID
+metabolite_scores <- as.data.frame(pca_metabolites$x) %>%
+  tibble::rownames_to_column("Compound.ID") %>%
+  left_join(
+    batch2_compound_annotation %>% dplyr::select(Compound.ID, Name),
+    by = "Compound.ID"
+  )
 
 # Calculate variance explained
 var_explained_metabolites <- pca_metabolites$sdev^2 / sum(pca_metabolites$sdev^2) * 100
@@ -501,9 +687,11 @@ metabolite_elbow <- ggplot(elbow_data, aes(x = PC, y = VarExp)) +
   geom_line() +
   geom_point() +
   theme_minimal() +
-  labs(x = "Principal Component",
-       y = "Variance Explained (%)",
-       title = "Scree Plot of PCA Variance Explained by Metabolites") +
+  labs(
+    x = "Principal Component",
+    y = "Variance Explained (%)",
+    title = "Scree Plot of PCA Variance Explained by Metabolites"
+  ) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(metabolite_elbow, "metabolite_elbow", png_path = png_path, svg_path = svg_path)
@@ -525,9 +713,11 @@ metabolite_pca1x2 <- ggplot(metabolite_scores, aes(x = PC1, y = PC2)) +
   geom_point() +
   geom_text(aes(label = ifelse(is_outlier, Name, "")), vjust = -1, hjust = -0.1, size = 3) +
   theme_minimal() +
-  labs(x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
-       y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]), 
-       title = "PCA of Metabolite Variation") +
+  labs(
+    x = sprintf("PC1 (%.1f%%)", var_explained_metabolites[1]),
+    y = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]),
+    title = "PCA of Metabolite Variation"
+  ) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(metabolite_pca1x2, "metabolite_pca1x2", png_path = png_path, svg_path = svg_path)
@@ -537,9 +727,11 @@ metabolite_pca2x3 <- ggplot(metabolite_scores, aes(x = PC2, y = PC3)) +
   geom_point() +
   geom_text(aes(label = ifelse(is_outlier, Name, "")), vjust = -1, hjust = -0.1, size = 3) +
   theme_minimal() +
-  labs(x = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]),
-       y = sprintf("PC3 (%.1f%%)", var_explained_metabolites[3]), 
-       title = "PCA of Metabolite Variation") +
+  labs(
+    x = sprintf("PC2 (%.1f%%)", var_explained_metabolites[2]),
+    y = sprintf("PC3 (%.1f%%)", var_explained_metabolites[3]),
+    title = "PCA of Metabolite Variation"
+  ) +
   theme(plot.title = element_text(hjust = 0.5))
 
 save_dual_format(metabolite_pca2x3, "metabolite_pca2x3", png_path = png_path, svg_path = svg_path)

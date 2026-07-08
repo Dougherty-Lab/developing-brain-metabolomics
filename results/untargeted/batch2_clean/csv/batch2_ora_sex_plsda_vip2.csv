@@ -1,0 +1,4 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Fructose and mannose metabolism (KEGG),1,8,8.663994759897454,0.13301697157327863,D-Mannitol 1-Phosphate,0.2634567955652394,KEGG
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,11,6.053308556649198,0.17863813959734898,1-Methyladenosine,0.2634567955652394,WikiPathways
+KEGG:map01100 (KEGG),1,17,3.754741895089431,0.2634567955652394,D-Mannitol 1-Phosphate,0.2634567955652394,KEGG

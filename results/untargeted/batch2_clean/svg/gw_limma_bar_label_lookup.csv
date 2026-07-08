@@ -1,15 +1,31 @@
-truncated_label,full_label
-"2-Amino-1,3,4-Oct...","2-Amino-1,3,4-Octadecanetriol"
-N-Methylglutamic ...,N-Methylglutamic Acid
-"3-(5,6-Dihydroxyh...","3-(5,6-Dihydroxyheptyl)-4-Methyl-2h-Furan-5-One"
-"1,2-Dilinoleoyl-S...","1,2-Dilinoleoyl-Sn-Glycero-3-Phosphoethanolamine"
-"N,N-Dimethylguano...","N,N-Dimethylguanosine"
-2-Docosahexaenoyl...,2-Docosahexaenoyl-1-Stearoyl-Sn-Glycero-3-Phosphoethanolamine
-Trans-4'-Ethyl-(1...,"Trans-4'-Ethyl-(1,1'-Bicyclohexyl)-4-Carboxylic Acid"
-Phosphatidylethan...,Phosphatidylethanolamine Alkenyl 18:1-20:4
-Nicotinamide Aden...,Nicotinamide Adenine Dinucleotide (Nad+)
-"N,N'-Diphenylguan...","N,N'-Diphenylguanidine"
-"(Αs,1s,2r)-Α-Amin...","(Αs,1s,2r)-Α-Amino-2-Carboxycyclopropaneacetic Acid"
-2-Hydroxypropyl S...,2-Hydroxypropyl Stearate
-"2-[(2s,4ar,8as)-2...","2-[(2s,4ar,8as)-2-Hydroxy-4a-Methyl-8-Methylenedecahydro-2-Naphthalenyl]Acrylic Acid"
-Palmitoyl Ethanol...,Palmitoyl Ethanolamide
+full_label
+L-(+)-Lactic Acid
+Pe(22:3_26:5)
+Pc(21:2cho_19:4)
+Pi(29:7_11:0)
+Bis(Methylbenzylidene)Sorbitol
+Pi(18:0_22:6)
+Pc(6:0cooh_30:1)
+"2,3-Dihydroxypropyl 13-Methyltetradecanoate"
+Ps(24:4_24:4)
+D-(+)-Tryptophan
+Acetylcholine
+Lpc(16:2)
+"D-Myo-Inositol-1,2-Diphosphate"
+Lpe 34:1
+Hypoxanthtine
+L-2-Aminoadipic Acid
+Pe(26:4_19:6cooh)
+D-Gluconic Acid
+Sarcosine
+Lithocholic Acid
+Pe(21:4cooh_24:6)
+Dl-Pyroglutamic Acid
+D-Phenylalanine
+Hex1cer(D24:2_12:0)
+L-Saccharopine
+"D-Fructose 1,6-Bisphosphate"
+"[2,2'-Biquinoline]-4,4'-Dicarboxylic Acid"
+Pc O-42:6
+Pe 16:1_16:1
+1-Oleoyl-2-Myristoyl-Sn-Glycero-3-Phosphocholine

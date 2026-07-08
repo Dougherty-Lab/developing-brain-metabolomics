@@ -9,6 +9,7 @@
 # Large Data and Singularity files
 *.rds
 *.sif
+*.parquet
 
 # User-specific files
 .Ruserdata

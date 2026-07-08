@@ -1,11 +1,23 @@
-truncated_label,full_label
-Organonitrogen co...,Organonitrogen compounds
-Organic sulfonic ...,Organic sulfonic acids and derivatives
-Organic phosphori...,Organic phosphoric acids and derivatives
-Hydroxy acids and...,Hydroxy acids and derivatives
-Carboximidic acid...,Carboximidic acids and derivatives
-Organic acids and...,Organic acids and derivatives
-Carboxylic acids ...,Carboxylic acids and derivatives
-Lipids and lipid-...,Lipids and lipid-like molecules
-Sulfinic acids an...,Sulfinic acids and derivatives
-Benzene and subst...,Benzene and substituted derivatives
+full_label
+Organonitrogen compounds
+Organic sulfonic acids and derivatives
+Purine nucleosides
+Imidazopyrimidines
+Glycerolipids
+Cinnamyl alcohols
+Dihydrofurans
+Pyrazolopyrimidines
+Hydroxy acids and derivatives
+Carboximidic acids and derivatives
+Carboxylic acids and derivatives
+Purine nucleotides
+Lactones
+Pyrimidine nucleosides
+Fatty Acyls
+Endocannabinoids
+Keto acids and derivatives
+Organooxygen compounds
+Organic phosphoric acids and derivatives
+Pyridines and derivatives
+Sulfinic acids and derivatives
+Dioxanes

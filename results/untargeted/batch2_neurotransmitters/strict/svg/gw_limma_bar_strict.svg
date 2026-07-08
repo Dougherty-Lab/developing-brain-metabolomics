@@ -28,10 +28,10 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMTA5LjYwfDU5Mi4xM3wyMy40NXw1MzAuMjg=)'>
-<polyline points='159.18,530.28 159.18,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='296.31,530.28 296.31,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='433.44,530.28 433.44,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='570.57,530.28 570.57,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='211.91,530.28 211.91,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='324.00,530.28 324.00,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='436.10,530.28 436.10,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='548.20,530.28 548.20,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,508.86 592.13,508.86 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,473.17 592.13,473.17 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,437.48 592.13,437.48 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -46,42 +46,44 @@
 <polyline points='109.60,116.25 592.13,116.25 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,80.56 592.13,80.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,44.87 592.13,44.87 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='227.75,530.28 227.75,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='364.88,530.28 364.88,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='502.01,530.28 502.01,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='131.53' y='492.80' width='370.47' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='306.29' y='457.11' width='195.72' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='340.72' y='421.42' width='161.29' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='385.39' y='385.72' width='116.62' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='404.52' y='350.03' width='97.49' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='428.50' y='314.34' width='73.51' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='480.74' y='278.65' width='21.27' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='491.79' y='242.96' width='10.22' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='502.01' y='207.26' width='27.94' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='502.01' y='171.57' width='33.72' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='502.01' y='135.88' width='35.67' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='502.01' y='100.19' width='38.90' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='502.01' y='64.50' width='61.48' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='502.01' y='28.80' width='68.19' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<polyline points='155.86,530.28 155.86,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='267.96,530.28 267.96,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='380.05,530.28 380.05,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='492.15,530.28 492.15,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<rect x='131.53' y='492.80' width='136.42' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='181.69' y='457.11' width='86.27' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='217.36' y='421.42' width='50.60' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='232.63' y='385.72' width='35.32' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='234.97' y='350.03' width='32.98' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='256.98' y='314.34' width='10.98' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='262.44' y='278.65' width='5.52' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='267.96' y='242.96' width='3.80' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='267.96' y='207.26' width='9.87' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='267.96' y='171.57' width='13.94' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='267.96' y='135.88' width='47.26' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='267.96' y='100.19' width='57.78' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='267.96' y='64.50' width='81.94' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='267.96' y='28.80' width='302.24' height='32.12' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
-<text x='104.67' y='512.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='77.72px' lengthAdjust='spacingAndGlyphs'>N-Methylglutamic ...</text>
-<text x='104.67' y='476.38' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.79px' lengthAdjust='spacingAndGlyphs'>Υ-L-Glutamyl-L-Gl...</text>
-<text x='104.67' y='440.68' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-1-Aspart...</text>
-<text x='104.67' y='404.99' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='60.60px' lengthAdjust='spacingAndGlyphs'>N-Acetylglycine</text>
-<text x='104.67' y='369.30' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='56.20px' lengthAdjust='spacingAndGlyphs'>N-Ethylglycine</text>
-<text x='104.67' y='333.61' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='73.82px' lengthAdjust='spacingAndGlyphs'>N-Acetylaspartic ...</text>
-<text x='104.67' y='297.92' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.62px' lengthAdjust='spacingAndGlyphs'>Dl-Pyroglutamic Acid</text>
-<text x='104.67' y='262.23' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='86.03px' lengthAdjust='spacingAndGlyphs'>5-Methyl D-Glutamate</text>
-<text x='104.67' y='226.53' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='62.08px' lengthAdjust='spacingAndGlyphs'>L-Glutamic Acid</text>
-<text x='104.67' y='190.84' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.79px' lengthAdjust='spacingAndGlyphs'>L-Γ-Glutamyl-L-Gl...</text>
-<text x='104.67' y='155.15' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='77.72px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-Dl-Aspar...</text>
-<text x='104.67' y='119.46' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='59.15px' lengthAdjust='spacingAndGlyphs'>L-Aspartic Acid</text>
-<text x='104.67' y='83.77' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='51.81px' lengthAdjust='spacingAndGlyphs'>Acetylcholine</text>
-<text x='104.67' y='48.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.77px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-Dl-Gluta...</text>
-<text x='227.75' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='15.16px' lengthAdjust='spacingAndGlyphs'>-0.2</text>
-<text x='364.88' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='15.16px' lengthAdjust='spacingAndGlyphs'>-0.1</text>
-<text x='502.01' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='104.67' y='512.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='51.81px' lengthAdjust='spacingAndGlyphs'>Acetylcholine</text>
+<text x='104.67' y='476.38' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='59.15px' lengthAdjust='spacingAndGlyphs'>L-Aspartic Acid</text>
+<text x='104.67' y='440.68' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='63.04px' lengthAdjust='spacingAndGlyphs'>Cysteinylglycine</text>
+<text x='104.67' y='404.99' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='62.08px' lengthAdjust='spacingAndGlyphs'>L-Glutamic Acid</text>
+<text x='104.67' y='369.30' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.21px' lengthAdjust='spacingAndGlyphs'>L-Pyroglutamic Acid</text>
+<text x='104.67' y='333.61' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.77px' lengthAdjust='spacingAndGlyphs'>N-Acetylglutamic ...</text>
+<text x='104.67' y='297.92' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='29.33px' lengthAdjust='spacingAndGlyphs'>Glycine</text>
+<text x='104.67' y='262.23' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='39.10px' lengthAdjust='spacingAndGlyphs'>Histamine</text>
+<text x='104.67' y='226.53' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.79px' lengthAdjust='spacingAndGlyphs'>Υ-L-Glutamyl-L-Gl...</text>
+<text x='104.67' y='190.84' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-L-Aspart...</text>
+<text x='104.67' y='155.15' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='86.03px' lengthAdjust='spacingAndGlyphs'>5-Methyl D-Glutamate</text>
+<text x='104.67' y='119.46' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='60.60px' lengthAdjust='spacingAndGlyphs'>N-Acetylglycine</text>
+<text x='104.67' y='83.77' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.62px' lengthAdjust='spacingAndGlyphs'>Dl-Pyroglutamic Acid</text>
+<text x='104.67' y='48.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-1-Aspart...</text>
+<text x='155.86' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.25</text>
+<text x='267.96' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.00</text>
+<text x='380.05' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.25</text>
+<text x='492.15' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.50</text>
 <text x='350.86' y='554.31' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='180.93px' lengthAdjust='spacingAndGlyphs'>Slope (log2 peak area per GW week)</text>
 <text transform='translate(13.50,276.86) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='53.78px' lengthAdjust='spacingAndGlyphs'>Compound</text>
 <text x='608.56' y='260.85' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='43.39px' lengthAdjust='spacingAndGlyphs'>Direction</text>

@@ -1,9 +1,9 @@
-truncated_label,full_label
-Organic nitrogen ...,Organic nitrogen compounds
-Lipids and lipid-...,Lipids and lipid-like molecules
-Organic acids and...,Organic acids and derivatives
-Organoheterocycli...,Organoheterocyclic compounds
-"Nucleosides, nucl...","Nucleosides, nucleotides, and analogues"
-Phenylpropanoids ...,Phenylpropanoids and polyketides
-Organic oxygen co...,Organic oxygen compounds
-Organosulfur comp...,Organosulfur compounds
+full_label
+Organic nitrogen compounds
+"Nucleosides, nucleotides, and analogues"
+Organoheterocyclic compounds
+Organic acids and derivatives
+Lipids and lipid-like molecules
+Phenylpropanoids and polyketides
+Organic oxygen compounds
+Benzenoids

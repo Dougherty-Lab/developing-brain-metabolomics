@@ -1,0 +1,5 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Phenylalanine and Tyrosine Metabolism (KEGG),1,7,5.006836174179302,0.21260088087961326,Phenylacetylglutamine,0.41874682496011834,KEGG
+Fructose and mannose metabolism (KEGG),1,8,4.287658331289624,0.2392211357964945,D-Mannitol 1-Phosphate,0.41874682496011834,KEGG
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,11,2.9903818759420573,0.31406011872008877,1-Methyladenosine,0.41874682496011834,WikiPathways
+KEGG:map01100 (KEGG),1,17,1.851584424099022,0.443328298563339,D-Mannitol 1-Phosphate,0.443328298563339,KEGG
