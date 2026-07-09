@@ -167,8 +167,7 @@ cat(sprintf("Global-FDR hits (FDR < %.2f & |logFC| >= %.2f): %s\n",
 #   max_cooks    max Cook's distance in the lm(log1p(CPM) ~ metab + covariates)
 #   loo_unstable dropping the most influential sample flips the metabolite slope
 #                or halves |slope| -> small-n fragility (Squair et al. 2021,
-#                Nat Commun 12:5692). INT bounds leverage, so a TRUE here is a
-#                thin association, not a single extreme-value artefact.
+#                Nat Commun 12:5692). 
 report_group <- function(cid, ct, genes) {
   idx      <- which(row_ct == ct)
   mv       <- metab_tx[cid, match(metab_col[idx], colnames(metab_tx))]

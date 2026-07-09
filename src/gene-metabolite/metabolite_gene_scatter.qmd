@@ -33,6 +33,7 @@ modeled effect (close to, not identical to, limma's precision-weighted logFC).
 suppressPackageStartupMessages({
   library(tidyverse); library(edgeR); library(patchwork)
 })
+setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-metabolite/")
 source("pseudobulk_functions.R")     # merge_hormone_metadata, save_dual_format
 source("metabolite_functions.R")     # build_metab_covariates, transforms, mapping
 set.seed(123)
@@ -41,7 +42,6 @@ set.seed(123)
 # removal; keep "int" to view the INT run instead.
 METHOD    <- "zscore_trim"           # "int" | "zscore" | "zscore_trim"
 suffix    <- if (METHOD == "int") "" else paste0("-", METHOD)
-
 cache_dir    <- "../../data/cache"
 metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
 hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
