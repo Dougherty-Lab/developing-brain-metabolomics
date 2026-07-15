@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 # metabolite_gene_limma.R
 # ---------------------------------------------------------------------------
-# Loop ~600 metabolites through limma-voom gene-ASSOCIATION models and stream
+# Loop ~569 metabolites through limma-voom gene-ASSOCIATION models and stream
 # one parquet file per metabolite to results/gene-metabolite/parquet/.
 #
 #   response  : pseudobulk gene counts (voom)

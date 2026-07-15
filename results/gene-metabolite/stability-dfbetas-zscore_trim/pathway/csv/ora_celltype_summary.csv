@@ -1,0 +1,9 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source,cell_type,pathway_short
+Histidine catabolism (Reactome),3,8,39.96464407378869,2.868172381616904e-4,L-Glutamic Acid;L-Histidine;Adenosine 5'-Diphosphate,0.029875818242758936,Reactome,Astrocyte-Immature,Histidine catabolism
+Histidine metabolism (KEGG),3,10,28.68179994842456,6.015979071567335e-4,L-Glutamic Acid;L-Histidine;Adenosine 5'-Diphosphate,0.029875818242758936,KEGG,Astrocyte-Immature,Histidine metabolism
+Nitrogen metabolism (KEGG),3,12,22.337524695862886,0.0010795504406021048,L-Glutamic Acid;L-Histidine;Adenosine 5'-Diphosphate,0.029875818242758936,KEGG,Astrocyte-Immature,Nitrogen metabolism
+"Leucine, isoleucine and valine metabolism (WikiPathways)",2,11,17.148269243055566,0.01137355673210954,Malonic Acid;3-Hydroxybutyric Acid,0.1706033509816431,WikiPathways,EN-L6b,"Leucine, isoleucine and valine metabo..."
+"Alanine, aspartate and glutamate metabolism (KEGG)",2,23,7.269736324096227,0.04736176571016164,Malonic Acid;Asparagine,0.2916718342736907,KEGG,EN-L6b,"Alanine, aspartate and glutamate meta..."
+Aspirin ADME (Reactome),2,7,15.383998696746065,0.014354426005596697,Pyruvic Acid;3-Hydroxybutyric Acid,0.3609557813215674,Reactome,IN-MGE-SST,Aspirin ADME
+Glyoxylate metabolism (WikiPathways),2,8,12.829212331843218,0.01882546366189303,Pyruvic Acid;L-Hydroxyproline,0.3609557813215674,WikiPathways,IN-MGE-SST,Glyoxylate metabolism
+Glyoxylate metabolism and glycine degradation (Reactome),2,8,12.829212331843218,0.01882546366189303,Pyruvic Acid;L-Hydroxyproline,0.3609557813215674,Reactome,IN-MGE-SST,Glyoxylate metabolism and glycine deg...

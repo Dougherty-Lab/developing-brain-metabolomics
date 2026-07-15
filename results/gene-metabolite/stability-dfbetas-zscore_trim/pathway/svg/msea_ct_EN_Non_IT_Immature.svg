@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='720.00pt' height='504.00pt' viewBox='0 0 720.00 504.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA='>
+    <rect x='0.00' y='0.00' width='720.00' height='504.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpMjI0Ljc4fDYxNS4xMXw0Ny4xOHw0NzIuMDk='>
+    <rect x='224.78' y='47.18' width='390.33' height='424.92' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMjI0Ljc4fDYxNS4xMXw0Ny4xOHw0NzIuMDk=)'>
+<polyline points='292.25,472.09 292.25,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='391.71,472.09 391.71,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='491.16,472.09 491.16,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='590.61,472.09 590.61,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='224.78,356.21 615.11,356.21 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='224.78,163.06 615.11,163.06 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='242.53,472.09 242.53,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='341.98,472.09 341.98,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='441.43,472.09 441.43,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='540.89,472.09 540.89,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polygon points='597.37,149.24 609.34,169.97 585.39,169.97 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<polygon points='560.09,358.69 565.07,358.69 565.07,353.72 560.09,353.72 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<line x1='242.53' y1='472.09' x2='242.53' y2='47.18' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
+</g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+<text x='219.85' y='359.12' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='214.37px' lengthAdjust='spacingAndGlyphs'>Amino acid metabolism in triple-negative b... (WikiPathways)</text>
+<text x='219.85' y='165.98' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='118.74px' lengthAdjust='spacingAndGlyphs'>Pyruvate metabolism (Reactome)</text>
+<text x='242.53' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='341.98' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.5</text>
+<text x='441.43' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.0</text>
+<text x='540.89' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.5</text>
+<text x='419.95' y='496.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='179.08px' lengthAdjust='spacingAndGlyphs'>Normalized Enrichment Score (NES)</text>
+<text x='631.55' y='177.05' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='39.12px' lengthAdjust='spacingAndGlyphs'>Set size</text>
+<circle cx='642.89' cy='192.37' r='2.49' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='209.65' r='5.69' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='227.14' r='7.02' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='246.18' r='8.03' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='267.72' r='8.89' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<text x='659.70' y='195.58' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>9.00</text>
+<text x='659.70' y='212.86' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>9.25</text>
+<text x='659.70' y='230.35' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>9.50</text>
+<text x='659.70' y='249.39' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>9.75</text>
+<text x='659.70' y='270.93' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='22.00px' lengthAdjust='spacingAndGlyphs'>10.00</text>
+<text x='631.55' y='310.20' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='47.07px' lengthAdjust='spacingAndGlyphs'>Database</text>
+<polygon points='640.19,322.48 642.82,327.04 637.55,327.04 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<polygon points='638.23,344.75 642.14,344.75 642.14,340.84 638.23,340.84 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<text x='654.31' y='328.72' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='40.08px' lengthAdjust='spacingAndGlyphs'>Reactome</text>
+<text x='654.31' y='346.00' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='54.73px' lengthAdjust='spacingAndGlyphs'>WikiPathways</text>
+<text x='419.95' y='30.01' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='125.84px' lengthAdjust='spacingAndGlyphs'>Top 2 by FDR (p &lt; 0.05 shown)</text>
+<text x='419.95' y='39.73' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='115.60px' lengthAdjust='spacingAndGlyphs'>* FDR &lt; 0.05   ** FDR &lt; 0.01</text>
+<text x='419.95' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='180.98px' lengthAdjust='spacingAndGlyphs'>MSEA — EN-Non-IT-Immature</text>
+</g>
+</svg>

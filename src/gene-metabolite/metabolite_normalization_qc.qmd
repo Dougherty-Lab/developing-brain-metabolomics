@@ -1,0 +1,354 @@
+---
+title: "Metabolite Transform QC"
+subtitle: "Comparing z-score, median normalization, and combined transforms"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Purpose
+
+Three questions this QC answers:
+
+1. **Is sample-level variation present?** Per-sample log2 distributions ordered by GW — do samples look systematically different in overall metabolite load?
+2. **Is median normalization safe?** If the sample median correlates with GW or Sex, median normalization would flatten real biology before the model sees it.
+3. **What does each transform do?** Global distributions and example metabolite–GW relationships under four transforms side-by-side.
+
+## Setup
+
+```{r}
+#| label: setup
+Packages <- c("tidyverse", "cowplot", "svglite", "patchwork")
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")
+source("metabolite_functions.R")
+set.seed(123)
+
+metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
+hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
+cache_dir    <- "../../data/cache"
+stable_csv   <- "../../results/gene-metabolite/stability-dfbetas-zscore_trim/metabolite_gene_hits_dfbetas_stable.csv"
+out_dir      <- "../../results/gene-metabolite/transform-qc"
+dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+```
+
+## Load data + compute transforms
+
+```{r}
+#| label: transforms
+metab_mat <- read_metabolite_matrix(metab_path)
+
+# Rebuild pb for GW/Sex metadata
+pb_base     <- readRDS(file.path(cache_dir, "pb_base.rds"))
+batch_props <- readRDS(file.path(cache_dir, "batch_props_sample.rds"))
+targeted_raw <- readxl::read_xlsx(hormone_xlsx)
+targeted_raw$E2 <- targeted_raw$`17B-E2 (ng/mL)`
+targeted_raw$TT <- targeted_raw$`TT (ng/mL)`
+targeted_raw$P4 <- targeted_raw$`P4 (ng/mL)`
+pb <- build_metab_covariates(pb_base, targeted_raw, batch_props, min_cells = 30)
+
+# Map metabolite sample columns to GW/Sex via tissue number
+# "Sample07" -> "tissue7" <-> "SSD07_tissue7" (mirrors metab_sample_to_pb logic)
+pb_meta_unique <- pb$metadata |>
+  tibble::rownames_to_column("pb_row") |>
+  mutate(tissue_id = stringr::str_extract(pb_row, "tissue\\d+")) |>
+  distinct(tissue_id, .keep_all = TRUE) |>
+  dplyr::select(tissue_id, GW, Sex, batch1_frac)
+
+metab_sample_meta <- tibble(
+  metab_col = colnames(metab_mat),
+  tissue_id = paste0("tissue", as.integer(sub("^Sample", "", colnames(metab_mat))))
+) |>
+  left_join(pb_meta_unique, by = "tissue_id")
+
+# ---- Four transforms ----
+# 1. log2 + imputed (baseline)
+metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute))
+dimnames(metab_log) <- dimnames(metab_mat)
+
+# 2. z-score per metabolite, IQR trim (current pipeline)
+metab_zscore <- transform_metabolite_matrix(metab_mat, method = "zscore_trim")
+
+# 3. Median normalization within sample on log2 scale (subtract per-sample median)
+#    Corrects systematic differences in total metabolite load between samples.
+#    Does NOT correct per-metabolite variance — z-score still needed for that.
+metab_log2_raw <- log2(metab_mat + 1)
+samp_med       <- apply(metab_log2_raw, 2, median, na.rm = TRUE)
+metab_mednorm  <- sweep(metab_log2_raw, 2, samp_med, FUN = "-")
+metab_mednorm_imp <- t(apply(metab_mednorm, 1, min_value_impute))
+dimnames(metab_mednorm_imp) <- dimnames(metab_mat)
+
+# 4. Median norm + z-score per metabolite (combined)
+metab_mednorm_z <- t(apply(metab_mednorm_imp, 1, function(x) {
+  s <- sd(x, na.rm = TRUE)
+  if (is.na(s) || s == 0) return(rep(NA_real_, length(x)))
+  (x - mean(x, na.rm = TRUE)) / s
+}))
+dimnames(metab_mednorm_z) <- dimnames(metab_mat)
+
+cat(sprintf("Metabolites: %d | Samples in matrix: %d | Samples with GW/Sex: %d\n",
+            nrow(metab_mat), ncol(metab_mat), sum(!is.na(metab_sample_meta$GW))))
+```
+
+## Per-sample distribution
+
+Log2 peak areas per sample, ordered by gestational week. Each violin = one
+sample; median line shown. Systematic shifts (e.g. widening IQR with GW) would
+indicate sample-level variation worth correcting.
+
+```{r}
+#| label: per-sample-violin
+#| fig-width: 14
+#| fig-height: 6
+sample_long <- metab_log2_raw |>
+  as_tibble(rownames = "Compound.ID") |>
+  pivot_longer(-Compound.ID, names_to = "metab_col", values_to = "log2_value") |>
+  left_join(metab_sample_meta, by = "metab_col") |>
+  filter(!is.na(GW), !is.na(log2_value), is.finite(log2_value))
+
+# Order samples by GW then sample name for ties
+sample_order <- metab_sample_meta |>
+  filter(!is.na(GW)) |>
+  arrange(GW, metab_col) |>
+  pull(metab_col)
+
+sample_long <- sample_long |>
+  mutate(metab_col = factor(metab_col, levels = sample_order))
+
+p_violin <- ggplot(sample_long, aes(metab_col, log2_value, fill = GW)) +
+  geom_violin(scale = "width", alpha = 0.85, draw_quantiles = 0.5, linewidth = 0.3) +
+  scale_fill_viridis_c(name = "GW") +
+  labs(x = "Sample (ordered by GW)", y = "log2(peak area + 1)",
+       title = "Per-sample distribution — log2 raw") +
+  theme_cowplot(11) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7))
+
+save_dual_format(p_violin, out_dir, "per_sample_distribution", width = 14, height = 6)
+print(p_violin)
+```
+
+## Sample median diagnostics
+
+Key diagnostic: if the sample median (across all metabolites) correlates with
+GW or Sex, median normalization would absorb biological signal before the model
+sees it. GW and Sex are already covariates in the limma model, so a modest
+correlation is tolerable — a strong one (|ρ| > 0.4) would be a red flag.
+
+```{r}
+#| label: median-diagnostics
+#| fig-width: 14
+#| fig-height: 6
+samp_med_df <- tibble(
+  metab_col   = colnames(metab_mat),
+  log2_median = apply(metab_log2_raw, 2, median, na.rm = TRUE),
+  log2_mean   = apply(metab_log2_raw, 2, mean,   na.rm = TRUE),
+  log2_sd     = apply(metab_log2_raw, 2, sd,     na.rm = TRUE)
+) |>
+  left_join(metab_sample_meta, by = "metab_col") |>
+  filter(!is.na(GW))
+
+cor_gw  <- cor(samp_med_df$log2_median, samp_med_df$GW,
+               use = "complete.obs", method = "spearman")
+cor_sex <- cor(as.integer(factor(samp_med_df$Sex)), samp_med_df$log2_median,
+               use = "complete.obs", method = "spearman")
+
+p_med_gw <- ggplot(samp_med_df, aes(GW, log2_median, color = Sex, shape = Sex)) +
+  geom_point(size = 3, alpha = 0.9) +
+  geom_smooth(method = "lm", se = TRUE, color = "white", linewidth = 0.8) +
+  scale_color_manual(values = c("M" = "#4EC0E4", "F" = "#F88080")) +
+  scale_shape_manual(values = c("M" = 16, "F" = 17)) +
+  annotate("text", x = Inf, y = Inf, hjust = 1.1, vjust = 1.5,
+           label = sprintf("Spearman ρ = %.2f", cor_gw), size = 4.5, color = "grey80") +
+  labs(x = "Gestational Week", y = "Sample median [log2]",
+       title = "Sample median ~ GW",
+       subtitle = "Strong correlation → median norm removes biology") +
+  theme_cowplot(12)
+
+p_med_sex <- ggplot(samp_med_df, aes(Sex, log2_median, fill = Sex)) +
+  geom_boxplot(alpha = 0.8, outlier.shape = 21, width = 0.5) +
+  geom_jitter(width = 0.1, size = 2.5, alpha = 0.8, aes(color = Sex)) +
+  scale_fill_manual(values  = c("M" = "#4EC0E4", "F" = "#F88080")) +
+  scale_color_manual(values = c("M" = "#4EC0E4", "F" = "#F88080")) +
+  annotate("text", x = Inf, y = Inf, hjust = 1.1, vjust = 1.5,
+           label = sprintf("Spearman ρ = %.2f", cor_sex), size = 4.5, color = "grey80") +
+  labs(x = "Sex", y = "Sample median [log2]",
+       title = "Sample median ~ Sex") +
+  theme_cowplot(12) +
+  theme(legend.position = "none")
+
+p_diag <- p_med_gw | p_med_sex
+save_dual_format(p_diag, out_dir, "sample_median_diagnostics", width = 14, height = 6)
+print(p_diag)
+```
+
+## Global value distributions
+
+All four transforms across all metabolites × samples. The key comparisons:
+`log2 raw` vs `median-norm` shows whether within-sample centering shifts the
+population; `z-score` vs `median-norm + z-score` shows whether the final
+predictor distribution changes after sample-level correction.
+
+```{r}
+#| label: global-distributions
+#| fig-width: 12
+#| fig-height: 8
+make_long <- function(mat, label) {
+  tibble(value = as.vector(mat), transform = label) |>
+    filter(!is.na(value), is.finite(value))
+}
+
+dist_long <- bind_rows(
+  make_long(metab_log,        "1. log2 + imputed"),
+  make_long(metab_zscore,     "2. z-score, IQR-trim (current)"),
+  make_long(metab_mednorm_imp,"3. median-norm + imputed"),
+  make_long(metab_mednorm_z,  "4. median-norm + z-score")
+) |>
+  mutate(transform = factor(transform, levels = c(
+    "1. log2 + imputed", "2. z-score, IQR-trim (current)",
+    "3. median-norm + imputed", "4. median-norm + z-score"
+  )))
+
+p_dist <- ggplot(dist_long, aes(value, fill = transform, color = transform)) +
+  geom_density(alpha = 0.25, linewidth = 0.7) +
+  facet_wrap(~transform, scales = "free", ncol = 2) +
+  labs(x = "Value", y = "Density",
+       title = "Global value distributions — all metabolites × samples") +
+  theme_cowplot(12) +
+  theme(legend.position = "none")
+
+save_dual_format(p_dist, out_dir, "global_distributions", width = 12, height = 8)
+print(p_dist)
+```
+
+## Sample-level spread comparison
+
+Box per sample, ordered by GW, under log2-raw vs median-norm. Medians should
+align horizontally after median normalization. If the log2-raw medians are
+already well-aligned, normalization adds little.
+
+```{r}
+#| label: sample-spread-comparison
+#| fig-width: 14
+#| fig-height: 8
+spread_long <- bind_rows(
+  as_tibble(metab_log,         rownames = "Compound.ID") |>
+    pivot_longer(-Compound.ID, names_to = "metab_col", values_to = "value") |>
+    mutate(transform = "log2 + imputed"),
+  as_tibble(metab_mednorm_imp, rownames = "Compound.ID") |>
+    pivot_longer(-Compound.ID, names_to = "metab_col", values_to = "value") |>
+    mutate(transform = "median-norm + imputed")
+) |>
+  left_join(metab_sample_meta, by = "metab_col") |>
+  filter(!is.na(GW), !is.na(value), is.finite(value)) |>
+  mutate(metab_col = factor(metab_col, levels = sample_order))
+
+p_spread <- ggplot(spread_long, aes(metab_col, value, fill = GW)) +
+  geom_boxplot(outlier.size = 0.3, outlier.alpha = 0.3, linewidth = 0.3) +
+  scale_fill_viridis_c(name = "GW") +
+  facet_wrap(~transform, ncol = 1, scales = "free_y") +
+  labs(x = "Sample (ordered by GW)", y = "Value",
+       title = "Per-sample spread: log2 vs median-normalized") +
+  theme_cowplot(10) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
+
+save_dual_format(p_spread, out_dir, "sample_spread_comparison", width = 14, height = 8)
+print(p_spread)
+```
+
+## Example metabolites — value ~ GW under each transform
+
+Four metabolites from the top stable hits shown across all transforms. Each row
+= one metabolite; each column = one transform. Look for whether the slope
+direction and apparent relationship change across transforms.
+
+```{r}
+#| label: example-metabolites
+#| fig-width: 16
+#| fig-height: 12
+# Use top stable hits if available; otherwise first 4 detected metabolites
+if (file.exists(stable_csv)) {
+  example_meta <- read_csv(stable_csv, show_col_types = FALSE) |>
+    arrange(FDR_global) |>
+    distinct(Compound.ID, Name) |>
+    slice_head(n = 4)
+} else {
+  example_meta <- tibble(
+    Compound.ID = rownames(metab_mat)[1:4],
+    Name        = rownames(metab_mat)[1:4]
+  )
+  message("stable_csv not found — using first 4 metabolites as examples.")
+}
+
+example_long <- purrr::map_dfr(seq_len(nrow(example_meta)), function(i) {
+  cid  <- example_meta$Compound.ID[i]
+  name <- example_meta$Name[i]
+  bind_rows(
+    tibble(value = as.numeric(metab_log[cid,        colnames(metab_mat)]),
+           transform = "1. log2 + imputed"),
+    tibble(value = as.numeric(metab_zscore[cid,     colnames(metab_mat)]),
+           transform = "2. z-score (current)"),
+    tibble(value = as.numeric(metab_mednorm_imp[cid,colnames(metab_mat)]),
+           transform = "3. median-norm"),
+    tibble(value = as.numeric(metab_mednorm_z[cid,  colnames(metab_mat)]),
+           transform = "4. median-norm + z-score")
+  ) |>
+    mutate(metab_col = rep(colnames(metab_mat), 4),
+           Compound.ID = cid,
+           Name_short  = ifelse(nchar(name) > 28, paste0(substr(name, 1, 28), "\u2026"), name))
+}) |>
+  left_join(metab_sample_meta, by = "metab_col") |>
+  filter(!is.na(GW), !is.na(value), is.finite(value)) |>
+  mutate(transform = factor(transform, levels = c(
+    "1. log2 + imputed", "2. z-score (current)",
+    "3. median-norm", "4. median-norm + z-score"
+  )))
+
+p_examples <- ggplot(example_long, aes(GW, value, color = Sex, shape = Sex)) +
+  geom_point(size = 2, alpha = 0.85) +
+  geom_smooth(method = "lm", se = TRUE, linewidth = 0.8) +
+  scale_color_manual(values = c("M" = "#4EC0E4", "F" = "#F88080")) +
+  scale_shape_manual(values = c("M" = 16, "F" = 17)) +
+  facet_grid(Name_short ~ transform,
+             scales = "free_y",
+             labeller = labeller(Name_short = label_wrap_gen(25))) +
+  labs(x = "Gestational Week", y = "Metabolite value",
+       title = "Top 4 stable metabolites: value ~ GW under each transform") +
+  theme_cowplot(10) +
+  theme(
+    strip.text.y = element_text(size = 8),
+    strip.text.x = element_text(size = 9),
+    panel.spacing = unit(0.8, "lines")
+  )
+
+save_dual_format(p_examples, out_dir, "example_metabolites_by_transform",
+                 width = 16, height = max(8, nrow(example_meta) * 3))
+print(p_examples)
+```
+
+## Summary
+
+```{r}
+#| label: summary-table
+tibble(
+  Transform              = c("log2 + imputed", "z-score IQR-trim (current)",
+                             "median-norm + imputed", "median-norm + z-score"),
+  `Corrects sample load` = c("No",  "No",  "Yes", "Yes"),
+  `Comparable logFC`     = c("No",  "Yes", "No",  "Yes"),
+  `Interpretable axis`   = c("Yes", "No",  "Yes", "No"),
+  `MSEA ranking valid`   = c("No",  "Yes", "No",  "Yes"),
+  `Model predictor`      = c("—",   "Current", "—", "Option if median needed")
+) |>
+  knitr::kable(caption = "Transform comparison — properties relevant to this pipeline")
+```

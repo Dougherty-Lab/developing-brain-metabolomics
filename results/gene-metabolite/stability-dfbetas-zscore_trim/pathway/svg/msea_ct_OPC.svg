@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='720.00pt' height='504.00pt' viewBox='0 0 720.00 504.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA='>
+    <rect x='0.00' y='0.00' width='720.00' height='504.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpMTY2LjEwfDYxNS4xMXw0Ny4xOHw0NzIuMDk='>
+    <rect x='166.10' y='47.18' width='449.01' height='424.92' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMTY2LjEwfDYxNS4xMXw0Ny4xOHw0NzIuMDk=)'>
+<polyline points='249.51,472.09 249.51,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='375.51,472.09 375.51,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='501.52,472.09 501.52,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='166.10,411.39 615.11,411.39 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='166.10,310.22 615.11,310.22 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='166.10,209.05 615.11,209.05 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='166.10,107.88 615.11,107.88 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='186.51,472.09 186.51,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='312.51,472.09 312.51,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='438.52,472.09 438.52,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='564.52,472.09 564.52,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polygon points='580.29,319.11 598.07,319.11 598.07,301.33 580.29,301.33 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<polygon points='592.21,211.54 597.19,211.54 597.19,206.56 592.21,206.56 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<polygon points='594.70,104.01 598.05,109.81 591.35,109.81 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<circle cx='548.43' cy='411.39' r='5.22' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<line x1='186.51' y1='472.09' x2='186.51' y2='47.18' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
+</g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+<text x='161.17' y='414.31' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='123.64px' lengthAdjust='spacingAndGlyphs'>Phospholipid Biosynthesis (KEGG)</text>
+<text x='161.17' y='313.14' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='133.86px' lengthAdjust='spacingAndGlyphs'>Glucose homeostasis (WikiPathways)</text>
+<text x='161.17' y='211.96' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='123.16px' lengthAdjust='spacingAndGlyphs'>MTHFR deficiency (WikiPathways)</text>
+<text x='161.17' y='110.79' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='155.69px' lengthAdjust='spacingAndGlyphs'>The phototransduction cascade (Reactome)</text>
+<text x='186.51' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='312.51' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.5</text>
+<text x='438.52' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.0</text>
+<text x='564.52' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.5</text>
+<text x='390.60' y='496.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='179.08px' lengthAdjust='spacingAndGlyphs'>Normalized Enrichment Score (NES)</text>
+<text x='631.55' y='169.36' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='39.12px' lengthAdjust='spacingAndGlyphs'>Set size</text>
+<circle cx='642.49' cy='184.68' r='2.49' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.49' cy='201.96' r='5.54' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.49' cy='219.24' r='6.80' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.49' cy='237.73' r='7.77' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.49' cy='258.53' r='8.59' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<text x='658.91' y='187.88' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>5.0</text>
+<text x='658.91' y='205.16' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>7.5</text>
+<text x='658.91' y='222.44' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>10.0</text>
+<text x='658.91' y='240.94' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>12.5</text>
+<text x='658.91' y='261.74' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>15.0</text>
+<text x='631.55' y='300.61' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='47.07px' lengthAdjust='spacingAndGlyphs'>Database</text>
+<circle cx='640.19' cy='315.93' r='1.95' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<polygon points='640.19,330.17 642.82,334.73 637.55,334.73 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<polygon points='638.23,352.45 642.14,352.45 642.14,348.54 638.23,348.54 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<text x='654.31' y='319.14' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='25.43px' lengthAdjust='spacingAndGlyphs'>KEGG</text>
+<text x='654.31' y='336.42' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='40.08px' lengthAdjust='spacingAndGlyphs'>Reactome</text>
+<text x='654.31' y='353.70' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='54.73px' lengthAdjust='spacingAndGlyphs'>WikiPathways</text>
+<text x='390.60' y='30.01' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='125.84px' lengthAdjust='spacingAndGlyphs'>Top 4 by FDR (p &lt; 0.05 shown)</text>
+<text x='390.60' y='39.73' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='115.60px' lengthAdjust='spacingAndGlyphs'>* FDR &lt; 0.05   ** FDR &lt; 0.01</text>
+<text x='390.60' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='86.48px' lengthAdjust='spacingAndGlyphs'>MSEA — OPC</text>
+</g>
+</svg>

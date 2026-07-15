@@ -1,0 +1,9 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Organic cation/anion/zwitterion transport (Reactome),1,7,10.108895163090404,0.11731075729018581,Uric Acid,0.35127572742031915,Reactome
+beta-Alanine metabolism (KEGG),1,9,7.5788632104101525,0.14847121450423628,1-Methylhistidine,0.35127572742031915,KEGG
+Histidine metabolism (KEGG),1,10,6.731186644830752,0.16367708567380312,1-Methylhistidine,0.35127572742031915,KEGG
+Purine catabolism (Reactome),1,13,5.033346276770295,0.20783979129470787,Uric Acid,0.35127572742031915,Reactome
+Neurotransmitter release cycle (Reactome),1,14,4.640773272892771,0.2220872770627883,Stearoyl Ethanolamide,0.35127572742031915,Reactome
+Purine metabolism (WikiPathways),1,17,3.754741895089431,0.2634567955652394,Uric Acid,0.35127572742031915,WikiPathways
+Purine metabolism and related disorders (WikiPathways),1,22,2.838132762691444,0.32802469938585976,Uric Acid,0.37488537072669686,WikiPathways
+Nucleotide catabolism (Reactome),1,26,2.3679712713234116,0.3759605381219836,Uric Acid,0.3759605381219836,Reactome

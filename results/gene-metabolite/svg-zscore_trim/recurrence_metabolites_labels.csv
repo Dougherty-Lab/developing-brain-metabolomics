@@ -1,11 +1,9 @@
 label,Name,Compound.ID,Super.Class,Class
 Pc(22:5cooh_25:8),Pc(22:5cooh_25:8),C8-Pos-005561,Lipids and lipid-like molecules,Glycerophospholipids
-Meglumine,Meglumine,Amide-Pos-000710,Organic oxygen compounds,Organooxygen compounds
 Pi(22:0_12:1),Pi(22:0_12:1),C8-Neg-003398,Lipids and lipid-like molecules,Glycerophospholipids
 3-Hydroxybutyric Acid,3-Hydroxybutyric Acid,Amide-Neg-000118,Organic acids and derivatives,Hydroxy acids and derivatives
 Pe(19:1cooh_28:3),Pe(19:1cooh_28:3),C8-Neg-003656,Lipids and lipid-like molecules,Glycerophospholipids
 Asp-Pro-Asn,Asp-Pro-Asn,Amide-Pos-001387,Organic acids and derivatives,Carboxylic acids and derivatives
-Lidocaine,Lidocaine,C8-Pos-000141,Benzenoids,Benzene and substituted derivatives
 Pyrrole-2-Carboxylic Acid,Pyrrole-2-Carboxylic Acid,Amide-Neg-000142,Organoheterocyclic compounds,Pyrroles
 2-Furoic Acid,2-Furoic Acid,Amide-Neg-000149,Organoheterocyclic compounds,Furans
 N-Acetyl-1-Aspartylglutamic Ac…,N-Acetyl-1-Aspartylglutamic Acid,C18-Pos-001811,Organic acids and derivatives,Carboxylic acids and derivatives
@@ -13,14 +11,16 @@ Cholest-4-En-3-One,Cholest-4-En-3-One,C8-Pos-001061,Lipids and lipid-like molecu
 Adenosine 3'5'-Cyclic Monophos…,Adenosine 3'5'-Cyclic Monophosphate,C18-Pos-002092,"Nucleosides, nucleotides, and analogues",Purine nucleotides
 Dl-Arginine,Dl-Arginine,Amide-Neg-000697,Organic acids and derivatives,Carboxylic acids and derivatives
 Dgdg(18:0_11:1),Dgdg(18:0_11:1),C8-Neg-003439,Lipids and lipid-like molecules,Glycerolipids
-Geranylgeranylacetone,Geranylgeranylacetone,C8-Pos-000740,Lipids and lipid-like molecules,Prenol lipids
 Lpc(20:1),Lpc(20:1),C8-Neg-002450,Lipids and lipid-like molecules,Glycerophospholipids
 Gly-Asp,Gly-Asp,Amide-Pos-000690,Organic acids and derivatives,Carboxylic acids and derivatives
-N-Acetyl-L-Methionine,N-Acetyl-L-Methionine,Amide-Neg-000866,Organic acids and derivatives,Carboxylic acids and derivatives
 Pyruvic Acid,Pyruvic Acid,Amide-Neg-000032,Organic acids and derivatives,Keto acids and derivatives
 Trans-3-Indoleacrylic Acid,Trans-3-Indoleacrylic Acid,Amide-Pos-000658,Organoheterocyclic compounds,Indoles and derivatives
-O-Acetylserine,O-Acetylserine,Amide-Neg-000297,Organic acids and derivatives,Carboxylic acids and derivatives
-Caprolactam,Caprolactam,C18-Pos-000207,Organoheterocyclic compounds,Lactams
+N-Acetyl-L-Methionine,N-Acetyl-L-Methionine,Amide-Neg-000866,Organic acids and derivatives,Carboxylic acids and derivatives
 "2-[{[(1s,4s,6s)-4-({5-[4-(Dime…","2-[{[(1s,4s,6s)-4-({5-[4-(Dimethylamino)Phenyl]-1,3,4-Oxadiazol-2-Yl}Methyl)-6-Isopropyl-3-Methyl-2-Cyclohexen-1-Yl]Methyl}(Methyl)Amino]Ethanol",C8-Pos-001592,Lipids and lipid-like molecules,Prenol lipids
+Caprolactam,Caprolactam,C18-Pos-000207,Organoheterocyclic compounds,Lactams
+Pc(20:0_22:5),Pc(20:0_22:5),C8-Pos-005193,Lipids and lipid-like molecules,Glycerophospholipids
 L-Lysine,L-Lysine,Amide-Neg-000484,Organic acids and derivatives,Carboxylic acids and derivatives
+Ps(23:2_21:0),Ps(23:2_21:0),C8-Neg-003596,Lipids and lipid-like molecules,Glycerophospholipids
 Maleic Hydrazide,Maleic Hydrazide,Amide-Neg-000158,Organoheterocyclic compounds,Diazines
+1-Palmitoyl-2-Docosahexaenoyl-…,1-Palmitoyl-2-Docosahexaenoyl-Sn-Glycero-3-Phosphocholine,C8-Pos-004574,Lipids and lipid-like molecules,Glycerophospholipids
+Tg(36:6_4:0),Tg(36:6_4:0),C8-Pos-003614,Lipids and lipid-like molecules,Glycerolipids

@@ -1,0 +1,8 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Neurodegeneration with brain iron accumulation (NBIA) subtypes pathway (WikiPathways),1,5,22.611322045870317,0.06022330574491175,D-Erythro-Sphinganine,0.10064208124092594,WikiPathways
+Sphingolipid pathway (WikiPathways),1,5,22.611322045870317,0.06022330574491175,D-Erythro-Sphinganine,0.10064208124092594,WikiPathways
+Metabolism of sphingolipids in ER and Golgi apparatus (WikiPathways),1,6,18.1432119987189,0.07188720088637568,D-Erythro-Sphinganine,0.10064208124092594,WikiPathways
+Sphingolipid metabolism overview (WikiPathways),1,6,18.1432119987189,0.07188720088637568,D-Erythro-Sphinganine,0.10064208124092594,WikiPathways
+Synthesis of ceramides and 1-deoxyceramides (WikiPathways),1,6,18.1432119987189,0.07188720088637568,D-Erythro-Sphinganine,0.10064208124092594,WikiPathways
+Sphingolipid metabolism: integrated pathway (WikiPathways),1,9,11.371729886132123,0.10613747573689736,D-Erythro-Sphinganine,0.11731075729018536,WikiPathways
+GABA metabolism (aka GHB) (WikiPathways),1,10,10.108895163090404,0.11731075729018536,N-Acetylputrescine,0.11731075729018536,WikiPathways

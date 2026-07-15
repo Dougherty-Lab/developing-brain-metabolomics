@@ -30,7 +30,7 @@ kept. Outputs to its own subdirectory to keep this iteration separate.
 
 ```{r}
 #| label: setup
-Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "edgeR", "patchwork")
+Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "edgeR", "patchwork", "UpSetR")
 lapply(Packages, library, character.only = TRUE)
 source("pseudobulk_functions.R")
 source("metabolite_functions.R")
@@ -85,10 +85,26 @@ metab_mat <- read_metabolite_matrix(metab_path)
 metab_tx  <- transform_metabolite_matrix(metab_mat, method = METHOD)
 metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute)); dimnames(metab_log) <- dimnames(metab_mat)
 
+# Log2 values with IQR outliers flagged NA — used for scatter x-axis only.
+# Mirrors the fence from zscore_trim (Q1 - 0.75*IQR / Q3 + 0.75*IQR) but
+# skips imputation and z-scoring so the axis stays in interpretable log2 units.
+.log2_trim_only <- function(x) {
+  logged  <- log2(x + 1)
+  orig_na <- is.na(logged)
+  obs     <- logged[!orig_na]
+  if (length(obs) < 2) return(rep(NA_real_, length(x)))
+  qs  <- quantile(obs, c(0.25, 0.75), names = FALSE)
+  iqr <- qs[2] - qs[1]
+  v   <- logged
+  v[!orig_na & (logged < qs[1] - 0.75 * iqr | logged > qs[2] + 0.75 * iqr)] <- NA
+  v
+}
+metab_log_trim <- t(apply(metab_mat, 1, .log2_trim_only))
+dimnames(metab_log_trim) <- dimnames(metab_mat)
+
 rn        <- rownames(pb$counts)
 row_ct    <- sub("^[^.]+\\.(.*)$", "\\1", rn)
 metab_col <- metab_sample_to_pb(colnames(metab_tx), sub("^([^.]+)\\..*$", "\\1", rn))
-cc_col    <- intersect(c("cell_count", "n_cells", "ncells"), colnames(pb$metadata))[1]
 ```
 
 ## Global-FDR hits
@@ -173,7 +189,7 @@ save_dual_format(p_cnt, fig_dir, "dfbetas_counts", width = 5, height = 5); print
 #| label: recurrence
 gene_recur <- stable_hits |> group_by(gene) |>
   summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop") |>
-  slice_max(n_metabolites, n = 25)
+  slice_max(n_metabolites, n = 20)
 p_g <- ggplot(gene_recur, aes(reorder(gene, n_metabolites), n_metabolites)) +
   geom_col(fill = "steelblue", alpha = 0.85) + coord_flip() +
   labs(x = "Gene", y = "Distinct metabolites", title = "Stable: top genes") + theme_cowplot(12)
@@ -197,37 +213,111 @@ p_c <- ggplot(ct_recur, aes(reorder(cell_type, n_metabolites), n_metabolites)) +
 save_dual_format(p_c, fig_dir, "stable_recurrence_celltypes", width = 8, height = 6); print(p_c)
 ```
 
+## Stable gene sharing across cell types (UpSet)
+
+Which genes are shared vs. cell-type-specific among DFBETAS-stable associations.
+
+```{r}
+#| label: upset-genes
+#| fig-width: 10
+#| fig-height: 6
+gene_by_ct <- stable_hits |>
+  distinct(gene, cell_type) |>
+  mutate(present = 1L) |>
+  pivot_wider(names_from = cell_type, values_from = present, values_fill = 0L)
+
+ct_cols <- setdiff(colnames(gene_by_ct), "gene")
+
+if (length(ct_cols) >= 2 && nrow(gene_by_ct) > 0) {
+  UpSetR::upset(
+    as.data.frame(gene_by_ct), sets = ct_cols,
+    nsets = length(ct_cols), nintersects = NA,
+    order.by = "freq", keep.order = TRUE
+  )
+} else {
+  cat("Not enough cell types / genes for an UpSet plot.\n")
+}
+```
+
 ## Top-20 stable scatters (outlier-trimmed panels)
 
 ```{r}
 #| label: scatter-builder
-make_pair_plot <- function(cid, gene, ct, meta_name) {
-  idx <- which(row_ct == ct); pos <- match(metab_col[idx], colnames(metab_tx))
-  present <- !is.na(pos) & gene %in% colnames(pb$counts)
+make_pair_plot <- function(cid, gene, ct, meta_name, z_x_lim) {
+  idx      <- which(row_ct == ct)
+  pos      <- match(metab_col[idx], colnames(metab_tx))
+  present  <- !is.na(pos) & gene %in% colnames(pb$counts)
   rows_use <- idx[present]; pos_p <- pos[present]
   if (length(rows_use) < 3) return(NULL)
+
   expr <- as.numeric(log1p(edgeR::cpm(t(pb$counts[rows_use, , drop = FALSE]), log = FALSE)[gene, ]))
-  md <- pb$metadata[rn[rows_use], ]
-  df <- tibble(metab_raw = as.numeric(metab_log[cid, pos_p]),
-               metab_trim = as.numeric(metab_tx[cid, pos_p]), expr = expr,
-               cell_count = if (!is.na(cc_col)) md[[cc_col]] else NA_real_,
-               Sex = md$Sex, GW = md$GW, batch1_frac = md$batch1_frac)
-  bl <- list(geom_point(size = 2, alpha = 0.8), geom_smooth(method = "lm", se = TRUE),
-             scale_color_viridis_c(), scale_shape_manual(values = c("M" = 16, "F" = 17)),
-             theme_minimal(base_size = 13))
-  p_raw <- ggplot(df, aes(metab_raw, expr, color = cell_count, shape = Sex)) + bl +
-    labs(title = "Raw (log2, all samples)", x = meta_name, y = "log1p(CPM)")
-  dft <- df |> filter(!is.na(metab_trim))
-  p_mid <- ggplot(dft, aes(metab_trim, expr, color = cell_count, shape = Sex)) + bl +
-    labs(title = "Outlier-trimmed", x = paste0(meta_name, " (trimmed z)"), y = "log1p(CPM)")
+  md   <- pb$metadata[rn[rows_use], ]
+
+  df <- tibble(
+    metab_raw     = as.numeric(metab_log[cid, pos_p]),       # log2 + imputed (all samples)
+    metab_logtrim = as.numeric(metab_log_trim[cid, pos_p]),  # log2, outliers = NA
+    metab_trim    = as.numeric(metab_tx[cid, pos_p]),        # z-score (model predictor)
+    expr          = expr,
+    Sex           = md$Sex,
+    GW            = md$GW,
+    batch1_frac   = md$batch1_frac
+  )
+
   covs <- c("GW", "Sex", "batch1_frac")
+
+  # ---- log2 panels (x-axis consistent within this metabolite) ----
+  x_range <- range(df$metab_raw, na.rm = TRUE)
+  x_pad   <- diff(x_range) * 0.05
+  x_lim   <- c(x_range[1] - x_pad, x_range[2] + x_pad)
+  x_lab   <- paste0(meta_name, " [log2 peak area]")
+
+  bl_log <- list(
+    geom_point(size = 2.5, alpha = 0.85),
+    geom_smooth(method = "lm", se = TRUE, linewidth = 0.8),
+    scale_color_viridis_c(name = "GW"),
+    scale_shape_manual(values = c("M" = 16, "F" = 17)),
+    coord_cartesian(xlim = x_lim),
+    theme_minimal(base_size = 13)
+  )
+
+  p_raw <- ggplot(df, aes(metab_raw, expr, color = GW, shape = Sex)) + bl_log +
+    labs(title = "Raw (log2, all samples)", x = x_lab, y = "log1p(CPM)")
+
+  dft <- df |> filter(!is.na(metab_logtrim))
   keepc <- covs[vapply(covs, function(cv) length(unique(dft[[cv]])) >= 2, logical(1))]
-  fit <- lm(reformulate(c("metab_trim", keepc), response = "expr"), data = dft)
-  dft$part <- resid(fit) + coef(fit)[["metab_trim"]] * dft$metab_trim
-  p_adj <- ggplot(dft, aes(metab_trim, part, color = cell_count, shape = Sex)) + bl +
-    labs(title = "Outlier-trimmed (adjusted)", x = paste0(meta_name, " (trimmed z)"),
-         y = "log1p(CPM), adjusted")
-  (p_raw | p_mid | p_adj) +
+  p_mid <- ggplot(dft, aes(metab_logtrim, expr, color = GW, shape = Sex)) + bl_log +
+    labs(title = "Outlier-trimmed (log2)", x = x_lab, y = "log1p(CPM)")
+
+  fit_log  <- lm(reformulate(c("metab_logtrim", keepc), response = "expr"), data = dft)
+  dft$part <- resid(fit_log) + coef(fit_log)[["metab_logtrim"]] * dft$metab_logtrim
+  p_adj <- ggplot(dft, aes(metab_logtrim, part, color = GW, shape = Sex)) + bl_log +
+    labs(title = "Covariate-adjusted (log2)", x = x_lab, y = "log1p(CPM), adjusted")
+
+  # ---- z-score panels (x-axis fixed globally across all plots via z_x_lim) ----
+  z_lab <- paste0(meta_name, " [z-score]")
+
+  bl_z <- list(
+    geom_point(size = 2.5, alpha = 0.85),
+    geom_smooth(method = "lm", se = TRUE, linewidth = 0.8),
+    scale_color_viridis_c(name = "GW"),
+    scale_shape_manual(values = c("M" = 16, "F" = 17)),
+    coord_cartesian(xlim = z_x_lim),   # fixed across all 20 plots
+    theme_minimal(base_size = 13)
+  )
+
+  # z-score filter: same outlier fence as log2-trim but imputed-missing are included
+  dft_z  <- df |> filter(!is.na(metab_trim))
+  keepc_z <- covs[vapply(covs, function(cv) length(unique(dft_z[[cv]])) >= 2, logical(1))]
+  p_zmid <- ggplot(dft_z, aes(metab_trim, expr, color = GW, shape = Sex)) + bl_z +
+    labs(title = "Outlier-trimmed (z-score)", x = z_lab, y = "log1p(CPM)")
+
+  fit_z        <- lm(reformulate(c("metab_trim", keepc_z), response = "expr"), data = dft_z)
+  dft_z$part_z <- resid(fit_z) + coef(fit_z)[["metab_trim"]] * dft_z$metab_trim
+  p_zadj <- ggplot(dft_z, aes(metab_trim, part_z, color = GW, shape = Sex)) + bl_z +
+    labs(title = "Covariate-adjusted (z-score)", x = z_lab, y = "log1p(CPM), adjusted")
+
+  # ---- 2-row layout: log2 row / z-score row ----
+  (p_raw | p_mid | p_adj) / (plot_spacer() | p_zmid | p_zadj) +
     plot_annotation(title = paste0(gene, "  ~  ", meta_name, "   (", ct, ")")) +
     plot_layout(guides = "collect")
 }
@@ -241,12 +331,19 @@ top20 <- stable_hits |>
   distinct(Compound.ID, .keep_all = TRUE) |>
   slice_head(n = 20)
 
+# Global z-score x-axis: symmetric range covering 99.8% of all z-scores across
+# all metabolites. Fixed once so z-score panels are directly comparable across plots.
+z_vals   <- as.vector(metab_tx)
+z_abs    <- quantile(abs(z_vals), 0.999, na.rm = TRUE)
+z_x_lim  <- c(-z_abs, z_abs)
+cat(sprintf("Global z-score x-axis: [%.2f, %.2f]\n", z_x_lim[1], z_x_lim[2]))
+
 for (i in seq_len(nrow(top20))) {
   r  <- top20[i, ]
-  pl <- make_pair_plot(r$Compound.ID, r$gene, r$cell_type, r$Name)
+  pl <- make_pair_plot(r$Compound.ID, r$gene, r$cell_type, r$Name, z_x_lim)
   if (is.null(pl)) next
   base <- gsub("[^A-Za-z0-9]+", "-", paste(r$Compound.ID, r$gene, r$cell_type, sep = "_"))
-  save_dual_format(pl, scatter_dir, base, width = 16, height = 5)
+  save_dual_format(pl, scatter_dir, base, width = 16, height = 10)
   print(pl)
 }
 cat("\nSaved", nrow(top20), "stable scatters to", scatter_dir, "\n")

@@ -1048,9 +1048,9 @@ save_dual_format <- function(plot,
   svg_path <- file.path(svg_dir,    paste0(filename_base, ".svg"))
 
   ggplot2::ggsave(png_path, plot = plot, width = width, height = height,
-                  dpi = dpi)
+                  dpi = dpi, create.dir = TRUE)
   ggplot2::ggsave(svg_path, plot = plot, width = width, height = height,
-                  device = svglite::svglite)
+                  device = svglite::svglite, create.dir = TRUE)
 
   message("Saved: ", basename(png_path),
           "  +  svg/", basename(svg_path))

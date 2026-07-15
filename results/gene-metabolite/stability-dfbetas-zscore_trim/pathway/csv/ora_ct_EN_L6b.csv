@@ -1,0 +1,16 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+"Leucine, isoleucine and valine metabolism (WikiPathways)",2,11,17.148269243055566,0.01137355673210954,Malonic Acid;3-Hydroxybutyric Acid,0.1706033509816431,WikiPathways
+"Alanine, aspartate and glutamate metabolism (KEGG)",2,23,7.269736324096227,0.04736176571016164,Malonic Acid;Asparagine,0.2916718342736907,KEGG
+Aspirin ADME (Reactome),1,7,11.37172988613212,0.10613747573689691,3-Hydroxybutyric Acid,0.2916718342736907,Reactome
+Aspartate and asparagine metabolism (Reactome),1,9,8.530015318720022,0.1345623958663743,Asparagine,0.2916718342736907,Reactome
+Alanine and aspartate metabolism (WikiPathways),1,10,7.578863210410153,0.14847121450423584,Asparagine,0.2916718342736907,WikiPathways
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",1,10,7.578863210410153,0.14847121450423584,Asparagine,0.2916718342736907,WikiPathways
+Nitrogen metabolism (KEGG),1,12,6.189781050523862,0.17569419027690902,Asparagine,0.2916718342736907,KEGG
+Metabolic reprogramming in colon cancer (WikiPathways),1,14,5.225508742091106,0.20214079698747545,Asparagine,0.2916718342736907,WikiPathways
+Glucose homeostasis (WikiPathways),1,16,4.516884025110825,0.2278304776386737,3-Hydroxybutyric Acid,0.2916718342736907,WikiPathways
+Cytosolic tRNA aminoacylation (Reactome),1,18,3.974172857264016,0.252782256370532,Asparagine,0.2916718342736907,Reactome
+Metabolism overview (WikiPathways),1,18,3.974172857264016,0.252782256370532,3-Hydroxybutyric Acid,0.2916718342736907,WikiPathways
+Mitochondrial tRNA aminoacylation (Reactome),1,18,3.974172857264016,0.252782256370532,Asparagine,0.2916718342736907,Reactome
+tRNA Aminoacylation (Reactome),1,18,3.974172857264016,0.252782256370532,Asparagine,0.2916718342736907,Reactome
+Na+/Cl- dependent neurotransmitter transporters (Reactome),1,21,3.362372518078849,0.28886696328576433,Asparagine,0.30950031780617604,Reactome
+Amino acid transport across the plasma membrane (Reactome),1,23,3.046833566745556,0.3120545368484121,Asparagine,0.3120545368484121,Reactome

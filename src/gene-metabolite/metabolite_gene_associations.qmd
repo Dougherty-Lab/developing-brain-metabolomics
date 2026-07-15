@@ -1,6 +1,6 @@
 ---
 title: "Metabolite–Gene Associations"
-subtitle: "Sneha Chaturvedi, Emma Jones"
+subtitle: "Sneha Chaturvedi"
 date: today
 format:
   revealjs:
@@ -45,8 +45,8 @@ set.seed(123)
 # METHOD selects which transform run to analyze; it sets the parquet read below
 # AND the reporter's predictor transform, so they can never mismatch.
 METHOD <- "zscore_trim"                        # "int" | "zscore" | "zscore_trim"
-suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
-parquet_dir <- if (METHOD == "int") {"../../results/gene-metabolite/parquet"} else {sprintf("../../results/gene-metabolite/parquet-%s", METHOD)}
+suffix <- if (METHOD == "zscore") "" else paste0("-", METHOD)
+parquet_dir <- if (METHOD == "zscore") {"../../results/gene-metabolite/parquet"} else {sprintf("../../results/gene-metabolite/parquet-%s", METHOD)}
 
 # Rebuild the modeled objects (needed only for the LOO / Cook's reporter below).
 cache_dir    <- "../../data/cache"
@@ -165,9 +165,7 @@ cat(sprintf("Global-FDR hits (FDR < %.2f & |logFC| >= %.2f): %s\n",
 # Per hit, REPORTER columns (do not gate significance -- filter on them later):
 #   n_nonzero    modeled samples with raw count >= 2
 #   max_cooks    max Cook's distance in the lm(log1p(CPM) ~ metab + covariates)
-#   loo_unstable dropping the most influential sample flips the metabolite slope
-#                or halves |slope| -> small-n fragility (Squair et al. 2021,
-#                Nat Commun 12:5692). 
+#   loo_unstable dropping the most influential sample flips the metabolite slope or halves |slope| -> small-n fragility 
 report_group <- function(cid, ct, genes) {
   idx      <- which(row_ct == ct)
   mv       <- metab_tx[cid, match(metab_col[idx], colnames(metab_tx))]
@@ -214,8 +212,7 @@ cat(sprintf("Reporter added. loo_unstable: %s of %s hits (%.1f%%) flagged fragil
 
 ## Recurrence — genes across metabolites
 
-Genes that track the most distinct metabolites (a gene appearing broadly may be
-a hub of metabolic coupling, or a covariate-driven artefact worth inspecting).
+Genes that track the most distinct metabolites (a gene appearing broadly may be a hub of metabolic coupling, or a covariate-driven artifact worth inspecting).
 
 ```{r}
 #| label: gene-recurrence
