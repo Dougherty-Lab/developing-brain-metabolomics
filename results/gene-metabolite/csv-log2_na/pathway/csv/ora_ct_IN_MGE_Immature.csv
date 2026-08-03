@@ -1,0 +1,82 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+"Metabolism of ingested SeMet, Sec, MeSec into H2Se (Reactome)",3,11,4.7196924583304,0.045719720603505376,Dl-Alanine;2-Oxobutanoic Acid;Sarcosine,0.6712813285762455,Reactome
+Amino acid metabolism pathway excerpt: histidine catabolism extension (WikiPathways),2,7,4.939264185998613,0.09539437743127793,Dl-Alanine;Citric Acid,0.6712813285762455,WikiPathways
+Selenocompound metabolism (KEGG),2,7,4.939264185998613,0.09539437743127793,Dl-Alanine;2-Oxobutanoic Acid,0.6712813285762455,KEGG
+Glyoxylate metabolism and glycine degradation (Reactome),2,8,4.112025906341275,0.1210961962435349,Dl-Alanine;Sarcosine,0.6712813285762455,Reactome
+Methionine Metabolism (KEGG),3,17,2.6716052507735117,0.13626010155961427,2-Oxobutanoic Acid;Sarcosine;1-Aminocyclopropanecarboxylic Acid,0.6712813285762455,KEGG
+Cori cycle (WikiPathways),2,9,3.51991121864728,0.14827605355631485,Dl-Alanine;D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Sensory perception of taste (Reactome),2,9,3.51991121864728,0.14827605355631485,Citric Acid;Caprolactam,0.6712813285762455,Reactome
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",2,9,3.51991121864728,0.14827605355631485,Dl-Alanine;Leucine,0.6712813285762455,WikiPathways
+Alanine and aspartate metabolism (WikiPathways),2,10,3.0756064840974973,0.1765656723789001,Dl-Alanine;Citric Acid,0.6712813285762455,WikiPathways
+Defective SLC6A19 causes Hartnup disorder (HND) (Reactome),2,10,3.0756064840974973,0.1765656723789001,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+Tryptophan catabolism (Reactome),2,10,3.0756064840974973,0.1765656723789001,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+Urea cycle and metabolism of amino groups (WikiPathways),2,10,3.0756064840974973,0.1765656723789001,Sarcosine;Creatinine,0.6712813285762455,WikiPathways
+Variant SLC6A14 may confer susceptibility towards obesity (Reactome),2,12,2.4528602735560905,0.23522534510197604,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+Metabolic reprogramming in colon cancer (WikiPathways),2,14,2.0371876022274047,0.2949642886158751,Citric Acid;D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Branched-chain amino acid catabolism (Reactome),1,5,3.0262188820059825,0.3318351033303576,Leucine,0.6712813285762455,Reactome
+"Cerebral organic acidurias, including diseases (WikiPathways)",1,5,3.0262188820059825,0.3318351033303576,L-2-Aminoadipic Acid,0.6712813285762455,WikiPathways
+Neurodegeneration with brain iron accumulation (NBIA) subtypes pathway (WikiPathways),1,5,3.0262188820059825,0.3318351033303576,D-Pantothenic Acid,0.6712813285762455,WikiPathways
+Organic cation transport (Reactome),1,5,3.0262188820059825,0.3318351033303576,Creatinine,0.6712813285762455,Reactome
+Pantothenate and CoA Biosynthesis (KEGG),1,5,3.0262188820059825,0.3318351033303576,D-Pantothenic Acid,0.6712813285762455,KEGG
+Vitamin B6-dependent and responsive disorders (WikiPathways),1,5,3.0262188820059825,0.3318351033303576,L-2-Aminoadipic Acid,0.6712813285762455,WikiPathways
+Cytosolic tRNA aminoacylation (Reactome),2,16,1.739994391286428,0.35420461671702186,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),2,16,1.739994391286428,0.35420461671702186,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+tRNA Aminoacylation (Reactome),2,16,1.739994391286428,0.35420461671702186,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+Creatine pathway (WikiPathways),1,6,2.418280753569485,0.38388418042600025,Creatinine,0.6712813285762455,WikiPathways
+Disorders of fructose metabolism (WikiPathways),1,6,2.418280753569485,0.38388418042600025,D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),1,6,2.418280753569485,0.38388418042600025,Citric Acid,0.6712813285762455,WikiPathways
+NAD biosynthesis II from tryptophan (WikiPathways),1,6,2.418280753569485,0.38388418042600025,Dl-Alanine,0.6712813285762455,WikiPathways
+Organic anion transporters (Reactome),1,6,2.418280753569485,0.38388418042600025,Citric Acid,0.6712813285762455,Reactome
+Synthesis of ceramides and 1-deoxyceramides (WikiPathways),1,6,2.418280753569485,0.38388418042600025,Dl-Alanine,0.6712813285762455,WikiPathways
+Tryptophan metabolism (KEGG),1,6,2.418280753569485,0.38388418042600025,Dl-Alanine,0.6712813285762455,KEGG
+Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),1,6,2.418280753569485,0.38388418042600025,D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Citric acid cycle (TCA cycle) (Reactome),1,7,2.012505042300714,0.4319658142584538,Citric Acid,0.6712813285762455,Reactome
+Glycolysis (Reactome),1,7,2.012505042300714,0.4319658142584538,Citric Acid,0.6712813285762455,Reactome
+Lactate shuttle in glial cells (WikiPathways),1,7,2.012505042300714,0.4319658142584538,D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Lysine catabolism (Reactome),1,7,2.012505042300714,0.4319658142584538,L-2-Aminoadipic Acid,0.6712813285762455,Reactome
+Lysine degradation (KEGG),1,7,2.012505042300714,0.4319658142584538,L-2-Aminoadipic Acid,0.6712813285762455,KEGG
+Organic cation/anion/zwitterion transport (Reactome),1,7,2.012505042300714,0.4319658142584538,Creatinine,0.6712813285762455,Reactome
+Phenylalanine and tyrosine metabolism (Reactome),1,7,2.012505042300714,0.4319658142584538,Dl-Alanine,0.6712813285762455,Reactome
+TCA cycle (aka Krebs or citric acid cycle) (WikiPathways),1,7,2.012505042300714,0.4319658142584538,Citric Acid,0.6712813285762455,WikiPathways
+Na+/Cl- dependent neurotransmitter transporters (Reactome),2,19,1.4250589839757406,0.4397066988252455,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",2,19,1.4250589839757406,0.4397066988252455,Cytosine;D-Pantothenic Acid,0.6712813285762455,Reactome
+Creatine metabolism (Reactome),1,8,1.7223765194122176,0.47637575968915646,Creatinine,0.6712813285762455,Reactome
+Glutathione metabolism (KEGG),1,8,1.7223765194122176,0.47637575968915646,Dl-Alanine,0.6712813285762455,KEGG
+Glyoxylate metabolism (WikiPathways),1,8,1.7223765194122176,0.47637575968915646,Dl-Alanine,0.6712813285762455,WikiPathways
+Methionine metabolism leading to sulfur amino acids and related disorders (WikiPathways),1,8,1.7223765194122176,0.47637575968915646,Sarcosine,0.6712813285762455,WikiPathways
+"Sensory perception of sweet, bitter, and umami (glutamate) taste (Reactome)",1,8,1.7223765194122176,0.47637575968915646,Caprolactam,0.6712813285762455,Reactome
+Thiamine metabolic pathways (WikiPathways),1,8,1.7223765194122176,0.47637575968915646,D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Vitamin B12 metabolism (WikiPathways),1,8,1.7223765194122176,0.47637575968915646,Creatinine,0.6712813285762455,WikiPathways
+Amino acid transport across the plasma membrane (Reactome),2,21,1.2702585602029925,0.49338572344290943,Dl-Alanine;Leucine,0.6712813285762455,Reactome
+Amino acid metabolism in triple-negative breast cancer cells (WikiPathways),1,9,1.5046312001264364,0.5173882229557617,Citric Acid,0.6712813285762455,WikiPathways
+Citric Acid Cycle (KEGG),1,9,1.5046312001264364,0.5173882229557617,Citric Acid,0.6712813285762455,KEGG
+Degradation of cysteine and homocysteine (Reactome),1,9,1.5046312001264364,0.5173882229557617,2-Oxobutanoic Acid,0.6712813285762455,Reactome
+Glucuronidation (WikiPathways),1,9,1.5046312001264364,0.5173882229557617,D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),1,9,1.5046312001264364,0.5173882229557617,D-Glucose 6-Phosphate,0.6712813285762455,WikiPathways
+Krebs cycle disorders (WikiPathways),1,9,1.5046312001264364,0.5173882229557617,Dl-Alanine,0.6712813285762455,WikiPathways
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,9,1.5046312001264364,0.5173882229557617,1-Methyladenosine,0.6712813285762455,WikiPathways
+Propanoate metabolism (KEGG),1,9,1.5046312001264364,0.5173882229557617,2-Oxobutanoic Acid,0.6712813285762455,KEGG
+Pyrimidine catabolism (Reactome),1,9,1.5046312001264364,0.5173882229557617,Dl-Alanine,0.6712813285762455,Reactome
+"Valine, leucine and isoleucine degradation (KEGG)",1,9,1.5046312001264364,0.5173882229557617,Leucine,0.6712813285762455,KEGG
+beta-Alanine metabolism (KEGG),1,9,1.5046312001264364,0.5173882229557617,D-Pantothenic Acid,0.6712813285762455,KEGG
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",2,23,1.1448784059487227,0.5438671263881014,2-Oxobutanoic Acid;Sarcosine,0.6712813285762455,WikiPathways
+16p11.2 proximal deletion syndrome (WikiPathways),1,10,1.3351913876531836,0.5552573952420796,Palmitoyl Ethanolamide,0.6712813285762455,WikiPathways
+Galactose Metabolism (KEGG),1,10,1.3351913876531836,0.5552573952420796,D-Glucose 6-Phosphate,0.6712813285762455,KEGG
+Glucose metabolism (Reactome),1,10,1.3351913876531836,0.5552573952420796,Citric Acid,0.6712813285762455,Reactome
+Glutamate and glutamine metabolism (Reactome),1,10,1.3351913876531836,0.5552573952420796,Dl-Alanine,0.6712813285762455,Reactome
+"Leucine, isoleucine and valine metabolism (WikiPathways)",1,10,1.3351913876531836,0.5552573952420796,Leucine,0.6712813285762455,WikiPathways
+Pyruvate metabolism (Reactome),1,10,1.3351913876531836,0.5552573952420796,Dl-Alanine,0.6712813285762455,Reactome
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),1,11,1.1995760381110907,0.5902188797111667,Cytosine,0.7030548420088898,Reactome
+Amino acid transport defects (IEMs) (WikiPathways),1,12,1.0885407187359288,0.6224910192210933,Dl-Alanine,0.7307503269117183,WikiPathways
+Cysteine and methionine catabolism (WikiPathways),1,13,0.9960388330252306,0.6522761314660346,2-Oxobutanoic Acid,0.733810647899289,WikiPathways
+Metabolic pathways of fibroblasts (WikiPathways),1,13,0.9960388330252306,0.6522761314660346,D-Glucose 6-Phosphate,0.733810647899289,WikiPathways
+Urea cycle and associated pathways (WikiPathways),1,13,0.9960388330252306,0.6522761314660346,Dl-Alanine,0.733810647899289,WikiPathways
+Biomarkers for pyrimidine metabolism disorders (WikiPathways),1,14,0.9177146747696535,0.6797616578391237,Cytosine,0.7341425904662536,WikiPathways
+Neurotransmitter release cycle (Reactome),1,14,0.9177146747696535,0.6797616578391237,Palmitoyl Ethanolamide,0.7341425904662536,Reactome
+Sulfur amino acid metabolism (Reactome),1,14,0.9177146747696535,0.6797616578391237,2-Oxobutanoic Acid,0.7341425904662536,Reactome
+Arginine and proline metabolism (KEGG),1,15,0.8505580964452092,0.7051212318960622,Dl-Alanine,0.7515107866260664,KEGG
+Amino Sugar Metabolism (KEGG),1,16,0.7923405950317367,0.7285156729079982,D-Glucose 6-Phosphate,0.7663606429291929,KEGG
+KEGG:map01100 (KEGG),1,17,0.7414503685679634,0.750093909626956,1-Aminocyclopropanecarboxylic Acid,0.778943675381839,KEGG
+Metabolism overview (WikiPathways),1,18,0.6964852345744806,0.7699938390455501,Citric Acid,0.7894873539580956,WikiPathways
+"Alanine, aspartate and glutamate metabolism (KEGG)",1,23,0.5329401879298862,0.8484690251066482,Dl-Alanine,0.8590748879204813,KEGG
+Nucleotide catabolism (Reactome),1,25,0.4865890903099328,0.8719113868583892,Dl-Alanine,0.8719113868583892,Reactome

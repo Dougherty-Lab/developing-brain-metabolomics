@@ -1,0 +1,28 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+16p11.2 proximal deletion syndrome (WikiPathways),2,10,8.772491679247112,0.034190129626398995,Dihydroxyacetone Phosphate;D-Sphingosine,0.36748115057475017,WikiPathways
+Sphingolipid pathway (WikiPathways),1,5,8.288040317987775,0.14405470276794385,D-Sphingosine,0.36748115057475017,WikiPathways
+Disorders of fructose metabolism (WikiPathways),1,6,6.631336178219675,0.17041533692182953,Dihydroxyacetone Phosphate,0.36748115057475017,WikiPathways
+HIF1A and PPARG in cardiac hypertropthy (WikiPathways),1,6,6.631336178219675,0.17041533692182953,Dihydroxyacetone Phosphate,0.36748115057475017,WikiPathways
+Metabolism of sphingolipids in ER and Golgi apparatus (WikiPathways),1,6,6.631336178219675,0.17041533692182953,D-Sphingosine,0.36748115057475017,WikiPathways
+Sphingolipid metabolism overview (WikiPathways),1,6,6.631336178219675,0.17041533692182953,D-Sphingosine,0.36748115057475017,WikiPathways
+Synthesis of ceramides and 1-deoxyceramides (WikiPathways),1,6,6.631336178219675,0.17041533692182953,D-Sphingosine,0.36748115057475017,WikiPathways
+Glycolysis (Reactome),1,7,5.523686100731188,0.19601050801498554,Dihydroxyacetone Phosphate,0.36748115057475017,Reactome
+Organic cation/anion/zwitterion transport (Reactome),1,7,5.523686100731188,0.19601050801498554,Uric Acid,0.36748115057475017,Reactome
+Aerobic glycolysis (WikiPathways),1,8,4.731811930393855,0.22086109231270412,Dihydroxyacetone Phosphate,0.36748115057475017,WikiPathways
+Gluconeogenesis (Reactome),1,8,4.731811930393855,0.22086109231270412,Dihydroxyacetone Phosphate,0.36748115057475017,Reactome
+"Sensory perception of sweet, bitter, and umami (glutamate) taste (Reactome)",1,8,4.731811930393855,0.22086109231270412,Caprolactam,0.36748115057475017,Reactome
+Thiamine metabolic pathways (WikiPathways),1,8,4.731811930393855,0.22086109231270412,Dihydroxyacetone Phosphate,0.36748115057475017,WikiPathways
+Cori cycle (WikiPathways),1,9,4.135543817260327,0.2449874337165001,Dihydroxyacetone Phosphate,0.36748115057475017,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),1,9,4.135543817260327,0.2449874337165001,Dihydroxyacetone Phosphate,0.36748115057475017,WikiPathways
+KEGG:map01120 (KEGG),1,9,4.135543817260327,0.2449874337165001,2-Furoic Acid,0.36748115057475017,KEGG
+Sensory perception of taste (Reactome),1,9,4.135543817260327,0.2449874337165001,Caprolactam,0.36748115057475017,Reactome
+Sphingolipid metabolism: integrated pathway (WikiPathways),1,9,4.135543817260327,0.2449874337165001,D-Sphingosine,0.36748115057475017,WikiPathways
+Glucose metabolism (Reactome),1,10,3.6720388725012323,0.26840935639317853,Dihydroxyacetone Phosphate,0.3814238222429379,Reactome
+Glycerophospholipid biosynthetic pathway (WikiPathways),1,11,3.3000701818063933,0.2911461771268453,Dihydroxyacetone Phosphate,0.3844023349902376,WikiPathways
+Aerobic glycolysis - augmented (WikiPathways),1,12,2.995798518509296,0.3132167173994529,Dihydroxyacetone Phosphate,0.3844023349902376,WikiPathways
+Purine catabolism (Reactome),1,12,2.995798518509296,0.3132167173994529,Uric Acid,0.3844023349902376,Reactome
+Purine metabolism (WikiPathways),1,16,2.1831389369002396,0.39519582230236194,Uric Acid,0.4639255305288597,WikiPathways
+KEGG:map01100 (KEGG),1,17,2.04313915215025,0.4142007594943393,2-Furoic Acid,0.46597585443113176,KEGG
+Metabolism overview (WikiPathways),1,18,1.9197903154666585,0.4326425874361841,Dihydroxyacetone Phosphate,0.46725399443107885,WikiPathways
+Purine metabolism and related disorders (WikiPathways),1,21,1.623236514543909,0.48474409610145197,Uric Acid,0.5033880997976617,WikiPathways
+Nucleotide catabolism (Reactome),1,25,1.3429319079863606,0.5472345267407108,Uric Acid,0.5472345267407108,Reactome

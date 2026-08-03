@@ -1,0 +1,1027 @@
+---
+title: "Metabolite Pathway Analysis (log2_na, global-FDR hits)"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Overview
+
+Pathway analysis (ORA + MSEA) on **gene–metabolite associations** from the
+`log2_na` run (`metabolite_gene_associations.qmd`). Hits are pre-filtered to
+global FDR < 0.10 and |logFC| ≥ 0.25. The `log2_na` transform carries no
+imputation (missing and IQR-outlier samples stay NA and are dropped), so no
+imputation-sensitivity gate is needed. See `metabolite_pathway_analysis_dfbetas.qmd`
+for the same analysis restricted to the DFBETAS-stable robust subset.
+
+Three analyses:
+
+1. **All cell types (union)** — metabolites significant in ≥1 cell type
+2. **Cell-type-specific** — ORA + MSEA run independently per cell type
+3. **Glia vs. neurons** — metabolites associating primarily with glial or neuronal
+   cell types, plus their exclusive pathway enrichments and shared pathway comparison
+
+**ORA**: Fisher's exact test; foreground = metabolites with ≥1 significant gene
+association (within FDR < 0.10, |logFC| ≥ 0.25); background = all measured metabolites.
+
+**MSEA**: fgsea ranked by −log10(min raw *P*-value per metabolite) computed from the
+full parquet archive. This ranking is unsigned — it captures association strength
+without imposing a direction, since one metabolite can drive many gene associations
+with mixed signs.
+
+## Set Up
+
+```{r}
+#| label: setup
+Packages <- c(
+  "readxl", "tidyverse", "arrow", "fgsea",
+  "KEGGREST", "knitr", "kableExtra", "svglite", "ggrepel", "cowplot"
+)
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")   # save_dual_format()
+
+set.seed(42)
+
+# Anchor output paths to the repo root (found via the .git marker) instead of
+# a cwd-relative "../.." — re-running chunks out of order in an interactive
+# session can leave the R working directory pointed somewhere unexpected
+# (e.g. a subfolder), which otherwise silently writes results under src/.
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Could not locate project root (no ", marker, " found above ", getwd(), ")")
+    d <- parent
+  }
+}
+results_dir <- file.path(find_project_root(), "results")
+```
+
+```{r}
+#| label: config
+
+# ---- METHOD must match metabolite_gene_associations.qmd ---------------------
+METHOD <- "log2_na"
+suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
+
+# ---- paths -------------------------------------------------------------------
+parquet_dir <- if (METHOD == "int") {
+  file.path(results_dir, "gene-metabolite/parquet")
+} else {
+  file.path(results_dir, sprintf("gene-metabolite/parquet-%s", METHOD))
+}
+
+# Global-FDR hits from metabolite_gene_associations.qmd (log2_na: no imputation gate)
+assoc_csv_dir <- file.path(results_dir, "gene-metabolite", paste0("csv", suffix))
+hits_path     <- file.path(assoc_csv_dir, "metabolite_gene_hits.csv")
+annot_path    <- file.path(results_dir, "untargeted/batch2_metabolite_annotations_flagged.csv")
+
+out_dir  <- file.path(assoc_csv_dir, "pathway")
+csv_path <- file.path(out_dir, "csv")
+for (d in c(out_dir, csv_path)) dir.create(d, recursive = TRUE, showWarnings = FALSE)
+
+# ---- thresholds (must match metabolite_gene_associations.qmd) ---------------
+FDR_GLOBAL  <- 0.10   # global BH threshold applied upstream
+LFC_MIN     <- 0.25   # applied upstream
+MIN_CT_HITS <- 5      # min distinct metabolite hits to run ORA for a cell type
+
+# ---- cell type groupings -----------------------------------------------------
+# UPDATE these after inspecting the "Available Cell Types" slide below.
+# Use exact strings from unique(hits$cell_type).
+GLIAL_TYPES <- c(
+  "Astrocyte-Immature", "OPC"
+)
+NEURONAL_TYPES <- c(
+  "EN-IT-Immature", "EN-L6-IT", "EN-L6b", "EN-Newborn", "EN-Non-IT-Immature",
+  "IN-CGE-Immature", "IN-MGE-Immature", "IN-MGE-SST", "IPC-EN"
+)
+```
+
+## Load Hits
+
+```{r}
+#| label: load-hits
+hits <- read_csv(hits_path, show_col_types = FALSE)
+
+cat(sprintf("Reading: %s\n", hits_path))
+cat(sprintf(
+  "Global-FDR hits (log2_na): %s rows | %d metabolites | %d cell types | %d genes\n",
+  format(nrow(hits), big.mark = ","),
+  n_distinct(hits$Compound.ID),
+  n_distinct(hits$cell_type),
+  n_distinct(hits$gene)
+))
+```
+
+## Available Cell Types
+
+Inspect this output to set `GLIAL_TYPES` and `NEURONAL_TYPES` in the config chunk.
+
+```{r}
+#| label: cell-types-print
+cat("Cell types present in hits:\n")
+print(sort(unique(hits$cell_type)))
+```
+
+## MSEA Rankings (Parquet)
+
+For each metabolite compute min raw *P*-value across all gene × cell type pairs.
+Done lazily via Arrow so the full archive is never loaded whole.
+
+```{r}
+#| label: msea-ranking
+ds <- open_dataset(parquet_dir)
+
+# All-cell-types ranking
+ranking_all_raw <- ds |>
+  group_by(Compound.ID, Name) |>
+  summarise(min_P = min(P.Value, na.rm = TRUE), .groups = "drop") |>
+  collect()
+
+# Cell-type-specific rankings (used in loop and glia/neuron analyses)
+ranking_ct_raw <- ds |>
+  group_by(cell_type, Compound.ID, Name) |>
+  summarise(min_P = min(P.Value, na.rm = TRUE), .groups = "drop") |>
+  collect()
+
+cat(sprintf(
+  "All-metabolite ranking rows:  %d\n",
+  nrow(ranking_all_raw)
+))
+cat(sprintf(
+  "Cell-type ranking rows: %s\n",
+  format(nrow(ranking_ct_raw), big.mark = ",")
+))
+```
+
+---
+
+# Pathway Annotation
+
+Reuses the same annotation files and pathway-parsing logic as
+`Batch2_Pathway_Analysis.Rmd`. Background = all metabolites that entered the
+gene–metabolite loop (derived from the parquet archive).
+
+## Load Annotation
+
+```{r}
+#| label: load-annotation
+batch2_compound_annotation_full <- read_csv(
+  "../../results/untargeted/batch2_metabolite_annotations_flagged.csv",
+  show_col_types = FALSE
+)
+
+# Background = every metabolite present in the parquet archive
+background_all <- ranking_all_raw$Name
+
+batch2_compound_annotation <- batch2_compound_annotation_full |>
+  filter(Name %in% background_all)
+
+pathway_info <- read_excel(
+  "../../doc/untargeted/combined_annotations_untargeted_developing_2026.xlsx",
+  sheet = "Pathways"
+) |>
+  rename(
+    pathway_id     = PathwayId,
+    pathway_name   = pathwayName,
+    pathway_source = pathwaySource
+  ) |>
+  dplyr::select(pathway_id, pathway_name, pathway_source)
+
+cat(sprintf(
+  "Background metabolites: %d | annotation rows: %d\n",
+  length(background_all), nrow(batch2_compound_annotation)
+))
+```
+
+## Parse Existing Pathways
+
+```{r}
+#| label: parse-pathways
+pathways_parsed <- batch2_compound_annotation |>
+  filter(!is.na(Pathways) & Pathways != "") |>
+  dplyr::select(Compound.ID, Name, KEGG, Pathways) |>
+  separate_rows(Pathways, sep = ";") |>
+  mutate(
+    pathway_id = str_trim(Pathways),
+    pathway_source = case_when(
+      str_detect(pathway_id, "^map\\d+") ~ "kegg",
+      str_detect(pathway_id, "^R-HSA-")  ~ "reactome",
+      str_detect(pathway_id, "^WP\\d+$") ~ "wiki",
+      TRUE                               ~ NA_character_
+    )
+  ) |>
+  dplyr::select(-Pathways) |>
+  filter(!is.na(pathway_id) & pathway_id != "" & !is.na(pathway_source))
+
+cat(sprintf(
+  "Metabolites with existing pathway annotation: %d of %d\n",
+  n_distinct(pathways_parsed$Name), nrow(batch2_compound_annotation)
+))
+cat("Breakdown by source:\n")
+print(count(pathways_parsed, pathway_source))
+```
+
+## KEGGREST Re-Mapping
+
+```{r}
+#| label: keggrest-remap
+metabolites_missing_pathways <- batch2_compound_annotation |>
+  filter(is.na(Pathways) | Pathways == "") |>
+  filter(!is.na(KEGG) & KEGG != "") |>
+  dplyr::select(Compound.ID, Name, KEGG) |>
+  separate_rows(KEGG, sep = ";") |>
+  mutate(
+    KEGG       = str_trim(KEGG),
+    KEGG_valid = str_detect(KEGG, "^C\\d{5}$")
+  ) |>
+  filter(!is.na(KEGG) & KEGG != "")
+
+valid_ids <- metabolites_missing_pathways |>
+  filter(KEGG_valid) |>
+  pull(KEGG) |>
+  unique()
+
+cat(sprintf(
+  "Missing annotation: %d metabolites | KEGG IDs to query: %d\n",
+  n_distinct(metabolites_missing_pathways |> filter(KEGG_valid) |> pull(Name)),
+  length(valid_ids)
+))
+
+query_kegg_pathways <- function(kegg_ids) {
+  results <- vector("list", length(kegg_ids))
+  for (i in seq_along(kegg_ids)) {
+    kid <- kegg_ids[i]
+    results[[i]] <- tryCatch({
+      links <- keggLink("pathway", paste0("cpd:", kid))
+      tibble(KEGG = kid, pathway_id = str_remove(links, "path:"))
+    }, error = function(e) {
+      message("  Query failed for ", kid, ": ", e$message)
+      tibble(KEGG = character(), pathway_id = character())
+    })
+    if (i %% 10 == 0) { cat("  ", i, "/", length(kegg_ids), "\n"); flush.console() }
+    Sys.sleep(0.35)
+  }
+  bind_rows(results)
+}
+
+kegg_link_df <- query_kegg_pathways(valid_ids)
+```
+
+```{r}
+#| label: build-kegg-new
+if (nrow(kegg_link_df) > 0) {
+  kegg_new <- metabolites_missing_pathways |>
+    inner_join(kegg_link_df, by = "KEGG") |>
+    mutate(pathway_source = "kegg") |>
+    dplyr::select(Compound.ID, Name, KEGG, pathway_source, pathway_id)
+  cat(sprintf(
+    "New KEGG assignments: %d rows | %d metabolites\n",
+    nrow(kegg_new), n_distinct(kegg_new$Name)
+  ))
+} else {
+  kegg_new <- tibble(
+    Compound.ID = character(), Name = character(), KEGG = character(),
+    pathway_source = character(), pathway_id = character()
+  )
+  cat("No KEGG pathway links returned.\n")
+}
+```
+
+## Combine and Map Pathway Names
+
+```{r}
+#| label: combine-pathways
+pathways_combined <- bind_rows(
+  pathways_parsed,
+  kegg_new |> dplyr::select(Compound.ID, Name, pathway_source, pathway_id)
+) |>
+  left_join(
+    pathway_info |> dplyr::select(pathway_id, pathway_name),
+    by = "pathway_id"
+  ) |>
+  mutate(
+    pathway_label = case_when(
+      !is.na(pathway_name) & pathway_name != "" ~ pathway_name,
+      pathway_source == "kegg"     ~ paste0("KEGG:",         pathway_id),
+      pathway_source == "reactome" ~ paste0("Reactome:",     pathway_id),
+      pathway_source == "wiki"     ~ paste0("WikiPathways:", pathway_id),
+      TRUE                         ~ pathway_id
+    )
+  )
+
+cat(sprintf(
+  "Final coverage: %d metabolites with pathway annotation | %d unique pathways\n",
+  n_distinct(pathways_combined$Name),
+  n_distinct(pathways_combined$pathway_id)
+))
+```
+
+## Build Pathway Sets
+
+```{r}
+#| label: build-pathway-sets
+pathway_sets_raw <- pathways_combined |>
+  distinct(Name, pathway_id, pathway_label, pathway_source) |>
+  filter(Name %in% background_all)
+
+pathway_sets <- pathway_sets_raw |>
+  mutate(pathway_source = factor(
+    pathway_source,
+    levels = c("kegg",  "reactome", "wiki",          "pfocr"),
+    labels = c("KEGG",  "Reactome", "WikiPathways",  "PFOCR")
+  )) |>
+  group_by(pathway_label, pathway_source) |>
+  summarise(members = list(unique(Name)), .groups = "drop") |>
+  mutate(
+    n_members         = lengths(members),
+    pathway_label_src = paste0(pathway_label, " (", pathway_source, ")")
+  ) |>
+  filter(n_members >= 5, n_members <= 500)
+
+pathway_source_lookup <- pathway_sets |>
+  dplyr::select(pathway_label_src, pathway_source)
+
+pathway_list <- setNames(pathway_sets$members, pathway_sets$pathway_label_src)
+
+cat(sprintf(
+  "Pathway sets: %d | median members: %d | range: %d–%d\n",
+  length(pathway_list), median(lengths(pathway_list)),
+  min(lengths(pathway_list)), max(lengths(pathway_list))
+))
+```
+
+---
+
+# Analysis Functions
+
+```{r}
+#| label: functions
+
+# ---- ORA (Fisher's exact, one-sided greater) ---------------------------------
+run_ora <- function(foreground, background, pathway_list,
+                    pathway_source_lookup, analysis_label) {
+  cat("\n===", analysis_label, "===\n")
+  cat("Foreground:", length(foreground), "| Background:", length(background), "\n")
+
+  if (length(foreground) < 1) { cat("Empty foreground — skipping.\n"); return(NULL) }
+
+  bg_only <- background[!background %in% foreground]
+
+  results <- map_dfr(names(pathway_list), function(pw) {
+    members <- pathway_list[[pw]]
+    a <- sum(foreground %in% members)
+    b <- length(foreground) - a
+    c <- sum(bg_only %in% members)
+    d <- length(bg_only) - c
+    ft <- fisher.test(matrix(c(a, b, c, d), nrow = 2), alternative = "greater")
+    tibble(
+      pathway    = pw,
+      n_hits     = a,
+      set_size   = a + c,
+      odds_ratio = as.numeric(ft$estimate),
+      pval       = ft$p.value,
+      hit_names  = paste(foreground[foreground %in% members], collapse = ";")
+    )
+  }) |>
+    filter(n_hits > 0) |>
+    mutate(padj = p.adjust(pval, method = "BH")) |>
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) |>
+    arrange(padj, pval)
+
+  cat("Pathways with \u22651 hit:", nrow(results),
+      "| p < 0.05:", sum(results$pval < 0.05, na.rm = TRUE),
+      "| FDR < 0.05:", sum(results$padj < 0.05, na.rm = TRUE), "\n")
+  results
+}
+
+# ---- MSEA (fgsea on −log10 min P per metabolite) ----------------------------
+# ranking_df : data frame with columns Name, min_P (from parquet group_by)
+# background_names : all measured metabolite Names; those absent from ranking_df
+#                    are assigned score = 0 (i.e. min_P = 1)
+run_msea_metab <- function(ranking_df, background_names, pathway_list,
+                           analysis_label, nperm = 10000, seed = 42) {
+  cat("\n===", analysis_label, "===\n")
+
+  ranked <- tibble(Name = background_names) |>
+    left_join(ranking_df |> dplyr::select(Name, min_P), by = "Name") |>
+    mutate(score = -log10(pmax(replace_na(min_P, 1), 1e-300))) |>
+    arrange(desc(score)) |>
+    dplyr::select(Name, score) |>
+    deframe()
+
+  cat("Metabolites in ranked list:", length(ranked), "\n")
+
+  pathway_list_filt <- lapply(pathway_list, function(x) intersect(x, names(ranked)))
+  pathway_list_filt <- pathway_list_filt[lengths(pathway_list_filt) >= 5]
+  cat("Pathway sets after intersection:", length(pathway_list_filt), "\n")
+
+  if (length(pathway_list_filt) == 0) {
+    cat("No pathway sets with sufficient coverage — skipping.\n")
+    return(NULL)
+  }
+
+  set.seed(seed)
+  results <- fgsea(
+    pathways    = pathway_list_filt,
+    stats       = ranked,
+    nPermSimple = nperm,
+    minSize     = 5,
+    maxSize     = 500,
+    scoreType   = "pos"
+  ) |>
+    as_tibble() |>
+    arrange(padj, pval) |>
+    mutate(analysis = analysis_label)
+
+  cat("Pathways tested:", nrow(results),
+      "| p < 0.05:", sum(results$pval < 0.05, na.rm = TRUE),
+      "| FDR < 0.05:", sum(results$padj < 0.05, na.rm = TRUE), "\n")
+  results
+}
+
+# ---- Plots -------------------------------------------------------------------
+plot_ora_dotplot <- function(results, analysis_label, top_n = 20) {
+  if (is.null(results) || nrow(results) == 0) return(NULL)
+
+  plot_data <- results |>
+    filter(pval < 0.05) |>
+    head(top_n) |>
+    mutate(
+      stars = case_when(padj < 0.01 ~ "**", padj < 0.05 ~ "*", TRUE ~ ""),
+      pathway_base  = str_remove(pathway,
+        " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$"),
+      pathway_short = str_trunc(pathway_base, 45),
+      pathway_label = paste0(pathway_short, " (", pathway_source, ")",
+                             if_else(stars != "", paste0(" ", stars), ""))
+    )
+
+  if (nrow(plot_data) == 0) { message("No nominal hits for: ", analysis_label); return(NULL) }
+
+  ggplot(plot_data,
+         aes(x = log2(odds_ratio),
+             y = reorder(pathway_label, log2(odds_ratio)),
+             color = pathway_source, shape = pathway_source, size = set_size)) +
+    geom_point(alpha = 0.85) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    scale_color_manual(name = "Database",
+      values = c(KEGG = "#E41A1C", Reactome = "#377EB8",
+                 WikiPathways = "#4DAF4A", PFOCR = "#FF7F00")) +
+    scale_shape_manual(name = "Database",
+      values = c(KEGG = 16, Reactome = 17, WikiPathways = 15, PFOCR = 18)) +
+    scale_size_continuous(name = "Set size", range = c(2, 8)) +
+    theme_minimal(base_size = 11) +
+    labs(x = "log2(Odds Ratio)", y = NULL,
+         title    = paste0("ORA \u2014 ", analysis_label),
+         subtitle = paste0("Top ", nrow(plot_data), " by p-value (p < 0.05 shown)\n",
+                           "* FDR < 0.05   ** FDR < 0.01")) +
+    theme(plot.title    = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9),
+          axis.text.y   = element_text(size = 8),
+          legend.position = "right")
+}
+
+plot_msea_dotplot <- function(results, pathway_source_lookup, analysis_label, top_n = 25) {
+  if (is.null(results) || nrow(results) == 0) return(NULL)
+
+  plot_data <- results |>
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) |>
+    filter(pval < 0.05) |>
+    arrange(padj) |>
+    head(top_n) |>
+    mutate(
+      stars = case_when(padj < 0.01 ~ "**", padj < 0.05 ~ "*", TRUE ~ ""),
+      pathway_base  = str_remove(pathway,
+        " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$"),
+      pathway_short = str_trunc(pathway_base, 45),
+      pathway_label = paste0(pathway_short, " (", pathway_source, ")",
+                             if_else(stars != "", paste0(" ", stars), ""))
+    )
+
+  if (nrow(plot_data) == 0) { message("No nominal hits for: ", analysis_label); return(NULL) }
+
+  ggplot(plot_data,
+         aes(x = NES,
+             y = reorder(pathway_label, NES),
+             color = pathway_source, shape = pathway_source, size = size)) +
+    geom_point(alpha = 0.85) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    scale_color_manual(name = "Database",
+      values = c(KEGG = "#E41A1C", Reactome = "#377EB8",
+                 WikiPathways = "#4DAF4A", PFOCR = "#FF7F00")) +
+    scale_shape_manual(name = "Database",
+      values = c(KEGG = 16, Reactome = 17, WikiPathways = 15, PFOCR = 18)) +
+    scale_size_continuous(name = "Set size", range = c(2, 8)) +
+    theme_minimal(base_size = 11) +
+    labs(x = "Normalized Enrichment Score (NES)", y = NULL,
+         title    = paste0("MSEA \u2014 ", analysis_label),
+         subtitle = paste0("Top ", nrow(plot_data), " by FDR (p < 0.05 shown)\n",
+                           "* FDR < 0.05   ** FDR < 0.01")) +
+    theme(plot.title    = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9),
+          axis.text.y   = element_text(size = 8),
+          legend.position = "right")
+}
+
+# ---- Table helper ------------------------------------------------------------
+display_results_table <- function(results, caption, top_n = 20,
+                                  type = c("ora", "msea")) {
+  type <- match.arg(type)
+  if (is.null(results) || nrow(results) == 0) { cat("No results.\n"); return(invisible(NULL)) }
+
+  if (type == "ora") {
+    results |>
+      head(top_n) |>
+      mutate(odds_ratio = round(odds_ratio, 2),
+             pval = signif(pval, 3), padj = signif(padj, 3),
+             hit_names = str_trunc(hit_names, 60)) |>
+      dplyr::select(pathway, pathway_source, n_hits, set_size,
+                    odds_ratio, pval, padj, hit_names) |>
+      rename(Pathway = pathway, Source = pathway_source,
+             Hits = n_hits, `Set size` = set_size,
+             OR = odds_ratio, `p-value` = pval, FDR = padj,
+             `Hit metabolites` = hit_names) |>
+      kable(caption = caption) |>
+      kable_styling(bootstrap_options = c("striped", "condensed"),
+                    full_width = FALSE, font_size = 11) |>
+      print()
+  } else {
+    results |>
+      left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) |>
+      head(top_n) |>
+      mutate(pval = signif(pval, 3), padj = signif(padj, 3),
+             NES  = round(NES, 3),
+             leadingEdge = map_chr(leadingEdge, ~ paste(head(.x, 5), collapse = ", "))) |>
+      dplyr::select(pathway, pathway_source, pval, padj, NES, size, leadingEdge) |>
+      rename(Pathway = pathway, Source = pathway_source,
+             `p-value` = pval, FDR = padj, NES = NES,
+             `Set size` = size, `Leading edge (top 5)` = leadingEdge) |>
+      kable(caption = caption) |>
+      kable_styling(bootstrap_options = c("striped", "condensed"),
+                    full_width = FALSE, font_size = 11) |>
+      print()
+  }
+}
+
+# flatten leadingEdge list column before write_csv
+flatten_leading_edge <- function(df) {
+  if (!is.null(df) && "leadingEdge" %in% colnames(df))
+    df |> mutate(leadingEdge = map_chr(leadingEdge, ~ paste(.x, collapse = ";")))
+  else df
+}
+```
+
+---
+
+# 1. All Cell Types (Union)
+
+Foreground: distinct metabolites significant in ≥1 cell type.
+
+## ORA and MSEA
+
+```{r}
+#| label: run-all
+hits_all <- hits |> distinct(Name) |> pull(Name)
+cat("Union metabolite hits:", length(hits_all), "\n")
+
+ora_all  <- run_ora(
+  hits_all, background_all, pathway_list,
+  pathway_source_lookup, "All cell types (union)"
+)
+msea_all <- run_msea_metab(
+  ranking_all_raw, background_all, pathway_list,
+  "All cell types"
+)
+```
+
+## ORA — Table and Plot
+
+```{r}
+#| label: results-ora-all
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_all, "ORA: All cell types — top 20 by FDR", type = "ora")
+
+p <- plot_ora_dotplot(ora_all, "All cell types (union)")
+if (!is.null(p)) {
+  save_dual_format(p, out_dir, "ora_all_celltypes")
+  print(p)
+}
+```
+
+## MSEA — Table and Plot
+
+```{r}
+#| label: results-msea-all
+#| fig-width: 10
+#| fig-height: 8
+display_results_table(msea_all, "MSEA: All cell types — top 20 by FDR", type = "msea")
+
+p <- plot_msea_dotplot(msea_all, pathway_source_lookup, "All cell types")
+if (!is.null(p)) {
+  save_dual_format(p, out_dir, "msea_all_celltypes")
+  print(p)
+}
+```
+
+---
+
+# 2. Cell-Type-Specific
+
+ORA and MSEA run per cell type. Cell types with fewer than `r MIN_CT_HITS`
+metabolite hits are skipped for ORA.
+
+```{r}
+#| label: celltype-loop
+cell_types    <- sort(unique(hits$cell_type))
+ora_ct_list   <- list()
+msea_ct_list  <- list()
+
+for (ct in cell_types) {
+  ct_hits <- hits |> filter(cell_type == ct) |> distinct(Name) |> pull(Name)
+  cat(sprintf("\n--- %s | %d metabolite hits ---\n", ct, length(ct_hits)))
+
+  if (length(ct_hits) >= MIN_CT_HITS) {
+    ora_ct_list[[ct]] <- run_ora(
+      ct_hits, background_all, pathway_list, pathway_source_lookup, ct
+    )
+  } else {
+    cat("  ORA skipped: fewer than", MIN_CT_HITS, "hits\n")
+  }
+
+  ct_ranking <- ranking_ct_raw |> filter(cell_type == ct)
+  if (nrow(ct_ranking) > 0) {
+    msea_ct_list[[ct]] <- run_msea_metab(
+      ct_ranking, background_all, pathway_list, ct
+    )
+  }
+}
+
+cat(sprintf(
+  "\nCompleted: ORA for %d cell types | MSEA for %d cell types\n",
+  length(ora_ct_list), length(msea_ct_list)
+))
+```
+
+## Cell-Type ORA — Summary Table
+
+Top 3 pathways per cell type (p < 0.05).
+
+```{r}
+#| label: ct-ora-summary
+ct_ora_summary <- map_dfr(names(ora_ct_list), function(ct) {
+  res <- ora_ct_list[[ct]]
+  if (is.null(res) || nrow(res) == 0) return(NULL)
+  res |>
+    filter(pval < 0.05) |>
+    slice_head(n = 3) |>
+    mutate(
+      cell_type     = ct,
+      pathway_short = str_trunc(str_remove(
+        pathway, " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$"
+      ), 40)
+    )
+})
+
+if (nrow(ct_ora_summary) > 0) {
+  ct_ora_summary |>
+    dplyr::select(cell_type, pathway_short, pathway_source,
+                  n_hits, set_size, odds_ratio, pval, padj) |>
+    mutate(across(where(is.numeric), ~ signif(.x, 3))) |>
+    rename(`Cell type` = cell_type, Pathway = pathway_short,
+           Source = pathway_source, Hits = n_hits,
+           `Set size` = set_size, OR = odds_ratio,
+           `p-value` = pval, FDR = padj) |>
+    kable(caption = "Top 3 ORA pathways per cell type (p < 0.05)") |>
+    kable_styling(bootstrap_options = c("striped", "condensed"),
+                  full_width = FALSE, font_size = 10)
+}
+```
+
+## Cell-Type ORA — Dot Plots
+
+```{r}
+#| label: ct-ora-plots
+#| fig-width: 10
+#| fig-height: 7
+for (ct in names(ora_ct_list)) {
+  p <- plot_ora_dotplot(ora_ct_list[[ct]], ct, top_n = 15)
+  if (!is.null(p)) {
+    ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+    save_dual_format(p, out_dir, paste0("ora_ct_", ct_safe))
+    print(p)
+  }
+}
+```
+
+## Cell-Type MSEA — Summary Table
+
+```{r}
+#| label: ct-msea-summary
+ct_msea_summary <- map_dfr(names(msea_ct_list), function(ct) {
+  res <- msea_ct_list[[ct]]
+  if (is.null(res) || nrow(res) == 0) return(NULL)
+  res |>
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) |>
+    filter(pval < 0.05) |>
+    slice_head(n = 3) |>
+    mutate(
+      cell_type     = ct,
+      pathway_short = str_trunc(str_remove(
+        pathway, " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$"
+      ), 40)
+    )
+})
+
+if (nrow(ct_msea_summary) > 0) {
+  ct_msea_summary |>
+    dplyr::select(cell_type, pathway_short, pathway_source,
+                  pval, padj, NES, size) |>
+    mutate(across(where(is.numeric), ~ signif(.x, 3))) |>
+    rename(`Cell type` = cell_type, Pathway = pathway_short,
+           Source = pathway_source,
+           `p-value` = pval, FDR = padj, `Set size` = size) |>
+    kable(caption = "Top 3 MSEA pathways per cell type (p < 0.05)") |>
+    kable_styling(bootstrap_options = c("striped", "condensed"),
+                  full_width = FALSE, font_size = 10)
+}
+```
+
+## Cell-Type MSEA — Dot Plots
+
+```{r}
+#| label: ct-msea-plots
+#| fig-width: 10
+#| fig-height: 8
+for (ct in names(msea_ct_list)) {
+  p <- plot_msea_dotplot(msea_ct_list[[ct]], pathway_source_lookup, ct, top_n = 15)
+  if (!is.null(p)) {
+    ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+    save_dual_format(p, out_dir, paste0("msea_ct_", ct_safe))
+    print(p)
+  }
+}
+```
+
+---
+
+# 3. Glia vs. Neurons
+
+## Define Groups
+
+```{r}
+#| label: define-groups
+glia_hits   <- hits |> filter(cell_type %in% GLIAL_TYPES)    |> distinct(Name) |> pull(Name)
+neuron_hits <- hits |> filter(cell_type %in% NEURONAL_TYPES) |> distinct(Name) |> pull(Name)
+
+glia_only   <- setdiff(glia_hits,   neuron_hits)
+neuron_only <- setdiff(neuron_hits, glia_hits)
+shared_both <- intersect(glia_hits, neuron_hits)
+
+cat(sprintf(
+  "Glia hits: %d | Neuron hits: %d\nGlia-only: %d | Neuron-only: %d | Shared: %d\n",
+  length(glia_hits), length(neuron_hits),
+  length(glia_only), length(neuron_only), length(shared_both)
+))
+
+# Warn about any cell type names that didn't match
+unmatched_glia   <- setdiff(GLIAL_TYPES,    unique(hits$cell_type))
+unmatched_neuron <- setdiff(NEURONAL_TYPES, unique(hits$cell_type))
+if (length(unmatched_glia)   > 0)
+  warning("GLIAL_TYPES not in hits: ",    paste(unmatched_glia,   collapse = ", "))
+if (length(unmatched_neuron) > 0)
+  warning("NEURONAL_TYPES not in hits: ", paste(unmatched_neuron, collapse = ", "))
+```
+
+## Metabolite Overlap
+
+```{r}
+#| label: overlap-bar
+#| fig-width: 6
+#| fig-height: 3
+tibble(
+  group = factor(c("Glia-only", "Shared", "Neuron-only"),
+                 levels = c("Glia-only", "Shared", "Neuron-only")),
+  n     = c(length(glia_only), length(shared_both), length(neuron_only))
+) |>
+  ggplot(aes(x = group, y = n, fill = group)) +
+  geom_col(alpha = 0.85, width = 0.6) +
+  geom_text(aes(label = n), vjust = -0.4, size = 4.5, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "Glia-only"   = "#4E9AF1",
+    "Shared"      = "#9B59B6",
+    "Neuron-only" = "#E67E22"
+  )) +
+  theme_minimal(base_size = 12) +
+  labs(x = NULL, y = "Distinct metabolites",
+       title = "Metabolite overlap: glia vs. neurons") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+```
+
+## ORA — Glia and Neurons
+
+```{r}
+#| label: gn-ora
+# Four foregrounds: union hits per class, and class-exclusive subsets
+ora_glia        <- run_ora(glia_hits,   background_all, pathway_list, pathway_source_lookup, "Glia (union)")
+ora_neuron      <- run_ora(neuron_hits, background_all, pathway_list, pathway_source_lookup, "Neurons (union)")
+ora_glia_only   <- run_ora(glia_only,   background_all, pathway_list, pathway_source_lookup, "Glia-exclusive")
+ora_neuron_only <- run_ora(neuron_only, background_all, pathway_list, pathway_source_lookup, "Neuron-exclusive")
+```
+
+## MSEA — Glia and Neurons
+
+Rankings collapse across cell types within each group (min P across glial/neuronal
+cell types per metabolite).
+
+```{r}
+#| label: gn-msea
+glia_ranking <- ranking_ct_raw |>
+  filter(cell_type %in% GLIAL_TYPES) |>
+  group_by(Compound.ID, Name) |>
+  summarise(min_P = min(min_P, na.rm = TRUE), .groups = "drop")
+
+neuron_ranking <- ranking_ct_raw |>
+  filter(cell_type %in% NEURONAL_TYPES) |>
+  group_by(Compound.ID, Name) |>
+  summarise(min_P = min(min_P, na.rm = TRUE), .groups = "drop")
+
+msea_glia   <- run_msea_metab(glia_ranking,   background_all, pathway_list, "Glia")
+msea_neuron <- run_msea_metab(neuron_ranking, background_all, pathway_list, "Neurons")
+```
+
+## Results — ORA Glia (Union)
+
+```{r}
+#| label: plot-ora-glia
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_glia, "ORA: Glia (union) — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_glia, "Glia (union)")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_glia"); print(p) }
+```
+
+## Results — ORA Neurons (Union)
+
+```{r}
+#| label: plot-ora-neuron
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_neuron, "ORA: Neurons (union) — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_neuron, "Neurons (union)")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_neurons"); print(p) }
+```
+
+## Results — ORA Glia-Exclusive
+
+```{r}
+#| label: plot-ora-glia-only
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_glia_only, "ORA: Glia-exclusive metabolites — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_glia_only, "Glia-exclusive")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_glia_only"); print(p) }
+```
+
+## Results — ORA Neuron-Exclusive
+
+```{r}
+#| label: plot-ora-neuron-only
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_neuron_only, "ORA: Neuron-exclusive metabolites — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_neuron_only, "Neuron-exclusive")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_neuron_only"); print(p) }
+```
+
+## Results — MSEA Glia
+
+```{r}
+#| label: plot-msea-glia
+#| fig-width: 10
+#| fig-height: 8
+display_results_table(msea_glia, "MSEA: Glia — top 20", type = "msea")
+p <- plot_msea_dotplot(msea_glia, pathway_source_lookup, "Glia")
+if (!is.null(p)) { save_dual_format(p, out_dir, "msea_glia"); print(p) }
+```
+
+## Results — MSEA Neurons
+
+```{r}
+#| label: plot-msea-neuron
+#| fig-width: 10
+#| fig-height: 8
+display_results_table(msea_neuron, "MSEA: Neurons — top 20", type = "msea")
+p <- plot_msea_dotplot(msea_neuron, pathway_source_lookup, "Neurons")
+if (!is.null(p)) { save_dual_format(p, out_dir, "msea_neurons"); print(p) }
+```
+
+## Shared Pathways: Glia vs. Neurons (ORA)
+
+Pathways nominally significant (p < 0.05) in **both** glia and neurons; scatter shows
+whether each pathway skews glial or neuronal based on log2(OR). Points above the
+diagonal are stronger in neurons; below, stronger in glia.
+
+```{r}
+#| label: gn-pathway-overlap
+#| fig-width: 9
+#| fig-height: 7
+if (!is.null(ora_glia) && !is.null(ora_neuron)) {
+  shared_pathways <- inner_join(
+    ora_glia   |> filter(pval < 0.05) |>
+      dplyr::select(pathway, or_glia   = odds_ratio, pval_glia   = pval, padj_glia   = padj),
+    ora_neuron |> filter(pval < 0.05) |>
+      dplyr::select(pathway, or_neuron = odds_ratio, pval_neuron = pval, padj_neuron = padj),
+    by = "pathway"
+  ) |>
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src")) |>
+    mutate(
+      pathway_short  = str_trunc(str_remove(
+        pathway, " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$"
+      ), 38),
+      log2_or_glia   = log2(or_glia),
+      log2_or_neuron = log2(or_neuron)
+    )
+
+  cat(sprintf(
+    "Pathways significant in both glia and neurons (p < 0.05): %d\n",
+    nrow(shared_pathways)
+  ))
+
+  if (nrow(shared_pathways) > 0) {
+    p_overlap <- ggplot(shared_pathways,
+                        aes(x = log2_or_glia, y = log2_or_neuron,
+                            color = pathway_source, label = pathway_short)) +
+      geom_point(alpha = 0.8, size = 3) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey60") +
+      geom_hline(yintercept = 0, linetype = "dotted", color = "grey70") +
+      geom_vline(xintercept = 0, linetype = "dotted", color = "grey70") +
+      ggrepel::geom_text_repel(size = 3, max.overlaps = 15) +
+      scale_color_manual(name = "Database",
+        values = c(KEGG = "#E41A1C", Reactome = "#377EB8",
+                   WikiPathways = "#4DAF4A", PFOCR = "#FF7F00")) +
+      theme_minimal(base_size = 11) +
+      labs(x = "log2(OR) in Glia", y = "log2(OR) in Neurons",
+           title    = "Shared pathways: Glia vs. Neurons (ORA)",
+           subtitle = "Above diagonal = stronger in neurons | Below = stronger in glia") +
+      theme(plot.title    = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9))
+
+    save_dual_format(p_overlap, out_dir, "glia_neuron_pathway_overlap")
+    print(p_overlap)
+  }
+}
+```
+
+---
+
+# Save Results
+
+```{r}
+#| label: save-results
+
+# --- All cell types ---
+if (!is.null(ora_all))  write_csv(ora_all,                      file.path(csv_path, "ora_all_celltypes.csv"))
+if (!is.null(msea_all)) write_csv(flatten_leading_edge(msea_all), file.path(csv_path, "msea_all_celltypes.csv"))
+
+# --- Cell-type-specific ---
+for (ct in names(ora_ct_list)) {
+  ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+  if (!is.null(ora_ct_list[[ct]]))
+    write_csv(ora_ct_list[[ct]], file.path(csv_path, paste0("ora_ct_", ct_safe, ".csv")))
+}
+for (ct in names(msea_ct_list)) {
+  ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+  if (!is.null(msea_ct_list[[ct]]))
+    write_csv(flatten_leading_edge(msea_ct_list[[ct]]),
+              file.path(csv_path, paste0("msea_ct_", ct_safe, ".csv")))
+}
+if (exists("ct_ora_summary")  && nrow(ct_ora_summary)  > 0)
+  write_csv(ct_ora_summary,  file.path(csv_path, "ora_celltype_summary.csv"))
+if (exists("ct_msea_summary") && nrow(ct_msea_summary) > 0)
+  write_csv(ct_msea_summary, file.path(csv_path, "msea_celltype_summary.csv"))
+
+# --- Glia vs. neurons ---
+if (!is.null(ora_glia))        write_csv(ora_glia,                          file.path(csv_path, "ora_glia.csv"))
+if (!is.null(ora_neuron))      write_csv(ora_neuron,                        file.path(csv_path, "ora_neuron.csv"))
+if (!is.null(ora_glia_only))   write_csv(ora_glia_only,                     file.path(csv_path, "ora_glia_only.csv"))
+if (!is.null(ora_neuron_only)) write_csv(ora_neuron_only,                   file.path(csv_path, "ora_neuron_only.csv"))
+if (!is.null(msea_glia))       write_csv(flatten_leading_edge(msea_glia),   file.path(csv_path, "msea_glia.csv"))
+if (!is.null(msea_neuron))     write_csv(flatten_leading_edge(msea_neuron), file.path(csv_path, "msea_neuron.csv"))
+
+cat("All results saved to:", csv_path, "\n")
+```

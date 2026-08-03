@@ -75,23 +75,29 @@ rank_int <- function(x) {
   stats::qnorm((r - 0.375) / (n + 0.25))
 }
 
-#' Per-metabolite transform, three selectable methods (row-wise, features x samples):
+#' Per-metabolite transform, four selectable methods (row-wise, features x samples):
 #'   "int"          min/5 impute -> rank-inverse-normal      (leverage-robust; default)
 #'   "zscore"       log2(x+1) -> min/5 impute -> z-score      (original)
 #'   "zscore_trim"  log2(x+1) -> IQR-trim observed outliers (excluded, set NA)
 #'                  -> min/5 impute the originally-missing -> z-score
+#'   "log2_na"      log2(x+1) -> IQR-trim observed outliers (excluded, set NA)
+#'                  -> z-score; NO imputation -- originally-missing AND outliers
+#'                  stay NA and are dropped by analyze_metabolite()'s
+#'                  !is.na(md$metab) filter. This is the primary imputation-free
+#'                  run; MIN_SAMPLES=10 is applied post-NA-drop as usual.
 #'
-#' For "zscore_trim", outliers are EXCLUDED (kept NA so downstream drops the
-#' sample), not winsorized; only originally-missing values are imputed. Trimming
-#' runs on observed values BEFORE imputation so fences reflect true data. IQR
-#' fence is Q1 - 0.75*IQR / Q3 + 0.75*IQR, matching the hormone-measurement
-#' convention (stricter than Tukey's 1.5x; Tukey 1977, Exploratory Data Analysis).
-transform_metabolite_matrix <- function(mat, method = c("int", "zscore", "zscore_trim")) {
+#' For "zscore_trim" and "log2_na", outliers are EXCLUDED (kept NA), not
+#' winsorized. Trimming runs on observed values BEFORE any imputation so fences
+#' reflect true data. IQR fence is Q1 - 0.75*IQR / Q3 + 0.75*IQR, matching
+#' the hormone-measurement convention (stricter than Tukey's 1.5x;
+#' Tukey 1977, Exploratory Data Analysis).
+transform_metabolite_matrix <- function(mat, method = c("int", "zscore", "zscore_trim", "log2_na")) {
   method <- match.arg(method)
   fn <- switch(method,
     int         = .tf_int,
     zscore      = .tf_zscore,
-    zscore_trim = .tf_zscore_trim
+    zscore_trim = .tf_zscore_trim,
+    log2_na     = .tf_log2_na
   )
   out <- t(apply(mat, 1, fn))
   dimnames(out)            <- dimnames(mat)
@@ -123,6 +129,27 @@ transform_metabolite_matrix <- function(mat, method = c("int", "zscore", "zscore
   v <- logged
   v[!orig_na & (logged < lo | logged > hi)] <- NA   # trim outliers -> excluded
   v[orig_na] <- min(v, na.rm = TRUE) / 5            # impute ONLY original missing
+  .zscore_vec(v)
+}
+
+# Imputation-free variant: same IQR outlier fence as zscore_trim, but
+# originally-missing values are NOT imputed. Both outliers and missing stay NA
+# and are dropped per-metabolite by analyze_metabolite()'s !is.na(md$metab)
+# filter, so the model only sees genuinely observed, non-extreme values.
+.tf_log2_na <- function(x) {
+  logged  <- log2(x + 1)
+  orig_na <- is.na(logged)                 # originally-missing samples
+  obs     <- logged[!orig_na]
+  if (length(obs) < 2) return(rep(NA_real_, length(x)))
+
+  qs  <- stats::quantile(obs, c(0.25, 0.75), names = FALSE)
+  iqr <- qs[2] - qs[1]
+  lo  <- qs[1] - 0.75 * iqr
+  hi  <- qs[2] + 0.75 * iqr
+
+  v <- logged
+  v[!orig_na & (logged < lo | logged > hi)] <- NA   # trim outliers -> excluded
+  # NO imputation: orig_na positions remain NA
   .zscore_vec(v)
 }
 

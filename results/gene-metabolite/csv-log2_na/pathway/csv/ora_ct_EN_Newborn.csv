@@ -1,0 +1,69 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+"Cerebral organic acidurias, including diseases (WikiPathways)",2,5,9.464724157508327,0.039784718373164205,N-Acetyl-L-Aspartic Acid;Tryptophan,0.6538676801342791,WikiPathways
+Biogenic amine synthesis (WikiPathways),2,7,5.674676734571019,0.0765856366872391,Γ-Aminobutyric Acid;Tryptophan,0.6538676801342791,WikiPathways
+Metabolic reprogramming in pancreatic cancer (WikiPathways),2,7,5.674676734571019,0.0765856366872391,Udp-N-Acetylglucosamine;N-Acetyl-D-Glucosamine 6-Phosphate,0.6538676801342791,WikiPathways
+Amino Sugar Metabolism (KEGG),3,16,3.324615398378611,0.08845761299066734,Udp-N-Acetylglucosamine;N-Acetyl-D-Glucosamine 6-Phosphate;Udp-Β-D-Glucose (Sodium Salt),0.6538676801342791,KEGG
+Na+/Cl- dependent neurotransmitter transporters (Reactome),3,19,2.6874796418966467,0.13294913096197292,Γ-Aminobutyric Acid;Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Defective SLC6A19 causes Hartnup disorder (HND) (Reactome),2,10,3.535094019087538,0.14426004821032137,Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Tryptophan catabolism (Reactome),2,10,3.535094019087538,0.14426004821032137,Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Amino acid transport across the plasma membrane (Reactome),3,21,2.3804729138116443,0.1662343113343344,Γ-Aminobutyric Acid;Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Purine metabolism and related disorders (WikiPathways),3,21,2.3804729138116443,0.1662343113343344,Xanthosine;L-(-)-Methionine;Uric Acid,0.6538676801342791,WikiPathways
+Variant SLC6A14 may confer susceptibility towards obesity (Reactome),2,12,2.8198964476462725,0.1943677834677505,Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+"Alanine, aspartate and glutamate metabolism (KEGG)",3,23,2.1346212118878927,0.20176476356470022,Γ-Aminobutyric Acid;N-Acetyl-L-Aspartic Acid;N-Acetyl-D-Glucosamine 6-Phosphate,0.6538676801342791,KEGG
+Ethanol effects on histone modifications (WikiPathways),1,5,3.4666227041053967,0.2985661417903258,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Glycogen synthesis and degradation (WikiPathways),1,5,3.4666227041053967,0.2985661417903258,Udp-Β-D-Glucose (Sodium Salt),0.6538676801342791,WikiPathways
+MTHFR deficiency (WikiPathways),1,5,3.4666227041053967,0.2985661417903258,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Maternal to zygotic transition (MZT) (Reactome),1,5,3.4666227041053967,0.2985661417903258,5-Methylcytosine,0.6538676801342791,Reactome
+Phenylalanine and Tyrosine Metabolism (KEGG),1,5,3.4666227041053967,0.2985661417903258,Phenylacetylglutamine,0.6538676801342791,KEGG
+Synthesis of UDP-N-acetyl-glucosamine (Reactome),1,5,3.4666227041053967,0.2985661417903258,N-Acetyl-D-Glucosamine 6-Phosphate,0.6538676801342791,Reactome
+Synthesis of wybutosine at G37 of tRNA(Phe) (Reactome),1,5,3.4666227041053967,0.2985661417903258,L-(-)-Methionine,0.6538676801342791,Reactome
+The phototransduction cascade (Reactome),1,5,3.4666227041053967,0.2985661417903258,L-(-)-Methionine,0.6538676801342791,Reactome
+Cytosolic tRNA aminoacylation (Reactome),2,16,2.0006642895151865,0.2990555090527457,Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),2,16,2.0006642895151865,0.2990555090527457,Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Purine metabolism (WikiPathways),2,16,2.0006642895151865,0.2990555090527457,Xanthosine;Uric Acid,0.6538676801342791,WikiPathways
+tRNA Aminoacylation (Reactome),2,16,2.0006642895151865,0.2990555090527457,Tryptophan;L-(-)-Methionine,0.6538676801342791,Reactome
+Cannabinoid receptor signaling (WikiPathways),1,6,2.770365796744502,0.3468532552178031,Γ-Aminobutyric Acid,0.6538676801342791,WikiPathways
+Disorders of folate metabolism and transport (WikiPathways),1,6,2.770365796744502,0.3468532552178031,L-(-)-Methionine,0.6538676801342791,WikiPathways
+NAD biosynthesis II from tryptophan (WikiPathways),1,6,2.770365796744502,0.3468532552178031,Tryptophan,0.6538676801342791,WikiPathways
+One-carbon metabolism (WikiPathways),1,6,2.770365796744502,0.3468532552178031,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Role of carnosine in muscle contraction (WikiPathways),1,6,2.770365796744502,0.3468532552178031,Γ-Aminobutyric Acid,0.6538676801342791,WikiPathways
+Tryptophan metabolism (KEGG),1,6,2.770365796744502,0.3468532552178031,Tryptophan,0.6538676801342791,KEGG
+tRNA modification in the nucleus and cytosol (Reactome),1,6,2.770365796744502,0.3468532552178031,L-(-)-Methionine,0.6538676801342791,Reactome
+Class C/3 (Metabotropic glutamate/pheromone receptors) (Reactome),1,7,2.305961210697618,0.3918978583062307,Γ-Aminobutyric Acid,0.6538676801342791,Reactome
+Lactate shuttle in glial cells (WikiPathways),1,7,2.305961210697618,0.3918978583062307,Udp-Β-D-Glucose (Sodium Salt),0.6538676801342791,WikiPathways
+Organic cation/anion/zwitterion transport (Reactome),1,7,2.305961210697618,0.3918978583062307,Uric Acid,0.6538676801342791,Reactome
+T cell modulation in pancreatic cancer (WikiPathways),1,7,2.305961210697618,0.3918978583062307,Tryptophan,0.6538676801342791,WikiPathways
+Methionine metabolism leading to sulfur amino acids and related disorders (WikiPathways),1,8,1.9736354968964327,0.433912188095982,L-(-)-Methionine,0.6538676801342791,WikiPathways
+"Sensory perception of sweet, bitter, and umami (glutamate) taste (Reactome)",1,8,1.9736354968964327,0.433912188095982,Caprolactam,0.6538676801342791,Reactome
+Trans-sulfuration pathway (WikiPathways),1,8,1.9736354968964327,0.433912188095982,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Vitamin B12 metabolism (WikiPathways),1,8,1.9736354968964327,0.433912188095982,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Aspartate and asparagine metabolism (Reactome),1,9,1.7242204335449212,0.473094951032872,N-Acetyl-L-Aspartic Acid,0.6538676801342791,Reactome
+Ferroptosis (WikiPathways),1,9,1.7242204335449212,0.473094951032872,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Folate metabolism (WikiPathways),1,9,1.7242204335449212,0.473094951032872,L-(-)-Methionine,0.6538676801342791,WikiPathways
+Glucuronidation (WikiPathways),1,9,1.7242204335449212,0.473094951032872,Udp-Β-D-Glucose (Sodium Salt),0.6538676801342791,WikiPathways
+Metabolic disorders of biological oxidation enzymes (Reactome),1,9,1.7242204335449212,0.473094951032872,L-(-)-Methionine,0.6538676801342791,Reactome
+Purinergic signaling (WikiPathways),1,9,1.7242204335449212,0.473094951032872,Udp-Β-D-Glucose (Sodium Salt),0.6538676801342791,WikiPathways
+Sensory perception of taste (Reactome),1,9,1.7242204335449212,0.473094951032872,Caprolactam,0.6538676801342791,Reactome
+beta-Alanine metabolism (KEGG),1,9,1.7242204335449212,0.473094951032872,1-Methylhistidine,0.6538676801342791,KEGG
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",1,9,1.7242204335449212,0.473094951032872,Tryptophan,0.6538676801342791,WikiPathways
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",2,23,1.3167286810228425,0.4751910553945472,Ophthalmate;L-(-)-Methionine,0.6538676801342791,WikiPathways
+Biomarkers for urea cycle disorders (WikiPathways),1,10,1.5301168485646044,0.5096321624575999,L-(-)-Methionine,0.6538676801342791,WikiPathways
+GABA metabolism (aka GHB) (WikiPathways),1,10,1.5301168485646044,0.5096321624575999,Γ-Aminobutyric Acid,0.6538676801342791,WikiPathways
+Galactose Metabolism (KEGG),1,10,1.5301168485646044,0.5096321624575999,Udp-Β-D-Glucose (Sodium Salt),0.6538676801342791,KEGG
+Glutamate and glutamine metabolism (Reactome),1,10,1.5301168485646044,0.5096321624575999,N-Acetyl-L-Aspartic Acid,0.6538676801342791,Reactome
+Histidine metabolism (KEGG),1,10,1.5301168485646044,0.5096321624575999,1-Methylhistidine,0.6538676801342791,KEGG
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),1,11,1.37476779986329,0.5436979354495766,Cytosine,0.6828543525579779,Reactome
+Amino acid transport defects (IEMs) (WikiPathways),1,12,1.2476115444503992,0.5754552219933788,Tryptophan,0.6828543525579779,WikiPathways
+Methionine de novo and salvage pathway (WikiPathways),1,12,1.2476115444503992,0.5754552219933788,L-(-)-Methionine,0.6828543525579779,WikiPathways
+Purine catabolism (Reactome),1,12,1.2476115444503992,0.5754552219933788,Uric Acid,0.6828543525579779,Reactome
+Cysteine and methionine catabolism (WikiPathways),1,13,1.1416039433638905,0.605056509267235,L-(-)-Methionine,0.6828543525579779,WikiPathways
+Metabolic pathways of fibroblasts (WikiPathways),1,13,1.1416039433638905,0.605056509267235,Udp-Β-D-Glucose (Sodium Salt),0.6828543525579779,WikiPathways
+Biomarkers for pyrimidine metabolism disorders (WikiPathways),1,14,1.0518950602398507,0.6326444736934207,Cytosine,0.6828543525579779,WikiPathways
+Glucose homeostasis (WikiPathways),1,14,1.0518950602398507,0.6326444736934207,L-(-)-Methionine,0.6828543525579779,WikiPathways
+Neurotransmitter release cycle (Reactome),1,14,1.0518950602398507,0.6326444736934207,Γ-Aminobutyric Acid,0.6828543525579779,Reactome
+Sulfur amino acid metabolism (Reactome),1,14,1.0518950602398507,0.6326444736934207,L-(-)-Methionine,0.6828543525579779,Reactome
+Synthesis of substrates in N-glycan biosythesis (Reactome),1,15,0.9749471310431276,0.6583525952397378,N-Acetyl-D-Glucosamine 6-Phosphate,0.6994996324422214,Reactome
+Methionine Metabolism (KEGG),1,17,0.849883226348682,0.7046206734979515,L-(-)-Methionine,0.7371416276593955,KEGG
+Metabolism overview (WikiPathways),1,18,0.7983675828829705,0.7254066261036513,Udp-Β-D-Glucose (Sodium Salt),0.7473886450764892,WikiPathways
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",1,19,0.7525671287736507,0.7447657136881805,Cytosine,0.7558816198626309,Reactome
+Nucleotide catabolism (Reactome),1,25,0.5578981594062159,0.8358886675310815,Uric Acid,0.8358886675310815,Reactome

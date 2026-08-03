@@ -1,0 +1,172 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Cori cycle (WikiPathways),6,9,6.093811301149534,0.010085021532284882,Pyruvic Acid;Dl-Lactic Acid;D-Glucose;Dihydroxyacetone Phosphate;Dl-Alanine;D-Glucose 6-Phosphate,0.4272108007865704,WikiPathways
+Sensory perception of taste (Reactome),6,9,6.093811301149534,0.010085021532284882,L-Glutamic Acid;L-Aspartic Acid;D-Glucose;Caprolactam;Citric Acid;Guanosine 5'-Diphosphate (Gdp),0.4272108007865704,Reactome
+Lactate shuttle in glial cells (WikiPathways),5,7,7.577057341701753,0.013085079470600041,Pyruvic Acid;Glucose 1-Phosphate;Dl-Lactic Acid;Udp-Β-D-Glucose (Sodium Salt);D-Glucose 6-Phosphate,0.4272108007865704,WikiPathways
+Lysine catabolism (Reactome),5,7,7.577057341701753,0.013085079470600041,L-Glutamic Acid;L-2-Aminoadipic Acid;2-Oxoadipic Acid;L-Saccharopine;Guanosine 5'-Diphosphate (Gdp),0.4272108007865704,Reactome
+"Cerebral organic acidurias, including diseases (WikiPathways)",4,5,12.052255515852556,0.015942222355372248,L-Aspartic Acid;Tryptophan;L-2-Aminoadipic Acid;2-Oxoadipic Acid,0.4272108007865704,WikiPathways
+Metabolism overview (WikiPathways),9,18,3.076018634281924,0.01921452940127644,Pyruvic Acid;L-Glutamic Acid;L-Aspartic Acid;Glucose 1-Phosphate;L-Ornithine;D-Glucose;Udp-Β-D-Glucose (Sodium Salt);Dihydroxyacetone Phosphate;Citric Acid,0.4272108007865704,WikiPathways
+Glucose metabolism (Reactome),6,10,4.561844661312712,0.019986470212237213,Pyruvic Acid;L-Glutamic Acid;D-Glucose;Dihydroxyacetone Phosphate;Citric Acid;Guanosine 5'-Diphosphate (Gdp),0.4272108007865704,Reactome
+Tryptophan catabolism (Reactome),6,10,4.561844661312712,0.019986470212237213,Pyruvic Acid;L-Glutamic Acid;Tryptophan;L-(-)-Methionine;Leucine;Dl-Alanine,0.4272108007865704,Reactome
+Gluconeogenesis (Reactome),5,8,5.0423569435709705,0.027817027665009975,Pyruvic Acid;L-Glutamic Acid;D-Glucose;Dihydroxyacetone Phosphate;Guanosine 5'-Diphosphate (Gdp),0.43242833915606416,Reactome
+Glyoxylate metabolism and glycine degradation (Reactome),5,8,5.0423569435709705,0.027817027665009975,Pyruvic Acid;L-Aspartic Acid;Dl-Alanine;Sarcosine;L-Hydroxyproline,0.43242833915606416,Reactome
+"Sensory perception of sweet, bitter, and umami (glutamate) taste (Reactome)",5,8,5.0423569435709705,0.027817027665009975,L-Glutamic Acid;L-Aspartic Acid;D-Glucose;Caprolactam;Guanosine 5'-Diphosphate (Gdp),0.43242833915606416,Reactome
+Disorders of fructose metabolism (WikiPathways),4,6,6.019647022579572,0.038432018491221874,Pyruvic Acid;Glucose 1-Phosphate;Dihydroxyacetone Phosphate;D-Glucose 6-Phosphate,0.5055288586153031,WikiPathways
+Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),4,6,6.019647022579572,0.038432018491221874,Pyruvic Acid;Dl-Lactic Acid;D-Glucose;D-Glucose 6-Phosphate,0.5055288586153031,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),5,9,3.775556008921396,0.049982035330916316,Pyruvic Acid;L-Aspartic Acid;D-Glucose;Dihydroxyacetone Phosphate;D-Glucose 6-Phosphate,0.519536102534548,WikiPathways
+Amino acid transport across the plasma membrane (Reactome),9,21,2.2914746824852865,0.05668867805756971,Γ-Aminobutyric Acid;L-Glutamic Acid;L-Ornithine;Tryptophan;L-(-)-Methionine;Leucine;Asparagine;Dl-Alanine;L-Hydroxyproline,0.519536102534548,Reactome
+Amino acid metabolism pathway excerpt: histidine catabolism extension (WikiPathways),4,7,4.006957473037987,0.07222793718538437,Pyruvic Acid;L-Glutamic Acid;Dl-Alanine;Citric Acid,0.519536102534548,WikiPathways
+Class C/3 (Metabotropic glutamate/pheromone receptors) (Reactome),4,7,4.006957473037987,0.07222793718538437,Γ-Aminobutyric Acid;L-Glutamic Acid;L-Ornithine;D-Glucose,0.519536102534548,Reactome
+Glycolysis (Reactome),4,7,4.006957473037987,0.07222793718538437,Pyruvic Acid;D-Glucose;Dihydroxyacetone Phosphate;Citric Acid,0.519536102534548,Reactome
+Lysine degradation (KEGG),4,7,4.006957473037987,0.07222793718538437,L-Glutamic Acid;L-2-Aminoadipic Acid;2-Oxoadipic Acid;L-Saccharopine,0.519536102534548,KEGG
+Phenylalanine and tyrosine metabolism (Reactome),4,7,4.006957473037987,0.07222793718538437,Pyruvic Acid;L-Glutamic Acid;L-Aspartic Acid;Dl-Alanine,0.519536102534548,Reactome
+Alanine and aspartate metabolism (WikiPathways),5,10,3.0147789386170345,0.07997760044959534,Pyruvic Acid;L-Aspartic Acid;Asparagine;Dl-Alanine;Citric Acid,0.519536102534548,WikiPathways
+Glutamate and glutamine metabolism (Reactome),5,10,3.0147789386170345,0.07997760044959534,Pyruvic Acid;L-Glutamic Acid;L-Aspartic Acid;L-Ornithine;Dl-Alanine,0.519536102534548,Reactome
+Amino Sugar Metabolism (KEGG),7,16,2.358089107731177,0.08120794654098544,Pyruvic Acid;L-Glutamic Acid;Glucose 1-Phosphate;D-Glucose;Udp-N-Acetylglucosamine;Udp-Β-D-Glucose (Sodium Salt);D-Glucose 6-Phosphate,0.519536102534548,KEGG
+Cytosolic tRNA aminoacylation (Reactome),7,16,2.358089107731177,0.08120794654098544,L-Glutamic Acid;L-Aspartic Acid;Tryptophan;L-(-)-Methionine;Leucine;Asparagine;Dl-Alanine,0.519536102534548,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),7,16,2.358089107731177,0.08120794654098544,L-Glutamic Acid;L-Aspartic Acid;Tryptophan;L-(-)-Methionine;Leucine;Asparagine;Dl-Alanine,0.519536102534548,Reactome
+tRNA Aminoacylation (Reactome),7,16,2.358089107731177,0.08120794654098544,L-Glutamic Acid;L-Aspartic Acid;Tryptophan;L-(-)-Methionine;Leucine;Asparagine;Dl-Alanine,0.519536102534548,Reactome
+Metabolic pathways of fibroblasts (WikiPathways),6,13,2.591541070936227,0.08203201618966548,Pyruvic Acid;L-Glutamic Acid;Glucose 1-Phosphate;D-Glucose;Udp-Β-D-Glucose (Sodium Salt);D-Glucose 6-Phosphate,0.519536102534548,WikiPathways
+Glycogen synthesis and degradation (WikiPathways),3,5,4.48469179836844,0.10590140689877091,Glucose 1-Phosphate;D-Glucose;Udp-Β-D-Glucose (Sodium Salt),0.6244531234375802,WikiPathways
+Vitamin B6-dependent and responsive disorders (WikiPathways),3,5,4.48469179836844,0.10590140689877091,L-Glutamic Acid;L-2-Aminoadipic Acid;L-Saccharopine,0.6244531234375802,WikiPathways
+Thiamine metabolic pathways (WikiPathways),4,8,3.000114873277543,0.11663884670575865,Pyruvic Acid;Glucose 1-Phosphate;Dihydroxyacetone Phosphate;D-Glucose 6-Phosphate,0.6648414262228243,WikiPathways
+Amino acid transport defects (IEMs) (WikiPathways),5,12,2.144735058650895,0.16186533798263622,L-Glutamic Acid;L-Aspartic Acid;Dl-Arginine;Tryptophan;Dl-Alanine,0.6894513022646661,WikiPathways
+Glucuronidation (WikiPathways),4,9,2.3955685418570747,0.16996429580563266,Glucose 1-Phosphate;D-Glucose;Udp-Β-D-Glucose (Sodium Salt);D-Glucose 6-Phosphate,0.6894513022646661,WikiPathways
+KEGG:map01120 (KEGG),4,9,2.3955685418570747,0.16996429580563266,2-Furoic Acid;Isobutyric Acid;Mesaconic Acid;Cyclohexylamine,0.6894513022646661,KEGG
+Krebs cycle disorders (WikiPathways),4,9,2.3955685418570747,0.16996429580563266,Pyruvic Acid;Dl-Lactic Acid;Dl-Alanine;Guanosine 5'-Diphosphate (Gdp),0.6894513022646661,WikiPathways
+beta-Alanine metabolism (KEGG),4,9,2.3955685418570747,0.16996429580563266,L-Glutamic Acid;L-Aspartic Acid;1-Methylhistidine;D-Pantothenic Acid,0.6894513022646661,KEGG
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",4,9,2.3955685418570747,0.16996429580563266,Tryptophan;Leucine;Asparagine;Dl-Alanine,0.6894513022646661,WikiPathways
+HIF1A and PPARG in cardiac hypertropthy (WikiPathways),3,6,2.9856448445767323,0.17337079530631955,Pyruvic Acid;D-Glucose;Dihydroxyacetone Phosphate,0.6894513022646661,WikiPathways
+Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),3,6,2.9856448445767323,0.17337079530631955,Pyruvic Acid;Dl-Lactic Acid;Citric Acid,0.6894513022646661,WikiPathways
+NAD biosynthesis II from tryptophan (WikiPathways),3,6,2.9856448445767323,0.17337079530631955,L-Glutamic Acid;Tryptophan;Dl-Alanine,0.6894513022646661,WikiPathways
+Organic anion transporters (Reactome),3,6,2.9856448445767323,0.17337079530631955,Pyruvic Acid;L-Glutamic Acid;Citric Acid,0.6894513022646661,Reactome
+Tryptophan metabolism (KEGG),3,6,2.9856448445767323,0.17337079530631955,L-Glutamic Acid;Tryptophan;Dl-Alanine,0.6894513022646661,KEGG
+Urea cycle (Reactome),3,6,2.9856448445767323,0.17337079530631955,L-Glutamic Acid;L-Aspartic Acid;L-Ornithine,0.6894513022646661,Reactome
+Urea cycle and related diseases (WikiPathways),3,6,2.9856448445767323,0.17337079530631955,L-Glutamic Acid;L-Aspartic Acid;L-Ornithine,0.6894513022646661,WikiPathways
+Na+/Cl- dependent neurotransmitter transporters (Reactome),7,19,1.7566849068279917,0.17984534534555868,Γ-Aminobutyric Acid;Tryptophan;L-(-)-Methionine;Leucine;Asparagine;Dl-Alanine;L-Hydroxyproline,0.6989444103202394,Reactome
+Urea cycle and associated pathways (WikiPathways),5,13,1.8725092271100088,0.21176116410324317,Pyruvic Acid;L-Glutamic Acid;L-Aspartic Acid;L-Ornithine;Dl-Alanine,0.8024975072112535,WikiPathways
+Biomarkers for urea cycle disorders (WikiPathways),4,10,1.992380898141507,0.22995542604299074,L-Glutamic Acid;L-Aspartic Acid;L-Ornithine;L-(-)-Methionine,0.8024975072112535,WikiPathways
+Defective SLC6A19 causes Hartnup disorder (HND) (Reactome),4,10,1.992380898141507,0.22995542604299074,Tryptophan;L-(-)-Methionine;Leucine;Dl-Alanine,0.8024975072112535,Reactome
+Galactose Metabolism (KEGG),4,10,1.992380898141507,0.22995542604299074,Glucose 1-Phosphate;D-Glucose;Udp-Β-D-Glucose (Sodium Salt);D-Glucose 6-Phosphate,0.8024975072112535,KEGG
+Urea cycle and metabolism of amino groups (WikiPathways),4,10,1.992380898141507,0.22995542604299074,L-Glutamic Acid;L-Aspartic Acid;L-Ornithine;Sarcosine,0.8024975072112535,WikiPathways
+Methionine Metabolism (KEGG),6,17,1.6347612267752059,0.2416784594503595,Pyruvic Acid;L-Glutamic Acid;L-(-)-Methionine;2-Oxobutanoic Acid;Sarcosine;1-Aminocyclopropanecarboxylic Acid,0.8041127839885027,KEGG
+Biogenic amine synthesis (WikiPathways),3,7,2.235377038207389,0.2492279388970213,Γ-Aminobutyric Acid;L-Glutamic Acid;Tryptophan,0.8041127839885027,WikiPathways
+Metabolic reprogramming in pancreatic cancer (WikiPathways),3,7,2.235377038207389,0.2492279388970213,Pyruvic Acid;Dl-Lactic Acid;Udp-N-Acetylglucosamine,0.8041127839885027,WikiPathways
+T cell modulation in pancreatic cancer (WikiPathways),3,7,2.235377038207389,0.2492279388970213,L-Ornithine;Dl-Arginine;Tryptophan,0.8041127839885027,WikiPathways
+Purine metabolism and related disorders (WikiPathways),7,21,1.4988111923252476,0.2644666651679077,L-Glutamic Acid;L-Aspartic Acid;Xanthine;Xanthosine;L-(-)-Methionine;Inosine;Guanosine 5'-Diphosphate (Gdp),0.8374777730317076,WikiPathways
+"Metabolism of ingested SeMet, Sec, MeSec into H2Se (Reactome)",4,11,1.704114343343354,0.29419246808351507,Pyruvic Acid;2-Oxobutanoic Acid;Dl-Alanine;Sarcosine,0.8757012960621113,Reactome
+Arginine and proline metabolism (KEGG),5,15,1.4914776076445044,0.32253663663104315,Pyruvic Acid;L-Glutamic Acid;L-Aspartic Acid;L-Ornithine;Dl-Alanine,0.8757012960621113,KEGG
+Aerobic glycolysis (WikiPathways),3,8,1.784826512583108,0.32878139421177877,Pyruvic Acid;D-Glucose;Dihydroxyacetone Phosphate,0.8757012960621113,WikiPathways
+Glyoxylate metabolism (WikiPathways),3,8,1.784826512583108,0.32878139421177877,Pyruvic Acid;Dl-Alanine;L-Hydroxyproline,0.8757012960621113,WikiPathways
+Trans-sulfuration pathway (WikiPathways),3,8,1.784826512583108,0.32878139421177877,Pyruvic Acid;L-Glutamic Acid;L-(-)-Methionine,0.8757012960621113,WikiPathways
+"Alanine, aspartate and glutamate metabolism (KEGG)",7,23,1.3053073067551764,0.3578175453023799,Pyruvic Acid;Γ-Aminobutyric Acid;L-Glutamic Acid;L-Aspartic Acid;Asparagine;Dl-Alanine;Guanosine 5'-Diphosphate (Gdp),0.8757012960621113,KEGG
+Methionine de novo and salvage pathway (WikiPathways),4,12,1.4878910942943568,0.3603560331339548,Pyruvic Acid;L-Glutamic Acid;L-Ornithine;L-(-)-Methionine,0.8757012960621113,WikiPathways
+Nitrogen metabolism (KEGG),4,12,1.4878910942943568,0.3603560331339548,Pyruvic Acid;L-Glutamic Acid;L-Aspartic Acid;Asparagine,0.8757012960621113,KEGG
+Variant SLC6A14 may confer susceptibility towards obesity (Reactome),4,12,1.4878910942943568,0.3603560331339548,Tryptophan;L-(-)-Methionine;Leucine;Dl-Alanine,0.8757012960621113,Reactome
+Activation of NMDA receptors and postsynaptic events (Reactome),2,5,1.97811969760981,0.37383739539493643,L-Glutamic Acid;Guanosine 5'-Diphosphate (Gdp),0.8757012960621113,Reactome
+Branched-chain amino acid catabolism (Reactome),2,5,1.97811969760981,0.37383739539493643,L-Glutamic Acid;Leucine,0.8757012960621113,Reactome
+Glycolysis in senescence (WikiPathways),2,5,1.97811969760981,0.37383739539493643,Pyruvic Acid;Dl-Lactic Acid,0.8757012960621113,WikiPathways
+Phenylalanine and Tyrosine Metabolism (KEGG),2,5,1.97811969760981,0.37383739539493643,L-Glutamic Acid;Phenylacetylglutamine,0.8757012960621113,KEGG
+Post NMDA receptor activation events (Reactome),2,5,1.97811969760981,0.37383739539493643,L-Glutamic Acid;Guanosine 5'-Diphosphate (Gdp),0.8757012960621113,Reactome
+Pyrimidine biosynthesis (Reactome),2,5,1.97811969760981,0.37383739539493643,L-Glutamic Acid;L-Aspartic Acid,0.8757012960621113,Reactome
+Serine biosynthesis (Reactome),2,5,1.97811969760981,0.37383739539493643,Pyruvic Acid;L-Glutamic Acid,0.8757012960621113,Reactome
+Synthesis of wybutosine at G37 of tRNA(Phe) (Reactome),2,5,1.97811969760981,0.37383739539493643,Pyruvic Acid;L-(-)-Methionine,0.8757012960621113,Reactome
+TP53 Regulates Metabolic Genes (Reactome),2,5,1.97811969760981,0.37383739539493643,L-Glutamic Acid;Guanosine 5'-Diphosphate (Gdp),0.8757012960621113,Reactome
+The phototransduction cascade (Reactome),2,5,1.97811969760981,0.37383739539493643,L-(-)-Methionine;Guanosine 5'-Diphosphate (Gdp),0.8757012960621113,Reactome
+Amino acid metabolism in triple-negative breast cancer cells (WikiPathways),3,9,1.4843565492327007,0.4081899434148518,Pyruvic Acid;L-Glutamic Acid;Citric Acid,0.8948779528710213,WikiPathways
+Aspartate and asparagine metabolism (Reactome),3,9,1.4843565492327007,0.4081899434148518,L-Glutamic Acid;L-Aspartic Acid;Asparagine,0.8948779528710213,Reactome
+Citric Acid Cycle (KEGG),3,9,1.4843565492327007,0.4081899434148518,Pyruvic Acid;Citric Acid;Guanosine 5'-Diphosphate (Gdp),0.8948779528710213,KEGG
+Degradation of cysteine and homocysteine (Reactome),3,9,1.4843565492327007,0.4081899434148518,Pyruvic Acid;L-Glutamic Acid;2-Oxobutanoic Acid,0.8948779528710213,Reactome
+Metabolic disorders of biological oxidation enzymes (Reactome),3,9,1.4843565492327007,0.4081899434148518,L-Glutamic Acid;Vitamin D3;L-(-)-Methionine,0.8948779528710213,Reactome
+Cysteine and methionine catabolism (WikiPathways),4,13,1.3196561925924044,0.4263981971476045,Pyruvic Acid;L-Glutamic Acid;L-(-)-Methionine;2-Oxobutanoic Acid,0.9119346093145407,WikiPathways
+Azathioprine ADME (Reactome),2,6,1.4808728510199494,0.4740706954392445,L-Glutamic Acid;Guanosine 5'-Diphosphate (Gdp),0.9119346093145407,Reactome
+Cannabinoid receptor signaling (WikiPathways),2,6,1.4808728510199494,0.4740706954392445,Γ-Aminobutyric Acid;L-Glutamic Acid,0.9119346093145407,WikiPathways
+Disorders of folate metabolism and transport (WikiPathways),2,6,1.4808728510199494,0.4740706954392445,L-Glutamic Acid;L-(-)-Methionine,0.9119346093145407,WikiPathways
+Glycogen metabolism (Reactome),2,6,1.4808728510199494,0.4740706954392445,Glucose 1-Phosphate;D-Glucose,0.9119346093145407,Reactome
+Glycosphingolipid metabolism (Reactome),2,6,1.4808728510199494,0.4740706954392445,D-Glucose;Guanosine 5'-Diphosphate (Gdp),0.9119346093145407,Reactome
+Regulation of insulin secretion (Reactome),2,6,1.4808728510199494,0.4740706954392445,D-Glucose;Guanosine 5'-Diphosphate (Gdp),0.9119346093145407,Reactome
+Synthesis of ceramides and 1-deoxyceramides (WikiPathways),2,6,1.4808728510199494,0.4740706954392445,D-Sphingosine;Dl-Alanine,0.9119346093145407,WikiPathways
+tRNA modification in the nucleus and cytosol (Reactome),2,6,1.4808728510199494,0.4740706954392445,Pyruvic Acid;L-(-)-Methionine,0.9119346093145407,Reactome
+Purine ribonucleoside monophosphate biosynthesis (Reactome),3,10,1.269617068501767,0.4845761651456496,L-Glutamic Acid;L-Aspartic Acid;Guanosine 5'-Diphosphate (Gdp),0.9119346093145407,Reactome
+Pyruvate metabolism (Reactome),3,10,1.269617068501767,0.4845761651456496,Pyruvic Acid;L-Glutamic Acid;Dl-Alanine,0.9119346093145407,Reactome
+Glucose homeostasis (WikiPathways),4,14,1.1849859607571622,0.49063148571308624,Pyruvic Acid;L-Ornithine;D-Glucose;L-(-)-Methionine,0.9119346093145407,WikiPathways
+Metabolic reprogramming in colon cancer (WikiPathways),4,14,1.1849859607571622,0.49063148571308624,Pyruvic Acid;Asparagine;Citric Acid;D-Glucose 6-Phosphate,0.9119346093145407,WikiPathways
+Sulfur amino acid metabolism (Reactome),4,14,1.1849859607571622,0.49063148571308624,Pyruvic Acid;L-Glutamic Acid;L-(-)-Methionine;2-Oxobutanoic Acid,0.9119346093145407,Reactome
+Synthesis of substrates in N-glycan biosythesis (Reactome),4,15,1.0748489198376092,0.5517568853792839,Pyruvic Acid;L-Glutamic Acid;Glucose 1-Phosphate;Guanosine 5'-Diphosphate (Gdp),0.9549042917584051,Reactome
+Nucleotide biosynthesis (Reactome),3,11,1.10849868868385,0.5559700515439501,L-Glutamic Acid;L-Aspartic Acid;Guanosine 5'-Diphosphate (Gdp),0.9549042917584051,Reactome
+Citric acid cycle (TCA cycle) (Reactome),2,7,1.1823243441166975,0.564007798056134,Citric Acid;Guanosine 5'-Diphosphate (Gdp),0.9549042917584051,Reactome
+Nicotinate metabolism (Reactome),2,7,1.1823243441166975,0.564007798056134,Pyruvic Acid;L-Glutamic Acid,0.9549042917584051,Reactome
+Orexin receptor pathway (WikiPathways),2,7,1.1823243441166975,0.564007798056134,L-Glutamic Acid;D-Glucose,0.9549042917584051,WikiPathways
+Selenocompound metabolism (KEGG),2,7,1.1823243441166975,0.564007798056134,2-Oxobutanoic Acid;Dl-Alanine,0.9549042917584051,KEGG
+Serine metabolism (WikiPathways),2,7,1.1823243441166975,0.564007798056134,Pyruvic Acid;L-Glutamic Acid,0.9549042917584051,WikiPathways
+TCA cycle (aka Krebs or citric acid cycle) (WikiPathways),2,7,1.1823243441166975,0.564007798056134,Citric Acid;Guanosine 5'-Diphosphate (Gdp),0.9549042917584051,WikiPathways
+Tyrosine metabolism (KEGG),2,7,1.1823243441166975,0.564007798056134,L-Glutamic Acid;L-Aspartic Acid,0.9549042917584051,KEGG
+Purine metabolism (WikiPathways),4,16,0.9829933056662146,0.6088504897722959,Xanthine;Xanthosine;Inosine;Guanosine 5'-Diphosphate (Gdp),0.9683067924853608,WikiPathways
+Aerobic glycolysis - augmented (WikiPathways),3,12,0.9831167667165979,0.6211747243472815,Pyruvic Acid;D-Glucose;Dihydroxyacetone Phosphate,0.9683067924853608,WikiPathways
+Glutathione metabolism (KEGG),2,8,0.9832384406323913,0.6424165993375857,L-Glutamic Acid;Dl-Alanine,0.9683067924853608,KEGG
+Methionine metabolism leading to sulfur amino acids and related disorders (WikiPathways),2,8,0.9832384406323913,0.6424165993375857,L-(-)-Methionine;Sarcosine,0.9683067924853608,WikiPathways
+Vitamin B12 metabolism (WikiPathways),2,8,0.9832384406323913,0.6424165993375857,D-Glucose;L-(-)-Methionine,0.9683067924853608,WikiPathways
+KEGG:map01100 (KEGG),4,17,0.9052687346614943,0.6613249755957611,2-Furoic Acid;Isobutyric Acid;Mesaconic Acid;1-Aminocyclopropanecarboxylic Acid,0.9683067924853608,KEGG
+Folate metabolism (WikiPathways),2,9,0.8409533870755669,0.7093385010297952,D-Glucose;L-(-)-Methionine,0.9683067924853608,WikiPathways
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),2,9,0.8409533870755669,0.7093385010297952,Inosine;1-Methyladenosine,0.9683067924853608,WikiPathways
+Propanoate metabolism (KEGG),2,9,0.8409533870755669,0.7093385010297952,L-Glutamic Acid;2-Oxobutanoic Acid,0.9683067924853608,KEGG
+Pyrimidine catabolism (Reactome),2,9,0.8409533870755669,0.7093385010297952,Pyruvic Acid;Dl-Alanine,0.9683067924853608,Reactome
+Pyruvate metabolism (KEGG),2,9,0.8409533870755669,0.7093385010297952,Pyruvic Acid;Guanosine 5'-Diphosphate (Gdp),0.9683067924853608,KEGG
+Sphingolipid metabolism: integrated pathway (WikiPathways),2,9,0.8409533870755669,0.7093385010297952,D-Sphingosine;N-Nervonoyl-D-Erythro-Sphingosylphosphorylcholine,0.9683067924853608,WikiPathways
+"Valine, leucine and isoleucine degradation (KEGG)",2,9,0.8409533870755669,0.7093385010297952,L-Glutamic Acid;Leucine,0.9683067924853608,KEGG
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",5,23,0.8132037021407608,0.7334855722514719,Ophthalmate;L-Ornithine;L-(-)-Methionine;2-Oxobutanoic Acid;Sarcosine,0.9683067924853608,WikiPathways
+16p11.2 proximal deletion syndrome (WikiPathways),2,10,0.7342034931044302,0.7655290850008317,Dihydroxyacetone Phosphate;D-Sphingosine,0.9683067924853608,WikiPathways
+GABA metabolism (aka GHB) (WikiPathways),2,10,0.7342034931044302,0.7655290850008317,Γ-Aminobutyric Acid;L-Glutamic Acid,0.9683067924853608,WikiPathways
+Histidine metabolism (KEGG),2,10,0.7342034931044302,0.7655290850008317,L-Glutamic Acid;1-Methylhistidine,0.9683067924853608,KEGG
+Abacavir ADME (Reactome),1,5,0.7361007611843069,0.7690429784267805,Inosine,0.9683067924853608,Reactome
+Abacavir metabolism (Reactome),1,5,0.7361007611843069,0.7690429784267805,Inosine,0.9683067924853608,Reactome
+Carnosine metabolism of glial cells (WikiPathways),1,5,0.7361007611843069,0.7690429784267805,Dl-Lactic Acid,0.9683067924853608,WikiPathways
+Defective SLC29A3 causes histiocytosis-lymphadenopathy plus syndrome (HLAS) (Reactome),1,5,0.7361007611843069,0.7690429784267805,Inosine,0.9683067924853608,Reactome
+Ethanol effects on histone modifications (WikiPathways),1,5,0.7361007611843069,0.7690429784267805,L-(-)-Methionine,0.9683067924853608,WikiPathways
+"Gamma-glutamyl cycle for the biosynthesis and degradation of glutathione, including diseases (WikiPathways)",1,5,0.7361007611843069,0.7690429784267805,Dl-Pyroglutamic Acid,0.9683067924853608,WikiPathways
+Glutathione conjugation (Reactome),1,5,0.7361007611843069,0.7690429784267805,L-Glutamic Acid,0.9683067924853608,Reactome
+Glutathione synthesis and recycling (Reactome),1,5,0.7361007611843069,0.7690429784267805,L-Glutamic Acid,0.9683067924853608,Reactome
+MTHFR deficiency (WikiPathways),1,5,0.7361007611843069,0.7690429784267805,L-(-)-Methionine,0.9683067924853608,WikiPathways
+Metabolism of folate and pterines (Reactome),1,5,0.7361007611843069,0.7690429784267805,L-Glutamic Acid,0.9683067924853608,Reactome
+Neurodegeneration with brain iron accumulation (NBIA) subtypes pathway (WikiPathways),1,5,0.7361007611843069,0.7690429784267805,D-Pantothenic Acid,0.9683067924853608,WikiPathways
+Nicotinamide salvaging (Reactome),1,5,0.7361007611843069,0.7690429784267805,Pyruvic Acid,0.9683067924853608,Reactome
+Pantothenate and CoA Biosynthesis (KEGG),1,5,0.7361007611843069,0.7690429784267805,D-Pantothenic Acid,0.9683067924853608,KEGG
+Paracetamol ADME (Reactome),1,5,0.7361007611843069,0.7690429784267805,L-Glutamic Acid,0.9683067924853608,Reactome
+Sphingolipid pathway (WikiPathways),1,5,0.7361007611843069,0.7690429784267805,D-Sphingosine,0.9683067924853608,WikiPathways
+Synthesis of Leukotrienes (LT) and Eoxins (EX) (Reactome),1,5,0.7361007611843069,0.7690429784267805,L-Glutamic Acid,0.9683067924853608,Reactome
+Synthesis of UDP-N-acetyl-glucosamine (Reactome),1,5,0.7361007611843069,0.7690429784267805,L-Glutamic Acid,0.9683067924853608,Reactome
+Nucleotide catabolism (Reactome),5,25,0.7283454025245694,0.8024774403701656,Pyruvic Acid;Xanthine;Inosine;Dl-Alanine;Guanosine 5'-Diphosphate (Gdp),0.9683067924853608,Reactome
+Pyrimidine metabolism and related diseases (WikiPathways),3,16,0.6743697157477959,0.8145656841961699,L-Glutamic Acid;L-Aspartic Acid;L-Ornithine,0.9683067924853608,WikiPathways
+Acetylcholine synthesis (WikiPathways),1,6,0.5876595932614543,0.8280374350242875,Pyruvic Acid,0.9683067924853608,WikiPathways
+Arachidonic Acid Metabolism (KEGG),1,6,0.5876595932614543,0.8280374350242875,L-Glutamic Acid,0.9683067924853608,KEGG
+Diseases of nucleotide metabolism (Reactome),1,6,0.5876595932614543,0.8280374350242875,Inosine,0.9683067924853608,Reactome
+Glycine metabolism (WikiPathways),1,6,0.5876595932614543,0.8280374350242875,Pyruvic Acid,0.9683067924853608,WikiPathways
+Metabolism of sphingolipids in ER and Golgi apparatus (WikiPathways),1,6,0.5876595932614543,0.8280374350242875,D-Sphingosine,0.9683067924853608,WikiPathways
+One-carbon metabolism (WikiPathways),1,6,0.5876595932614543,0.8280374350242875,L-(-)-Methionine,0.9683067924853608,WikiPathways
+Role of carnosine in muscle contraction (WikiPathways),1,6,0.5876595932614543,0.8280374350242875,Γ-Aminobutyric Acid,0.9683067924853608,WikiPathways
+Sialic acid metabolism (Reactome),1,6,0.5876595932614543,0.8280374350242875,Pyruvic Acid,0.9683067924853608,Reactome
+Sphingolipid metabolism overview (WikiPathways),1,6,0.5876595932614543,0.8280374350242875,D-Sphingosine,0.9683067924853608,WikiPathways
+Interconversion of nucleotide di- and triphosphates (Reactome),2,12,0.5846364360071374,0.8502823660533767,L-Glutamic Acid;Guanosine 5'-Diphosphate (Gdp),0.9683067924853608,Reactome
+Purine catabolism (Reactome),2,12,0.5846364360071374,0.8502823660533767,Xanthine;Inosine,0.9683067924853608,Reactome
+Aspirin ADME (Reactome),1,7,0.48859052453397267,0.8720423745189798,Pyruvic Acid,0.9683067924853608,Reactome
+Cell recruitment (pro-inflammatory response) (Reactome),1,7,0.48859052453397267,0.8720423745189798,Guanosine 5'-Diphosphate (Gdp),0.9683067924853608,Reactome
+Glutathione metabolism (WikiPathways),1,7,0.48859052453397267,0.8720423745189798,L-Glutamic Acid,0.9683067924853608,WikiPathways
+Late SARS-CoV-2 Infection Events (Reactome),1,7,0.48859052453397267,0.8720423745189798,D-Glucose,0.9683067924853608,Reactome
+Purinergic signaling in leishmaniasis infection (Reactome),1,7,0.48859052453397267,0.8720423745189798,Guanosine 5'-Diphosphate (Gdp),0.9683067924853608,Reactome
+Translation of Structural Proteins (Reactome),1,7,0.48859052453397267,0.8720423745189798,D-Glucose,0.9683067924853608,Reactome
+Creatine metabolism (Reactome),1,8,0.4178333581363869,0.9048460566877505,L-Ornithine,0.9689490835109399,Reactome
+Fructose and mannose metabolism (KEGG),1,8,0.4178333581363869,0.9048460566877505,D-Glucose,0.9689490835109399,KEGG
+Histidine catabolism (Reactome),1,8,0.4178333581363869,0.9048460566877505,L-Glutamic Acid,0.9689490835109399,Reactome
+Nicotinate and nicotinamide metabolism (KEGG),1,8,0.4178333581363869,0.9048460566877505,L-Glutamic Acid,0.9689490835109399,KEGG
+Neurotransmitter release cycle (Reactome),2,14,0.48491895691296594,0.9063420402696267,Γ-Aminobutyric Acid;L-Glutamic Acid,0.9689490835109399,Reactome
+Ferroptosis (WikiPathways),1,9,0.3647629848809493,0.929284501144995,L-(-)-Methionine,0.9689490835109399,WikiPathways
+"Incretin synthesis, secretion, and inactivation (Reactome)",1,9,0.3647629848809493,0.929284501144995,D-Glucose,0.9689490835109399,Reactome
+Purine salvage (Reactome),1,9,0.3647629848809493,0.929284501144995,Inosine,0.9689490835109399,Reactome
+Purinergic signaling (WikiPathways),1,9,0.3647629848809493,0.929284501144995,Udp-Β-D-Glucose (Sodium Salt),0.9689490835109399,WikiPathways
+"Synthesis, secretion, and inactivation of Glucagon-like Peptide-1 (GLP-1) (Reactome)",1,9,0.3647629848809493,0.929284501144995,D-Glucose,0.9689490835109399,Reactome
+"Leucine, isoleucine and valine metabolism (WikiPathways)",1,10,0.3234773853099835,0.9474795473832354,Leucine,0.9701736682786422,WikiPathways
+Peptide hormone metabolism (Reactome),1,10,0.3234773853099835,0.9474795473832354,D-Glucose,0.9701736682786422,Reactome
+Phosphate bond hydrolysis by NTPDase proteins (Reactome),1,10,0.3234773853099835,0.9474795473832354,Guanosine 5'-Diphosphate (Gdp),0.9701736682786422,Reactome
+Glycerophospholipid biosynthetic pathway (WikiPathways),1,11,0.29044300491028807,0.9610177262113226,Dihydroxyacetone Phosphate,0.9723907170540602,WikiPathways
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),1,11,0.29044300491028807,0.9610177262113226,Inosine,0.9723907170540602,Reactome
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",2,19,0.3381726642901482,0.972874830549226,Inosine;D-Pantothenic Acid,0.9785976236701037,Reactome
+Nucleotide salvage (Reactome),1,15,0.20547123117470867,0.9882443463919663,Inosine,0.9882443463919663,Reactome

@@ -1,0 +1,65 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+KEGG:map01120 (KEGG),3,9,6.855259876109358,0.02132093868616013,Isobutyric Acid;2-Furoic Acid;Mesaconic Acid,0.5816793984455938,KEGG
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),3,9,6.855259876109358,0.02132093868616013,Cytidine;Pseudouridine;Inosine,0.5816793984455938,WikiPathways
+Defective SLC29A3 causes histiocytosis-lymphadenopathy plus syndrome (HLAS) (Reactome),2,5,8.936980612010156,0.043814272976700513,Cytidine;Inosine,0.5816793984455938,Reactome
+Amino acid transport across the plasma membrane (Reactome),4,21,3.257031082479908,0.05595603738028702,L-Ornithine;L-Lysine;Leucine;Asparagine,0.5816793984455938,Reactome
+Class C/3 (Metabotropic glutamate/pheromone receptors) (Reactome),2,7,5.357784634453059,0.0839359081957318,L-Ornithine;L-Lysine,0.5816793984455938,Reactome
+Pyrimidine salvage (Reactome),2,7,5.357784634453059,0.0839359081957318,Cytidine;Pseudouridine,0.5816793984455938,Reactome
+T cell modulation in pancreatic cancer (WikiPathways),2,7,5.357784634453059,0.0839359081957318,L-Ornithine;Dl-Arginine,0.5816793984455938,WikiPathways
+Nucleotide salvage (Reactome),3,15,3.3999678639271993,0.08538198281958179,Cytidine;Pseudouridine;Inosine,0.5816793984455938,Reactome
+Cytosolic tRNA aminoacylation (Reactome),3,16,3.1333071128416017,0.09997614660783644,L-Lysine;Leucine;Asparagine,0.5816793984455938,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),3,16,3.1333071128416017,0.09997614660783644,L-Lysine;Leucine;Asparagine,0.5816793984455938,Reactome
+tRNA Aminoacylation (Reactome),3,16,3.1333071128416017,0.09997614660783644,L-Lysine;Leucine;Asparagine,0.5816793984455938,Reactome
+KEGG:map01100 (KEGG),3,17,2.904639942889344,0.1155144799572537,Isobutyric Acid;2-Furoic Acid;Mesaconic Acid,0.6160772264386863,KEGG
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",2,9,3.818373141446597,0.13138925967020995,Leucine;Asparagine,0.6468394322225721,WikiPathways
+Na+/Cl- dependent neurotransmitter transporters (Reactome),3,19,2.532730257795492,0.14910511955040004,L-Lysine;Leucine;Asparagine,0.6816234036589716,Reactome
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),2,11,2.9617504063333944,0.18347590032190073,Cytidine;Inosine,0.6922227214146077,Reactome
+Variant SLC6A14 may confer susceptibility towards obesity (Reactome),2,12,2.6613974447218727,0.2105743015783772,L-Lysine;Leucine,0.6922227214146077,Reactome
+Glucose homeostasis (WikiPathways),2,14,2.210550500616512,0.26578633027930487,L-Ornithine;L-Lysine,0.6922227214146077,WikiPathways
+15q25 copy number variation (WikiPathways),1,5,3.2769775177083496,0.3120290631655642,Cytidine,0.6922227214146077,WikiPathways
+Abacavir ADME (Reactome),1,5,3.2769775177083496,0.3120290631655642,Inosine,0.6922227214146077,Reactome
+Abacavir metabolism (Reactome),1,5,3.2769775177083496,0.3120290631655642,Inosine,0.6922227214146077,Reactome
+Branched-chain amino acid catabolism (Reactome),1,5,3.2769775177083496,0.3120290631655642,Leucine,0.6922227214146077,Reactome
+Vitamin B6-dependent and responsive disorders (WikiPathways),1,5,3.2769775177083496,0.3120290631655642,L-Lysine,0.6922227214146077,WikiPathways
+Purine metabolism (WikiPathways),2,16,1.888255860247364,0.3211929450824327,Inosine;Xanthosine,0.6922227214146077,WikiPathways
+Pyrimidine metabolism and related diseases (WikiPathways),2,16,1.888255860247364,0.3211929450824327,L-Ornithine;Cytidine,0.6922227214146077,WikiPathways
+Diseases of nucleotide metabolism (Reactome),1,6,2.6188307910141875,0.3618820296028422,Inosine,0.6922227214146077,Reactome
+Urea cycle (Reactome),1,6,2.6188307910141875,0.3618820296028422,L-Ornithine,0.6922227214146077,Reactome
+Urea cycle and related diseases (WikiPathways),1,6,2.6188307910141875,0.3618820296028422,L-Ornithine,0.6922227214146077,WikiPathways
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",2,19,1.5465284022963672,0.402362788428555,Cytidine;Inosine,0.6922227214146077,Reactome
+Lysine catabolism (Reactome),1,7,2.1794719013820116,0.408206383170694,L-Lysine,0.6922227214146077,Reactome
+Lysine degradation (KEGG),1,7,2.1794719013820116,0.408206383170694,L-Lysine,0.6922227214146077,KEGG
+Selenocompound metabolism (KEGG),1,7,2.1794719013820116,0.408206383170694,2-Oxobutanoic Acid,0.6922227214146077,KEGG
+Creatine metabolism (Reactome),1,8,1.8653096402049203,0.4512459189400979,L-Ornithine,0.6922227214146077,Reactome
+Purine metabolism and related disorders (WikiPathways),2,21,1.3785897868456904,0.4540955494695492,Inosine;Xanthosine,0.6922227214146077,WikiPathways
+Aspartate and asparagine metabolism (Reactome),1,9,1.629643906380852,0.49122800134883404,Asparagine,0.6922227214146077,Reactome
+Degradation of cysteine and homocysteine (Reactome),1,9,1.629643906380852,0.49122800134883404,2-Oxobutanoic Acid,0.6922227214146077,Reactome
+Propanoate metabolism (KEGG),1,9,1.629643906380852,0.49122800134883404,2-Oxobutanoic Acid,0.6922227214146077,KEGG
+Purine salvage (Reactome),1,9,1.629643906380852,0.49122800134883404,Inosine,0.6922227214146077,Reactome
+Pyrimidine catabolism (Reactome),1,9,1.629643906380852,0.49122800134883404,Cytidine,0.6922227214146077,Reactome
+"Valine, leucine and isoleucine degradation (KEGG)",1,9,1.629643906380852,0.49122800134883404,Leucine,0.6922227214146077,KEGG
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",2,23,1.2425778022617187,0.5033377392631321,2-Oxobutanoic Acid;L-Ornithine,0.6922227214146077,WikiPathways
+Alanine and aspartate metabolism (WikiPathways),1,10,1.446162716016428,0.5283646435861455,Asparagine,0.6922227214146077,WikiPathways
+Biomarkers for urea cycle disorders (WikiPathways),1,10,1.446162716016428,0.5283646435861455,L-Ornithine,0.6922227214146077,WikiPathways
+Defective SLC6A19 causes Hartnup disorder (HND) (Reactome),1,10,1.446162716016428,0.5283646435861455,Leucine,0.6922227214146077,Reactome
+Glutamate and glutamine metabolism (Reactome),1,10,1.446162716016428,0.5283646435861455,L-Ornithine,0.6922227214146077,Reactome
+"Leucine, isoleucine and valine metabolism (WikiPathways)",1,10,1.446162716016428,0.5283646435861455,Leucine,0.6922227214146077,WikiPathways
+Peptide hormone metabolism (Reactome),1,10,1.446162716016428,0.5283646435861455,L-Lysine,0.6922227214146077,Reactome
+Tryptophan catabolism (Reactome),1,10,1.446162716016428,0.5283646435861455,Leucine,0.6922227214146077,Reactome
+Urea cycle and metabolism of amino groups (WikiPathways),1,10,1.446162716016428,0.5283646435861455,L-Ornithine,0.6922227214146077,WikiPathways
+Nucleotide catabolism (Reactome),2,25,1.1301603752577765,0.5497764472374442,Cytidine;Inosine,0.6922227214146077,Reactome
+"Metabolism of ingested SeMet, Sec, MeSec into H2Se (Reactome)",1,11,1.2993165532538629,0.56285351791257,2-Oxobutanoic Acid,0.6922227214146077,Reactome
+Pyrimidine metabolism (WikiPathways),1,11,1.2993165532538629,0.56285351791257,Cytidine,0.6922227214146077,WikiPathways
+Amino acid transport defects (IEMs) (WikiPathways),1,12,1.179112229727137,0.5948789012156785,Dl-Arginine,0.6922227214146077,WikiPathways
+Methionine de novo and salvage pathway (WikiPathways),1,12,1.179112229727137,0.5948789012156785,L-Ornithine,0.6922227214146077,WikiPathways
+Nitrogen metabolism (KEGG),1,12,1.179112229727137,0.5948789012156785,Asparagine,0.6922227214146077,KEGG
+Purine catabolism (Reactome),1,12,1.179112229727137,0.5948789012156785,Inosine,0.6922227214146077,Reactome
+Cysteine and methionine catabolism (WikiPathways),1,13,1.0789426530336754,0.6246125598420507,2-Oxobutanoic Acid,0.6956955493341049,WikiPathways
+Urea cycle and associated pathways (WikiPathways),1,13,1.0789426530336754,0.6246125598420507,L-Ornithine,0.6956955493341049,WikiPathways
+Biomarkers for pyrimidine metabolism disorders (WikiPathways),1,14,0.9940933835479879,0.6522145775007234,Cytidine,0.6956955493341049,WikiPathways
+Metabolic reprogramming in colon cancer (WikiPathways),1,14,0.9940933835479879,0.6522145775007234,Asparagine,0.6956955493341049,WikiPathways
+Sulfur amino acid metabolism (Reactome),1,14,0.9940933835479879,0.6522145775007234,2-Oxobutanoic Acid,0.6956955493341049,Reactome
+Arginine and proline metabolism (KEGG),1,15,0.9213729201687085,0.6778341298026958,L-Ornithine,0.7111702345470906,KEGG
+Methionine Metabolism (KEGG),1,17,0.8031540686892946,0.7236723005560213,2-Oxobutanoic Acid,0.7470165683158929,KEGG
+Metabolism overview (WikiPathways),1,18,0.7544594015169108,0.7441410190333527,L-Ornithine,0.7559527812402312,WikiPathways
+"Alanine, aspartate and glutamate metabolism (KEGG)",1,23,0.5773828239439145,0.8262559582581275,Asparagine,0.8262559582581275,KEGG

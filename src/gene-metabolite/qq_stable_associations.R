@@ -1,18 +1,18 @@
 #!/usr/bin/env Rscript
 # qq_stable_associations.R
 # ─────────────────────────────────────────────────────────────────────────────
-# QQ plots (per cell type) for DFBETAS-stable gene–metabolite associations.
+# QQ plots (per cell type) for gene–metabolite associations (log2_na model).
 #
 # Loads the FULL parquet p-value distribution (via Arrow) to assess per-cell-
-# type calibration, then overlays DFBETAS-stable hits from the CSV in the
-# signal tail. Inflation factor λ annotated on each panel.
+# type calibration, then overlays global-FDR hits in the signal tail.
+# Inflation factor λ annotated on each panel.
 #
 # Reference (λ): Devlin & Roeder (1999) Biometrics 56:45–57.
 #
-# Outputs  →  <iter_dir>/qq-plots/
+# Outputs  →  csv-log2_na/qq-plots/
 #   qq_<cell_type>.png/.svg  — per-cell-type panel
 #   qq_combined.png/.svg     — patchwork grid (all cell types)
-#   qq_lambda_summary.csv    — λ, n_tests, n_stable per cell type
+#   qq_lambda_summary.csv    — λ, n_tests, n_hits per cell type
 #
 # Usage: Rscript qq_stable_associations.R
 # ─────────────────────────────────────────────────────────────────────────────
@@ -24,18 +24,30 @@ suppressPackageStartupMessages({
   library(svglite)
   library(patchwork)
 })
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-metabolite/")
-source("pseudobulk_functions.R")    # save_dual_format()
+
+# Anchor paths to project root (matches gene_pathway_analysis.qmd convention)
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Could not locate project root (no ", marker, " found above ", getwd(), ")")
+    d <- parent
+  }
+}
+results_dir <- file.path(find_project_root(), "results")
+
+source(file.path(find_project_root(), "src", "gene-metabolite", "pseudobulk_functions.R"))
 
 set.seed(123)
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-METHOD      <- "zscore_trim"
+METHOD      <- "log2_na"
 suffix      <- paste0("-", METHOD)
-parquet_dir <- sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
-iter_dir    <- sprintf("../../results/gene-metabolite/stability-dfbetas%s", suffix)
-stable_csv  <- file.path(iter_dir, "metabolite_gene_hits_dfbetas_stable.csv")
-qq_dir      <- file.path(iter_dir, "qq-plots")
+parquet_dir <- file.path(results_dir, sprintf("gene-metabolite/parquet-%s", METHOD))
+csv_dir     <- file.path(results_dir, "gene-metabolite", paste0("csv", suffix))
+hits_csv    <- file.path(csv_dir, "metabolite_gene_hits.csv")
+qq_dir      <- file.path(csv_dir, "qq-plots")
 dir.create(qq_dir, recursive = TRUE, showWarnings = FALSE)
 
 # ── Parameters ─────────────────────────────────────────────────────────────────
@@ -43,10 +55,10 @@ MIN_TESTS   <- 100    # skip cell types with fewer tests (QQ shape unreliable)
 TAIL_THRESH <- 2.0    # -log10(p) threshold: points above are "tail" and kept in full
 THIN_FRAC   <- 0.01   # fraction of null body kept for plotting (reduces overplotting)
 
-# ── 1. Load stable hits ────────────────────────────────────────────────────────
-stable_hits <- read_csv(stable_csv, show_col_types = FALSE)
-cat(sprintf("Stable hits: %d rows | %d cell types\n",
-            nrow(stable_hits), n_distinct(stable_hits$cell_type)))
+# ── 1. Load global-FDR hits ─────────────────────────────────────────────────
+fdr_hits <- read_csv(hits_csv, show_col_types = FALSE)
+cat(sprintf("Global-FDR hits: %d rows | %d cell types\n",
+            nrow(fdr_hits), n_distinct(fdr_hits$cell_type)))
 
 # ── 2. Load full p-value universe from parquet via Arrow ───────────────────────
 # One parquet per metabolite; Arrow opens as a lazy dataset.
@@ -76,12 +88,12 @@ compute_lambda <- function(pvals) {
 
 #' Build one per-cell-type QQ plot.
 #'
-#' @param ct        Cell type label.
-#' @param pvals     All p-values for this cell type (no NAs).
-#' @param stable_p  P-values of stable hits in this cell type (length ≥ 0).
-#' @param lambda    Pre-computed λ.
+#' @param ct       Cell type label.
+#' @param pvals    All p-values for this cell type (no NAs).
+#' @param hit_p    P-values of global-FDR hits in this cell type (length ≥ 0).
+#' @param lambda   Pre-computed λ.
 #' @return ggplot object.
-make_qq_plot <- function(ct, pvals, stable_p, lambda) {
+make_qq_plot <- function(ct, pvals, hit_p, lambda) {
   n        <- length(pvals)
   p_sorted <- sort(pvals)               # ascending: rank 1 = most significant
   obs_all  <- -log10(p_sorted)
@@ -89,20 +101,20 @@ make_qq_plot <- function(ct, pvals, stable_p, lambda) {
 
   # ── Thinning ──────────────────────────────────────────────────────────────
   # Keep full tail (obs > TAIL_THRESH) + a random sample of the null body.
-  # Stable hits are added back explicitly so none are dropped.
+  # Global-FDR hits are added back explicitly so none are dropped.
   idx_tail    <- which(obs_all > TAIL_THRESH)
   idx_body    <- which(obs_all <= TAIL_THRESH)
   n_body_keep <- max(200L, ceiling(length(idx_body) * THIN_FRAC))
   idx_body_smp <- sort(sample(idx_body, size = min(n_body_keep, length(idx_body))))
 
-  # Locate stable hits in sorted p-value vector and force-include them
-  stable_ranks <- integer(0L)
-  if (length(stable_p) > 0L) {
-    stable_ranks <- findInterval(sort(stable_p), p_sorted)
-    stable_ranks <- pmax(1L, pmin(n, stable_ranks))
+  # Locate global-FDR hits in sorted p-value vector and force-include them
+  hit_ranks <- integer(0L)
+  if (length(hit_p) > 0L) {
+    hit_ranks <- findInterval(sort(hit_p), p_sorted)
+    hit_ranks <- pmax(1L, pmin(n, hit_ranks))
   }
 
-  keep_idx <- sort(unique(c(idx_tail, idx_body_smp, stable_ranks)))
+  keep_idx <- sort(unique(c(idx_tail, idx_body_smp, hit_ranks)))
 
   # ── 95% CI ribbon ─────────────────────────────────────────────────────────
   # j-th order statistic of U(0,1) ~ Beta(j, n-j+1).
@@ -116,9 +128,9 @@ make_qq_plot <- function(ct, pvals, stable_p, lambda) {
 
   # ── Plot data frame ────────────────────────────────────────────────────────
   plot_df <- tibble(
-    expected  = exp_all[keep_idx],
-    observed  = obs_all[keep_idx],
-    is_stable = keep_idx %in% stable_ranks
+    expected = exp_all[keep_idx],
+    observed = obs_all[keep_idx],
+    is_hit   = keep_idx %in% hit_ranks
   )
 
   max_val <- max(c(plot_df$observed, plot_df$expected), na.rm = TRUE) * 1.05
@@ -138,12 +150,12 @@ make_qq_plot <- function(ct, pvals, stable_p, lambda) {
                 colour = "grey50", linewidth = 0.45, linetype = "dashed") +
     # Null-body points (thinned)
     geom_point(
-      data    = dplyr::filter(plot_df, !is_stable),
+      data    = dplyr::filter(plot_df, !is_hit),
       size    = 0.7, alpha = 0.35, colour = "grey55"
     ) +
-    # Stable hits highlighted in the tail
+    # Global-FDR hits highlighted in the tail
     geom_point(
-      data    = dplyr::filter(plot_df, is_stable),
+      data    = dplyr::filter(plot_df, is_hit),
       size    = 1.8, alpha = 0.90, colour = "firebrick"
     ) +
     # λ annotation (top-left)
@@ -151,10 +163,10 @@ make_qq_plot <- function(ct, pvals, stable_p, lambda) {
       "text",
       x      = 0.03 * max_val,
       y      = 0.97 * max_val,
-      label  = sprintf("\u03bb = %.3f\nn = %s\nstable = %d",
+      label  = sprintf("\u03bb = %.3f\nn = %s\nFDR hits = %d",
                        lambda,
                        format(n, big.mark = ","),
-                       length(stable_p)),
+                       length(hit_p)),
       hjust  = 0, vjust = 1,
       size   = 3.2, colour = "grey20"
     ) +
@@ -187,21 +199,21 @@ for (ct in cell_types) {
     next
   }
 
-  stable_p_ct <- stable_hits$P.Value[stable_hits$cell_type == ct]
-  lambda_ct   <- compute_lambda(pvals_ct)
+  hit_p_ct  <- fdr_hits$P.Value[fdr_hits$cell_type == ct]
+  lambda_ct <- compute_lambda(pvals_ct)
 
-  cat(sprintf("  %-30s  n = %s  |  λ = %.3f  |  stable = %d\n",
+  cat(sprintf("  %-30s  n = %s  |  \u03bb = %.3f  |  FDR hits = %d\n",
               ct, format(length(pvals_ct), big.mark = ","),
-              lambda_ct, length(stable_p_ct)))
+              lambda_ct, length(hit_p_ct)))
 
   lambda_records[[ct]] <- tibble(
     cell_type = ct,
     n_tests   = length(pvals_ct),
     lambda    = lambda_ct,
-    n_stable  = length(stable_p_ct)
+    n_hits    = length(hit_p_ct)
   )
 
-  p_ct <- make_qq_plot(ct, pvals_ct, stable_p_ct, lambda_ct)
+  p_ct <- make_qq_plot(ct, pvals_ct, hit_p_ct, lambda_ct)
   qq_plots[[ct]] <- p_ct
 
   safe_ct <- gsub("[^A-Za-z0-9]+", "-", ct)
@@ -213,13 +225,13 @@ lambda_df <- bind_rows(lambda_records) |>
   dplyr::arrange(dplyr::desc(lambda))
 
 write_csv(lambda_df, file.path(qq_dir, "qq_lambda_summary.csv"))
-cat("\nλ summary (descending):\n")
+cat("\n\u03bb summary (descending):\n")
 print(lambda_df, n = Inf)
 
 # Flag any cell types where λ warrants scrutiny (> 1.5 is a loose alarm)
 flagged <- dplyr::filter(lambda_df, lambda > 1.5)
 if (nrow(flagged) > 0L) {
-  cat(sprintf("\n! %d cell type(s) with λ > 1.5 — inspect individually:\n", nrow(flagged)))
+  cat(sprintf("\n! %d cell type(s) with \u03bb > 1.5 \u2014 inspect individually:\n", nrow(flagged)))
   print(flagged$cell_type)
 }
 
@@ -231,9 +243,9 @@ if (n_plots > 0L) {
 
   combo <- wrap_plots(qq_plots, ncol = n_col) +
     plot_annotation(
-      title    = "Gene–Metabolite Associations: QQ plots by cell type",
+      title    = "Gene\u2013Metabolite Associations: QQ plots by cell type",
       subtitle = sprintf(
-        "Red = DFBETAS-stable hits (FDR < 0.10, |logFC| \u2265 0.25) | %s transform | grey ribbon = 95%% CI under H\u2080",
+        "Red = global-FDR hits (FDR < 0.10, |logFC| \u2265 0.25) | %s transform | grey ribbon = 95%% CI under H\u2080",
         METHOD
       ),
       theme = theme(
@@ -245,7 +257,7 @@ if (n_plots > 0L) {
   save_dual_format(combo, qq_dir, "qq_combined",
                    width  = n_col * 5,
                    height = n_row * 5 + 0.8)
-  cat(sprintf("\nCombined grid: %d col × %d row saved to %s/qq_combined.png\n",
+  cat(sprintf("\nCombined grid: %d col \u00d7 %d row saved to %s/qq_combined.png\n",
               n_col, n_row, qq_dir))
 }
 

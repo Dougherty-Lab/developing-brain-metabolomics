@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='720.00pt' height='504.00pt' viewBox='0 0 720.00 504.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA='>
+    <rect x='0.00' y='0.00' width='720.00' height='504.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpMjIzLjAzfDYxNS4xMXw0Ny4xOHw0NzIuMDk='>
+    <rect x='223.03' y='47.18' width='392.07' height='424.92' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMjIzLjAzfDYxNS4xMXw0Ny4xOHw0NzIuMDk=)'>
+<polyline points='287.21,472.09 287.21,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='379.91,472.09 379.91,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='472.61,472.09 472.61,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='565.31,472.09 565.31,47.18 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='223.03,411.39 615.11,411.39 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='223.03,310.22 615.11,310.22 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='223.03,209.05 615.11,209.05 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='223.03,107.88 615.11,107.88 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='240.86,472.09 240.86,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='333.56,472.09 333.56,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='426.26,472.09 426.26,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='518.96,472.09 518.96,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='611.66,472.09 611.66,47.18 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polygon points='597.29,104.01 600.64,109.81 593.94,109.81 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<polygon points='566.84,319.11 584.62,319.11 584.62,301.33 566.84,301.33 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<circle cx='589.91' cy='209.05' r='2.49' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<polygon points='565.29,404.20 571.51,414.98 559.06,414.98 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<line x1='240.86' y1='472.09' x2='240.86' y2='47.18' style='stroke-width: 1.07; stroke: #7F7F7F; stroke-dasharray: 5.69,5.69; stroke-linecap: butt;' />
+</g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+<text x='218.10' y='414.31' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='212.62px' lengthAdjust='spacingAndGlyphs'>Purine ribonucleoside monophosphate biosyn... (Reactome)</text>
+<text x='218.10' y='313.14' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='132.07px' lengthAdjust='spacingAndGlyphs'>Metabolism overview (WikiPathways)</text>
+<text x='218.10' y='211.96' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='93.82px' lengthAdjust='spacingAndGlyphs'>KEGG:map01120 (KEGG)</text>
+<text x='218.10' y='110.79' text-anchor='end' style='font-size: 8.00px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='194.38px' lengthAdjust='spacingAndGlyphs'>Metabolic disorders of biological oxidatio... (Reactome)</text>
+<text x='240.86' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='333.56' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.5</text>
+<text x='426.26' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.0</text>
+<text x='518.96' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.5</text>
+<text x='611.66' y='483.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>2.0</text>
+<text x='419.07' y='496.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='179.08px' lengthAdjust='spacingAndGlyphs'>Normalized Enrichment Score (NES)</text>
+<text x='631.55' y='167.95' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='47.07px' lengthAdjust='spacingAndGlyphs'>Database</text>
+<circle cx='640.19' cy='183.27' r='1.95' style='stroke-width: 0.71; stroke: none; fill: #E41A1C; fill-opacity: 0.85;' />
+<polygon points='640.19,197.51 642.82,202.07 637.55,202.07 ' style='stroke-width: 0.71; stroke: none; fill: #377EB8; fill-opacity: 0.85;' />
+<polygon points='638.23,219.78 642.14,219.78 642.14,215.87 638.23,215.87 ' style='stroke-width: 0.71; stroke: none; fill: #4DAF4A; fill-opacity: 0.85;' />
+<text x='654.31' y='186.48' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='25.43px' lengthAdjust='spacingAndGlyphs'>KEGG</text>
+<text x='654.31' y='203.76' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='40.08px' lengthAdjust='spacingAndGlyphs'>Reactome</text>
+<text x='654.31' y='221.04' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='54.73px' lengthAdjust='spacingAndGlyphs'>WikiPathways</text>
+<text x='631.55' y='257.61' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='39.12px' lengthAdjust='spacingAndGlyphs'>Set size</text>
+<circle cx='642.89' cy='272.92' r='4.62' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='290.20' r='6.18' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='308.02' r='7.26' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='327.53' r='8.13' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<circle cx='642.89' cy='349.20' r='8.89' style='stroke-width: 0.71; stroke: #000000; stroke-opacity: 0.85; fill: #000000; fill-opacity: 0.85;' />
+<text x='659.70' y='276.13' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>10</text>
+<text x='659.70' y='293.41' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>12</text>
+<text x='659.70' y='311.23' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>14</text>
+<text x='659.70' y='330.73' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>16</text>
+<text x='659.70' y='352.41' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.78px' lengthAdjust='spacingAndGlyphs'>18</text>
+<text x='419.07' y='30.01' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='125.84px' lengthAdjust='spacingAndGlyphs'>Top 4 by FDR (p &lt; 0.05 shown)</text>
+<text x='419.07' y='39.73' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='115.60px' lengthAdjust='spacingAndGlyphs'>* FDR &lt; 0.05   ** FDR &lt; 0.01</text>
+<text x='419.07' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='164.13px' lengthAdjust='spacingAndGlyphs'>MSEA — IN-CGE-Immature</text>
+</g>
+</svg>

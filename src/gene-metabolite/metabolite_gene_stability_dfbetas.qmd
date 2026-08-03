@@ -1,5 +1,5 @@
 ---
-title: "Metabolite–Gene Stability Filter — DFBETAS (outlier-trimmed run)"
+title: "Metabolite–Gene Stability Filter — DFBETAS (log2_na run)"
 subtitle: "Sneha Chaturvedi"
 date: today
 format:
@@ -18,13 +18,22 @@ execute:
 
 ## Purpose
 
-Second-gate filter on the outlier-trimmed global-FDR hits: keep an association
-only if no single sample has outsized *influence* on the metabolite slope. Uses
-DFBETAS — the standardized single-deletion change in the coefficient, in units of
-its own SE — with the standard cutoff |DFBETAS| > 2/sqrt(n) (Belsley, Kuh &
-Welsch 1980). This answers "does dropping one point *matter*", not merely whether
-a high-leverage point *exists*, so a far-x sample consistent with the trend is
-kept. Outputs to its own subdirectory to keep this iteration separate.
+Second-gate filter producing the **most robust** gene–metabolite associations.
+Input is the global-FDR hit set from `metabolite_gene_associations.qmd`
+(the `log2_na` run: no imputation, IQR outlier trimming, z-scored predictor).
+Because `log2_na` carries no imputed values, the imputation-sensitivity gate is
+not needed and this script reads global-FDR hits directly.
+
+Associations are kept only if no single sample has outsized *influence* on the
+metabolite slope. Uses DFBETAS — the standardized single-deletion change in the
+coefficient, in units of its own SE — with the standard cutoff
+|DFBETAS| > 2/sqrt(n) (Belsley, Kuh & Welsch 1980). This answers "does
+dropping one point *matter*", not merely whether a high-leverage point *exists*,
+so a far-x sample consistent with the trend is kept.
+
+Pairs that survive the DFBETAS gate are written as
+`metabolite_gene_hits_robust.csv` and represent the highest-confidence set for
+manuscript-level reporting.
 
 ## Setup
 
@@ -36,14 +45,17 @@ source("pseudobulk_functions.R")
 source("metabolite_functions.R")
 set.seed(123)
 
-METHOD <- "zscore_trim"
+METHOD <- "log2_na"
 suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
 
-parquet_dir <- if (METHOD == "int"){ "../../results/gene-metabolite/parquet"} else {sprintf("../../results/gene-metabolite/parquet-%s", METHOD)}
-annot_path  <- "../../results/untargeted/batch2_metabolite_annotations_flagged.csv"
-out_dir     <- "../../results/gene-metabolite"
-# dedicated subdirectory for this iteration (dfbetas gate)
-iter_dir    <- file.path(out_dir, paste0("stability-dfbetas", suffix))
+out_dir          <- "../../results/gene-metabolite"
+# Input: global-FDR hits from metabolite_gene_associations.qmd.
+# log2_na has no imputation, so the imputation-sensitivity gate is skipped;
+# DFBETAS reads the global-FDR set directly.
+assoc_csv_dir    <- file.path(out_dir, paste0("csv", suffix))
+hits_path        <- file.path(assoc_csv_dir, "metabolite_gene_hits.csv")
+# Output: dedicated subdirectory for this (DFBETAS) gate
+iter_dir         <- file.path(out_dir, paste0("stability-dfbetas", suffix))
 csv_dir     <- iter_dir
 fig_dir     <- iter_dir
 scatter_dir <- file.path(iter_dir, "scatter-plots")
@@ -83,7 +95,7 @@ targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
 pb        <- build_metab_covariates(pb_base, targeted_comparison_raw, batch_props, min_cells = 30)
 metab_mat <- read_metabolite_matrix(metab_path)
 metab_tx  <- transform_metabolite_matrix(metab_mat, method = METHOD)
-metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute)); dimnames(metab_log) <- dimnames(metab_mat)
+metab_log <- log2(metab_mat + 1)   # raw log2; NAs stay NA (no imputation)
 
 # Log2 values with IQR outliers flagged NA — used for scatter x-axis only.
 # Mirrors the fence from zscore_trim (Q1 - 0.75*IQR / Q3 + 0.75*IQR) but
@@ -107,21 +119,22 @@ row_ct    <- sub("^[^.]+\\.(.*)$", "\\1", rn)
 metab_col <- metab_sample_to_pb(colnames(metab_tx), sub("^([^.]+)\\..*$", "\\1", rn))
 ```
 
-## Global-FDR hits
+## Global-FDR hits (input)
 
 ```{r}
 #| label: hits
-ds <- open_dataset(parquet_dir); n_tests <- nrow(ds)
-annot <- read_csv(annot_path, show_col_types = FALSE) |>
-  dplyr::select(Compound.ID, Super.Class, Class, Sub.Class, Pathways, KEGG,
-                Exogenous_Flag, Annotation_Confidence)
+# Load global-FDR hits from metabolite_gene_associations.qmd (log2_na run).
+# Annotations and reporter columns are already present.
+hits <- read_csv(hits_path, show_col_types = FALSE)
 
-hits <- ds |> filter(P.Value < 0.05) |> collect() |>
-  mutate(FDR_global = bh_global(P.Value, n_tests)) |>
-  filter(FDR_global < FDR_GLOBAL, abs(logFC) >= LFC_MIN) |>
-  left_join(annot, by = "Compound.ID")
-
-cat(sprintf("Global-FDR hits: %s\n", format(nrow(hits), big.mark = ",")))
+cat(sprintf(
+  "Reading: %s\nGlobal-FDR hits: %s rows | %d metabolites | %d cell types | %d genes\n",
+  hits_path,
+  format(nrow(hits), big.mark = ","),
+  n_distinct(hits$Compound.ID),
+  n_distinct(hits$cell_type),
+  n_distinct(hits$gene)
+))
 ```
 
 ## DFBETAS influence gate
@@ -162,28 +175,31 @@ reporter <- hits |> group_by(Compound.ID, cell_type) |>
 hits <- hits |> left_join(reporter, by = c("Compound.ID", "cell_type", "gene"))
 
 stable_hits <- hits |> filter(stable %in% TRUE)          # FILTER, not flag
-write_csv(stable_hits, file.path(csv_dir, "metabolite_gene_hits_dfbetas_stable.csv"))
+write_csv(stable_hits, file.path(csv_dir, "metabolite_gene_hits_robust.csv"))
 
-cat(sprintf("DFBETAS-stable (no |DFBETAS| > 2/sqrt(n)): %s / %s (%.1f%%)\n",
-            format(nrow(stable_hits), big.mark = ","),
-            format(nrow(hits), big.mark = ","),
-            100 * mean(hits$stable %in% TRUE)))
+cat(sprintf(
+  "Robust hits (imputation-insensitive + DFBETAS-stable): %s / %s (%.1f%%)\n",
+  format(nrow(stable_hits), big.mark = ","),
+  format(nrow(hits), big.mark = ","),
+  100 * mean(hits$stable %in% TRUE)
+))
 ```
 
-## Stable vs. unstable
+## DFBETAS gate on global-FDR hits
 
 ```{r}
 #| label: count-bar
-counts <- hits |> mutate(status = ifelse(stable %in% TRUE, "stable", "unstable")) |> count(status)
+counts <- hits |> mutate(status = ifelse(stable %in% TRUE, "robust", "DFBETAS-unstable")) |> count(status)
 p_cnt <- ggplot(counts, aes(status, n, fill = status)) +
   geom_col(alpha = 0.85, show.legend = FALSE) +
   geom_text(aes(label = scales::comma(n)), vjust = -0.3) +
-  scale_fill_manual(values = c(stable = "steelblue", unstable = "grey60")) +
-  labs(x = NULL, y = "Hits", title = "DFBETAS influence gate") + theme_cowplot(13)
+  scale_fill_manual(values = c(robust = "steelblue", `DFBETAS-unstable` = "grey60")) +
+  labs(x = NULL, y = "Hits",
+       title = "DFBETAS gate (input: global-FDR hits, log2_na)") + theme_cowplot(13)
 save_dual_format(p_cnt, fig_dir, "dfbetas_counts", width = 5, height = 5); print(p_cnt)
 ```
 
-## Recurrence on stable hits
+## Recurrence on robust hits
 
 ```{r}
 #| label: recurrence
@@ -192,30 +208,30 @@ gene_recur <- stable_hits |> group_by(gene) |>
   slice_max(n_metabolites, n = 20)
 p_g <- ggplot(gene_recur, aes(reorder(gene, n_metabolites), n_metabolites)) +
   geom_col(fill = "steelblue", alpha = 0.85) + coord_flip() +
-  labs(x = "Gene", y = "Distinct metabolites", title = "Stable: top genes") + theme_cowplot(12)
-save_dual_format(p_g, fig_dir, "stable_recurrence_genes", width = 8, height = 7); print(p_g)
+  labs(x = "Gene", y = "Distinct metabolites", title = "Robust: top genes") + theme_cowplot(12)
+save_dual_format(p_g, fig_dir, "robust_recurrence_genes", width = 8, height = 7); print(p_g)
 
 metab_recur <- stable_hits |> group_by(Compound.ID, Name, Super.Class) |>
   summarise(n_genes = n_distinct(gene), .groups = "drop") |>
   slice_max(n_genes, n = 25) |> add_plot_label()
 write_csv(metab_recur |> dplyr::select(label, Name, Compound.ID),
-          file.path(fig_dir, "stable_recurrence_metabolites_labels.csv"))
+          file.path(fig_dir, "robust_recurrence_metabolites_labels.csv"))
 p_m <- ggplot(metab_recur, aes(reorder(label, n_genes), n_genes, fill = Super.Class)) +
   geom_col(alpha = 0.85) + coord_flip() +
-  labs(x = "Metabolite", y = "Distinct genes", title = "Stable: top metabolites") + theme_cowplot(12)
-save_dual_format(p_m, fig_dir, "stable_recurrence_metabolites", width = 10, height = 7); print(p_m)
+  labs(x = "Metabolite", y = "Distinct genes", title = "Robust: top metabolites") + theme_cowplot(12)
+save_dual_format(p_m, fig_dir, "robust_recurrence_metabolites", width = 10, height = 7); print(p_m)
 
 ct_recur <- stable_hits |> group_by(cell_type) |>
   summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop")
 p_c <- ggplot(ct_recur, aes(reorder(cell_type, n_metabolites), n_metabolites)) +
   geom_col(fill = "darkorange", alpha = 0.85) + coord_flip() +
-  labs(x = "Cell type", y = "Distinct metabolites", title = "Stable: by cell type") + theme_cowplot(12)
-save_dual_format(p_c, fig_dir, "stable_recurrence_celltypes", width = 8, height = 6); print(p_c)
+  labs(x = "Cell type", y = "Distinct metabolites", title = "Robust: by cell type") + theme_cowplot(12)
+save_dual_format(p_c, fig_dir, "robust_recurrence_celltypes", width = 8, height = 6); print(p_c)
 ```
 
-## Stable gene sharing across cell types (UpSet)
+## Robust gene sharing across cell types (UpSet)
 
-Which genes are shared vs. cell-type-specific among DFBETAS-stable associations.
+Which genes are shared vs. cell-type-specific among robust (DFBETAS-stable) associations.
 
 ```{r}
 #| label: upset-genes
@@ -239,7 +255,14 @@ if (length(ct_cols) >= 2 && nrow(gene_by_ct) > 0) {
 }
 ```
 
-## Top-20 stable scatters (outlier-trimmed panels)
+## Top-20 robust scatters
+
+Five-panel scatter: raw log2 (all samples) | outlier-trimmed log2 |
+covariate-adjusted log2 || outlier-trimmed z-score | covariate-adjusted z-score.
+Log2 panels use free x-axis per metabolite; z-score panels share a fixed axis
+across all plots for cross-metabolite comparison. One pooled regression line per
+panel (the model includes Sex as a covariate, not a grouping variable); points
+colored by GW and shaped by Sex.
 
 ```{r}
 #| label: scatter-builder
@@ -254,7 +277,7 @@ make_pair_plot <- function(cid, gene, ct, meta_name, z_x_lim) {
   md   <- pb$metadata[rn[rows_use], ]
 
   df <- tibble(
-    metab_raw     = as.numeric(metab_log[cid, pos_p]),       # log2 + imputed (all samples)
+    metab_raw     = as.numeric(metab_log[cid, pos_p]),       # raw log2 (NAs for missing)
     metab_logtrim = as.numeric(metab_log_trim[cid, pos_p]),  # log2, outliers = NA
     metab_trim    = as.numeric(metab_tx[cid, pos_p]),        # z-score (model predictor)
     expr          = expr,
@@ -265,55 +288,62 @@ make_pair_plot <- function(cid, gene, ct, meta_name, z_x_lim) {
 
   covs <- c("GW", "Sex", "batch1_frac")
 
-  # ---- log2 panels (x-axis consistent within this metabolite) ----
+  # ---- log2 panels (free x-axis per metabolite) ----
+  # Compute x-limits from raw values (widest range, includes outliers)
   x_range <- range(df$metab_raw, na.rm = TRUE)
   x_pad   <- diff(x_range) * 0.05
   x_lim   <- c(x_range[1] - x_pad, x_range[2] + x_pad)
   x_lab   <- paste0(meta_name, " [log2 peak area]")
 
+  # Shared layer list: shape in geom_point only → single regression line
   bl_log <- list(
-    geom_point(size = 2.5, alpha = 0.85),
-    geom_smooth(method = "lm", se = TRUE, linewidth = 0.8),
+    geom_point(aes(shape = Sex), size = 2.5, alpha = 0.85),
+    geom_smooth(method = "lm", formula = y ~ x, se = TRUE, linewidth = 0.8),
     scale_color_viridis_c(name = "GW"),
     scale_shape_manual(values = c("M" = 16, "F" = 17)),
     coord_cartesian(xlim = x_lim),
     theme_minimal(base_size = 13)
   )
 
-  p_raw <- ggplot(df, aes(metab_raw, expr, color = GW, shape = Sex)) + bl_log +
-    labs(title = "Raw (log2, all samples)", x = x_lab, y = "log1p(CPM)")
+  # Panel 1: raw log2 — all observed samples, before any trimming
+  df_raw <- df |> filter(!is.na(metab_raw))
+  p_raw <- ggplot(df_raw, aes(metab_raw, expr, color = GW)) + bl_log +
+    labs(title = "Raw log2 (all samples)", x = x_lab, y = "log1p(CPM)")
 
+  # Panel 2: outlier-trimmed log2
   dft <- df |> filter(!is.na(metab_logtrim))
   keepc <- covs[vapply(covs, function(cv) length(unique(dft[[cv]])) >= 2, logical(1))]
-  p_mid <- ggplot(dft, aes(metab_logtrim, expr, color = GW, shape = Sex)) + bl_log +
+  p_mid <- ggplot(dft, aes(metab_logtrim, expr, color = GW)) + bl_log +
     labs(title = "Outlier-trimmed (log2)", x = x_lab, y = "log1p(CPM)")
 
+  # Panel 3: covariate-adjusted log2 (partial regression)
   fit_log  <- lm(reformulate(c("metab_logtrim", keepc), response = "expr"), data = dft)
   dft$part <- resid(fit_log) + coef(fit_log)[["metab_logtrim"]] * dft$metab_logtrim
-  p_adj <- ggplot(dft, aes(metab_logtrim, part, color = GW, shape = Sex)) + bl_log +
+  p_adj <- ggplot(dft, aes(metab_logtrim, part, color = GW)) + bl_log +
     labs(title = "Covariate-adjusted (log2)", x = x_lab, y = "log1p(CPM), adjusted")
 
-  # ---- z-score panels (x-axis fixed globally across all plots via z_x_lim) ----
+  # ---- z-score panels (fixed x-axis across all plots) ----
   z_lab <- paste0(meta_name, " [z-score]")
 
   bl_z <- list(
-    geom_point(size = 2.5, alpha = 0.85),
-    geom_smooth(method = "lm", se = TRUE, linewidth = 0.8),
+    geom_point(aes(shape = Sex), size = 2.5, alpha = 0.85),
+    geom_smooth(method = "lm", formula = y ~ x, se = TRUE, linewidth = 0.8),
     scale_color_viridis_c(name = "GW"),
     scale_shape_manual(values = c("M" = 16, "F" = 17)),
-    coord_cartesian(xlim = z_x_lim),   # fixed across all 20 plots
+    coord_cartesian(xlim = z_x_lim),
     theme_minimal(base_size = 13)
   )
 
-  # z-score filter: same outlier fence as log2-trim but imputed-missing are included
-  dft_z  <- df |> filter(!is.na(metab_trim))
+  # Panel 4: outlier-trimmed z-score (model predictor scale)
+  dft_z   <- df |> filter(!is.na(metab_trim))
   keepc_z <- covs[vapply(covs, function(cv) length(unique(dft_z[[cv]])) >= 2, logical(1))]
-  p_zmid <- ggplot(dft_z, aes(metab_trim, expr, color = GW, shape = Sex)) + bl_z +
+  p_zmid  <- ggplot(dft_z, aes(metab_trim, expr, color = GW)) + bl_z +
     labs(title = "Outlier-trimmed (z-score)", x = z_lab, y = "log1p(CPM)")
 
+  # Panel 5: covariate-adjusted z-score
   fit_z        <- lm(reformulate(c("metab_trim", keepc_z), response = "expr"), data = dft_z)
   dft_z$part_z <- resid(fit_z) + coef(fit_z)[["metab_trim"]] * dft_z$metab_trim
-  p_zadj <- ggplot(dft_z, aes(metab_trim, part_z, color = GW, shape = Sex)) + bl_z +
+  p_zadj <- ggplot(dft_z, aes(metab_trim, part_z, color = GW)) + bl_z +
     labs(title = "Covariate-adjusted (z-score)", x = z_lab, y = "log1p(CPM), adjusted")
 
   # ---- 2-row layout: log2 row / z-score row ----

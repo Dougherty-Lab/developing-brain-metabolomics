@@ -1,0 +1,931 @@
+---
+title: "Gene Pathway Analysis (log2_na, DFBETAS-stable hits)"
+subtitle: "Sneha Chaturvedi"
+date: today
+format:
+  revealjs:
+    slide-number: "c/t"
+    code-fold: true
+    code-tools: true
+    scrollable: true
+    theme: dark
+    fig-align: center
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+## Overview
+
+ORA + GSEA on the **genes** from DFBETAS-stable gene–metabolite associations in
+the `log2_na` run (`metabolite_gene_stability_dfbetas.qmd`). This is the most
+conservative hit set. The companion script `metabolite_pathway_analysis_dfbetas.qmd`
+does the same for metabolites. See `gene_pathway_analysis.qmd` for the full
+global-FDR set.
+
+- **ORA**: Fisher's exact test; foreground = genes with ≥1 DFBETAS-stable association;
+  background = all genes tested in the limma-voom loop.
+- **GSEA**: fgsea ranked by −log10(min raw *P*-value per gene) across all
+  metabolite × cell type pairs. Unsigned — NES > 0 means the gene set's members
+  are enriched for metabolite associations.
+
+Three analyses:
+
+1. **All cell types (union)** — genes significant in ≥1 cell type
+2. **Cell-type-specific** — ORA + GSEA per cell type
+3. **Glia vs. neurons** — class-specific gene sets and shared pathway comparison
+
+**Gene sets** from `msigdbr` (MSigDB v2023.2): GO:BP, GO:MF, GO:CC, Hallmark,
+KEGG, Reactome. **Note**: `msigdbr` must be added to the Singularity container
+rebuild (`developing-brain-metabolomics_1.0.4.sif` → next version).
+
+## Set Up
+
+```{r}
+#| label: setup
+Packages <- c(
+  "tidyverse", "arrow", "fgsea", "msigdbr",
+  "knitr", "kableExtra", "svglite", "ggrepel", "cowplot"
+)
+lapply(Packages, library, character.only = TRUE)
+
+source("pseudobulk_functions.R")   # save_dual_format()
+
+set.seed(42)
+
+# Anchor output paths to the repo root (found via the .git marker) instead of
+# a cwd-relative "../.." — re-running chunks out of order in an interactive
+# session can leave the R working directory pointed somewhere unexpected
+# (e.g. a subfolder), which otherwise silently writes results under src/.
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Could not locate project root (no ", marker, " found above ", getwd(), ")")
+    d <- parent
+  }
+}
+results_dir <- file.path(find_project_root(), "results")
+```
+
+```{r}
+#| label: config
+
+# ---- METHOD must match metabolite_gene_stability_dfbetas.qmd ----------------
+METHOD <- "log2_na"
+suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
+
+# ---- paths -------------------------------------------------------------------
+parquet_dir <- if (METHOD == "int") {
+  file.path(results_dir, "gene-metabolite/parquet")
+} else {
+  file.path(results_dir, sprintf("gene-metabolite/parquet-%s", METHOD))
+}
+
+# DFBETAS-stable robust hits from metabolite_gene_stability_dfbetas.qmd
+dfbetas_dir <- file.path(results_dir, "gene-metabolite",
+                         paste0("stability-dfbetas", suffix))
+hits_path   <- file.path(dfbetas_dir, "metabolite_gene_hits_robust.csv")
+
+out_dir  <- file.path(dfbetas_dir, "gene-pathway")
+csv_path <- file.path(out_dir, "csv")
+for (d in c(out_dir, csv_path)) dir.create(d, recursive = TRUE, showWarnings = FALSE)
+
+# ---- gene set parameters -----------------------------------------------------
+GSEA_MIN_SIZE  <- 10    # min genes in set after restricting to tested background
+GSEA_MAX_SIZE  <- 500
+MIN_CT_HITS    <- 5     # min distinct gene hits to run ORA for a cell type
+
+# ---- cell type groupings (update after inspecting "Available Cell Types") ----
+GLIAL_TYPES <- c(
+  "Astrocyte-Immature", "OPC"
+)
+NEURONAL_TYPES <- c(
+  "EN-IT-Immature", "EN-L6-IT", "EN-L6b", "EN-Newborn", "EN-Non-IT-Immature",
+  "IN-CGE-Immature", "IN-MGE-Immature", "IN-MGE-SST", "IPC-EN"
+)
+```
+
+## Load Hits
+
+```{r}
+#| label: load-hits
+hits <- read_csv(hits_path, show_col_types = FALSE)
+
+cat(sprintf("Reading: %s\n", hits_path))
+cat(sprintf(
+  "DFBETAS-stable hits (log2_na): %s rows | %d metabolites | %d cell types | %d genes\n",
+  format(nrow(hits), big.mark = ","),
+  n_distinct(hits$Compound.ID),
+  n_distinct(hits$cell_type),
+  n_distinct(hits$gene)
+))
+```
+
+## Available Cell Types
+
+Inspect output below to set `GLIAL_TYPES` and `NEURONAL_TYPES` in config.
+
+```{r}
+#| label: cell-types-print
+cat("Cell types present in hits:\n")
+print(sort(unique(hits$cell_type)))
+```
+
+## Gene Background (Parquet)
+
+Background = all genes tested in the limma-voom loop, regardless of significance.
+Derived lazily from the parquet archive.
+
+```{r}
+#| label: gene-background
+ds <- open_dataset(parquet_dir)
+
+background_genes <- ds |>
+  distinct(gene) |>
+  collect() |>
+  pull(gene)
+
+cat(sprintf("Total genes in background: %s\n",
+            format(length(background_genes), big.mark = ",")))
+```
+
+## GSEA Rankings (Parquet)
+
+Per-gene −log10(min raw *P*-value) across all metabolite × cell type pairs.
+Genes with no association anywhere receive score 0 (min_P = 1).
+
+```{r}
+#| label: gsea-ranking
+# All-cell-types ranking
+ranking_all_raw <- ds |>
+  group_by(gene) |>
+  summarise(min_P = min(P.Value, na.rm = TRUE), .groups = "drop") |>
+  collect()
+
+# Cell-type-specific rankings
+ranking_ct_raw <- ds |>
+  group_by(cell_type, gene) |>
+  summarise(min_P = min(P.Value, na.rm = TRUE), .groups = "drop") |>
+  collect()
+
+cat(sprintf(
+  "All-gene ranking rows: %s | Cell-type ranking rows: %s\n",
+  format(nrow(ranking_all_raw), big.mark = ","),
+  format(nrow(ranking_ct_raw),  big.mark = ",")
+))
+```
+
+---
+
+# Gene Set Annotation
+
+Fetches six MSigDB collections via `msigdbr`. All use HGNC gene symbols to
+match the limma-voom output directly — no ID conversion required.
+
+## Fetch Gene Sets
+
+```{r}
+#| label: fetch-gene-sets
+fetch_msigdb_sets <- function(category, subcategory = NULL, label) {
+  df <- if (is.null(subcategory)) {
+    msigdbr(species = "Homo sapiens", category = category)
+  } else {
+    msigdbr(species = "Homo sapiens", category = category,
+            subcategory = subcategory)
+  }
+  df |>
+    dplyr::select(gs_name, gene_symbol) |>
+    mutate(collection = label)
+}
+
+gene_set_collections <- list(
+  fetch_msigdb_sets("H",  NULL,           "Hallmark"),
+  fetch_msigdb_sets("C5", "GO:BP",        "GO_BP"),
+  fetch_msigdb_sets("C5", "GO:MF",        "GO_MF"),
+  fetch_msigdb_sets("C5", "GO:CC",        "GO_CC"),
+  fetch_msigdb_sets("C2", "CP:KEGG",        "KEGG"),
+  fetch_msigdb_sets("C2", "CP:REACTOME",  "Reactome")
+)
+
+gene_sets_raw <- bind_rows(gene_set_collections)
+
+cat(sprintf(
+  "MSigDB gene sets loaded: %s gene-set members | %d unique sets across %d collections\n",
+  format(nrow(gene_sets_raw), big.mark = ","),
+  n_distinct(gene_sets_raw$gs_name),
+  n_distinct(gene_sets_raw$collection)
+))
+print(count(gene_sets_raw, collection))
+```
+
+## Build Gene Set List
+
+```{r}
+#| label: build-gene-set-list
+# Append collection to set name to keep cross-database duplicates distinct,
+# then size-filter against the tested background.
+gene_sets <- gene_sets_raw |>
+  filter(gene_symbol %in% background_genes) |>
+  group_by(gs_name, collection) |>
+  summarise(members = list(unique(gene_symbol)), .groups = "drop") |>
+  mutate(
+    n_members    = lengths(members),
+    gs_label     = paste0(gs_name, " (", collection, ")")
+  ) |>
+  filter(n_members >= GSEA_MIN_SIZE, n_members <= GSEA_MAX_SIZE)
+
+gene_set_source_lookup <- gene_sets |>
+  dplyr::select(gs_label, collection)
+
+gene_set_list <- setNames(gene_sets$members, gene_sets$gs_label)
+
+cat(sprintf(
+  "Gene sets after size filter [%d–%d]: %d | median members: %d\n",
+  GSEA_MIN_SIZE, GSEA_MAX_SIZE, length(gene_set_list),
+  median(lengths(gene_set_list))
+))
+print(count(gene_sets, collection))
+```
+
+---
+
+# Analysis Functions
+
+```{r}
+#| label: functions
+
+# ---- ORA (Fisher's exact, one-sided greater) ---------------------------------
+run_gene_ora <- function(foreground, background, gene_set_list,
+                         gene_set_source_lookup, analysis_label) {
+  cat("\n===", analysis_label, "===\n")
+  cat("Foreground genes:", length(foreground),
+      "| Background genes:", length(background), "\n")
+
+  if (length(foreground) < 1) { cat("Empty foreground — skipping.\n"); return(NULL) }
+
+  bg_only <- background[!background %in% foreground]
+
+  results <- map_dfr(names(gene_set_list), function(gs) {
+    members <- gene_set_list[[gs]]
+    a <- sum(foreground %in% members)
+    b <- length(foreground) - a
+    c <- sum(bg_only %in% members)
+    d <- length(bg_only) - c
+    ft <- fisher.test(matrix(c(a, b, c, d), nrow = 2), alternative = "greater")
+    tibble(
+      gene_set   = gs,
+      n_hits     = a,
+      set_size   = a + c,
+      odds_ratio = as.numeric(ft$estimate),
+      pval       = ft$p.value,
+      hit_genes  = paste(foreground[foreground %in% members], collapse = ";")
+    )
+  }) |>
+    filter(n_hits > 0) |>
+    mutate(padj = p.adjust(pval, method = "BH")) |>
+    left_join(gene_set_source_lookup, by = c("gene_set" = "gs_label")) |>
+    arrange(padj, pval)
+
+  cat("Sets with \u22651 hit:", nrow(results),
+      "| p < 0.05:", sum(results$pval  < 0.05, na.rm = TRUE),
+      "| FDR < 0.05:", sum(results$padj < 0.05, na.rm = TRUE), "\n")
+  results
+}
+
+# ---- GSEA (fgsea on −log10 min P per gene) -----------------------------------
+run_gene_gsea <- function(ranking_df, background_genes, gene_set_list,
+                          analysis_label, nperm = 10000, seed = 42) {
+  cat("\n===", analysis_label, "===\n")
+
+  ranked <- tibble(gene = background_genes) |>
+    left_join(ranking_df |> dplyr::select(gene, min_P), by = "gene") |>
+    mutate(score = -log10(pmax(replace_na(min_P, 1), 1e-300))) |>
+    arrange(desc(score)) |>
+    dplyr::select(gene, score) |>
+    deframe()
+
+  cat("Genes in ranked list:", length(ranked), "\n")
+
+  gs_filt <- lapply(gene_set_list, function(x) intersect(x, names(ranked)))
+  gs_filt <- gs_filt[lengths(gs_filt) >= GSEA_MIN_SIZE]
+  cat("Gene sets after intersection:", length(gs_filt), "\n")
+
+  if (length(gs_filt) == 0) {
+    cat("No gene sets with sufficient coverage — skipping.\n")
+    return(NULL)
+  }
+
+  set.seed(seed)
+  results <- fgsea(
+    pathways    = gs_filt,
+    stats       = ranked,
+    nPermSimple = nperm,
+    minSize     = GSEA_MIN_SIZE,
+    maxSize     = GSEA_MAX_SIZE
+  ) |>
+    as_tibble() |>
+    arrange(padj, pval) |>
+    mutate(analysis = analysis_label)
+
+  cat("Sets tested:", nrow(results),
+      "| p < 0.05:", sum(results$pval  < 0.05, na.rm = TRUE),
+      "| FDR < 0.05:", sum(results$padj < 0.05, na.rm = TRUE), "\n")
+  results
+}
+
+# ---- Plots -------------------------------------------------------------------
+# Collection colour palette (6 collections)
+COLL_COLORS <- c(
+  Hallmark  = "#984EA3",
+  GO_BP     = "#377EB8",
+  GO_MF     = "#4DAF4A",
+  GO_CC     = "#FF7F00",
+  KEGG      = "#E41A1C",
+  Reactome  = "#A65628"
+)
+
+plot_ora_dotplot <- function(results, analysis_label, top_n = 20,
+                             collections = NULL) {
+  if (is.null(results) || nrow(results) == 0) return(NULL)
+
+  if (!is.null(collections)) results <- filter(results, collection %in% collections)
+
+  plot_data <- results |>
+    filter(pval < 0.05) |>
+    head(top_n) |>
+    mutate(
+      stars     = case_when(padj < 0.01 ~ "**", padj < 0.05 ~ "*", TRUE ~ ""),
+      gs_base   = str_remove(gene_set, " \\([^)]+\\)$"),
+      gs_short  = str_trunc(gs_base, 45),
+      gs_label  = paste0(gs_short, " (", collection, ")",
+                         if_else(stars != "", paste0(" ", stars), ""))
+    )
+
+  if (nrow(plot_data) == 0) { message("No nominal hits for: ", analysis_label); return(NULL) }
+
+  ggplot(plot_data,
+         aes(x = log2(odds_ratio),
+             y = reorder(gs_label, log2(odds_ratio)),
+             color = collection, shape = collection, size = set_size)) +
+    geom_point(alpha = 0.85) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    scale_color_manual(name = "Collection", values = COLL_COLORS) +
+    scale_shape_manual(name = "Collection",
+                       values = c(Hallmark = 18, GO_BP = 16, GO_MF = 17,
+                                  GO_CC = 15, KEGG = 8, Reactome = 4)) +
+    scale_size_continuous(name = "Set size", range = c(2, 8)) +
+    theme_minimal(base_size = 11) +
+    labs(x = "log2(Odds Ratio)", y = NULL,
+         title    = paste0("ORA \u2014 ", analysis_label),
+         subtitle = paste0("Top ", nrow(plot_data), " by p-value (p < 0.05)\n",
+                           "* FDR < 0.05   ** FDR < 0.01")) +
+    theme(plot.title    = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9),
+          axis.text.y   = element_text(size = 8),
+          legend.position = "right")
+}
+
+plot_gsea_dotplot <- function(results, gene_set_source_lookup,
+                              analysis_label, top_n = 25,
+                              collections = NULL) {
+  if (is.null(results) || nrow(results) == 0) return(NULL)
+
+  results <- results |>
+    left_join(gene_set_source_lookup, by = c("pathway" = "gs_label"))
+  if (!is.null(collections)) results <- filter(results, collection %in% collections)
+
+  plot_data <- results |>
+    filter(pval < 0.05) |>
+    arrange(padj) |>
+    head(top_n) |>
+    mutate(
+      stars    = case_when(padj < 0.01 ~ "**", padj < 0.05 ~ "*", TRUE ~ ""),
+      gs_base  = str_remove(pathway, " \\([^)]+\\)$"),
+      gs_short = str_trunc(gs_base, 45),
+      gs_label = paste0(gs_short, " (", collection, ")",
+                        if_else(stars != "", paste0(" ", stars), ""))
+    )
+
+  if (nrow(plot_data) == 0) { message("No nominal hits for: ", analysis_label); return(NULL) }
+
+  ggplot(plot_data,
+         aes(x = NES,
+             y = reorder(gs_label, NES),
+             color = collection, shape = collection, size = size)) +
+    geom_point(alpha = 0.85) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    scale_color_manual(name = "Collection", values = COLL_COLORS) +
+    scale_shape_manual(name = "Collection",
+                       values = c(Hallmark = 18, GO_BP = 16, GO_MF = 17,
+                                  GO_CC = 15, KEGG = 8, Reactome = 4)) +
+    scale_size_continuous(name = "Set size", range = c(2, 8)) +
+    theme_minimal(base_size = 11) +
+    labs(x = "Normalized Enrichment Score (NES)", y = NULL,
+         title    = paste0("GSEA \u2014 ", analysis_label),
+         subtitle = paste0("Top ", nrow(plot_data), " by FDR (p < 0.05)\n",
+                           "* FDR < 0.05   ** FDR < 0.01\nNES > 0: set enriched for metabolite associations")) +
+    theme(plot.title    = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9),
+          axis.text.y   = element_text(size = 8),
+          legend.position = "right")
+}
+
+# ---- Table helper ------------------------------------------------------------
+display_results_table <- function(results, caption, top_n = 20,
+                                  type = c("ora", "gsea"),
+                                  gene_set_source_lookup = NULL) {
+  type <- match.arg(type)
+  if (is.null(results) || nrow(results) == 0) { cat("No results.\n"); return(invisible(NULL)) }
+
+  if (type == "ora") {
+    results |>
+      head(top_n) |>
+      mutate(odds_ratio = round(odds_ratio, 2),
+             pval = signif(pval, 3), padj = signif(padj, 3),
+             hit_genes = str_trunc(hit_genes, 60)) |>
+      dplyr::select(gene_set, collection, n_hits, set_size,
+                    odds_ratio, pval, padj, hit_genes) |>
+      rename(`Gene set` = gene_set, Collection = collection,
+             Hits = n_hits, `Set size` = set_size,
+             OR = odds_ratio, `p-value` = pval, FDR = padj,
+             `Hit genes` = hit_genes) |>
+      kable(caption = caption) |>
+      kable_styling(bootstrap_options = c("striped", "condensed"),
+                    full_width = FALSE, font_size = 11) |>
+      print()
+  } else {
+    df <- results
+    if (!is.null(gene_set_source_lookup))
+      df <- df |> left_join(gene_set_source_lookup, by = c("pathway" = "gs_label"))
+    df |>
+      head(top_n) |>
+      mutate(pval = signif(pval, 3), padj = signif(padj, 3),
+             NES  = round(NES, 3),
+             leadingEdge = map_chr(leadingEdge, ~ paste(head(.x, 5), collapse = ", "))) |>
+      dplyr::select(pathway, collection, pval, padj, NES, size, leadingEdge) |>
+      rename(`Gene set` = pathway, Collection = collection,
+             `p-value` = pval, FDR = padj, `Set size` = size,
+             `Leading edge (top 5)` = leadingEdge) |>
+      kable(caption = caption) |>
+      kable_styling(bootstrap_options = c("striped", "condensed"),
+                    full_width = FALSE, font_size = 11) |>
+      print()
+  }
+}
+
+flatten_leading_edge <- function(df) {
+  if (!is.null(df) && "leadingEdge" %in% colnames(df))
+    df |> mutate(leadingEdge = map_chr(leadingEdge, ~ paste(.x, collapse = ";")))
+  else df
+}
+```
+
+---
+
+# 1. All Cell Types (Union)
+
+Foreground: genes with ≥1 stable association in any cell type.
+
+## ORA and GSEA
+
+```{r}
+#| label: run-all
+genes_all <- hits |> distinct(gene) |> pull(gene)
+cat("Union gene hits:", length(genes_all), "\n")
+
+ora_all  <- run_gene_ora(
+  genes_all, background_genes, gene_set_list,
+  gene_set_source_lookup, "All cell types (union)"
+)
+gsea_all <- run_gene_gsea(
+  ranking_all_raw, background_genes, gene_set_list,
+  "All cell types"
+)
+```
+
+## ORA — Table
+
+```{r}
+#| label: results-ora-all-table
+display_results_table(ora_all, "ORA: All cell types — top 20", type = "ora")
+```
+
+## ORA — GO:BP Plot
+
+```{r}
+#| label: results-ora-all-gobp
+#| fig-width: 10
+#| fig-height: 7
+p <- plot_ora_dotplot(ora_all, "All cell types — GO:BP", collections = "GO_BP")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_all_GO_BP"); print(p) }
+```
+
+## ORA — Hallmark + KEGG + Reactome Plot
+
+```{r}
+#| label: results-ora-all-curated
+#| fig-width: 10
+#| fig-height: 7
+p <- plot_ora_dotplot(ora_all, "All cell types — Curated",
+                      collections = c("Hallmark", "KEGG", "Reactome"))
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_all_curated"); print(p) }
+```
+
+## GSEA — Table
+
+```{r}
+#| label: results-gsea-all-table
+display_results_table(gsea_all, "GSEA: All cell types — top 20",
+                      type = "gsea", gene_set_source_lookup = gene_set_source_lookup)
+```
+
+## GSEA — GO:BP Plot
+
+```{r}
+#| label: results-gsea-all-gobp
+#| fig-width: 10
+#| fig-height: 8
+p <- plot_gsea_dotplot(gsea_all, gene_set_source_lookup,
+                       "All cell types — GO:BP", collections = "GO_BP")
+if (!is.null(p)) { save_dual_format(p, out_dir, "gsea_all_GO_BP"); print(p) }
+```
+
+## GSEA — Hallmark + KEGG + Reactome Plot
+
+```{r}
+#| label: results-gsea-all-curated
+#| fig-width: 10
+#| fig-height: 8
+p <- plot_gsea_dotplot(gsea_all, gene_set_source_lookup,
+                       "All cell types — Curated",
+                       collections = c("Hallmark", "KEGG", "Reactome"))
+if (!is.null(p)) { save_dual_format(p, out_dir, "gsea_all_curated"); print(p) }
+```
+
+---
+
+# 2. Cell-Type-Specific
+
+ORA and GSEA run independently per cell type. Cell types with fewer than
+`r MIN_CT_HITS` gene hits are skipped for ORA.
+
+```{r}
+#| label: celltype-loop
+cell_types   <- sort(unique(hits$cell_type))
+ora_ct_list  <- list()
+gsea_ct_list <- list()
+
+for (ct in cell_types) {
+  ct_genes <- hits |> filter(cell_type == ct) |> distinct(gene) |> pull(gene)
+  cat(sprintf("\n--- %s | %d gene hits ---\n", ct, length(ct_genes)))
+
+  if (length(ct_genes) >= MIN_CT_HITS) {
+    ora_ct_list[[ct]] <- run_gene_ora(
+      ct_genes, background_genes, gene_set_list, gene_set_source_lookup, ct
+    )
+  } else {
+    cat("  ORA skipped: fewer than", MIN_CT_HITS, "hits\n")
+  }
+
+  ct_ranking <- ranking_ct_raw |> filter(cell_type == ct)
+  if (nrow(ct_ranking) > 0)
+    gsea_ct_list[[ct]] <- run_gene_gsea(ct_ranking, background_genes, gene_set_list, ct)
+}
+
+cat(sprintf(
+  "\nCompleted: ORA for %d cell types | GSEA for %d cell types\n",
+  length(ora_ct_list), length(gsea_ct_list)
+))
+```
+
+## Cell-Type ORA — Summary Table
+
+Top 3 gene sets per cell type (p < 0.05).
+
+```{r}
+#| label: ct-ora-summary
+ct_ora_summary <- map_dfr(names(ora_ct_list), function(ct) {
+  res <- ora_ct_list[[ct]]
+  if (is.null(res) || nrow(res) == 0) return(NULL)
+  res |>
+    filter(pval < 0.05) |>
+    slice_head(n = 3) |>
+    mutate(cell_type = ct,
+           gs_short  = str_trunc(str_remove(gene_set, " \\([^)]+\\)$"), 40))
+})
+
+if (nrow(ct_ora_summary) > 0) {
+  ct_ora_summary |>
+    dplyr::select(cell_type, gs_short, collection,
+                  n_hits, set_size, odds_ratio, pval, padj) |>
+    mutate(across(where(is.numeric), ~ signif(.x, 3))) |>
+    rename(`Cell type` = cell_type, `Gene set` = gs_short,
+           Collection = collection, Hits = n_hits,
+           `Set size` = set_size, OR = odds_ratio,
+           `p-value` = pval, FDR = padj) |>
+    kable(caption = "Top 3 ORA gene sets per cell type (p < 0.05)") |>
+    kable_styling(bootstrap_options = c("striped", "condensed"),
+                  full_width = FALSE, font_size = 10)
+}
+```
+
+## Cell-Type ORA — Dot Plots
+
+```{r}
+#| label: ct-ora-plots
+#| fig-width: 10
+#| fig-height: 7
+for (ct in names(ora_ct_list)) {
+  p <- plot_ora_dotplot(ora_ct_list[[ct]], ct, top_n = 15)
+  if (!is.null(p)) {
+    ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+    save_dual_format(p, out_dir, paste0("ora_ct_", ct_safe))
+    print(p)
+  }
+}
+```
+
+## Cell-Type GSEA — Summary Table
+
+```{r}
+#| label: ct-gsea-summary
+ct_gsea_summary <- map_dfr(names(gsea_ct_list), function(ct) {
+  res <- gsea_ct_list[[ct]]
+  if (is.null(res) || nrow(res) == 0) return(NULL)
+  res |>
+    left_join(gene_set_source_lookup, by = c("pathway" = "gs_label")) |>
+    filter(pval < 0.05) |>
+    slice_head(n = 3) |>
+    mutate(cell_type = ct,
+           gs_short  = str_trunc(str_remove(pathway, " \\([^)]+\\)$"), 40))
+})
+
+if (nrow(ct_gsea_summary) > 0) {
+  ct_gsea_summary |>
+    dplyr::select(cell_type, gs_short, collection, pval, padj, NES, size) |>
+    mutate(across(where(is.numeric), ~ signif(.x, 3))) |>
+    rename(`Cell type` = cell_type, `Gene set` = gs_short,
+           Collection = collection,
+           `p-value` = pval, FDR = padj, `Set size` = size) |>
+    kable(caption = "Top 3 GSEA gene sets per cell type (p < 0.05)") |>
+    kable_styling(bootstrap_options = c("striped", "condensed"),
+                  full_width = FALSE, font_size = 10)
+}
+```
+
+## Cell-Type GSEA — Dot Plots
+
+```{r}
+#| label: ct-gsea-plots
+#| fig-width: 10
+#| fig-height: 8
+for (ct in names(gsea_ct_list)) {
+  p <- plot_gsea_dotplot(gsea_ct_list[[ct]], gene_set_source_lookup, ct, top_n = 15)
+  if (!is.null(p)) {
+    ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+    save_dual_format(p, out_dir, paste0("gsea_ct_", ct_safe))
+    print(p)
+  }
+}
+```
+
+---
+
+# 3. Glia vs. Neurons
+
+## Define Groups
+
+```{r}
+#| label: define-groups
+glia_genes   <- hits |> filter(cell_type %in% GLIAL_TYPES)    |> distinct(gene) |> pull(gene)
+neuron_genes <- hits |> filter(cell_type %in% NEURONAL_TYPES) |> distinct(gene) |> pull(gene)
+
+glia_only   <- setdiff(glia_genes,   neuron_genes)
+neuron_only <- setdiff(neuron_genes, glia_genes)
+shared_both <- intersect(glia_genes, neuron_genes)
+
+cat(sprintf(
+  "Glia genes: %d | Neuron genes: %d\nGlia-only: %d | Neuron-only: %d | Shared: %d\n",
+  length(glia_genes), length(neuron_genes),
+  length(glia_only), length(neuron_only), length(shared_both)
+))
+
+unmatched_glia   <- setdiff(GLIAL_TYPES,    unique(hits$cell_type))
+unmatched_neuron <- setdiff(NEURONAL_TYPES, unique(hits$cell_type))
+if (length(unmatched_glia)   > 0) warning("GLIAL_TYPES not in hits: ",    paste(unmatched_glia,   collapse = ", "))
+if (length(unmatched_neuron) > 0) warning("NEURONAL_TYPES not in hits: ", paste(unmatched_neuron, collapse = ", "))
+```
+
+## Gene Overlap
+
+```{r}
+#| label: overlap-bar
+#| fig-width: 6
+#| fig-height: 3
+tibble(
+  group = factor(c("Glia-only", "Shared", "Neuron-only"),
+                 levels = c("Glia-only", "Shared", "Neuron-only")),
+  n     = c(length(glia_only), length(shared_both), length(neuron_only))
+) |>
+  ggplot(aes(x = group, y = n, fill = group)) +
+  geom_col(alpha = 0.85, width = 0.6) +
+  geom_text(aes(label = n), vjust = -0.4, size = 4.5, fontface = "bold") +
+  scale_fill_manual(values = c(
+    "Glia-only"   = "#4E9AF1",
+    "Shared"      = "#9B59B6",
+    "Neuron-only" = "#E67E22"
+  )) +
+  theme_minimal(base_size = 12) +
+  labs(x = NULL, y = "Distinct genes",
+       title = "Gene overlap: glia vs. neurons") +
+  theme(legend.position = "none", plot.title = element_text(hjust = 0.5))
+```
+
+## ORA — Glia and Neurons
+
+```{r}
+#| label: gn-ora
+ora_glia        <- run_gene_ora(glia_genes,   background_genes, gene_set_list, gene_set_source_lookup, "Glia (union)")
+ora_neuron      <- run_gene_ora(neuron_genes, background_genes, gene_set_list, gene_set_source_lookup, "Neurons (union)")
+ora_glia_only   <- run_gene_ora(glia_only,    background_genes, gene_set_list, gene_set_source_lookup, "Glia-exclusive")
+ora_neuron_only <- run_gene_ora(neuron_only,  background_genes, gene_set_list, gene_set_source_lookup, "Neuron-exclusive")
+```
+
+## GSEA — Glia and Neurons
+
+Rankings collapse to min P.Value within each cell class.
+
+```{r}
+#| label: gn-gsea
+glia_ranking <- ranking_ct_raw |>
+  filter(cell_type %in% GLIAL_TYPES) |>
+  group_by(gene) |>
+  summarise(min_P = min(min_P, na.rm = TRUE), .groups = "drop")
+
+neuron_ranking <- ranking_ct_raw |>
+  filter(cell_type %in% NEURONAL_TYPES) |>
+  group_by(gene) |>
+  summarise(min_P = min(min_P, na.rm = TRUE), .groups = "drop")
+
+gsea_glia   <- run_gene_gsea(glia_ranking,   background_genes, gene_set_list, "Glia")
+gsea_neuron <- run_gene_gsea(neuron_ranking, background_genes, gene_set_list, "Neurons")
+```
+
+## Results — ORA Glia (Union)
+
+```{r}
+#| label: plot-ora-glia
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_glia, "ORA: Glia (union) — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_glia, "Glia (union)")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_glia"); print(p) }
+```
+
+## Results — ORA Neurons (Union)
+
+```{r}
+#| label: plot-ora-neuron
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_neuron, "ORA: Neurons (union) — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_neuron, "Neurons (union)")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_neurons"); print(p) }
+```
+
+## Results — ORA Glia-Exclusive
+
+```{r}
+#| label: plot-ora-glia-only
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_glia_only, "ORA: Glia-exclusive genes — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_glia_only, "Glia-exclusive")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_glia_only"); print(p) }
+```
+
+## Results — ORA Neuron-Exclusive
+
+```{r}
+#| label: plot-ora-neuron-only
+#| fig-width: 10
+#| fig-height: 7
+display_results_table(ora_neuron_only, "ORA: Neuron-exclusive genes — top 20", type = "ora")
+p <- plot_ora_dotplot(ora_neuron_only, "Neuron-exclusive")
+if (!is.null(p)) { save_dual_format(p, out_dir, "ora_neuron_only"); print(p) }
+```
+
+## Results — GSEA Glia
+
+```{r}
+#| label: plot-gsea-glia
+#| fig-width: 10
+#| fig-height: 8
+display_results_table(gsea_glia, "GSEA: Glia — top 20", type = "gsea",
+                      gene_set_source_lookup = gene_set_source_lookup)
+p <- plot_gsea_dotplot(gsea_glia, gene_set_source_lookup, "Glia")
+if (!is.null(p)) { save_dual_format(p, out_dir, "gsea_glia"); print(p) }
+```
+
+## Results — GSEA Neurons
+
+```{r}
+#| label: plot-gsea-neuron
+#| fig-width: 10
+#| fig-height: 8
+display_results_table(gsea_neuron, "GSEA: Neurons — top 20", type = "gsea",
+                      gene_set_source_lookup = gene_set_source_lookup)
+p <- plot_gsea_dotplot(gsea_neuron, gene_set_source_lookup, "Neurons")
+if (!is.null(p)) { save_dual_format(p, out_dir, "gsea_neurons"); print(p) }
+```
+
+## Shared Gene Sets: Glia vs. Neurons (ORA)
+
+Gene sets significant in both (p < 0.05); scatter shows which class has the
+stronger enrichment (above diagonal = stronger in neurons).
+
+```{r}
+#| label: gn-geneset-overlap
+#| fig-width: 9
+#| fig-height: 7
+if (!is.null(ora_glia) && !is.null(ora_neuron)) {
+  shared_sets <- inner_join(
+    ora_glia   |> filter(pval < 0.05) |>
+      dplyr::select(gene_set, collection, or_glia   = odds_ratio, pval_glia   = pval),
+    ora_neuron |> filter(pval < 0.05) |>
+      dplyr::select(gene_set,             or_neuron = odds_ratio, pval_neuron = pval),
+    by = "gene_set"
+  ) |>
+    mutate(
+      gs_short       = str_trunc(str_remove(gene_set, " \\([^)]+\\)$"), 38),
+      log2_or_glia   = log2(or_glia),
+      log2_or_neuron = log2(or_neuron)
+    )
+
+  cat(sprintf("Gene sets significant in both (p < 0.05): %d\n", nrow(shared_sets)))
+
+  if (nrow(shared_sets) > 0) {
+    p_overlap <- ggplot(shared_sets,
+                        aes(x = log2_or_glia, y = log2_or_neuron,
+                            color = collection, label = gs_short)) +
+      geom_point(alpha = 0.8, size = 3) +
+      geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey60") +
+      geom_hline(yintercept = 0, linetype = "dotted", color = "grey70") +
+      geom_vline(xintercept = 0, linetype = "dotted", color = "grey70") +
+      ggrepel::geom_text_repel(size = 3, max.overlaps = 15) +
+      scale_color_manual(name = "Collection", values = COLL_COLORS) +
+      theme_minimal(base_size = 11) +
+      labs(x = "log2(OR) in Glia", y = "log2(OR) in Neurons",
+           title    = "Shared gene sets: Glia vs. Neurons (ORA)",
+           subtitle = "Above diagonal = stronger in neurons | Below = stronger in glia") +
+      theme(plot.title    = element_text(hjust = 0.5),
+            plot.subtitle = element_text(hjust = 0.5, color = "grey40", size = 9))
+
+    save_dual_format(p_overlap, out_dir, "glia_neuron_geneset_overlap")
+    print(p_overlap)
+  }
+}
+```
+
+---
+
+# Save Results
+
+```{r}
+#| label: save-results
+
+# All cell types
+if (!is.null(ora_all))  write_csv(ora_all,                       file.path(csv_path, "ora_all_celltypes.csv"))
+if (!is.null(gsea_all)) write_csv(flatten_leading_edge(gsea_all), file.path(csv_path, "gsea_all_celltypes.csv"))
+
+# Cell-type-specific
+for (ct in names(ora_ct_list)) {
+  ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+  if (!is.null(ora_ct_list[[ct]]))
+    write_csv(ora_ct_list[[ct]], file.path(csv_path, paste0("ora_ct_", ct_safe, ".csv")))
+}
+for (ct in names(gsea_ct_list)) {
+  ct_safe <- gsub("[^A-Za-z0-9_]", "_", ct)
+  if (!is.null(gsea_ct_list[[ct]]))
+    write_csv(flatten_leading_edge(gsea_ct_list[[ct]]),
+              file.path(csv_path, paste0("gsea_ct_", ct_safe, ".csv")))
+}
+if (exists("ct_ora_summary")  && nrow(ct_ora_summary)  > 0)
+  write_csv(ct_ora_summary,  file.path(csv_path, "ora_celltype_summary.csv"))
+if (exists("ct_gsea_summary") && nrow(ct_gsea_summary) > 0)
+  write_csv(ct_gsea_summary, file.path(csv_path, "gsea_celltype_summary.csv"))
+
+# Glia vs. neurons
+if (!is.null(ora_glia))        write_csv(ora_glia,                           file.path(csv_path, "ora_glia.csv"))
+if (!is.null(ora_neuron))      write_csv(ora_neuron,                         file.path(csv_path, "ora_neuron.csv"))
+if (!is.null(ora_glia_only))   write_csv(ora_glia_only,                      file.path(csv_path, "ora_glia_only.csv"))
+if (!is.null(ora_neuron_only)) write_csv(ora_neuron_only,                    file.path(csv_path, "ora_neuron_only.csv"))
+if (!is.null(gsea_glia))       write_csv(flatten_leading_edge(gsea_glia),    file.path(csv_path, "gsea_glia.csv"))
+if (!is.null(gsea_neuron))     write_csv(flatten_leading_edge(gsea_neuron),  file.path(csv_path, "gsea_neuron.csv"))
+
+cat("All results saved to:", csv_path, "\n")
+```

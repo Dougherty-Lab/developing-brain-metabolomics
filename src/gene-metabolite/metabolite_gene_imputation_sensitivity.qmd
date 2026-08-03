@@ -31,8 +31,9 @@ This document:
    significance is lost (`p > 0.05`) or direction reverses — the
    **imputation sensitivity** test.
 3. Cross-tabulates imputation sensitivity with DFBETAS stability to show overlap.
-4. Produces a **clean hit set**: global-FDR hits that are *both* DFBETAS-stable
-   *and* imputation-insensitive.
+4. Produces a **clean hit set**: global-FDR hits that are imputation-insensitive
+   (primary analysis), with DFBETAS stability retained as an annotation column.
+5. Summary recurrence figures (top genes, metabolites, cell types) on the clean set.
 
 ## Setup
 
@@ -421,6 +422,52 @@ cat(sprintf(
   format(sum(clean_hits$dfbetas_stable),          big.mark = ","),
   format(sum(!clean_hits$dfbetas_stable),         big.mark = ",")
 ))
+```
+
+## Recurrence on clean hits
+
+```{r}
+#| label: recurrence
+gene_recur <- clean_hits |>
+  dplyr::group_by(gene) |>
+  dplyr::summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop") |>
+  dplyr::slice_max(n_metabolites, n = 20)
+
+p_g <- ggplot(gene_recur, aes(reorder(gene, n_metabolites), n_metabolites)) +
+  geom_col(fill = "steelblue", alpha = 0.85) + coord_flip() +
+  labs(x = "Gene", y = "Distinct metabolites",
+       title = "Clean hits: top genes by metabolite associations") +
+  theme_cowplot(12)
+save_dual_format(p_g, fig_dir, "clean_recurrence_genes", width = 8, height = 7)
+print(p_g)
+
+metab_recur <- clean_hits |>
+  dplyr::group_by(Compound.ID, Name, Super.Class) |>
+  dplyr::summarise(n_genes = n_distinct(gene), .groups = "drop") |>
+  dplyr::slice_max(n_genes, n = 25) |>
+  add_plot_label()
+write_csv(metab_recur |> dplyr::select(label, Name, Compound.ID),
+          file.path(fig_dir, "clean_recurrence_metabolites_labels.csv"))
+
+p_m <- ggplot(metab_recur, aes(reorder(label, n_genes), n_genes, fill = Super.Class)) +
+  geom_col(alpha = 0.85) + coord_flip() +
+  labs(x = "Metabolite", y = "Distinct genes",
+       title = "Clean hits: top metabolites by gene associations") +
+  theme_cowplot(12)
+save_dual_format(p_m, fig_dir, "clean_recurrence_metabolites", width = 10, height = 7)
+print(p_m)
+
+ct_recur <- clean_hits |>
+  dplyr::group_by(cell_type) |>
+  dplyr::summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop")
+
+p_c <- ggplot(ct_recur, aes(reorder(cell_type, n_metabolites), n_metabolites)) +
+  geom_col(fill = "darkorange", alpha = 0.85) + coord_flip() +
+  labs(x = "Cell type", y = "Distinct metabolites",
+       title = "Clean hits: metabolites per cell type") +
+  theme_cowplot(12)
+save_dual_format(p_c, fig_dir, "clean_recurrence_celltypes", width = 8, height = 6)
+print(p_c)
 ```
 
 ## Scatter plots — top 20 clean hits with imputed labels

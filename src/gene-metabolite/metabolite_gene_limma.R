@@ -36,8 +36,11 @@ hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
 
 # Predictor transform for this run. "int" (leverage-robust, current run) writes
 # to .../parquet; any other method writes to .../parquet-<method> so a second
-# run cannot clobber the first. For the outlier-trim comparison:  METHOD <- "zscore_trim"
-METHOD  <- "zscore_trim"                       # "int" | "zscore" | "zscore_trim"
+# run cannot clobber the first.
+# log2_na: log2(x+1) -> 0.75*IQR outlier removal -> z-score, no imputation.
+# Missing and outlier samples stay NA and are dropped per-metabolite by
+# analyze_metabolite()'s !is.na(md$metab) filter. MIN_SAMPLES=10 post-NA-drop.
+METHOD  <- "log2_na"                           # "int" | "zscore" | "zscore_trim" | "log2_na"
 out_dir <- if (METHOD == "int") {
   "../../results/gene-metabolite/parquet"
 } else {

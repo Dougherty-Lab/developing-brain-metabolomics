@@ -1,0 +1,120 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Nitrogen metabolism (KEGG),3,12,6.34905587187287,0.0223373970491077,L-Histidine;Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,KEGG
+Purine catabolism (Reactome),3,12,6.34905587187287,0.0223373970491077,2'-Deoxyadenosine;Adenosine 5'-Diphosphate;Uric Acid,0.4792560347655285,Reactome
+Carnosine metabolism of glial cells (WikiPathways),2,5,12.317864069465406,0.02536018656700231,L-Histidine;Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Synthesis of UDP-N-acetyl-glucosamine (Reactome),2,5,12.317864069465406,0.02536018656700231,N-Acetyl-D-Glucosamine 6-Phosphate;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+"Alanine, aspartate and glutamate metabolism (KEGG)",4,23,4.095082812952226,0.02957393853410473,N-Acetyl-L-Aspartic Acid;N-Acetyl-D-Glucosamine 6-Phosphate;Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,KEGG
+Nucleotide salvage (Reactome),3,15,4.743009685228805,0.04137431405944785,Pseudouridine;2'-Deoxyadenosine;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Amino Sugar Metabolism (KEGG),3,16,4.371679470198476,0.049089968360296825,Cytidine-5'-Monophospho-N-Acetylneuraminic Acid;N-Acetyl-D-Glucosamine 6-Phosphate;Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Purine metabolism (WikiPathways),3,16,4.371679470198476,0.049089968360296825,2'-Deoxyadenosine;Adenosine 5'-Diphosphate;Uric Acid,0.4792560347655285,WikiPathways
+Metabolic reprogramming in pancreatic cancer (WikiPathways),2,7,7.396094413601972,0.04977166604412354,"D-Fructose 1,6-Bisphosphate;N-Acetyl-D-Glucosamine 6-Phosphate",0.4792560347655285,WikiPathways
+Pyrimidine salvage (Reactome),2,7,7.396094413601972,0.04977166604412354,Pseudouridine;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Histidine catabolism (Reactome),2,8,6.158430016099579,0.06416512594660158,L-Histidine;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",3,19,3.5349876981011454,0.07612719045507543,2'-Deoxyadenosine;Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,Reactome
+Citric Acid Cycle (KEGG),2,9,5.273086095993605,0.07977583135215148,Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,KEGG
+Propanoate metabolism (KEGG),2,9,5.273086095993605,0.07977583135215148,Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,KEGG
+Purine salvage (Reactome),2,9,5.273086095993605,0.07977583135215148,2'-Deoxyadenosine;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Pyruvate metabolism (KEGG),2,9,5.273086095993605,0.07977583135215148,Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,KEGG
+"Valine, leucine and isoleucine degradation (KEGG)",2,9,5.273086095993605,0.07977583135215148,Adenosine 5'-Diphosphate;Biotin,0.4792560347655285,KEGG
+Glutamate and glutamine metabolism (Reactome),2,10,4.609475838973809,0.09644054423946304,N-Acetyl-L-Aspartic Acid;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Histidine metabolism (KEGG),2,10,4.609475838973809,0.09644054423946304,L-Histidine;Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Tryptophan catabolism (Reactome),2,10,4.609475838973809,0.09644054423946304,L-Histidine;L-Kynurenine,0.4792560347655285,Reactome
+Purine metabolism and related disorders (WikiPathways),3,21,3.1316716649499847,0.09715783058726028,2'-Deoxyadenosine;Adenosine 5'-Diphosphate;Uric Acid,0.4792560347655285,WikiPathways
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),2,11,4.0922244269217805,0.11400907153687236,2'-Deoxyadenosine;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Nucleotide catabolism (Reactome),3,25,2.5442301555683007,0.14538655133708073,2'-Deoxyadenosine;Adenosine 5'-Diphosphate;Uric Acid,0.4792560347655285,Reactome
+Neurotransmitter release cycle (Reactome),2,14,3.0555715931126173,0.17081360025892786,Adenosine 5'-Diphosphate;Palmitoyl Ethanolamide,0.4792560347655285,Reactome
+Synthesis of substrates in N-glycan biosythesis (Reactome),2,15,2.816022003978228,0.19072733659730948,N-Acetyl-D-Glucosamine 6-Phosphate;Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+15q25 copy number variation (WikiPathways),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Abacavir ADME (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Abacavir metabolism (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Activation of NMDA receptors and postsynaptic events (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Branched-chain amino acid catabolism (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+"Cerebral organic acidurias, including diseases (WikiPathways)",1,5,4.485141472286388,0.24259045702012205,N-Acetyl-L-Aspartic Acid,0.4792560347655285,WikiPathways
+"Gamma-glutamyl cycle for the biosynthesis and degradation of glutathione, including diseases (WikiPathways)",1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Glutathione conjugation (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Glutathione synthesis and recycling (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Maternal to zygotic transition (MZT) (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Metabolism of folate and pterines (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Mitochondrial biogenesis (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Nicotinamide salvaging (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Nucleotide salvage defects (Reactome),1,5,4.485141472286388,0.24259045702012205,2'-Deoxyadenosine,0.4792560347655285,Reactome
+Pantothenate and CoA Biosynthesis (KEGG),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Paracetamol ADME (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Post NMDA receptor activation events (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Pyrimidine biosynthesis (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Serine biosynthesis (Reactome),1,5,4.485141472286388,0.24259045702012205,Phosphoserine,0.4792560347655285,Reactome
+Synthesis of Leukotrienes (LT) and Eoxins (EX) (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+TP53 Regulates Metabolic Genes (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+The phototransduction cascade (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Thermogenesis (WikiPathways),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Transcriptional activation of mitochondrial biogenesis (Reactome),1,5,4.485141472286388,0.24259045702012205,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Azathioprine ADME (Reactome),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Creatine pathway (WikiPathways),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Diseases of nucleotide metabolism (Reactome),1,6,3.5854959790875447,0.28375401913859366,2'-Deoxyadenosine,0.4792560347655285,Reactome
+Glycogen metabolism (Reactome),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Glycosphingolipid metabolism (Reactome),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+NAD biosynthesis II from tryptophan (WikiPathways),1,6,3.5854959790875447,0.28375401913859366,L-Kynurenine,0.4792560347655285,WikiPathways
+Phosphatidylcholine catabolism (WikiPathways),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Primary bile acid biosynthesis (KEGG),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Regulation of insulin secretion (Reactome),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Role of carnosine in muscle contraction (WikiPathways),1,6,3.5854959790875447,0.28375401913859366,L-Histidine,0.4792560347655285,WikiPathways
+Sialic acid metabolism (Reactome),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Sphingolipid metabolism overview (WikiPathways),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Tryptophan metabolism (KEGG),1,6,3.5854959790875447,0.28375401913859366,L-Kynurenine,0.4792560347655285,KEGG
+Urea cycle (Reactome),1,6,3.5854959790875447,0.28375401913859366,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Amino acid metabolism pathway excerpt: histidine catabolism extension (WikiPathways),1,7,2.9847193385869906,0.3227510779876721,L-Histidine,0.4792560347655285,WikiPathways
+Aspirin ADME (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Biogenic amine synthesis (WikiPathways),1,7,2.9847193385869906,0.3227510779876721,L-Histidine,0.4792560347655285,WikiPathways
+Cell recruitment (pro-inflammatory response) (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Citric acid cycle (TCA cycle) (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Glycolysis (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Lactate shuttle in glial cells (WikiPathways),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Late SARS-CoV-2 Infection Events (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Nicotinate metabolism (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Organic cation/anion/zwitterion transport (Reactome),1,7,2.9847193385869906,0.3227510779876721,Uric Acid,0.4792560347655285,Reactome
+Purinergic signaling in leishmaniasis infection (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Selenocompound metabolism (KEGG),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Serine metabolism (WikiPathways),1,7,2.9847193385869906,0.3227510779876721,Phosphoserine,0.4792560347655285,WikiPathways
+Synthesis of PC (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+TCA cycle (aka Krebs or citric acid cycle) (WikiPathways),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Translation of Structural Proteins (Reactome),1,7,2.9847193385869906,0.3227510779876721,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Aerobic glycolysis (WikiPathways),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Creatine metabolism (Reactome),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Fructose and mannose metabolism (KEGG),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Gluconeogenesis (Reactome),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Glutathione metabolism (KEGG),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Kennedy pathway from sphingolipids (WikiPathways),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Nicotinate and nicotinamide metabolism (KEGG),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,KEGG
+Trans-sulfuration pathway (WikiPathways),1,8,2.5550120967495538,0.35969192827925367,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Amino acid metabolism in triple-negative breast cancer cells (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Phosphoserine,0.4792560347655285,WikiPathways
+Aspartate and asparagine metabolism (Reactome),1,9,2.2323409727944505,0.3946814403951412,N-Acetyl-L-Aspartic Acid,0.4792560347655285,Reactome
+Cori cycle (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Folate metabolism (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Krebs cycle disorders (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Pseudouridine,0.4792560347655285,WikiPathways
+Purinergic signaling (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+Pyrimidine catabolism (Reactome),1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,Reactome
+Sphingolipid metabolism: integrated pathway (WikiPathways),1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+beta-Alanine metabolism (KEGG),1,9,2.2323409727944505,0.3946814403951412,L-Histidine,0.4792560347655285,KEGG
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",1,9,2.2323409727944505,0.3946814403951412,Adenosine 5'-Diphosphate,0.4792560347655285,WikiPathways
+16p11.2 proximal deletion syndrome (WikiPathways),1,10,1.981396125542948,0.42781931774577253,Palmitoyl Ethanolamide,0.48486189344520886,WikiPathways
+Galactose Metabolism (KEGG),1,10,1.981396125542948,0.42781931774577253,Adenosine 5'-Diphosphate,0.48486189344520886,KEGG
+Glucose metabolism (Reactome),1,10,1.981396125542948,0.42781931774577253,Adenosine 5'-Diphosphate,0.48486189344520886,Reactome
+"Leucine, isoleucine and valine metabolism (WikiPathways)",1,10,1.981396125542948,0.42781931774577253,Biotin,0.48486189344520886,WikiPathways
+Phosphate bond hydrolysis by NTPDase proteins (Reactome),1,10,1.981396125542948,0.42781931774577253,Adenosine 5'-Diphosphate,0.48486189344520886,Reactome
+Purine ribonucleoside monophosphate biosynthesis (Reactome),1,10,1.981396125542948,0.42781931774577253,Adenosine 5'-Diphosphate,0.48486189344520886,Reactome
+Pyruvate metabolism (Reactome),1,10,1.981396125542948,0.42781931774577253,Adenosine 5'-Diphosphate,0.48486189344520886,Reactome
+Glycerophospholipid biosynthetic pathway (WikiPathways),1,11,1.780381629220788,0.4592003423666625,Adenosine 5'-Diphosphate,0.5106994461834845,WikiPathways
+Nucleotide biosynthesis (Reactome),1,11,1.780381629220788,0.4592003423666625,Adenosine 5'-Diphosphate,0.5106994461834845,Reactome
+Aerobic glycolysis - augmented (WikiPathways),1,12,1.6158255399922108,0.4889146092695932,Adenosine 5'-Diphosphate,0.5289167136643781,WikiPathways
+Interconversion of nucleotide di- and triphosphates (Reactome),1,12,1.6158255399922108,0.4889146092695932,Adenosine 5'-Diphosphate,0.5289167136643781,Reactome
+Variant SLC6A14 may confer susceptibility towards obesity (Reactome),1,12,1.6158255399922108,0.4889146092695932,L-Histidine,0.5289167136643781,Reactome
+Glucose homeostasis (WikiPathways),1,14,1.362520108705982,0.5436811461810372,L-Histidine,0.5828653729328237,WikiPathways
+Arginine and proline metabolism (KEGG),1,15,1.2629594480932824,0.5688921325798749,Adenosine 5'-Diphosphate,0.604447890866117,KEGG
+Cytosolic tRNA aminoacylation (Reactome),1,16,1.176641594536952,0.5927541916621699,L-Histidine,0.6133717287634628,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),1,16,1.176641594536952,0.5927541916621699,L-Histidine,0.6133717287634628,Reactome
+tRNA Aminoacylation (Reactome),1,16,1.176641594536952,0.5927541916621699,L-Histidine,0.6133717287634628,Reactome
+Methionine Metabolism (KEGG),1,17,1.1010760334427774,0.6153371385200901,Adenosine 5'-Diphosphate,0.6312510300335408,KEGG
+Na+/Cl- dependent neurotransmitter transporters (Reactome),1,19,0.9751392026253928,0.6569276705436343,L-Histidine,0.66815720337344,Reactome
+Amino acid transport across the plasma membrane (Reactome),1,21,0.8743312002054018,0.6941554108067548,L-Histidine,0.7000380837796933,Reactome
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",1,23,0.7918213350469531,0.7274638447602526,Phosphoserine,0.7274638447602526,WikiPathways
