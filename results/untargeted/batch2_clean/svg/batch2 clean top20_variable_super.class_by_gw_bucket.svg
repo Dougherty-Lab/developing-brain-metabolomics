@@ -28,9 +28,9 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpOC4yMnw0MDMuNzJ8NDAuNTZ8Njg4LjA5)'>
-<polyline points='88.52,688.09 88.52,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='213.18,688.09 213.18,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='337.84,688.09 337.84,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='94.45,688.09 94.45,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='230.97,688.09 230.97,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='367.49,688.09 367.49,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,640.71 403.72,640.71 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,561.74 403.72,561.74 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,482.78 403.72,482.78 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -40,24 +40,23 @@
 <polyline points='8.22,166.90 403.72,166.90 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,87.94 403.72,87.94 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='26.20,688.09 26.20,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='150.85,688.09 150.85,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='275.51,688.09 275.51,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='400.17,688.09 400.17,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='26.20' y='131.37' width='359.54' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='52.40' width='315.20' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='447.24' width='261.29' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='368.27' width='257.65' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='289.30' width='254.61' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='210.34' width='254.13' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='526.21' width='235.18' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='26.20' y='605.18' width='113.56' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<text x='30.76' y='169.50' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Organic nitrogen compounds</text>
+<polyline points='162.71,688.09 162.71,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='299.23,688.09 299.23,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<rect x='26.20' y='52.40' width='359.54' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='131.37' width='339.89' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='289.30' width='286.14' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='210.34' width='282.52' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='447.24' width='263.62' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='368.27' width='252.92' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='526.21' width='222.28' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='26.20' y='605.18' width='172.65' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
 <text x='30.62' y='90.53' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='88.53px' lengthAdjust='spacingAndGlyphs'>Organic oxygen compounds</text>
-<text x='32.66' y='485.37' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='129.25px' lengthAdjust='spacingAndGlyphs'>Nucleosides, nucleotides, and analogues</text>
-<text x='30.90' y='406.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.04px' lengthAdjust='spacingAndGlyphs'>Lipids and lipid-like molecules</text>
-<text x='30.86' y='327.43' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='93.27px' lengthAdjust='spacingAndGlyphs'>Organic acids and derivatives</text>
-<text x='28.05' y='248.46' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='37.15px' lengthAdjust='spacingAndGlyphs'>Benzenoids</text>
-<text x='31.20' y='564.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='99.99px' lengthAdjust='spacingAndGlyphs'>Organoheterocyclic compounds</text>
+<text x='30.76' y='169.50' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Organic nitrogen compounds</text>
+<text x='32.66' y='327.43' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='129.25px' lengthAdjust='spacingAndGlyphs'>Nucleosides, nucleotides, and analogues</text>
+<text x='30.90' y='248.46' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.04px' lengthAdjust='spacingAndGlyphs'>Lipids and lipid-like molecules</text>
+<text x='30.86' y='485.37' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='93.27px' lengthAdjust='spacingAndGlyphs'>Organic acids and derivatives</text>
+<text x='31.20' y='406.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='99.99px' lengthAdjust='spacingAndGlyphs'>Organoheterocyclic compounds</text>
+<text x='28.05' y='564.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='37.15px' lengthAdjust='spacingAndGlyphs'>Benzenoids</text>
 <text x='31.61' y='643.30' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='108.30px' lengthAdjust='spacingAndGlyphs'>Phenylpropanoids and polyketides</text>
 </g>
 <g clip-path='url(#cpMC4wMHwxMjk2LjAwfDAuMDB8NzIwLjAw)'>
@@ -68,11 +67,11 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpNDExLjkzfDgwNy40M3w0MC41Nnw2ODguMDk=)'>
-<polyline points='467.75,688.09 467.75,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='543.42,688.09 543.42,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='619.09,688.09 619.09,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='694.76,688.09 694.76,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='770.43,688.09 770.43,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='469.35,688.09 469.35,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='548.24,688.09 548.24,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='627.12,688.09 627.12,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='706.01,688.09 706.01,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='784.90,688.09 784.90,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='411.93,640.71 807.43,640.71 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='411.93,561.74 807.43,561.74 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='411.93,482.78 807.43,482.78 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -82,25 +81,25 @@
 <polyline points='411.93,166.90 807.43,166.90 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='411.93,87.94 807.43,87.94 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='429.91,688.09 429.91,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='505.58,688.09 505.58,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='581.25,688.09 581.25,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='656.92,688.09 656.92,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='732.59,688.09 732.59,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='508.80,688.09 508.80,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='587.68,688.09 587.68,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='666.57,688.09 666.57,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='745.45,688.09 745.45,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='429.91' y='52.40' width='359.54' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='289.30' width='320.31' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='131.37' width='317.94' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='526.21' width='308.45' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='368.27' width='305.52' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='447.24' width='296.94' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='210.34' width='262.56' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
-<rect x='429.91' y='605.18' width='146.37' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='210.34' width='315.21' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='368.27' width='311.91' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='447.24' width='311.66' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='289.30' width='309.56' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='131.37' width='305.62' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='526.21' width='266.99' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
+<rect x='429.91' y='605.18' width='177.89' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BA38;' />
 <text x='434.34' y='90.53' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='88.53px' lengthAdjust='spacingAndGlyphs'>Organic oxygen compounds</text>
-<text x='434.58' y='327.43' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='93.27px' lengthAdjust='spacingAndGlyphs'>Organic acids and derivatives</text>
+<text x='434.61' y='248.46' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.04px' lengthAdjust='spacingAndGlyphs'>Lipids and lipid-like molecules</text>
+<text x='434.91' y='406.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='99.99px' lengthAdjust='spacingAndGlyphs'>Organoheterocyclic compounds</text>
+<text x='434.58' y='485.37' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='93.27px' lengthAdjust='spacingAndGlyphs'>Organic acids and derivatives</text>
+<text x='436.37' y='327.43' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='129.25px' lengthAdjust='spacingAndGlyphs'>Nucleosides, nucleotides, and analogues</text>
 <text x='434.48' y='169.50' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Organic nitrogen compounds</text>
-<text x='434.91' y='564.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='99.99px' lengthAdjust='spacingAndGlyphs'>Organoheterocyclic compounds</text>
-<text x='434.61' y='406.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.04px' lengthAdjust='spacingAndGlyphs'>Lipids and lipid-like molecules</text>
-<text x='436.37' y='485.37' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='129.25px' lengthAdjust='spacingAndGlyphs'>Nucleosides, nucleotides, and analogues</text>
-<text x='431.77' y='248.46' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='37.15px' lengthAdjust='spacingAndGlyphs'>Benzenoids</text>
+<text x='431.77' y='564.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='37.15px' lengthAdjust='spacingAndGlyphs'>Benzenoids</text>
 <text x='435.33' y='643.30' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='108.30px' lengthAdjust='spacingAndGlyphs'>Phenylpropanoids and polyketides</text>
 </g>
 <g clip-path='url(#cpMC4wMHwxMjk2LjAwfDAuMDB8NzIwLjAw)'>
@@ -111,10 +110,10 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpODE1LjY1fDEyMTEuMTV8NDAuNTZ8Njg4LjA5)'>
-<polyline points='887.54,688.09 887.54,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='995.37,688.09 995.37,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='1103.19,688.09 1103.19,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='1211.02,688.09 1211.02,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='884.08,688.09 884.08,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='984.97,688.09 984.97,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='1085.87,688.09 1085.87,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='1186.76,688.09 1186.76,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='815.65,640.71 1211.15,640.71 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='815.65,561.74 1211.15,561.74 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='815.65,482.78 1211.15,482.78 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -124,24 +123,24 @@
 <polyline points='815.65,166.90 1211.15,166.90 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='815.65,87.94 1211.15,87.94 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='833.63,688.09 833.63,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='941.45,688.09 941.45,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='1049.28,688.09 1049.28,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='1157.10,688.09 1157.10,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='934.52,688.09 934.52,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='1035.42,688.09 1035.42,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='1136.32,688.09 1136.32,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='833.63' y='52.40' width='359.54' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='210.34' width='300.32' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='526.21' width='264.02' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='289.30' width='256.91' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='368.27' width='255.23' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='447.24' width='252.43' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='131.37' width='238.27' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
-<rect x='833.63' y='605.18' width='114.58' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='368.27' width='243.03' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='210.34' width='238.21' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='289.30' width='236.21' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='447.24' width='234.36' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='131.37' width='217.94' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='526.21' width='163.64' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
+<rect x='833.63' y='605.18' width='54.75' height='71.07' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #619CFF;' />
 <text x='838.05' y='90.53' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='88.53px' lengthAdjust='spacingAndGlyphs'>Organic oxygen compounds</text>
-<text x='835.49' y='248.46' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='37.15px' lengthAdjust='spacingAndGlyphs'>Benzenoids</text>
-<text x='838.63' y='564.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='99.99px' lengthAdjust='spacingAndGlyphs'>Organoheterocyclic compounds</text>
-<text x='838.29' y='327.43' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='93.27px' lengthAdjust='spacingAndGlyphs'>Organic acids and derivatives</text>
-<text x='838.33' y='406.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.04px' lengthAdjust='spacingAndGlyphs'>Lipids and lipid-like molecules</text>
-<text x='840.09' y='485.37' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='129.25px' lengthAdjust='spacingAndGlyphs'>Nucleosides, nucleotides, and analogues</text>
+<text x='838.63' y='406.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='99.99px' lengthAdjust='spacingAndGlyphs'>Organoheterocyclic compounds</text>
+<text x='838.33' y='248.46' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.04px' lengthAdjust='spacingAndGlyphs'>Lipids and lipid-like molecules</text>
+<text x='840.09' y='327.43' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='129.25px' lengthAdjust='spacingAndGlyphs'>Nucleosides, nucleotides, and analogues</text>
+<text x='838.29' y='485.37' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='93.27px' lengthAdjust='spacingAndGlyphs'>Organic acids and derivatives</text>
 <text x='838.19' y='169.50' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Organic nitrogen compounds</text>
+<text x='835.49' y='564.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='37.15px' lengthAdjust='spacingAndGlyphs'>Benzenoids</text>
 <text x='839.04' y='643.30' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='108.30px' lengthAdjust='spacingAndGlyphs'>Phenylpropanoids and polyketides</text>
 </g>
 <g clip-path='url(#cpMC4wMHwxMjk2LjAwfDAuMDB8NzIwLjAw)'>
@@ -176,18 +175,17 @@
 </g>
 <g clip-path='url(#cpMC4wMHwxMjk2LjAwfDAuMDB8NzIwLjAw)'>
 <text x='26.20' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
-<text x='150.85' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
-<text x='275.51' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
-<text x='400.17' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.6</text>
+<text x='162.71' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
+<text x='299.23' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
 <text x='429.91' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
-<text x='505.58' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.1</text>
-<text x='581.25' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
-<text x='656.92' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.3</text>
-<text x='732.59' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
+<text x='508.80' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.1</text>
+<text x='587.68' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
+<text x='666.57' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.3</text>
+<text x='745.45' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
 <text x='833.63' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
-<text x='941.45' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
-<text x='1049.28' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
-<text x='1157.10' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.6</text>
+<text x='934.52' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.2</text>
+<text x='1035.42' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
+<text x='1136.32' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.6</text>
 <text x='609.68' y='712.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='177.27px' lengthAdjust='spacingAndGlyphs'>Mean CV (SD / Mean Raw Intensity)</text>
 <text x='1227.59' y='339.68' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='57.46px' lengthAdjust='spacingAndGlyphs'>GW_bucket</text>
 <rect x='1228.29' y='347.06' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />

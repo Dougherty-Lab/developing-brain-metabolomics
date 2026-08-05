@@ -10,9 +10,9 @@
 # Run order: must follow Filtering → Exogenous Flagging → all
 #            analysis scripts so CSVs exist on disk.
 # ============================================================
-
+setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/untargeted")
 # ── USER SETTINGS ────────────────────────────────────────────
-metabolite_query <- "PC 18:2_18:2"   # Full Name OR Compound.ID
+metabolite_query <- "Prolinamide"   # Full Name OR Compound.ID
 dataset          <- "batch2"          # "batch1" | "batch2" | "newbatch2"
 results_base     <- "../../results/untargeted"
 output_dir       <- "."               # Directory for saved PNG
@@ -31,18 +31,18 @@ source("functions.R")
 # ============================================================
 dataset_config <- list(
   batch1 = list(
-    peak_file       = "Batch1_peak_area_values.csv",
-    metadata_file   = "Batch1_sample_metadata.csv",
-    annotation_file = "Batch1_metabolite_annotations.csv",
+    peak_file       = "batch1_peak_area_values.csv",
+    metadata_file   = "batch1_sample_metadata.csv",
+    annotation_file = "batch1_metabolite_annotations.csv",
     csv_folder      = "batch1_filtering/csv",
     subgroup_prefix = "batch1",
     has_analysis    = FALSE,
     has_pathway     = FALSE
   ),
   batch2 = list(
-    peak_file       = "Batch2_peak_area_clean.csv",
-    metadata_file   = "Batch2_sample_metadata.csv",
-    annotation_file = "Batch2_metabolite_annotations.csv",
+    peak_file       = "batch2_peak_area_clean.csv",
+    metadata_file   = "batch2_sample_metadata.csv",
+    annotation_file = "batch2_metabolite_annotations.csv",
     csv_folder      = "batch2_clean/csv",
     subgroup_prefix = "batch2",
     has_analysis    = TRUE,

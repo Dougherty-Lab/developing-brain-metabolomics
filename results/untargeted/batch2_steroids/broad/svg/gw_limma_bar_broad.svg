@@ -28,49 +28,42 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMTAzLjc0fDU5Mi4xM3wyMy40NXw1MzAuMjg=)'>
-<polyline points='156.88,530.28 156.88,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='249.77,530.28 249.77,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='342.66,530.28 342.66,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='435.55,530.28 435.55,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='528.44,530.28 528.44,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,493.19 592.13,493.19 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,431.38 592.13,431.38 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,369.58 592.13,369.58 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,307.77 592.13,307.77 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,245.96 592.13,245.96 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,184.15 592.13,184.15 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,122.34 592.13,122.34 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='103.74,60.54 592.13,60.54 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='110.44,530.28 110.44,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='203.33,530.28 203.33,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='296.22,530.28 296.22,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='389.11,530.28 389.11,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='482.00,530.28 482.00,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='574.89,530.28 574.89,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<rect x='125.94' y='465.38' width='356.06' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='352.14' y='403.57' width='129.86' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='371.73' y='341.76' width='110.27' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='482.00' y='32.72' width='87.93' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='394.51' y='279.95' width='87.49' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='482.00' y='94.53' width='47.20' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
-<rect x='464.31' y='218.15' width='17.69' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
-<rect x='472.47' y='156.34' width='9.53' height='55.63' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<polyline points='141.75,530.28 141.75,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='243.21,530.28 243.21,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='344.68,530.28 344.68,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='446.15,530.28 446.15,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='547.61,530.28 547.61,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,488.04 592.13,488.04 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,417.65 592.13,417.65 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,347.26 592.13,347.26 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,276.86 592.13,276.86 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,206.47 592.13,206.47 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,136.08 592.13,136.08 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='103.74,65.69 592.13,65.69 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='192.48,530.28 192.48,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='293.95,530.28 293.95,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='395.41,530.28 395.41,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='496.88,530.28 496.88,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<rect x='125.94' y='456.36' width='269.47' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='395.41' y='34.01' width='174.51' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='252.30' y='385.97' width='143.11' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='395.41' y='104.40' width='117.00' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='338.70' y='315.58' width='56.71' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
+<rect x='395.41' y='174.79' width='50.86' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #4682B4; fill-opacity: 0.80;' />
+<rect x='385.00' y='245.19' width='10.41' height='63.35' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #FF6347; fill-opacity: 0.80;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
-<text x='98.81' y='496.40' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='61.10px' lengthAdjust='spacingAndGlyphs'>Lithocholic Acid</text>
-<text x='98.81' y='434.59' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.68px' lengthAdjust='spacingAndGlyphs'>17-(1-Hydroxyethy...</text>
-<text x='98.81' y='372.78' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='41.05px' lengthAdjust='spacingAndGlyphs'>Solanidine</text>
-<text x='98.81' y='310.98' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='62.08px' lengthAdjust='spacingAndGlyphs'>4-Cholestenone</text>
-<text x='98.81' y='249.17' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='80.17px' lengthAdjust='spacingAndGlyphs'>3-Hydroxystigmast...</text>
-<text x='98.81' y='187.36' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.70px' lengthAdjust='spacingAndGlyphs'>Cholest-4-En-3-One</text>
-<text x='98.81' y='125.55' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='43.01px' lengthAdjust='spacingAndGlyphs'>Vitamin D3</text>
-<text x='98.81' y='63.74' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='52.80px' lengthAdjust='spacingAndGlyphs'>Progesterone</text>
-<text x='110.44' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.20</text>
-<text x='203.33' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.15</text>
-<text x='296.22' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.10</text>
-<text x='389.11' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.05</text>
-<text x='482.00' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.00</text>
-<text x='574.89' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.05</text>
+<text x='98.81' y='491.25' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.68px' lengthAdjust='spacingAndGlyphs'>17-(1-Hydroxyethy...</text>
+<text x='98.81' y='420.86' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.70px' lengthAdjust='spacingAndGlyphs'>Cholest-4-En-3-One</text>
+<text x='98.81' y='350.46' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='52.80px' lengthAdjust='spacingAndGlyphs'>Progesterone</text>
+<text x='98.81' y='280.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='80.17px' lengthAdjust='spacingAndGlyphs'>3-Hydroxystigmast...</text>
+<text x='98.81' y='209.68' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='61.10px' lengthAdjust='spacingAndGlyphs'>Lithocholic Acid</text>
+<text x='98.81' y='139.29' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='43.01px' lengthAdjust='spacingAndGlyphs'>Vitamin D3</text>
+<text x='98.81' y='68.89' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='62.08px' lengthAdjust='spacingAndGlyphs'>4-Cholestenone</text>
+<text x='192.48' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.10</text>
+<text x='293.95' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.05</text>
+<text x='395.41' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.00</text>
+<text x='496.88' y='541.62' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.05</text>
 <text x='347.93' y='554.31' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='180.93px' lengthAdjust='spacingAndGlyphs'>Slope (log2 peak area per GW week)</text>
 <text transform='translate(13.50,276.86) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='53.78px' lengthAdjust='spacingAndGlyphs'>Compound</text>
 <text x='608.56' y='260.85' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='43.39px' lengthAdjust='spacingAndGlyphs'>Direction</text>

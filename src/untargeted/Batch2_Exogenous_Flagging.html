@@ -11,7 +11,7 @@
 
 <meta name="author" content="Sneha M. Chaturvedi" />
 
-<meta name="date" content="2026-07-07" />
+<meta name="date" content="2026-08-03" />
 
 <title>Batch2 Exogenous Compound Flagging</title>
 
@@ -352,7 +352,7 @@ display: none;
 
 <h1 class="title toc-ignore">Batch2 Exogenous Compound Flagging</h1>
 <h4 class="author">Sneha M. Chaturvedi</h4>
-<h4 class="date">2026-07-07</h4>
+<h4 class="date">2026-08-03</h4>
 
 </div>
 
@@ -446,7 +446,44 @@ manual NIST14 review.</p>
   &quot;2-(2h-benzotriazol-2-yl)-4,6-bis(1-methyl-1-phenylethyl)phenol&quot;, # Tinuvin 234; UV absorber in plastics
   &quot;octadecyl 3-(3,5-di-tert-butyl-4-hydroxyphenyl)propionate&quot;,      # Irganox 1076; polyolefin antioxidant
   &quot;bis(2,2,6,6-tetramethyl-4-piperidyl)sebacate&quot;,                   # Tinuvin 770; hindered amine light stabilizer
-  &quot;bis(2-ethylhexyl) adipate&quot;     # DEHA plasticizer
+  &quot;bis(2-ethylhexyl) adipate&quot;,     # DEHA plasticizer
+  # ── Audit round 3: remaining exogenous compounds in clean peak area ──
+  # Plasticizers / solvents
+  &quot;citroflex 2&quot;,                   # triethyl citrate by trade name (chemical name already listed above)
+  &quot;citroflex 4&quot;,                   # tributyl citrate; plasticizer
+  &quot;citroflex a-4&quot;,                 # acetyltributyl citrate; plasticizer
+  &quot;acetyltributyl citrate&quot;,        # IUPAC name for Citroflex A-4 (duplicate entry in peak area)
+  &quot;tetraglyme&quot;,                    # tetraethylene glycol dimethyl ether; industrial solvent
+  &quot;triethylene glycol monobutyl ether&quot;,  # industrial solvent
+  &quot;triethyleneglycol bis(2-ethylhexanoate)&quot;, # synthetic plasticizer
+  &quot;triethyl phosphate&quot;,            # organophosphate flame retardant / plasticizer
+  # Surfactants / detergents
+  &quot;4-dodecylbenzenesulfonic acid&quot;, # LAS anionic surfactant
+  &quot;dodecyl sulfate&quot;,               # SDS/SLS; lab and industrial detergent
+  &quot;cocamidopropyl betaine&quot;,        # synthetic amphoteric surfactant (cosmetics/lab)
+  # UV filters / absorbers
+  &quot;octabenzone&quot;,                   # 2-hydroxy-4-octyloxybenzophenone; UV filter
+  &quot;dibenzoylmethane&quot;,              # UV absorber / chelating agent
+  # Plastic additives
+  &quot;bis(4-ethylbenzylidene)sorbitol&quot;,  # DBS; plastic clarifying / nucleating agent
+  &quot;bis(methylbenzylidene)sorbitol&quot;,   # MDBS; same class
+  &quot;caprolactam&quot;,                   # epsilon-caprolactam; nylon-6 monomer
+  # Polymer leachates
+  &quot;ppg n4&quot;,                        # polypropylene glycol oligomer; synthetic polymer leachate
+  &quot;ppg n5&quot;,                        # polypropylene glycol oligomer; synthetic polymer leachate
+  # Lab reagents / buffers
+  &quot;trometamol&quot;,                    # tris(hydroxymethyl)aminomethane; laboratory buffer
+  &quot;\u03b1-cyano-3-hydroxycinnamic acid&quot;, # CHCA; MALDI matrix / MS standard
+  # Industrial amines
+  &quot;cyclohexylamine&quot;,               # industrial amine / rubber accelerator metabolite
+  &quot;n-methylcyclohexylamine&quot;,       # industrial amine
+  &quot;3-isopropoxypropylamine&quot;,       # industrial ether-amine
+  &quot;3-(ethenyloxy)propan-1-amine&quot;,  # vinyl ether amine; industrial
+  &quot;n-methyl-2-phenylpropan-1-amine&quot;, # synthetic amine; no endogenous pathway
+  # Fragrances / cosmetics
+  &quot;galaxolidone&quot;,                  # oxidation product of Galaxolide synthetic musk
+  &quot;triethanolamine&quot;,               # industrial/cosmetic tertiary amine
+  &quot;geranyllinalool&quot;                # plant diterpene / fragrance compound; humans lack diterpene synthase
 )
 
 known_environmental_exposures &lt;- c(
@@ -458,13 +495,33 @@ known_environmental_exposures &lt;- c(
   &quot;lidocaine&quot;,       # local anesthetic amide; required for surgical tissue procurement
   &quot;midazolam&quot;,       # benzodiazepine sedative; required for surgical tissue procurement
   &quot;fentanyl&quot;,        # synthetic opioid analgesic; required for surgical tissue procurement
-  &quot;piperine&quot;         # alkaloid from black pepper (Piper nigrum); maternal dietary exposure
+  &quot;piperine&quot;,         # alkaloid from black pepper (Piper nigrum); maternal dietary exposure
+  # ── Audit round 3: remaining exogenous compounds in clean peak area ──
+  # Pharmaceuticals
+  &quot;penicillin g&quot;,                  # beta-lactam antibiotic
+  &quot;allopurinol&quot;,                   # synthetic xanthine oxidase inhibitor (gout drug)
+  &quot;phthalylsulfathiazole&quot;,         # sulfonamide antibiotic (GI-targeted)
+  &quot;risedronic acid&quot;,               # bisphosphonate (osteoporosis drug)
+  &quot;6-aminocaproic acid&quot;,           # antifibrinolytic drug (Amicar); not a lysine catabolite
+  &quot;amifampridine&quot;,                 # 3,4-diaminopyridine; neuromuscular junction drug
+  # Pesticides / herbicides
+  &quot;diethyl phosphate&quot;,             # organophosphate pesticide metabolite (not endogenous)
+  &quot;3-ketocarbofuran&quot;,              # carbofuran insecticide metabolite
+  &quot;propham&quot;,                       # isopropyl carbanilate; carbamate herbicide
+  &quot;6-chloropicolinic acid&quot;,        # clopyralid herbicide metabolite
+  &quot;maleic hydrazide&quot;,              # plant growth regulator / herbicide
+  # Dietary plant compounds (no human biosynthetic pathway)
+  &quot;proline betaine&quot;,               # stachydrine; citrus-derived
+  &quot;solanidine&quot;,                    # steroidal alkaloid from Solanaceae (nightshades)
+  &quot;chalcone&quot;,                      # plant polyphenol; requires chalcone synthase (plant-only)
+  &quot;diosgenin&quot;,                     # steroidal sapogenin; plant-only biosynthesis (Dioscorea)
+  &quot;hypaphorine&quot;                    # N,N,N-trimethyltryptophan; plant alkaloid (Erythrina)
 )
 
 cat(&quot;Known instrument contaminants:&quot;, length(known_instrument_contaminants), &quot;\n&quot;)</code></pre>
-<pre><code>## Known instrument contaminants: 26</code></pre>
+<pre><code>## Known instrument contaminants: 54</code></pre>
 <pre class="r"><code>cat(&quot;Known environmental exposures:&quot;, length(known_environmental_exposures), &quot;\n&quot;)</code></pre>
-<pre><code>## Known environmental exposures: 8</code></pre>
+<pre><code>## Known environmental exposures: 24</code></pre>
 <hr />
 </div>
 <div id="keyword-patterns" class="section level1">
@@ -488,6 +545,17 @@ instrument_contaminant_patterns &lt;- paste(
   &quot;muscone&quot;, &quot;galaxolide&quot;, &quot;tonalide&quot;, &quot;\\bmusk\\b&quot;, &quot;Irgafos&quot;, &quot;Pure Blue&quot;,
   &quot;butylated hydroxytoluene&quot;, &quot;\\bBHT\\b&quot;,
   &quot;butylated hydroxyanisole&quot;, &quot;\\bBHA\\b&quot;,
+  # ── Audit round 3 patterns ──
+  &quot;citroflex&quot;,                     # catches all Citroflex variants (2, 4, A-4, A-2, etc.)
+  &quot;caprolactam&quot;,                   # nylon monomers
+  &quot;cocamidopropyl&quot;,                # amphoteric surfactant class
+  &quot;dodecylbenzenesulfonic&quot;,        # LAS surfactant class
+  &quot;\\bppg\\b&quot;,                     # polypropylene glycol oligomers
+  &quot;tetraglyme|triglyme&quot;,           # glyme solvents
+  &quot;trometamol|tromethamine&quot;,       # Tris buffer synonyms
+  &quot;triethanolamine&quot;,               # industrial/cosmetic amine
+  &quot;cyano.*hydroxycinnamic&quot;,        # MALDI matrix compounds (CHCA and variants)
+  &quot;galaxolidone&quot;,                  # Galaxolide oxidation product (not caught by &quot;galaxolide&quot; substring in all cases)
   sep = &quot;|&quot;
 )
 
@@ -530,6 +598,16 @@ environmental_exposure_patterns &lt;- paste(
   # Preservatives
   &quot;methylparaben&quot;, &quot;ethylparaben&quot;, &quot;propylparaben&quot;, &quot;butylparaben&quot;,
   &quot;\\bparaben\\b&quot;,
+  # ── Audit round 3 patterns ──
+  &quot;penicillin&quot;,                    # beta-lactam antibiotics
+  &quot;allopurinol&quot;,                   # xanthine oxidase inhibitors
+  &quot;sulfathiazole&quot;,                 # sulfonamide antibiotics
+  &quot;risedronic|alendronic|zoledronic&quot;, # bisphosphonate class
+  &quot;aminocaproic&quot;,                  # antifibrinolytic drugs
+  &quot;carbofuran&quot;,                    # carbamate insecticide + metabolites (3-keto-, 3-hydroxy-)
+  &quot;chloropicolinic|clopyralid&quot;,    # picolinic acid herbicides
+  &quot;solanidine|\\bsolanine\\b&quot;,     # Solanaceae alkaloids
+  &quot;diosgenin&quot;,                     # plant steroidal sapogenins
   sep = &quot;|&quot;
 )
 
@@ -615,7 +693,7 @@ cat(&quot;=== Exogenous Flagging Summary ===\n&quot;)</code></pre>
 <pre><code>## Total compounds: 603</code></pre>
 <pre class="r"><code>cat(&quot;Presumed endogenous (NA):&quot;,
     sum(is.na(annotation_flagged$Exogenous_Flag)), &quot;\n\n&quot;)</code></pre>
-<pre><code>## Presumed endogenous (NA): 568</code></pre>
+<pre><code>## Presumed endogenous (NA): 524</code></pre>
 <pre class="r"><code>flag_counts &lt;- annotation_flagged %&gt;%
   filter(!is.na(Exogenous_Flag)) %&gt;%
   count(Exogenous_Flag)
@@ -623,8 +701,8 @@ print(flag_counts)</code></pre>
 <pre><code>## # A tibble: 3 × 2
 ##   Exogenous_Flag             n
 ##   &lt;chr&gt;                  &lt;int&gt;
-## 1 environmental_exposure     7
-## 2 instrument_contaminant    27
+## 1 environmental_exposure    23
+## 2 instrument_contaminant    55
 ## 3 review_needed              1</code></pre>
 <div id="instrument-contaminants" class="section level2">
 <h2>Instrument Contaminants</h2>
@@ -679,12 +757,52 @@ review)</td>
 review)</td>
 </tr>
 <tr class="odd">
+<td align="left">Amide-Pos-000094</td>
+<td align="left"><strong>3-(Ethenyloxy)Propan-1-Amine</strong></td>
+<td align="right">83.6</td>
+<td align="left">high</td>
+<td align="left">Organic oxygen compounds</td>
+<td align="left">Organooxygen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-000244</td>
+<td align="left"><strong>3-Isopropoxypropylamine</strong></td>
+<td align="right">88.8</td>
+<td align="left">high</td>
+<td align="left">Organic oxygen compounds</td>
+<td align="left">Organooxygen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Neg-000519</td>
+<td align="left"><strong>4-Dodecylbenzenesulfonic Acid</strong></td>
+<td align="right">98.0</td>
+<td align="left">high</td>
+<td align="left">Benzenoids</td>
+<td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
 <td align="left">Amide-Neg-000647</td>
 <td align="left"><strong>6-Chloro-5-Methyl-1h-1,2,3-Benzotriazole</strong></td>
 <td align="right">96.9</td>
 <td align="left">high</td>
 <td align="left">Organoheterocyclic compounds</td>
 <td align="left">Benzotriazoles</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C18-Pos-002968</td>
+<td align="left"><strong>Acetyltributyl Citrate</strong></td>
+<td align="right">98.1</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
@@ -740,6 +858,26 @@ Phthalate</strong></td>
 pattern</td>
 </tr>
 <tr class="odd">
+<td align="left">C8-Pos-001297</td>
+<td align="left"><strong>Bis(4-Ethylbenzylidene)Sorbitol</strong></td>
+<td align="right">99.4</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Dioxanes</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C8-Pos-001076</td>
+<td align="left"><strong>Bis(Methylbenzylidene)Sorbitol</strong></td>
+<td align="right">98.8</td>
+<td align="left">high</td>
+<td align="left">Phenylpropanoids and polyketides</td>
+<td align="left">Cinnamyl alcohols</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
 <td align="left">C8-Pos-000974</td>
 <td align="left"><strong>Bisphenol A Diglycidyl Ether</strong></td>
 <td align="right">95.9</td>
@@ -750,6 +888,76 @@ pattern</td>
 pattern</td>
 </tr>
 <tr class="even">
+<td align="left">C18-Pos-000207</td>
+<td align="left"><strong>Caprolactam</strong></td>
+<td align="right">95.8</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Lactams</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-000350</td>
+<td align="left"><strong>Citroflex 2</strong></td>
+<td align="right">98.7</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C8-Pos-001006</td>
+<td align="left"><strong>Citroflex 4</strong></td>
+<td align="right">99.1</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-001356</td>
+<td align="left"><strong>Citroflex A-4</strong></td>
+<td align="right">98.0</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C18-Pos-002221</td>
+<td align="left"><strong>Cocamidopropyl Betaine</strong></td>
+<td align="right">87.9</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Pos-000085</td>
+<td align="left"><strong>Cyclohexylamine</strong></td>
+<td align="right">91.8</td>
+<td align="left">high</td>
+<td align="left">Organic nitrogen compounds</td>
+<td align="left">Organonitrogen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C8-Pos-000098</td>
+<td align="left"><strong>Dibenzoylmethane</strong></td>
+<td align="right">80.5</td>
+<td align="left">high</td>
+<td align="left">Phenylpropanoids and polyketides</td>
+<td align="left">Linear 1,3-diarylpropanoids</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
 <td align="left">C8-Pos-000164</td>
 <td align="left"><strong>Dibutyl Hexanedioate</strong></td>
 <td align="right">94.7</td>
@@ -759,7 +967,7 @@ pattern</td>
 <td align="left">Name matches industrial or contaminant keyword
 pattern</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">C8-Pos-001801</td>
 <td align="left"><strong>Diisodecyl Phthalate</strong></td>
 <td align="right">89.0</td>
@@ -769,13 +977,23 @@ pattern</td>
 <td align="left">Name matches industrial or contaminant keyword
 pattern</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C8-Pos-000855</td>
 <td align="left"><strong>Dipropyleneglycol Dibenzoate</strong></td>
 <td align="right">92.2</td>
 <td align="left">high</td>
 <td align="left">Benzenoids</td>
 <td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C8-Neg-000223</td>
+<td align="left"><strong>Dodecyl Sulfate</strong></td>
+<td align="right">98.4</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Organic sulfuric acids and derivatives</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
@@ -786,6 +1004,26 @@ review)</td>
 <td align="left">high</td>
 <td align="left">Lipids and lipid-like molecules</td>
 <td align="left">Fatty Acyls</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C8-Pos-000335</td>
+<td align="left"><strong>Galaxolidone</strong></td>
+<td align="right">93.3</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Benzopyrans</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-000337</td>
+<td align="left"><strong>Geranyllinalool</strong></td>
+<td align="right">92.3</td>
+<td align="left">high</td>
+<td align="left">Lipids and lipid-like molecules</td>
+<td align="left">Prenol lipids</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
@@ -841,6 +1079,36 @@ pattern</td>
 review)</td>
 </tr>
 <tr class="odd">
+<td align="left">C18-Pos-000591</td>
+<td align="left"><strong>N-Methyl-2-Phenylpropan-1-Amine</strong></td>
+<td align="right">99.8</td>
+<td align="left">high</td>
+<td align="left">Benzenoids</td>
+<td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C18-Pos-000219</td>
+<td align="left"><strong>N-Methylcyclohexylamine</strong></td>
+<td align="right">83.5</td>
+<td align="left">high</td>
+<td align="left">Organic nitrogen compounds</td>
+<td align="left">Organonitrogen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-000696</td>
+<td align="left"><strong>Octabenzone</strong></td>
+<td align="right">94.2</td>
+<td align="left">high</td>
+<td align="left">Benzenoids</td>
+<td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
 <td align="left">C8-Pos-002408</td>
 <td align="left"><strong>Octadecyl
 3-(3,5-Di-Tert-Butyl-4-Hydroxyphenyl)Propionate</strong></td>
@@ -851,7 +1119,7 @@ review)</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C18-Pos-001599</td>
 <td align="left"><strong>Oleamide</strong></td>
 <td align="right">86.8</td>
@@ -861,7 +1129,7 @@ review)</td>
 <td align="left">Name matches industrial or contaminant keyword
 pattern</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">C8-Pos-002320</td>
 <td align="left"><strong>Peg N11</strong></td>
 <td align="right">88.9</td>
@@ -871,7 +1139,7 @@ pattern</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C8-Pos-000470</td>
 <td align="left"><strong>Peg N13</strong></td>
 <td align="right">87.5</td>
@@ -881,7 +1149,7 @@ review)</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">C8-Pos-003314</td>
 <td align="left"><strong>Peg N14</strong></td>
 <td align="right">86.5</td>
@@ -891,7 +1159,7 @@ review)</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C18-Pos-002054</td>
 <td align="left"><strong>Peg N7</strong></td>
 <td align="right">94.0</td>
@@ -901,13 +1169,85 @@ review)</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
+<tr class="even">
+<td align="left">C8-Pos-000209</td>
+<td align="left"><strong>Ppg N4</strong></td>
+<td align="right">98.2</td>
+<td align="left">high</td>
+<td align="left">Organic oxygen compounds</td>
+<td align="left">Organooxygen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
 <tr class="odd">
+<td align="left">C18-Pos-001870</td>
+<td align="left"><strong>Ppg N5</strong></td>
+<td align="right">100.0</td>
+<td align="left">high</td>
+<td align="left">Organic oxygen compounds</td>
+<td align="left">Organooxygen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C18-Pos-001141</td>
+<td align="left"><strong>Tetraglyme</strong></td>
+<td align="right">92.2</td>
+<td align="left">high</td>
+<td align="left">Organic oxygen compounds</td>
+<td align="left">Organooxygen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Pos-000365</td>
+<td align="left"><strong>Triethanolamine</strong></td>
+<td align="right">93.6</td>
+<td align="left">high</td>
+<td align="left">Organic nitrogen compounds</td>
+<td align="left">Organonitrogen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
 <td align="left">C18-Pos-001549</td>
 <td align="left"><strong>Triethyl Citrate</strong></td>
 <td align="right">99.1</td>
 <td align="left">high</td>
 <td align="left">Organic acids and derivatives</td>
 <td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C18-Pos-000839</td>
+<td align="left"><strong>Triethyl Phosphate</strong></td>
+<td align="right">97.8</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Organic phosphoric acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
+<td align="left">C18-Pos-001031</td>
+<td align="left"><strong>Triethylene Glycol Monobutyl
+Ether</strong></td>
+<td align="right">92.8</td>
+<td align="left">high</td>
+<td align="left">Organic oxygen compounds</td>
+<td align="left">Organooxygen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-001521</td>
+<td align="left"><strong>Triethyleneglycol
+Bis(2-Ethylhexanoate)</strong></td>
+<td align="right">96.5</td>
+<td align="left">high</td>
+<td align="left">Lipids and lipid-like molecules</td>
+<td align="left">Fatty Acyls</td>
 <td align="left">Known instrument contaminant (project notes or NIST14
 review)</td>
 </tr>
@@ -922,6 +1262,16 @@ review)</td>
 pattern</td>
 </tr>
 <tr class="odd">
+<td align="left">Amide-Pos-000270</td>
+<td align="left"><strong>Trometamol</strong></td>
+<td align="right">95.0</td>
+<td align="left">high</td>
+<td align="left">Organic nitrogen compounds</td>
+<td align="left">Organonitrogen compounds</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
+</tr>
+<tr class="even">
 <td align="left">C8-Pos-002037</td>
 <td align="left"><strong>Victoria Pure Blue Bo</strong></td>
 <td align="right">83.9</td>
@@ -930,6 +1280,16 @@ pattern</td>
 <td align="left">Benzene and substituted derivatives</td>
 <td align="left">Name matches industrial or contaminant keyword
 pattern</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Neg-000851</td>
+<td align="left"><strong>Α-Cyano-3-Hydroxycinnamic Acid</strong></td>
+<td align="right">97.1</td>
+<td align="left">high</td>
+<td align="left">Phenylpropanoids and polyketides</td>
+<td align="left">Cinnamic acids and derivatives</td>
+<td align="left">Known instrument contaminant (project notes or NIST14
+review)</td>
 </tr>
 </tbody>
 </table>
@@ -947,12 +1307,12 @@ pattern</td>
 <strong>Bold</strong> = high confidence (score ≥ 80)</caption>
 <colgroup>
 <col width="8%" />
-<col width="7%" />
+<col width="12%" />
 <col width="5%" />
-<col width="11%" />
+<col width="10%" />
 <col width="15%" />
 <col width="19%" />
-<col width="31%" />
+<col width="27%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -967,6 +1327,56 @@ pattern</td>
 </thead>
 <tbody>
 <tr class="odd">
+<td align="left">Amide-Pos-001016</td>
+<td align="left"><strong>3-Ketocarbofuran</strong></td>
+<td align="right">80.4</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Benzofurans</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Neg-000323</td>
+<td align="left"><strong>6-Aminocaproic Acid</strong></td>
+<td align="right">99.0</td>
+<td align="left">high</td>
+<td align="left">Lipids and lipid-like molecules</td>
+<td align="left">Fatty Acyls</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Pos-000636</td>
+<td align="left"><strong>6-Chloropicolinic Acid</strong></td>
+<td align="right">93.3</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Pyridines and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Neg-000402</td>
+<td align="left"><strong>Allopurinol</strong></td>
+<td align="right">96.7</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Pyrazolopyrimidines</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Pos-000167</td>
+<td align="left"><strong>Amifampridine</strong></td>
+<td align="right">92.8</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Pyridines and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
 <td align="left">C18-Pos-000938</td>
 <td align="left"><strong>Caffeine</strong></td>
 <td align="right">98.9</td>
@@ -975,6 +1385,36 @@ pattern</td>
 <td align="left">Imidazopyrimidines</td>
 <td align="left">Name matches pharmaceutical or pesticide keyword
 pattern</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-000022</td>
+<td align="left"><strong>Chalcone</strong></td>
+<td align="right">93.8</td>
+<td align="left">high</td>
+<td align="left">Phenylpropanoids and polyketides</td>
+<td align="left">Linear 1,3-diarylpropanoids</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">C18-Pos-000645</td>
+<td align="left"><strong>Diethyl Phosphate</strong></td>
+<td align="right">95.8</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Organic phosphoric acids and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-001474</td>
+<td align="left"><strong>Diosgenin</strong></td>
+<td align="right">89.4</td>
+<td align="left">high</td>
+<td align="left">Lipids and lipid-like molecules</td>
+<td align="left">Prenol lipids</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
 </tr>
 <tr class="even">
 <td align="left">C8-Pos-000786</td>
@@ -987,6 +1427,16 @@ pattern</td>
 notes)</td>
 </tr>
 <tr class="odd">
+<td align="left">C18-Pos-001332</td>
+<td align="left"><strong>Hypaphorine</strong></td>
+<td align="right">99.0</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
 <td align="left">C8-Pos-000080</td>
 <td align="left"><strong>Ketamine</strong></td>
 <td align="right">92.6</td>
@@ -996,13 +1446,23 @@ notes)</td>
 <td align="left">Known synthetic pharmaceutical or steroid (project
 notes)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C8-Pos-000141</td>
 <td align="left"><strong>Lidocaine</strong></td>
 <td align="right">99.9</td>
 <td align="left">high</td>
 <td align="left">Benzenoids</td>
 <td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Neg-000158</td>
+<td align="left"><strong>Maleic Hydrazide</strong></td>
+<td align="right">91.5</td>
+<td align="left">high</td>
+<td align="left">Organoheterocyclic compounds</td>
+<td align="left">Diazines</td>
 <td align="left">Known synthetic pharmaceutical or steroid (project
 notes)</td>
 </tr>
@@ -1027,12 +1487,72 @@ notes)</td>
 notes)</td>
 </tr>
 <tr class="odd">
+<td align="left">C8-Pos-000768</td>
+<td align="left"><strong>Penicillin G</strong></td>
+<td align="right">99.3</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-001548</td>
+<td align="left"><strong>Phthalylsulfathiazole</strong></td>
+<td align="right">86.8</td>
+<td align="left">high</td>
+<td align="left">Benzenoids</td>
+<td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
 <td align="left">C8-Pos-000414</td>
 <td align="left"><strong>Piperine</strong></td>
 <td align="right">98.5</td>
 <td align="left">high</td>
 <td align="left">Alkaloids and derivatives</td>
 <td align="left">NA</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-000448</td>
+<td align="left"><strong>Proline Betaine</strong></td>
+<td align="right">81.7</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Carboxylic acids and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">C18-Pos-000820</td>
+<td align="left"><strong>Propham</strong></td>
+<td align="right">83.7</td>
+<td align="left">high</td>
+<td align="left">Benzenoids</td>
+<td align="left">Benzene and substituted derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-001135</td>
+<td align="left"><strong>Risedronic Acid</strong></td>
+<td align="right">92.9</td>
+<td align="left">high</td>
+<td align="left">Organic acids and derivatives</td>
+<td align="left">Organic phosphonic acids and derivatives</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-001317</td>
+<td align="left"><strong>Solanidine</strong></td>
+<td align="right">86.4</td>
+<td align="left">high</td>
+<td align="left">Lipids and lipid-like molecules</td>
+<td align="left">Steroids and steroid derivatives</td>
 <td align="left">Known synthetic pharmaceutical or steroid (project
 notes)</td>
 </tr>
@@ -1170,7 +1690,7 @@ write_csv(candidates, candidates_path)
 cat(&quot;Candidate review table saved to:&quot;, candidates_path, &quot;\n&quot;)</code></pre>
 <pre><code>## Candidate review table saved to: ../../results/untargeted/csv/batch2_candidate_exogenous_flags.csv</code></pre>
 <pre class="r"><code>cat(&quot;Total flagged compounds:&quot;, nrow(candidates), &quot;\n&quot;)</code></pre>
-<pre><code>## Total flagged compounds: 35</code></pre>
+<pre><code>## Total flagged compounds: 79</code></pre>
 <hr />
 </div>
 <div id="save-clean-peak-area-dataset" class="section level1">
@@ -1201,15 +1721,15 @@ cat(&quot;=== Clean Peak Area Dataset ===\n&quot;)</code></pre>
 <pre class="r"><code>cat(&quot;Compounds before removal:&quot;, n_before, &quot;\n&quot;)</code></pre>
 <pre><code>## Compounds before removal: 603</code></pre>
 <pre class="r"><code>cat(&quot;Exogenous removed:       &quot;, n_before - n_after, &quot;\n&quot;)</code></pre>
-<pre><code>## Exogenous removed:        34</code></pre>
+<pre><code>## Exogenous removed:        78</code></pre>
 <pre class="r"><code>cat(&quot;  instrument_contaminant:&quot;, sum(annotation_flagged$Exogenous_Flag == &quot;instrument_contaminant&quot;, na.rm = TRUE), &quot;\n&quot;)</code></pre>
-<pre><code>##   instrument_contaminant: 27</code></pre>
+<pre><code>##   instrument_contaminant: 55</code></pre>
 <pre class="r"><code>cat(&quot;  environmental_exposure:&quot;, sum(annotation_flagged$Exogenous_Flag == &quot;environmental_exposure&quot;, na.rm = TRUE), &quot;\n&quot;)</code></pre>
-<pre><code>##   environmental_exposure: 7</code></pre>
+<pre><code>##   environmental_exposure: 23</code></pre>
 <pre class="r"><code>cat(&quot;  review_needed (retained):&quot;, sum(annotation_flagged$Exogenous_Flag == &quot;review_needed&quot;, na.rm = TRUE), &quot;\n&quot;)</code></pre>
 <pre><code>##   review_needed (retained): 1</code></pre>
 <pre class="r"><code>cat(&quot;Compounds remaining:     &quot;, n_after, &quot;\n\n&quot;)</code></pre>
-<pre><code>## Compounds remaining:      569</code></pre>
+<pre><code>## Compounds remaining:      525</code></pre>
 <pre class="r"><code>cat(&quot;--- Removed environmental exposures ---\n&quot;)</code></pre>
 <pre><code>## --- Removed environmental exposures ---</code></pre>
 <pre class="r"><code>annotation_flagged %&gt;%
@@ -1223,10 +1743,10 @@ cat(&quot;=== Clean Peak Area Dataset ===\n&quot;)</code></pre>
 confidence (score &gt;= 80)</caption>
 <colgroup>
 <col width="12%" />
-<col width="11%" />
-<col width="9%" />
-<col width="18%" />
-<col width="48%" />
+<col width="20%" />
+<col width="8%" />
+<col width="16%" />
+<col width="42%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -1239,12 +1759,76 @@ confidence (score &gt;= 80)</caption>
 </thead>
 <tbody>
 <tr class="odd">
+<td align="left">Amide-Pos-001016</td>
+<td align="left"><strong>3-Ketocarbofuran</strong></td>
+<td align="right">80.4</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Neg-000323</td>
+<td align="left"><strong>6-Aminocaproic Acid</strong></td>
+<td align="right">99.0</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Pos-000636</td>
+<td align="left"><strong>6-Chloropicolinic Acid</strong></td>
+<td align="right">93.3</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Neg-000402</td>
+<td align="left"><strong>Allopurinol</strong></td>
+<td align="right">96.7</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">Amide-Pos-000167</td>
+<td align="left"><strong>Amifampridine</strong></td>
+<td align="right">92.8</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
 <td align="left">C18-Pos-000938</td>
 <td align="left"><strong>Caffeine</strong></td>
 <td align="right">98.9</td>
 <td align="left">high</td>
 <td align="left">Name matches pharmaceutical or pesticide keyword
 pattern</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-000022</td>
+<td align="left"><strong>Chalcone</strong></td>
+<td align="right">93.8</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">C18-Pos-000645</td>
+<td align="left"><strong>Diethyl Phosphate</strong></td>
+<td align="right">95.8</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-001474</td>
+<td align="left"><strong>Diosgenin</strong></td>
+<td align="right">89.4</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
 </tr>
 <tr class="even">
 <td align="left">C8-Pos-000786</td>
@@ -1255,6 +1839,14 @@ pattern</td>
 notes)</td>
 </tr>
 <tr class="odd">
+<td align="left">C18-Pos-001332</td>
+<td align="left"><strong>Hypaphorine</strong></td>
+<td align="right">99.0</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
 <td align="left">C8-Pos-000080</td>
 <td align="left"><strong>Ketamine</strong></td>
 <td align="right">92.6</td>
@@ -1262,10 +1854,18 @@ notes)</td>
 <td align="left">Known synthetic pharmaceutical or steroid (project
 notes)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left">C8-Pos-000141</td>
 <td align="left"><strong>Lidocaine</strong></td>
 <td align="right">99.9</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Neg-000158</td>
+<td align="left"><strong>Maleic Hydrazide</strong></td>
+<td align="right">91.5</td>
 <td align="left">high</td>
 <td align="left">Known synthetic pharmaceutical or steroid (project
 notes)</td>
@@ -1287,9 +1887,57 @@ notes)</td>
 notes)</td>
 </tr>
 <tr class="odd">
+<td align="left">C8-Pos-000768</td>
+<td align="left"><strong>Penicillin G</strong></td>
+<td align="right">99.3</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-001548</td>
+<td align="left"><strong>Phthalylsulfathiazole</strong></td>
+<td align="right">86.8</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
 <td align="left">C8-Pos-000414</td>
 <td align="left"><strong>Piperine</strong></td>
 <td align="right">98.5</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-000448</td>
+<td align="left"><strong>Proline Betaine</strong></td>
+<td align="right">81.7</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">C18-Pos-000820</td>
+<td align="left"><strong>Propham</strong></td>
+<td align="right">83.7</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="even">
+<td align="left">Amide-Pos-001135</td>
+<td align="left"><strong>Risedronic Acid</strong></td>
+<td align="right">92.9</td>
+<td align="left">high</td>
+<td align="left">Known synthetic pharmaceutical or steroid (project
+notes)</td>
+</tr>
+<tr class="odd">
+<td align="left">C8-Pos-001317</td>
+<td align="left"><strong>Solanidine</strong></td>
+<td align="right">86.4</td>
 <td align="left">high</td>
 <td align="left">Known synthetic pharmaceutical or steroid (project
 notes)</td>

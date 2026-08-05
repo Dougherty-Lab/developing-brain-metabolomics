@@ -1658,8 +1658,6 @@ L-Saccharopine,map00310,Lysine degradation,kegg
 L-Saccharopine,R-HSA-71064,Lysine catabolism,reactome
 L-Saccharopine,WP4228,Vitamin B6-dependent and responsive disorders,wiki
 1-Methyladenosine,WP4485,Modified nucleosides derived from tRNA as urinary cancer markers,wiki
-Risedronic Acid,R-HSA-191273,Cholesterol biosynthesis,reactome
-Risedronic Acid,WP4189,Mevalonate arm of cholesterol biosynthesis pathway with inhibitors,wiki
 N-Acetyl-D-Glucosamine 6-Phosphate,map00250,"Alanine, aspartate and glutamate metabolism",kegg
 N-Acetyl-D-Glucosamine 6-Phosphate,map00520,Amino Sugar Metabolism,kegg
 N-Acetyl-D-Glucosamine 6-Phosphate,R-HSA-446210,Synthesis of UDP-N-acetyl-glucosamine,reactome
@@ -3131,8 +3129,6 @@ Meglutol,WP4686,"Leucine, isoleucine and valine metabolism",wiki
 Xanthosine,WP4224,Purine metabolism and related disorders,wiki
 Xanthosine,WP4792,Purine metabolism,wiki
 1-Stearoyl-2-Hydroxy-Sn-Glycero-3-Phosphoethanolamine,WP4313,Ferroptosis,wiki
-Caprolactam,R-HSA-9717189,Sensory perception of taste,reactome
-Caprolactam,R-HSA-9717207,"Sensory perception of sweet, bitter, and umami (glutamate) taste",reactome
 Nicotinamide,map00760,Nicotinate and nicotinamide metabolism,kegg
 Nicotinamide,R-HSA-110362,POLB-Dependent Long Patch Base Excision Repair,reactome
 Nicotinamide,R-HSA-110373,Resolution of AP sites via the multiple-nucleotide patch replacement pathway,reactome
@@ -4244,9 +4240,6 @@ Mesaconic Acid,map00660,KEGG:map00660,NA
 Mesaconic Acid,map01100,KEGG:map01100,NA
 Mesaconic Acid,map01120,KEGG:map01120,NA
 Mesaconic Acid,map01200,KEGG:map01200,NA
-6-Aminocaproic Acid,map00930,KEGG:map00930,NA
-6-Aminocaproic Acid,map01100,KEGG:map01100,NA
-6-Aminocaproic Acid,map01120,KEGG:map01120,NA
 Xylose,map00040,KEGG:map00040,NA
 Xylose,map00520,Amino Sugar Metabolism,kegg
 Xylose,map01100,KEGG:map01100,NA
@@ -4266,22 +4259,14 @@ D-Gluconic Acid,map01200,KEGG:map01200,NA
 D-Mannitol 1-Phosphate,map00051,Fructose and mannose metabolism,kegg
 D-Mannitol 1-Phosphate,map01100,KEGG:map01100,NA
 D-Mannitol 1-Phosphate,map02060,KEGG:map02060,NA
-Cyclohexylamine,map00930,KEGG:map00930,NA
-Cyclohexylamine,map01120,KEGG:map01120,NA
 1-Aminocyclopropanecarboxylic Acid,map00270,Methionine Metabolism,kegg
 1-Aminocyclopropanecarboxylic Acid,map01060,KEGG:map01060,NA
 1-Aminocyclopropanecarboxylic Acid,map01070,KEGG:map01070,NA
 1-Aminocyclopropanecarboxylic Acid,map01100,KEGG:map01100,NA
 1-Aminocyclopropanecarboxylic Acid,map01110,KEGG:map01110,NA
-Triethanolamine,map00564,Phospholipid Biosynthesis,kegg
 Υ-L-Glutamyl-L-Glutamic Acid,map00220,KEGG:map00220,NA
 Υ-L-Glutamyl-L-Glutamic Acid,map01100,KEGG:map01100,NA
 Υ-L-Glutamyl-L-Glutamic Acid,map01210,KEGG:map01210,NA
 Υ-L-Glutamyl-L-Glutamic Acid,map01230,KEGG:map01230,NA
 Cis-4-Hydroxy-D-Proline,map00470,KEGG:map00470,NA
 Cis-4-Hydroxy-D-Proline,map01100,KEGG:map01100,NA
-Diethyl Phosphate,map00627,KEGG:map00627,NA
-Penicillin G,map04976,KEGG:map04976,NA
-Solanidine,map00996,KEGG:map00996,NA
-Solanidine,map01066,KEGG:map01066,NA
-Diosgenin,map01060,KEGG:map01060,NA

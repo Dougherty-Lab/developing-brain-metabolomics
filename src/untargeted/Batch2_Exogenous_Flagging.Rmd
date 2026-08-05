@@ -81,7 +81,44 @@ known_instrument_contaminants <- c(
   "2-(2h-benzotriazol-2-yl)-4,6-bis(1-methyl-1-phenylethyl)phenol", # Tinuvin 234; UV absorber in plastics
   "octadecyl 3-(3,5-di-tert-butyl-4-hydroxyphenyl)propionate",      # Irganox 1076; polyolefin antioxidant
   "bis(2,2,6,6-tetramethyl-4-piperidyl)sebacate",                   # Tinuvin 770; hindered amine light stabilizer
-  "bis(2-ethylhexyl) adipate"     # DEHA plasticizer
+  "bis(2-ethylhexyl) adipate",     # DEHA plasticizer
+  # ── Audit round 3: remaining exogenous compounds in clean peak area ──
+  # Plasticizers / solvents
+  "citroflex 2",                   # triethyl citrate by trade name (chemical name already listed above)
+  "citroflex 4",                   # tributyl citrate; plasticizer
+  "citroflex a-4",                 # acetyltributyl citrate; plasticizer
+  "acetyltributyl citrate",        # IUPAC name for Citroflex A-4 (duplicate entry in peak area)
+  "tetraglyme",                    # tetraethylene glycol dimethyl ether; industrial solvent
+  "triethylene glycol monobutyl ether",  # industrial solvent
+  "triethyleneglycol bis(2-ethylhexanoate)", # synthetic plasticizer
+  "triethyl phosphate",            # organophosphate flame retardant / plasticizer
+  # Surfactants / detergents
+  "4-dodecylbenzenesulfonic acid", # LAS anionic surfactant
+  "dodecyl sulfate",               # SDS/SLS; lab and industrial detergent
+  "cocamidopropyl betaine",        # synthetic amphoteric surfactant (cosmetics/lab)
+  # UV filters / absorbers
+  "octabenzone",                   # 2-hydroxy-4-octyloxybenzophenone; UV filter
+  "dibenzoylmethane",              # UV absorber / chelating agent
+  # Plastic additives
+  "bis(4-ethylbenzylidene)sorbitol",  # DBS; plastic clarifying / nucleating agent
+  "bis(methylbenzylidene)sorbitol",   # MDBS; same class
+  "caprolactam",                   # epsilon-caprolactam; nylon-6 monomer
+  # Polymer leachates
+  "ppg n4",                        # polypropylene glycol oligomer; synthetic polymer leachate
+  "ppg n5",                        # polypropylene glycol oligomer; synthetic polymer leachate
+  # Lab reagents / buffers
+  "trometamol",                    # tris(hydroxymethyl)aminomethane; laboratory buffer
+  "\u03b1-cyano-3-hydroxycinnamic acid", # CHCA; MALDI matrix / MS standard
+  # Industrial amines
+  "cyclohexylamine",               # industrial amine / rubber accelerator metabolite
+  "n-methylcyclohexylamine",       # industrial amine
+  "3-isopropoxypropylamine",       # industrial ether-amine
+  "3-(ethenyloxy)propan-1-amine",  # vinyl ether amine; industrial
+  "n-methyl-2-phenylpropan-1-amine", # synthetic amine; no endogenous pathway
+  # Fragrances / cosmetics
+  "galaxolidone",                  # oxidation product of Galaxolide synthetic musk
+  "triethanolamine",               # industrial/cosmetic tertiary amine
+  "geranyllinalool"                # plant diterpene / fragrance compound; humans lack diterpene synthase
 )
 
 known_environmental_exposures <- c(
@@ -93,7 +130,27 @@ known_environmental_exposures <- c(
   "lidocaine",       # local anesthetic amide; required for surgical tissue procurement
   "midazolam",       # benzodiazepine sedative; required for surgical tissue procurement
   "fentanyl",        # synthetic opioid analgesic; required for surgical tissue procurement
-  "piperine"         # alkaloid from black pepper (Piper nigrum); maternal dietary exposure
+  "piperine",         # alkaloid from black pepper (Piper nigrum); maternal dietary exposure
+  # ── Audit round 3: remaining exogenous compounds in clean peak area ──
+  # Pharmaceuticals
+  "penicillin g",                  # beta-lactam antibiotic
+  "allopurinol",                   # synthetic xanthine oxidase inhibitor (gout drug)
+  "phthalylsulfathiazole",         # sulfonamide antibiotic (GI-targeted)
+  "risedronic acid",               # bisphosphonate (osteoporosis drug)
+  "6-aminocaproic acid",           # antifibrinolytic drug (Amicar); not a lysine catabolite
+  "amifampridine",                 # 3,4-diaminopyridine; neuromuscular junction drug
+  # Pesticides / herbicides
+  "diethyl phosphate",             # organophosphate pesticide metabolite (not endogenous)
+  "3-ketocarbofuran",              # carbofuran insecticide metabolite
+  "propham",                       # isopropyl carbanilate; carbamate herbicide
+  "6-chloropicolinic acid",        # clopyralid herbicide metabolite
+  "maleic hydrazide",              # plant growth regulator / herbicide
+  # Dietary plant compounds (no human biosynthetic pathway)
+  "proline betaine",               # stachydrine; citrus-derived
+  "solanidine",                    # steroidal alkaloid from Solanaceae (nightshades)
+  "chalcone",                      # plant polyphenol; requires chalcone synthase (plant-only)
+  "diosgenin",                     # steroidal sapogenin; plant-only biosynthesis (Dioscorea)
+  "hypaphorine"                    # N,N,N-trimethyltryptophan; plant alkaloid (Erythrina)
 )
 
 cat("Known instrument contaminants:", length(known_instrument_contaminants), "\n")
@@ -124,6 +181,17 @@ instrument_contaminant_patterns <- paste(
   "muscone", "galaxolide", "tonalide", "\\bmusk\\b", "Irgafos", "Pure Blue",
   "butylated hydroxytoluene", "\\bBHT\\b",
   "butylated hydroxyanisole", "\\bBHA\\b",
+  # ── Audit round 3 patterns ──
+  "citroflex",                     # catches all Citroflex variants (2, 4, A-4, A-2, etc.)
+  "caprolactam",                   # nylon monomers
+  "cocamidopropyl",                # amphoteric surfactant class
+  "dodecylbenzenesulfonic",        # LAS surfactant class
+  "\\bppg\\b",                     # polypropylene glycol oligomers
+  "tetraglyme|triglyme",           # glyme solvents
+  "trometamol|tromethamine",       # Tris buffer synonyms
+  "triethanolamine",               # industrial/cosmetic amine
+  "cyano.*hydroxycinnamic",        # MALDI matrix compounds (CHCA and variants)
+  "galaxolidone",                  # Galaxolide oxidation product (not caught by "galaxolide" substring in all cases)
   sep = "|"
 )
 
@@ -166,6 +234,16 @@ environmental_exposure_patterns <- paste(
   # Preservatives
   "methylparaben", "ethylparaben", "propylparaben", "butylparaben",
   "\\bparaben\\b",
+  # ── Audit round 3 patterns ──
+  "penicillin",                    # beta-lactam antibiotics
+  "allopurinol",                   # xanthine oxidase inhibitors
+  "sulfathiazole",                 # sulfonamide antibiotics
+  "risedronic|alendronic|zoledronic", # bisphosphonate class
+  "aminocaproic",                  # antifibrinolytic drugs
+  "carbofuran",                    # carbamate insecticide + metabolites (3-keto-, 3-hydroxy-)
+  "chloropicolinic|clopyralid",    # picolinic acid herbicides
+  "solanidine|\\bsolanine\\b",     # Solanaceae alkaloids
+  "diosgenin",                     # plant steroidal sapogenins
   sep = "|"
 )
 

@@ -92,7 +92,7 @@
 <line x1='392.51' y1='307.25' x2='406.34' y2='307.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='293.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='310.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='207.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='140.55px' lengthAdjust='spacingAndGlyphs'>logFC=0.33 | p=0.016 | FDR=0.131</text>
-<text x='207.73' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='123.08px' lengthAdjust='spacingAndGlyphs'>Cholest-4-En-3-One</text>
+<text x='207.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='140.55px' lengthAdjust='spacingAndGlyphs'>logFC=0.33 | p=0.014 | FDR=0.095</text>
+<text x='207.73' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='129.68px' lengthAdjust='spacingAndGlyphs'>3-Hydroxystigmast...</text>
 </g>
 </svg>

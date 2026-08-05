@@ -87,8 +87,8 @@
 <line x1='392.51' y1='163.25' x2='406.34' y2='163.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='149.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='166.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='203.97' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=4.30e-02  logFC=-1.805</text>
-<text x='203.97' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='114.32px' lengthAdjust='spacingAndGlyphs'>4-Piperidinecarbo...</text>
+<text x='203.97' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=4.25e-02  logFC=-1.805</text>
+<text x='203.97' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='98.93px' lengthAdjust='spacingAndGlyphs'>5-Methylcytosine</text>
 </g>
 <defs>
   <clipPath id='cpNDMyLjAwfDg2NC4wMHwwLjAwfDI4OC4wMA=='>
@@ -161,8 +161,8 @@
 <line x1='824.51' y1='163.25' x2='838.34' y2='163.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='845.54' y='149.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='845.54' y='166.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='635.97' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='178.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=6.72e-03  logFC=1.531</text>
-<text x='635.97' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='105.51px' lengthAdjust='spacingAndGlyphs'>Cerp(D18:0_20:3)</text>
+<text x='635.97' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='178.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=6.64e-03  logFC=1.531</text>
+<text x='635.97' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='104.06px' lengthAdjust='spacingAndGlyphs'>Tg(28:6_14:3cho)</text>
 </g>
 <defs>
   <clipPath id='cpMC4wMHw0MzIuMDB8Mjg4LjAwfDU3Ni4wMA=='>
@@ -245,8 +245,8 @@
 <line x1='392.51' y1='451.25' x2='406.34' y2='451.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='437.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='454.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='203.97' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=2.00e-02  logFC=-1.157</text>
-<text x='203.97' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='114.34px' lengthAdjust='spacingAndGlyphs'>Phenylacetylgluta...</text>
+<text x='203.97' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=1.99e-02  logFC=-1.157</text>
+<text x='203.97' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='112.82px' lengthAdjust='spacingAndGlyphs'>(2r)-3-Hydroxyiso...</text>
 </g>
 <defs>
   <clipPath id='cpNDMyLjAwfDg2NC4wMHwyODguMDB8NTc2LjAw'>
@@ -326,7 +326,7 @@
 <line x1='824.51' y1='451.25' x2='838.34' y2='451.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='845.54' y='437.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='845.54' y='454.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='635.97' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=5.98e-03  logFC=-0.957</text>
-<text x='635.97' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='80.60px' lengthAdjust='spacingAndGlyphs'>D-Asparagine</text>
+<text x='635.97' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=5.95e-03  logFC=-0.957</text>
+<text x='635.97' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='112.12px' lengthAdjust='spacingAndGlyphs'>2-Methylsuccinic ...</text>
 </g>
 </svg>

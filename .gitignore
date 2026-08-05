@@ -55,3 +55,7 @@ rsconnect/
 
 # Mac Files
 .DS_Store
+# Mac Files
+.DS_Store
+results/gene-metabolite/stability-dfbetas-zscore_trim/qq-plots/svg/
+results/gene-metabolite/csv-log2_na/qq-plots/svg/

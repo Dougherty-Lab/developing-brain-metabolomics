@@ -28,10 +28,10 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpMTA5LjYwfDYzOC44M3wyMy40NXw1NDQuMDk=)'>
-<polyline points='169.10,544.09 169.10,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='303.57,544.09 303.57,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='438.04,544.09 438.04,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='572.50,544.09 572.50,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='132.60,544.09 132.60,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='289.19,544.09 289.19,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='445.78,544.09 445.78,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='602.36,544.09 602.36,23.45 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,538.43 638.83,538.43 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,529.00 638.83,529.00 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,519.57 638.83,519.57 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -87,151 +87,146 @@
 <polyline points='109.60,47.97 638.83,47.97 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,38.54 638.83,38.54 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='109.60,29.11 638.83,29.11 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='236.34,544.09 236.34,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='370.80,544.09 370.80,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='505.27,544.09 505.27,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<circle cx='307.81' cy='378.09' r='3.32' style='stroke-width: 0.71; stroke: #F5C5B9; fill: #F5C5B9;' />
-<circle cx='408.26' cy='217.75' r='2.36' style='stroke-width: 0.71; stroke: #CED5DD; fill: #CED5DD;' />
-<circle cx='489.71' cy='95.13' r='4.46' style='stroke-width: 0.71; stroke: #9BB2CD; fill: #9BB2CD;' />
-<circle cx='501.32' cy='85.70' r='4.69' style='stroke-width: 0.71; stroke: #93ADCA; fill: #93ADCA;' />
-<circle cx='412.34' cy='208.32' r='2.81' style='stroke-width: 0.71; stroke: #CBD3DD; fill: #CBD3DD;' />
-<circle cx='435.77' cy='132.86' r='3.36' style='stroke-width: 0.71; stroke: #BDC9D8; fill: #BDC9D8;' />
-<circle cx='393.25' cy='246.04' r='2.23' style='stroke-width: 0.71; stroke: #D7DBE0; fill: #D7DBE0;' />
-<circle cx='224.93' cy='462.98' r='4.86' style='stroke-width: 0.71; stroke: #FF9982; fill: #FF9982;' />
-<circle cx='195.01' cy='500.71' r='5.59' style='stroke-width: 0.71; stroke: #FF886E; fill: #FF886E;' />
-<circle cx='226.90' cy='453.55' r='4.95' style='stroke-width: 0.71; stroke: #FE9A83; fill: #FE9A83;' />
-<circle cx='258.30' cy='415.82' r='4.28' style='stroke-width: 0.71; stroke: #FCAB98; fill: #FCAB98;' />
-<circle cx='133.66' cy='538.43' r='5.68' style='stroke-width: 0.71; stroke: #FF6347; fill: #FF6347;' />
-<circle cx='290.29' cy='396.96' r='3.69' style='stroke-width: 0.71; stroke: #F8BCAD; fill: #F8BCAD;' />
-<circle cx='502.89' cy='76.27' r='4.72' style='stroke-width: 0.71; stroke: #92ACCA; fill: #92ACCA;' />
-<circle cx='420.66' cy='161.16' r='2.87' style='stroke-width: 0.71; stroke: #C6CFDB; fill: #C6CFDB;' />
-<circle cx='196.39' cy='491.27' r='5.57' style='stroke-width: 0.71; stroke: #FF896F; fill: #FF896F;' />
-<circle cx='237.92' cy='444.11' r='4.74' style='stroke-width: 0.71; stroke: #FEA08A; fill: #FEA08A;' />
-<circle cx='253.67' cy='434.68' r='4.43' style='stroke-width: 0.71; stroke: #FCA995; fill: #FCA995;' />
-<circle cx='309.06' cy='368.66' r='3.19' style='stroke-width: 0.71; stroke: #F5C5BA; fill: #F5C5BA;' />
-<circle cx='433.99' cy='142.29' r='3.32' style='stroke-width: 0.71; stroke: #BECAD8; fill: #BECAD8;' />
-<circle cx='397.18' cy='236.61' r='2.37' style='stroke-width: 0.71; stroke: #D5D9E0; fill: #D5D9E0;' />
-<circle cx='416.67' cy='180.02' r='2.92' style='stroke-width: 0.71; stroke: #C9D1DC; fill: #C9D1DC;' />
-<circle cx='301.51' cy='387.52' r='3.46' style='stroke-width: 0.71; stroke: #F6C2B5; fill: #F6C2B5;' />
-<circle cx='418.25' cy='170.59' r='2.96' style='stroke-width: 0.71; stroke: #C8D0DB; fill: #C8D0DB;' />
-<circle cx='358.40' cy='264.91' r='1.63' style='stroke-width: 0.71; stroke: #E9DFDC; fill: #E9DFDC;' />
-<circle cx='474.94' cy='104.57' r='4.17' style='stroke-width: 0.71; stroke: #A4B8D0; fill: #A4B8D0;' />
-<circle cx='406.04' cy='227.18' r='2.64' style='stroke-width: 0.71; stroke: #CFD6DE; fill: #CFD6DE;' />
-<circle cx='513.99' cy='57.41' r='4.75' style='stroke-width: 0.71; stroke: #8BA8C8; fill: #8BA8C8;' />
-<circle cx='601.32' cy='29.11' r='6.76' style='stroke-width: 0.71; stroke: #4C85B5; fill: #4C85B5;' />
-<circle cx='223.35' cy='472.41' r='4.89' style='stroke-width: 0.71; stroke: #FF9881; fill: #FF9881;' />
-<circle cx='202.16' cy='481.84' r='4.59' style='stroke-width: 0.71; stroke: #FF8C73; fill: #FF8C73;' />
-<circle cx='333.99' cy='312.07' r='2.69' style='stroke-width: 0.71; stroke: #EFD2CB; fill: #EFD2CB;' />
-<circle cx='315.88' cy='340.36' r='3.14' style='stroke-width: 0.71; stroke: #F3C9BF; fill: #F3C9BF;' />
-<circle cx='315.49' cy='349.80' r='3.15' style='stroke-width: 0.71; stroke: #F3C9BE; fill: #F3C9BE;' />
-<circle cx='270.41' cy='406.39' r='4.09' style='stroke-width: 0.71; stroke: #FBB1A0; fill: #FBB1A0;' />
-<circle cx='190.68' cy='510.14' r='5.68' style='stroke-width: 0.71; stroke: #FF866B; fill: #FF866B;' />
-<circle cx='580.65' cy='38.54' r='6.30' style='stroke-width: 0.71; stroke: #5C8DBA; fill: #5C8DBA;' />
-<circle cx='435.96' cy='123.43' r='3.37' style='stroke-width: 0.71; stroke: #BDC9D8; fill: #BDC9D8;' />
-<circle cx='319.84' cy='330.93' r='2.96' style='stroke-width: 0.71; stroke: #F2CBC1; fill: #F2CBC1;' />
-<circle cx='333.01' cy='321.50' r='2.71' style='stroke-width: 0.71; stroke: #F0D2CB; fill: #F0D2CB;' />
-<circle cx='503.04' cy='66.84' r='4.04' style='stroke-width: 0.71; stroke: #92ACCA; fill: #92ACCA;' />
-<circle cx='415.49' cy='189.45' r='2.89' style='stroke-width: 0.71; stroke: #C9D1DC; fill: #C9D1DC;' />
-<circle cx='350.72' cy='283.77' r='2.13' style='stroke-width: 0.71; stroke: #EBDBD7; fill: #EBDBD7;' />
-<circle cx='357.61' cy='274.34' r='1.69' style='stroke-width: 0.71; stroke: #E9DEDC; fill: #E9DEDC;' />
-<circle cx='542.07' cy='47.97' r='5.50' style='stroke-width: 0.71; stroke: #789CC2; fill: #789CC2;' />
-<circle cx='453.79' cy='114.00' r='3.70' style='stroke-width: 0.71; stroke: #B1C1D4; fill: #B1C1D4;' />
-<circle cx='161.35' cy='519.57' r='6.29' style='stroke-width: 0.71; stroke: #FF7559; fill: #FF7559;' />
-<circle cx='350.66' cy='293.20' r='2.11' style='stroke-width: 0.71; stroke: #EBDBD7; fill: #EBDBD7;' />
-<circle cx='359.19' cy='255.48' r='1.42' style='stroke-width: 0.71; stroke: #E9DFDD; fill: #E9DFDD;' />
-<circle cx='413.72' cy='198.88' r='2.85' style='stroke-width: 0.71; stroke: #CAD2DC; fill: #CAD2DC;' />
-<circle cx='390.29' cy='302.64' r='2.10' style='stroke-width: 0.71; stroke: #D9DCE1; fill: #D9DCE1;' />
-<circle cx='256.23' cy='425.25' r='4.38' style='stroke-width: 0.71; stroke: #FCAA96; fill: #FCAA96;' />
-<circle cx='292.45' cy='302.64' r='3.65' style='stroke-width: 0.71; stroke: #F7BDAF; fill: #F7BDAF;' />
-<circle cx='142.84' cy='529.00' r='6.70' style='stroke-width: 0.71; stroke: #FF694D; fill: #FF694D;' />
-<circle cx='426.12' cy='151.73' r='3.15' style='stroke-width: 0.71; stroke: #C3CDDA; fill: #C3CDDA;' />
-<circle cx='309.88' cy='359.23' r='3.02' style='stroke-width: 0.71; stroke: #F4C6BB; fill: #F4C6BB;' />
+<polyline points='210.90,544.09 210.90,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='367.48,544.09 367.48,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='524.07,544.09 524.07,23.45 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<circle cx='312.46' cy='387.52' r='3.10' style='stroke-width: 0.71; stroke: #F3C9BE; fill: #F3C9BE;' />
+<circle cx='400.20' cy='227.18' r='2.36' style='stroke-width: 0.71; stroke: #D1D7DE; fill: #D1D7DE;' />
+<circle cx='473.91' cy='114.00' r='4.10' style='stroke-width: 0.71; stroke: #A2B7CF; fill: #A2B7CF;' />
+<circle cx='409.92' cy='180.02' r='2.74' style='stroke-width: 0.71; stroke: #CBD2DC; fill: #CBD2DC;' />
+<circle cx='507.61' cy='85.70' r='4.74' style='stroke-width: 0.71; stroke: #8CA9C8; fill: #8CA9C8;' />
+<circle cx='250.09' cy='481.84' r='3.92' style='stroke-width: 0.71; stroke: #FCA894; fill: #FCA894;' />
+<circle cx='393.27' cy='236.61' r='2.42' style='stroke-width: 0.71; stroke: #D5DAE0; fill: #D5DAE0;' />
+<circle cx='240.08' cy='510.14' r='4.38' style='stroke-width: 0.71; stroke: #FDA38D; fill: #FDA38D;' />
+<circle cx='245.76' cy='500.71' r='4.38' style='stroke-width: 0.71; stroke: #FDA691; fill: #FDA691;' />
+<circle cx='538.04' cy='76.27' r='5.33' style='stroke-width: 0.71; stroke: #789CC2; fill: #789CC2;' />
+<circle cx='247.95' cy='491.27' r='4.19' style='stroke-width: 0.71; stroke: #FDA792; fill: #FDA792;' />
+<circle cx='557.98' cy='66.84' r='5.74' style='stroke-width: 0.71; stroke: #6A94BD; fill: #6A94BD;' />
+<circle cx='411.02' cy='170.59' r='2.74' style='stroke-width: 0.71; stroke: #CAD2DC; fill: #CAD2DC;' />
+<circle cx='383.47' cy='283.77' r='2.14' style='stroke-width: 0.71; stroke: #DBDEE2; fill: #DBDEE2;' />
+<circle cx='333.44' cy='359.23' r='2.64' style='stroke-width: 0.71; stroke: #EFD4CD; fill: #EFD4CD;' />
+<circle cx='251.43' cy='472.41' r='4.28' style='stroke-width: 0.71; stroke: #FCA995; fill: #FCA995;' />
+<circle cx='385.88' cy='274.34' r='2.22' style='stroke-width: 0.71; stroke: #DADDE1; fill: #DADDE1;' />
+<circle cx='421.81' cy='132.86' r='3.09' style='stroke-width: 0.71; stroke: #C3CDDA; fill: #C3CDDA;' />
+<circle cx='291.73' cy='415.82' r='3.41' style='stroke-width: 0.71; stroke: #F7BEB0; fill: #F7BEB0;' />
+<circle cx='390.52' cy='255.48' r='2.36' style='stroke-width: 0.71; stroke: #D7DBE0; fill: #D7DBE0;' />
+<circle cx='183.27' cy='529.00' r='5.53' style='stroke-width: 0.71; stroke: #FF8368; fill: #FF8368;' />
+<circle cx='431.47' cy='123.43' r='3.19' style='stroke-width: 0.71; stroke: #BDC9D8; fill: #BDC9D8;' />
+<circle cx='352.01' cy='340.36' r='2.12' style='stroke-width: 0.71; stroke: #EADDDA; fill: #EADDDA;' />
+<circle cx='421.64' cy='142.29' r='3.08' style='stroke-width: 0.71; stroke: #C3CDDA; fill: #C3CDDA;' />
+<circle cx='492.54' cy='95.13' r='4.28' style='stroke-width: 0.71; stroke: #96AFCB; fill: #96AFCB;' />
+<circle cx='360.29' cy='321.50' r='1.69' style='stroke-width: 0.71; stroke: #E7E1E0; fill: #E7E1E0;' />
+<circle cx='381.92' cy='293.20' r='2.09' style='stroke-width: 0.71; stroke: #DCDFE2; fill: #DCDFE2;' />
+<circle cx='353.38' cy='330.93' r='2.07' style='stroke-width: 0.71; stroke: #E9DEDB; fill: #E9DEDB;' />
+<circle cx='390.52' cy='264.91' r='2.36' style='stroke-width: 0.71; stroke: #D7DBE0; fill: #D7DBE0;' />
+<circle cx='221.17' cy='519.57' r='4.85' style='stroke-width: 0.71; stroke: #FF9881; fill: #FF9881;' />
+<circle cx='564.62' cy='57.41' r='4.66' style='stroke-width: 0.71; stroke: #6591BC; fill: #6591BC;' />
+<circle cx='400.84' cy='208.32' r='2.63' style='stroke-width: 0.71; stroke: #D0D6DE; fill: #D0D6DE;' />
+<circle cx='279.63' cy='444.11' r='3.74' style='stroke-width: 0.71; stroke: #F9B8A8; fill: #F9B8A8;' />
+<circle cx='324.47' cy='378.09' r='2.83' style='stroke-width: 0.71; stroke: #F1CFC7; fill: #F1CFC7;' />
+<circle cx='272.23' cy='453.55' r='3.88' style='stroke-width: 0.71; stroke: #FAB4A3; fill: #FAB4A3;' />
+<circle cx='403.07' cy='198.88' r='2.68' style='stroke-width: 0.71; stroke: #CFD5DE; fill: #CFD5DE;' />
+<circle cx='305.07' cy='406.39' r='3.25' style='stroke-width: 0.71; stroke: #F5C5B9; fill: #F5C5B9;' />
+<circle cx='361.82' cy='312.07' r='1.42' style='stroke-width: 0.71; stroke: #E7E2E1; fill: #E7E2E1;' />
+<circle cx='400.83' cy='217.75' r='2.53' style='stroke-width: 0.71; stroke: #D0D6DE; fill: #D0D6DE;' />
+<circle cx='307.13' cy='396.96' r='3.21' style='stroke-width: 0.71; stroke: #F4C6BB; fill: #F4C6BB;' />
+<circle cx='414.76' cy='151.73' r='2.94' style='stroke-width: 0.71; stroke: #C8D0DB; fill: #C8D0DB;' />
+<circle cx='406.51' cy='189.45' r='2.76' style='stroke-width: 0.71; stroke: #CDD4DD; fill: #CDD4DD;' />
+<circle cx='566.41' cy='47.97' r='5.92' style='stroke-width: 0.71; stroke: #6491BC; fill: #6491BC;' />
+<circle cx='376.47' cy='302.64' r='1.83' style='stroke-width: 0.71; stroke: #DFE1E3; fill: #DFE1E3;' />
+<circle cx='603.03' cy='29.11' r='6.76' style='stroke-width: 0.71; stroke: #4682B4; fill: #4682B4;' />
+<circle cx='326.91' cy='368.66' r='2.79' style='stroke-width: 0.71; stroke: #F0D0C8; fill: #F0D0C8;' />
+<circle cx='488.04' cy='104.57' r='4.20' style='stroke-width: 0.71; stroke: #99B1CC; fill: #99B1CC;' />
+<circle cx='257.55' cy='462.98' r='3.86' style='stroke-width: 0.71; stroke: #FCAC99; fill: #FCAC99;' />
+<circle cx='392.50' cy='246.04' r='2.38' style='stroke-width: 0.71; stroke: #D5DAE0; fill: #D5DAE0;' />
+<circle cx='133.66' cy='538.43' r='6.71' style='stroke-width: 0.71; stroke: #FF6448; fill: #FF6448;' />
+<circle cx='468.41' cy='161.16' r='3.99' style='stroke-width: 0.71; stroke: #A6B9D0; fill: #A6B9D0;' />
+<circle cx='579.81' cy='38.54' r='5.93' style='stroke-width: 0.71; stroke: #598BB9; fill: #598BB9;' />
+<circle cx='356.39' cy='161.16' r='1.88' style='stroke-width: 0.71; stroke: #E8DFDD; fill: #E8DFDD;' />
+<circle cx='335.16' cy='349.80' r='2.60' style='stroke-width: 0.71; stroke: #EED4CE; fill: #EED4CE;' />
+<circle cx='287.39' cy='434.68' r='3.56' style='stroke-width: 0.71; stroke: #F8BCAD; fill: #F8BCAD;' />
+<circle cx='291.49' cy='425.25' r='3.52' style='stroke-width: 0.71; stroke: #F7BEB0; fill: #F7BEB0;' />
 </g>
 <g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1NzYuMDA=)'>
-<text x='104.67' y='541.64' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='51.81px' lengthAdjust='spacingAndGlyphs'>Acetylcholine</text>
-<text x='104.67' y='532.21' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='77.23px' lengthAdjust='spacingAndGlyphs'>1-Palmitoyl-2-Doc...</text>
-<text x='104.67' y='522.78' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.24px' lengthAdjust='spacingAndGlyphs'>5'-S-Methyl-5'-Th...</text>
-<text x='104.67' y='513.35' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='41.54px' lengthAdjust='spacingAndGlyphs'>L-Tyrosine</text>
+<text x='104.67' y='541.64' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.24px' lengthAdjust='spacingAndGlyphs'>Dl-Dipalmitoylpho...</text>
+<text x='104.67' y='532.21' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='41.55px' lengthAdjust='spacingAndGlyphs'>Adenosine</text>
+<text x='104.67' y='522.78' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>2-Oleoyl-1-Palmit...</text>
+<text x='104.67' y='513.35' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='80.67px' lengthAdjust='spacingAndGlyphs'>Adenosine Triphos...</text>
 <text x='104.67' y='503.91' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='29.81px' lengthAdjust='spacingAndGlyphs'>Choline</text>
-<text x='104.67' y='494.48' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='64.51px' lengthAdjust='spacingAndGlyphs'>D-Phenylalanine</text>
-<text x='104.67' y='485.05' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='77.23px' lengthAdjust='spacingAndGlyphs'>1,2-Dioleoyl-Sn-G...</text>
-<text x='104.67' y='475.62' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>2-Oleoyl-1-Palmit...</text>
-<text x='104.67' y='466.19' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='80.67px' lengthAdjust='spacingAndGlyphs'>Adenosine Triphos...</text>
-<text x='104.67' y='456.75' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.21px' lengthAdjust='spacingAndGlyphs'>L-Pyroglutamic Acid</text>
-<text x='104.67' y='447.32' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='63.04px' lengthAdjust='spacingAndGlyphs'>Cysteinylglycine</text>
-<text x='104.67' y='437.89' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='44.49px' lengthAdjust='spacingAndGlyphs'>Tryptophan</text>
-<text x='104.67' y='428.46' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.20px' lengthAdjust='spacingAndGlyphs'>1-(1z-Octadecenyl...</text>
-<text x='104.67' y='419.03' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='62.08px' lengthAdjust='spacingAndGlyphs'>L-Glutamic Acid</text>
-<text x='104.67' y='409.59' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.77px' lengthAdjust='spacingAndGlyphs'>N-Acetylglutamic ...</text>
-<text x='104.67' y='400.16' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='51.31px' lengthAdjust='spacingAndGlyphs'>Dl-Glutamine</text>
-<text x='104.67' y='390.73' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.30px' lengthAdjust='spacingAndGlyphs'>1-Methyladenosine</text>
-<text x='104.67' y='381.30' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='29.33px' lengthAdjust='spacingAndGlyphs'>Glycine</text>
-<text x='104.67' y='371.87' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.00px' lengthAdjust='spacingAndGlyphs'>2'-Deoxyadenosine</text>
-<text x='104.67' y='362.44' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>1,2-Dieicosenoyl-...</text>
-<text x='104.67' y='353.00' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='63.05px' lengthAdjust='spacingAndGlyphs'>L-Phenylalanine</text>
-<text x='104.67' y='343.57' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='59.15px' lengthAdjust='spacingAndGlyphs'>L-Aspartic Acid</text>
-<text x='104.67' y='334.14' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.23px' lengthAdjust='spacingAndGlyphs'>Methyl L-Tryptoph...</text>
-<text x='104.67' y='324.71' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.27px' lengthAdjust='spacingAndGlyphs'>Phenylacetylgluta...</text>
-<text x='104.67' y='315.28' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.69px' lengthAdjust='spacingAndGlyphs'>1-Octadecanoyl-2-...</text>
-<text x='104.67' y='305.84' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.63px' lengthAdjust='spacingAndGlyphs'>1-Hexadecanoyl-2-...</text>
-<text x='104.67' y='296.41' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.26px' lengthAdjust='spacingAndGlyphs'>1-Palmitoyl-Sn-Gl...</text>
-<text x='104.67' y='286.98' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='84.56px' lengthAdjust='spacingAndGlyphs'>2-(Alpha-D-Mannop...</text>
-<text x='104.67' y='277.55' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='83.10px' lengthAdjust='spacingAndGlyphs'>N6-Succinyladenos...</text>
-<text x='104.67' y='268.12' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>1-Myristoyl-Sn-Gl...</text>
-<text x='104.67' y='258.68' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.26px' lengthAdjust='spacingAndGlyphs'>2-(5-Oxovaleryl)P...</text>
-<text x='104.67' y='249.25' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='43.01px' lengthAdjust='spacingAndGlyphs'>D-Tyrosine</text>
-<text x='104.67' y='239.82' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='41.55px' lengthAdjust='spacingAndGlyphs'>Adenosine</text>
-<text x='104.67' y='230.39' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.65px' lengthAdjust='spacingAndGlyphs'>1,2-Dipentadecano...</text>
-<text x='104.67' y='220.96' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='39.10px' lengthAdjust='spacingAndGlyphs'>Histamine</text>
-<text x='104.67' y='211.52' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='47.90px' lengthAdjust='spacingAndGlyphs'>L-Glutamine</text>
-<text x='104.67' y='202.09' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.24px' lengthAdjust='spacingAndGlyphs'>Dl-Dipalmitoylpho...</text>
+<text x='104.67' y='494.48' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='62.08px' lengthAdjust='spacingAndGlyphs'>L-Glutamic Acid</text>
+<text x='104.67' y='485.05' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-L-Aspart...</text>
+<text x='104.67' y='475.62' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='64.51px' lengthAdjust='spacingAndGlyphs'>D-Phenylalanine</text>
+<text x='104.67' y='466.19' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.26px' lengthAdjust='spacingAndGlyphs'>1-Palmitoyl-Sn-Gl...</text>
+<text x='104.67' y='456.75' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.77px' lengthAdjust='spacingAndGlyphs'>N-Acetylglutamic ...</text>
+<text x='104.67' y='447.32' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='59.15px' lengthAdjust='spacingAndGlyphs'>L-Aspartic Acid</text>
+<text x='104.67' y='437.89' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.62px' lengthAdjust='spacingAndGlyphs'>N-Nervonoyl-D-Ery...</text>
+<text x='104.67' y='428.46' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>1,2-Dieicosenoyl-...</text>
+<text x='104.67' y='419.03' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.00px' lengthAdjust='spacingAndGlyphs'>2'-Deoxyadenosine</text>
+<text x='104.67' y='409.59' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='67.70px' lengthAdjust='spacingAndGlyphs'>D-(+)-Tryptophan</text>
+<text x='104.67' y='400.16' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.27px' lengthAdjust='spacingAndGlyphs'>Phenylacetylgluta...</text>
+<text x='104.67' y='390.73' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='29.33px' lengthAdjust='spacingAndGlyphs'>Glycine</text>
+<text x='104.67' y='381.30' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='63.05px' lengthAdjust='spacingAndGlyphs'>L-Phenylalanine</text>
+<text x='104.67' y='371.87' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.19px' lengthAdjust='spacingAndGlyphs'>1-Oleoyl-Sn-Glyce...</text>
+<text x='104.67' y='362.44' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='86.03px' lengthAdjust='spacingAndGlyphs'>5-Methyl D-Glutamate</text>
+<text x='104.67' y='353.00' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='77.23px' lengthAdjust='spacingAndGlyphs'>1-Palmitoyl-2-Doc...</text>
+<text x='104.67' y='343.57' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.30px' lengthAdjust='spacingAndGlyphs'>1-Methyladenosine</text>
+<text x='104.67' y='334.14' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='82.13px' lengthAdjust='spacingAndGlyphs'>N-(Octadecanoyl)S...</text>
+<text x='104.67' y='324.71' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.02px' lengthAdjust='spacingAndGlyphs'>Cytidine 5'-Dipho...</text>
+<text x='104.67' y='315.28' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='52.30px' lengthAdjust='spacingAndGlyphs'>L-Kynurenine</text>
+<text x='104.67' y='305.84' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='83.10px' lengthAdjust='spacingAndGlyphs'>N6-Succinyladenos...</text>
+<text x='104.67' y='296.41' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.65px' lengthAdjust='spacingAndGlyphs'>1,2-Dipentadecano...</text>
+<text x='104.67' y='286.98' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.80px' lengthAdjust='spacingAndGlyphs'>Acetyl-Β-Methylch...</text>
+<text x='104.67' y='277.55' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='63.04px' lengthAdjust='spacingAndGlyphs'>Cysteinylglycine</text>
+<text x='104.67' y='268.12' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.30px' lengthAdjust='spacingAndGlyphs'>1-Oleoyl-2-Myrist...</text>
+<text x='104.67' y='258.68' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='85.56px' lengthAdjust='spacingAndGlyphs'>Glycerophosphocho...</text>
+<text x='104.67' y='249.25' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.26px' lengthAdjust='spacingAndGlyphs'>2-(5-Oxovaleryl)P...</text>
+<text x='104.67' y='239.82' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='43.01px' lengthAdjust='spacingAndGlyphs'>D-Tyrosine</text>
+<text x='104.67' y='230.39' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='39.10px' lengthAdjust='spacingAndGlyphs'>Histamine</text>
+<text x='104.67' y='220.96' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.23px' lengthAdjust='spacingAndGlyphs'>Methyl L-Tryptoph...</text>
+<text x='104.67' y='211.52' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.69px' lengthAdjust='spacingAndGlyphs'>1-Octadecanoyl-2-...</text>
+<text x='104.67' y='202.09' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='41.54px' lengthAdjust='spacingAndGlyphs'>L-Tyrosine</text>
 <text x='104.67' y='192.66' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.16px' lengthAdjust='spacingAndGlyphs'>Adenosine 3'5'-Cy...</text>
-<text x='104.67' y='183.23' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.79px' lengthAdjust='spacingAndGlyphs'>Υ-L-Glutamyl-L-Gl...</text>
-<text x='104.67' y='173.80' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.92px' lengthAdjust='spacingAndGlyphs'>Adenosine 5'-Diph...</text>
-<text x='104.67' y='164.36' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='86.03px' lengthAdjust='spacingAndGlyphs'>5-Methyl D-Glutamate</text>
-<text x='104.67' y='154.93' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.62px' lengthAdjust='spacingAndGlyphs'>N-Nervonoyl-D-Ery...</text>
-<text x='104.67' y='145.50' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='85.56px' lengthAdjust='spacingAndGlyphs'>Glycerophosphocho...</text>
-<text x='104.67' y='136.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-L-Aspart...</text>
-<text x='104.67' y='126.64' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='52.30px' lengthAdjust='spacingAndGlyphs'>L-Kynurenine</text>
-<text x='104.67' y='117.21' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.19px' lengthAdjust='spacingAndGlyphs'>1-Oleoyl-Sn-Glyce...</text>
-<text x='104.67' y='107.77' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.02px' lengthAdjust='spacingAndGlyphs'>Cytidine 5'-Dipho...</text>
-<text x='104.67' y='98.34' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='60.60px' lengthAdjust='spacingAndGlyphs'>N-Acetylglycine</text>
-<text x='104.67' y='88.91' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.62px' lengthAdjust='spacingAndGlyphs'>Dl-Pyroglutamic Acid</text>
-<text x='104.67' y='79.48' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.80px' lengthAdjust='spacingAndGlyphs'>Acetyl-Β-Methylch...</text>
-<text x='104.67' y='70.05' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-1-Aspart...</text>
-<text x='104.67' y='60.61' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='82.13px' lengthAdjust='spacingAndGlyphs'>N-(Octadecanoyl)S...</text>
-<text x='104.67' y='51.18' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>1-Linoleoyl-Sn-Gl...</text>
-<text x='104.67' y='41.75' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='67.70px' lengthAdjust='spacingAndGlyphs'>D-(+)-Tryptophan</text>
-<text x='104.67' y='32.32' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.30px' lengthAdjust='spacingAndGlyphs'>1-Oleoyl-2-Myrist...</text>
-<text x='236.34' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='15.16px' lengthAdjust='spacingAndGlyphs'>-0.3</text>
-<text x='370.80' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
-<text x='505.27' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.3</text>
+<text x='104.67' y='183.23' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.62px' lengthAdjust='spacingAndGlyphs'>Dl-Pyroglutamic Acid</text>
+<text x='104.67' y='173.80' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='51.31px' lengthAdjust='spacingAndGlyphs'>Dl-Glutamine</text>
+<text x='104.67' y='164.36' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='81.63px' lengthAdjust='spacingAndGlyphs'>1-Hexadecanoyl-2-...</text>
+<text x='104.67' y='154.93' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='76.75px' lengthAdjust='spacingAndGlyphs'>N-Acetyl-1-Aspart...</text>
+<text x='104.67' y='145.50' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.92px' lengthAdjust='spacingAndGlyphs'>Adenosine 5'-Diph...</text>
+<text x='104.67' y='136.07' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='44.49px' lengthAdjust='spacingAndGlyphs'>Tryptophan</text>
+<text x='104.67' y='126.64' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.79px' lengthAdjust='spacingAndGlyphs'>Υ-L-Glutamyl-L-Gl...</text>
+<text x='104.67' y='117.21' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='60.60px' lengthAdjust='spacingAndGlyphs'>N-Acetylglycine</text>
+<text x='104.67' y='107.77' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='74.24px' lengthAdjust='spacingAndGlyphs'>5'-S-Methyl-5'-Th...</text>
+<text x='104.67' y='98.34' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>1-Myristoyl-Sn-Gl...</text>
+<text x='104.67' y='88.91' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='47.90px' lengthAdjust='spacingAndGlyphs'>L-Glutamine</text>
+<text x='104.67' y='79.48' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='78.21px' lengthAdjust='spacingAndGlyphs'>L-Pyroglutamic Acid</text>
+<text x='104.67' y='70.05' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='51.81px' lengthAdjust='spacingAndGlyphs'>Acetylcholine</text>
+<text x='104.67' y='60.61' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='77.23px' lengthAdjust='spacingAndGlyphs'>1,2-Dioleoyl-Sn-G...</text>
+<text x='104.67' y='51.18' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='84.56px' lengthAdjust='spacingAndGlyphs'>2-(Alpha-D-Mannop...</text>
+<text x='104.67' y='41.75' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='79.20px' lengthAdjust='spacingAndGlyphs'>1-(1z-Octadecenyl...</text>
+<text x='104.67' y='32.32' text-anchor='end' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='75.28px' lengthAdjust='spacingAndGlyphs'>1-Linoleoyl-Sn-Gl...</text>
+<text x='210.90' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='15.16px' lengthAdjust='spacingAndGlyphs'>-0.4</text>
+<text x='367.48' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='524.07' y='555.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.4</text>
 <text x='374.21' y='568.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='98.40px' lengthAdjust='spacingAndGlyphs'>Correlation with GW</text>
 <text transform='translate(13.50,283.77) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='53.78px' lengthAdjust='spacingAndGlyphs'>Compound</text>
-<text x='655.26' y='197.01' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='53.78px' lengthAdjust='spacingAndGlyphs'>Correlation</text>
-<image width='17.28' height='86.40' x='655.26' y='203.69' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAl0lEQVQ4jb1QQRLEIAhL8r79Vp+035M91HGqYGnHdi+OISRA8Nm+JoIQCUgARE4gAUhk/e21BtXDqmhWPRxYtkHq4ZE9NdjXTe2fhEEGMUwX/yN8I4gZRNJ8McnVXQCDaAbB+h+CmpWqcIQ5q0HhCIutjsOLZ3MrpyhOcUk2I2YZZLK7bHQHgjsGg+jU8xlLffebl2VPPD+4vR8OJnz1NQAAAABJRU5ErkJggg=='/>
-<polyline points='669.09,287.55 672.54,287.55 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='669.09,266.92 672.54,266.92 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='669.09,246.28 672.54,246.28 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='669.09,225.65 672.54,225.65 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='669.09,205.02 672.54,205.02 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='658.72,287.55 655.26,287.55 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='658.72,266.92 655.26,266.92 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='658.72,246.28 655.26,246.28 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='658.72,225.65 655.26,225.65 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<polyline points='658.72,205.02 655.26,205.02 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
-<text x='678.02' y='290.76' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.50</text>
-<text x='678.02' y='270.12' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='20.04px' lengthAdjust='spacingAndGlyphs'>-0.25</text>
-<text x='678.02' y='249.49' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.00</text>
-<text x='678.02' y='228.86' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.25</text>
-<text x='678.02' y='208.22' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.50</text>
-<text x='655.26' y='321.23' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='44.00px' lengthAdjust='spacingAndGlyphs'>-log10(p)</text>
-<circle cx='663.90' cy='336.55' r='4.00' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='663.90' cy='353.83' r='5.16' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='663.90' cy='371.11' r='6.03' style='stroke-width: 0.71; fill: #000000;' />
-<text x='678.02' y='339.76' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.5</text>
-<text x='678.02' y='357.04' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.0</text>
-<text x='678.02' y='374.32' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>1.5</text>
+<text x='655.26' y='205.65' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='44.00px' lengthAdjust='spacingAndGlyphs'>-log10(p)</text>
+<circle cx='663.90' cy='220.97' r='4.63' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='663.90' cy='238.25' r='5.98' style='stroke-width: 0.71; fill: #000000;' />
+<text x='678.02' y='224.18' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>1</text>
+<text x='678.02' y='241.46' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='4.89px' lengthAdjust='spacingAndGlyphs'>2</text>
+<text x='655.26' y='278.03' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='53.78px' lengthAdjust='spacingAndGlyphs'>Correlation</text>
+<image width='17.28' height='86.40' x='655.26' y='284.71' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAnklEQVQ4jc1RQQ7DIAyz/bg9rG/a+8gOdFGhCY3UatoFxdhxTMBre5tIQALxrQCRCSQAidyrfke6zsVdB4juzBGu2cMgh7yGmthDquW0DCqLVsjyDzBaxF34SDSk7NOLGD8PZhDNIMAra14ZRNigmzvafhdbFTuu26ZUU7SSX1u0naYFfp1tGZF1VCXI9hIYrB8dDi9arVOVj6r9j44PUb8bEOIYqYsAAAAASUVORK5CYII='/>
+<polyline points='669.09,349.61 672.54,349.61 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='669.09,328.07 672.54,328.07 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='669.09,306.52 672.54,306.52 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='669.09,284.97 672.54,284.97 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='658.72,349.61 655.26,349.61 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='658.72,328.07 655.26,328.07 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='658.72,306.52 655.26,306.52 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='658.72,284.97 655.26,284.97 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<text x='678.02' y='352.82' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='15.16px' lengthAdjust='spacingAndGlyphs'>-0.3</text>
+<text x='678.02' y='331.27' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.0</text>
+<text x='678.02' y='309.73' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.3</text>
+<text x='678.02' y='288.18' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='12.23px' lengthAdjust='spacingAndGlyphs'>0.6</text>
 <text x='374.21' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='260.10px' lengthAdjust='spacingAndGlyphs'>GW Correlations - Neurotransmitters (broad)</text>
 </g>
 </svg>

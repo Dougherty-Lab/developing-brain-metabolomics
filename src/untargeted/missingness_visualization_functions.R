@@ -2,22 +2,22 @@
 # Missingness Visualization Functions
 # ============================================================================
 
-# Plot: # of metabolites (y) vs % of samples missing (x) — combined
+# Plot: # of metabolites (y) vs # of samples missing (x) — combined
 plot_missingness_by_sample_pct <- function(missing_stats, title_prefix = "",
                                            png_path = NULL, svg_path = NULL,
                                            width = 10, height = 8, dpi = 300) {
-  plot_data <- missing_stats %>%
-    mutate(pct_missing = missing_proportion * 100)
+  plot_data <- missing_stats
+  n_total <- max(plot_data$total_samples)
 
-  p <- ggplot(plot_data, aes(x = pct_missing)) +
-    geom_histogram(binwidth = 5, fill = "steelblue", color = "black", boundary = 0) +
+  p <- ggplot(plot_data, aes(x = missing_count)) +
+    geom_histogram(binwidth = 1, fill = "steelblue", color = "black", boundary = -0.5) +
     theme_minimal() +
     labs(
       title = paste0(title_prefix, "Metabolite Missingness Across Samples"),
-      x = "% of Samples Missing Metabolite",
+      x = "Number of Samples Missing Metabolite",
       y = "Number of Metabolites"
     ) +
-    scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 10))
+    scale_x_continuous(limits = c(-0.5, n_total + 0.5), breaks = seq(0, n_total, 1))
 
   save_dual_format(
     p, paste0(title_prefix, "missingness_by_sample_pct"),
@@ -26,25 +26,25 @@ plot_missingness_by_sample_pct <- function(missing_stats, title_prefix = "",
   return(p)
 }
 
-# Plot: # of metabolites (y) vs % of samples missing (x) — sex-split
+# Plot: # of metabolites (y) vs # of samples missing (x) — sex-split
 plot_missingness_by_sample_pct_by_sex <- function(missing_stats_by_sex, title_prefix = "",
                                                   png_path = NULL, svg_path = NULL,
                                                   width = 10, height = 10, dpi = 300) {
-  plot_data <- missing_stats_by_sex %>%
-    mutate(pct_missing = missing_proportion * 100)
+  plot_data <- missing_stats_by_sex
+  n_total <- max(plot_data$total_samples)
 
-  p <- ggplot(plot_data, aes(x = pct_missing, fill = Sex)) +
+  p <- ggplot(plot_data, aes(x = missing_count, fill = Sex)) +
     geom_histogram(
-      binwidth = 5, color = "black", position = "identity",
-      alpha = 0.6, boundary = 0
+      binwidth = 1, color = "black", position = "identity",
+      alpha = 0.6, boundary = -0.5
     ) +
     theme_minimal() +
     labs(
       title = paste0(title_prefix, "Metabolite Missingness Across Samples by Sex"),
-      x = "% of Samples Missing Metabolite",
+      x = "Number of Samples Missing Metabolite",
       y = "Number of Metabolites"
     ) +
-    scale_x_continuous(limits = c(0, 100), breaks = seq(0, 100, 10)) +
+    scale_x_continuous(limits = c(-0.5, n_total + 0.5), breaks = seq(0, n_total, 1)) +
     facet_wrap(~Sex, ncol = 1)
 
   save_dual_format(

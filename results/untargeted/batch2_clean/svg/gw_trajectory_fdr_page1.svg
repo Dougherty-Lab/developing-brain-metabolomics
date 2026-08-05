@@ -100,7 +100,7 @@
 <line x1='392.51' y1='163.25' x2='406.34' y2='163.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='149.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='166.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='203.97' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='199.99px' lengthAdjust='spacingAndGlyphs'>GW FDR significant | FDR=9.22e-02  slope=0.349</text>
+<text x='203.97' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='199.99px' lengthAdjust='spacingAndGlyphs'>GW FDR significant | FDR=8.40e-02  slope=0.349</text>
 <text x='203.97' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='96.36px' lengthAdjust='spacingAndGlyphs'>L-(+)-Lactic Acid</text>
 </g>
 <defs>
@@ -183,7 +183,7 @@
 <line x1='824.51' y1='163.25' x2='838.34' y2='163.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='845.54' y='149.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='845.54' y='166.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='639.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='202.98px' lengthAdjust='spacingAndGlyphs'>GW FDR significant | FDR=2.95e-02  slope=-0.181</text>
+<text x='639.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='202.98px' lengthAdjust='spacingAndGlyphs'>GW FDR significant | FDR=2.73e-02  slope=-0.181</text>
 <text x='639.73' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='83.55px' lengthAdjust='spacingAndGlyphs'>Pe(22:3_26:5)</text>
 </g>
 <defs>
@@ -266,7 +266,7 @@
 <line x1='392.51' y1='451.25' x2='406.34' y2='451.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='437.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='454.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='210.23' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='202.98px' lengthAdjust='spacingAndGlyphs'>GW FDR significant | FDR=1.37e-02  slope=-0.084</text>
-<text x='210.23' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='104.07px' lengthAdjust='spacingAndGlyphs'>Pc(21:2cho_19:4)</text>
+<text x='210.23' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='202.98px' lengthAdjust='spacingAndGlyphs'>GW FDR significant | FDR=1.45e-02  slope=-0.084</text>
+<text x='210.23' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='111.40px' lengthAdjust='spacingAndGlyphs'>Pc(28:6_10:0cooh)</text>
 </g>
 </svg>

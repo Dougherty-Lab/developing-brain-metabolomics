@@ -100,7 +100,7 @@
 <line x1='392.51' y1='163.25' x2='406.34' y2='163.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='149.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='166.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='207.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='173.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=4.23e-02  logFC=0.38</text>
+<text x='207.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='173.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=4.25e-02  logFC=0.38</text>
 <text x='207.73' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='112.13px' lengthAdjust='spacingAndGlyphs'>Pe(19:1cooh_28:3)</text>
 </g>
 <defs>
@@ -178,8 +178,8 @@
 <line x1='824.51' y1='163.25' x2='838.34' y2='163.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='845.54' y='149.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='845.54' y='166.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='639.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=3.70e-02  logFC=-0.358</text>
-<text x='639.73' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='106.98px' lengthAdjust='spacingAndGlyphs'>L-Glutarylcarnitine</text>
+<text x='639.73' y='29.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='181.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=3.72e-02  logFC=-0.358</text>
+<text x='639.73' y='15.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='123.10px' lengthAdjust='spacingAndGlyphs'>Lhnfrfaovvpesm-Cr...</text>
 </g>
 <defs>
   <clipPath id='cpMC4wMHw0MzIuMDB8Mjg4LjAwfDU3Ni4wMA=='>
@@ -251,8 +251,8 @@
 <line x1='392.51' y1='451.25' x2='406.34' y2='451.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='413.54' y='437.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='413.54' y='454.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='207.73' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='178.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=2.49e-02  logFC=0.333</text>
-<text x='207.73' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='117.97px' lengthAdjust='spacingAndGlyphs'>Cholest-4-En-3-One</text>
+<text x='207.73' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='178.48px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=2.60e-02  logFC=0.333</text>
+<text x='207.73' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='120.17px' lengthAdjust='spacingAndGlyphs'>3-Hydroxystigmast...</text>
 </g>
 <defs>
   <clipPath id='cpNDMyLjAwfDg2NC4wMHwyODguMDB8NTc2LjAw'>
@@ -333,7 +333,7 @@
 <line x1='824.51' y1='451.25' x2='838.34' y2='451.25' style='stroke-width: 1.49; stroke: #571C90; stroke-linecap: butt;' />
 <text x='845.54' y='437.17' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.38px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='845.54' y='454.45' style='font-size: 8.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
-<text x='642.23' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='168.47px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=1.54e-02  logFC=0.3</text>
-<text x='642.23' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='72.54px' lengthAdjust='spacingAndGlyphs'>Citroflex A-4</text>
+<text x='642.23' y='317.99' text-anchor='middle' style='font-size: 9.00px; font-weight: 0;fill: #666666; font-family: "TeX Gyre Heros";' textLength='168.47px' lengthAdjust='spacingAndGlyphs'>Sex nominal only | p=1.58e-02  logFC=0.3</text>
+<text x='642.23' y='303.09' text-anchor='middle' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='51.31px' lengthAdjust='spacingAndGlyphs'>Lpe 22:3</text>
 </g>
 </svg>

@@ -28,10 +28,11 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpOC4yMnw0NzUuMjZ8NDAuNTZ8Njg4LjA5)'>
-<polyline points='84.29,688.09 84.29,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='193.97,688.09 193.97,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='303.65,688.09 303.65,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='413.33,688.09 413.33,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='72.85,688.09 72.85,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='159.64,688.09 159.64,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='246.43,688.09 246.43,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='333.23,688.09 333.23,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='420.02,688.09 420.02,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,668.86 475.26,668.86 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,636.80 475.26,636.80 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,604.75 475.26,604.75 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -53,50 +54,51 @@
 <polyline points='8.22,91.85 475.26,91.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='8.22,59.79 475.26,59.79 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='29.45,688.09 29.45,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='139.13,688.09 139.13,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='248.81,688.09 248.81,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='358.49,688.09 358.49,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='468.17,688.09 468.17,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='116.24,688.09 116.24,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='203.04,688.09 203.04,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='289.83,688.09 289.83,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='376.63,688.09 376.63,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='463.42,688.09 463.42,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='29.45' y='45.36' width='424.58' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='77.42' width='259.53' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='109.48' width='128.11' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='141.53' width='91.70' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='173.59' width='38.25' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='205.65' width='36.92' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='237.70' width='35.30' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='269.76' width='24.57' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='301.81' width='14.48' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='365.93' width='14.06' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='333.87' width='12.85' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='397.98' width='12.55' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='430.04' width='11.94' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='462.10' width='8.79' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='526.21' width='7.25' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='494.15' width='7.21' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='558.27' width='6.07' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='590.32' width='5.81' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='622.38' width='5.26' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
-<rect x='29.45' y='654.43' width='4.73' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='77.42' width='205.38' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='109.48' width='101.38' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='141.53' width='72.57' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='173.59' width='30.27' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='205.65' width='27.94' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='237.70' width='11.46' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='301.81' width='11.13' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='269.76' width='10.17' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='365.93' width='9.94' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='333.87' width='9.93' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='397.98' width='9.56' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='430.04' width='8.07' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='462.10' width='6.95' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='494.15' width='6.00' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='526.21' width='5.70' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='558.27' width='4.16' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='590.32' width='3.74' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='622.38' width='3.39' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
+<rect x='29.45' y='654.43' width='2.89' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
 <text x='33.85' y='62.38' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='88.14px' lengthAdjust='spacingAndGlyphs'>Organonitrogen compounds</text>
 <text x='35.42' y='94.44' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='119.35px' lengthAdjust='spacingAndGlyphs'>Organic sulfonic acids and derivatives</text>
 <text x='32.45' y='126.49' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='60.07px' lengthAdjust='spacingAndGlyphs'>Purine nucleosides</text>
 <text x='32.49' y='158.55' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='60.85px' lengthAdjust='spacingAndGlyphs'>Imidazopyrimidines</text>
 <text x='31.48' y='190.61' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='40.69px' lengthAdjust='spacingAndGlyphs'>Glycerolipids</text>
-<text x='32.33' y='222.66' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='57.69px' lengthAdjust='spacingAndGlyphs'>Cinnamyl alcohols</text>
-<text x='31.66' y='254.72' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='44.26px' lengthAdjust='spacingAndGlyphs'>Dihydrofurans</text>
-<text x='32.63' y='286.78' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='63.61px' lengthAdjust='spacingAndGlyphs'>Pyrazolopyrimidines</text>
-<text x='34.92' y='318.83' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='109.46px' lengthAdjust='spacingAndGlyphs'>Carboximidic acids and derivatives</text>
-<text x='34.17' y='382.94' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.46px' lengthAdjust='spacingAndGlyphs'>Hydroxy acids and derivatives</text>
-<text x='30.89' y='350.89' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='28.86px' lengthAdjust='spacingAndGlyphs'>Lactones</text>
-<text x='32.37' y='415.00' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Purine nucleotides</text>
-<text x='34.53' y='447.06' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='101.56px' lengthAdjust='spacingAndGlyphs'>Carboxylic acids and derivatives</text>
+<text x='31.66' y='222.66' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='44.26px' lengthAdjust='spacingAndGlyphs'>Dihydrofurans</text>
+<text x='34.92' y='254.72' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='109.46px' lengthAdjust='spacingAndGlyphs'>Carboximidic acids and derivatives</text>
+<text x='34.17' y='318.83' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.46px' lengthAdjust='spacingAndGlyphs'>Hydroxy acids and derivatives</text>
+<text x='30.89' y='286.78' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='28.86px' lengthAdjust='spacingAndGlyphs'>Lactones</text>
+<text x='34.53' y='382.94' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='101.56px' lengthAdjust='spacingAndGlyphs'>Carboxylic acids and derivatives</text>
+<text x='32.37' y='350.89' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Purine nucleotides</text>
+<text x='35.95' y='415.00' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='130.02px' lengthAdjust='spacingAndGlyphs'>Organic phosphoric acids and derivatives</text>
+<text x='33.40' y='447.06' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='79.04px' lengthAdjust='spacingAndGlyphs'>Pyridines and derivatives</text>
 <text x='33.08' y='479.11' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='72.71px' lengthAdjust='spacingAndGlyphs'>Pyrimidine nucleosides</text>
-<text x='31.19' y='543.23' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='34.78px' lengthAdjust='spacingAndGlyphs'>Fatty Acyls</text>
-<text x='32.37' y='511.17' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Endocannabinoids</text>
-<text x='35.95' y='575.28' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='130.02px' lengthAdjust='spacingAndGlyphs'>Organic phosphoric acids and derivatives</text>
-<text x='33.40' y='607.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='79.04px' lengthAdjust='spacingAndGlyphs'>Pyridines and derivatives</text>
-<text x='34.01' y='639.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Sulfinic acids and derivatives</text>
-<text x='33.60' y='671.45' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='83.01px' lengthAdjust='spacingAndGlyphs'>Keto acids and derivatives</text>
+<text x='31.19' y='511.17' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='34.78px' lengthAdjust='spacingAndGlyphs'>Fatty Acyls</text>
+<text x='32.37' y='543.23' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Endocannabinoids</text>
+<text x='34.01' y='575.28' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Sulfinic acids and derivatives</text>
+<text x='33.60' y='607.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='83.01px' lengthAdjust='spacingAndGlyphs'>Keto acids and derivatives</text>
+<text x='33.72' y='639.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='85.37px' lengthAdjust='spacingAndGlyphs'>Organooxygen compounds</text>
+<text x='32.85' y='671.45' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='67.96px' lengthAdjust='spacingAndGlyphs'>Glycerophospholipids</text>
 </g>
 <g clip-path='url(#cpMC4wMHwxMDA4LjAwfDAuMDB8NzIwLjAw)'>
 </g>
@@ -106,10 +108,10 @@
   </clipPath>
 </defs>
 <g clip-path='url(#cpNDgzLjQ4fDk1MC41MXw0MC41Nnw2ODguMDk=)'>
-<polyline points='557.18,688.09 557.18,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='662.13,688.09 662.13,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='767.08,688.09 767.08,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='872.03,688.09 872.03,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='556.59,688.09 556.59,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='660.35,688.09 660.35,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='764.12,688.09 764.12,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='867.88,688.09 867.88,40.56 ' style='stroke-width: 0.53; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='483.48,668.86 950.51,668.86 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='483.48,636.80 950.51,636.80 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='483.48,604.75 950.51,604.75 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
@@ -131,50 +133,50 @@
 <polyline points='483.48,91.85 950.51,91.85 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='483.48,59.79 950.51,59.79 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='504.71,688.09 504.71,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='609.65,688.09 609.65,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='714.60,688.09 714.60,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='819.55,688.09 819.55,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
-<polyline points='924.50,688.09 924.50,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='608.47,688.09 608.47,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='712.24,688.09 712.24,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='816.00,688.09 816.00,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
+<polyline points='919.77,688.09 919.77,40.56 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <rect x='504.71' y='45.36' width='424.58' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='77.42' width='270.71' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='109.48' width='186.01' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='141.53' width='115.32' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='173.59' width='46.64' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='237.70' width='44.16' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='205.65' width='43.79' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='269.76' width='20.77' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='397.98' width='15.18' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='333.87' width='15.02' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='301.81' width='14.27' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='365.93' width='13.44' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='430.04' width='12.57' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='462.10' width='10.14' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='494.15' width='8.72' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='526.21' width='8.50' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='590.32' width='6.25' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='558.27' width='5.99' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='654.43' width='5.29' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
-<rect x='504.71' y='622.38' width='5.23' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='77.42' width='214.13' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='109.48' width='147.13' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='141.53' width='91.22' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='173.59' width='36.89' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='205.65' width='34.93' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='333.87' width='12.00' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='269.76' width='11.88' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='237.70' width='11.29' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='301.81' width='10.63' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='365.93' width='10.49' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='397.98' width='9.43' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='430.04' width='8.79' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='462.10' width='8.02' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='494.15' width='7.05' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='526.21' width='6.89' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='622.38' width='4.23' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='590.32' width='4.19' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='558.27' width='4.13' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
+<rect x='504.71' y='654.43' width='3.37' height='28.85' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #00BFC4;' />
 <text x='509.11' y='62.38' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='88.14px' lengthAdjust='spacingAndGlyphs'>Organonitrogen compounds</text>
 <text x='510.67' y='94.44' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='119.35px' lengthAdjust='spacingAndGlyphs'>Organic sulfonic acids and derivatives</text>
 <text x='507.71' y='126.49' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='60.07px' lengthAdjust='spacingAndGlyphs'>Purine nucleosides</text>
 <text x='507.75' y='158.55' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='60.85px' lengthAdjust='spacingAndGlyphs'>Imidazopyrimidines</text>
 <text x='506.74' y='190.61' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='40.69px' lengthAdjust='spacingAndGlyphs'>Glycerolipids</text>
-<text x='506.92' y='254.72' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='44.26px' lengthAdjust='spacingAndGlyphs'>Dihydrofurans</text>
-<text x='507.59' y='222.66' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='57.69px' lengthAdjust='spacingAndGlyphs'>Cinnamyl alcohols</text>
-<text x='507.89' y='286.78' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='63.61px' lengthAdjust='spacingAndGlyphs'>Pyrazolopyrimidines</text>
-<text x='507.63' y='415.00' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Purine nucleotides</text>
-<text x='506.15' y='350.89' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='28.86px' lengthAdjust='spacingAndGlyphs'>Lactones</text>
-<text x='510.18' y='318.83' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='109.46px' lengthAdjust='spacingAndGlyphs'>Carboximidic acids and derivatives</text>
-<text x='509.43' y='382.94' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.46px' lengthAdjust='spacingAndGlyphs'>Hydroxy acids and derivatives</text>
-<text x='509.78' y='447.06' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='101.56px' lengthAdjust='spacingAndGlyphs'>Carboxylic acids and derivatives</text>
+<text x='506.92' y='222.66' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='44.26px' lengthAdjust='spacingAndGlyphs'>Dihydrofurans</text>
+<text x='507.63' y='350.89' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Purine nucleotides</text>
+<text x='506.15' y='286.78' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='28.86px' lengthAdjust='spacingAndGlyphs'>Lactones</text>
+<text x='510.18' y='254.72' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='109.46px' lengthAdjust='spacingAndGlyphs'>Carboximidic acids and derivatives</text>
+<text x='509.43' y='318.83' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='94.46px' lengthAdjust='spacingAndGlyphs'>Hydroxy acids and derivatives</text>
+<text x='509.78' y='382.94' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='101.56px' lengthAdjust='spacingAndGlyphs'>Carboxylic acids and derivatives</text>
+<text x='511.21' y='415.00' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='130.02px' lengthAdjust='spacingAndGlyphs'>Organic phosphoric acids and derivatives</text>
+<text x='508.66' y='447.06' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='79.04px' lengthAdjust='spacingAndGlyphs'>Pyridines and derivatives</text>
 <text x='508.34' y='479.11' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='72.71px' lengthAdjust='spacingAndGlyphs'>Pyrimidine nucleosides</text>
-<text x='507.63' y='511.17' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Endocannabinoids</text>
-<text x='506.44' y='543.23' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='34.78px' lengthAdjust='spacingAndGlyphs'>Fatty Acyls</text>
-<text x='508.66' y='607.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='79.04px' lengthAdjust='spacingAndGlyphs'>Pyridines and derivatives</text>
-<text x='511.21' y='575.28' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='130.02px' lengthAdjust='spacingAndGlyphs'>Organic phosphoric acids and derivatives</text>
-<text x='508.86' y='671.45' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='83.01px' lengthAdjust='spacingAndGlyphs'>Keto acids and derivatives</text>
-<text x='509.27' y='639.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Sulfinic acids and derivatives</text>
+<text x='506.44' y='511.17' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='34.78px' lengthAdjust='spacingAndGlyphs'>Fatty Acyls</text>
+<text x='507.63' y='543.23' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='58.49px' lengthAdjust='spacingAndGlyphs'>Endocannabinoids</text>
+<text x='508.97' y='639.40' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='85.37px' lengthAdjust='spacingAndGlyphs'>Organooxygen compounds</text>
+<text x='508.86' y='607.34' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='83.01px' lengthAdjust='spacingAndGlyphs'>Keto acids and derivatives</text>
+<text x='509.27' y='575.28' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='91.30px' lengthAdjust='spacingAndGlyphs'>Sulfinic acids and derivatives</text>
+<text x='508.10' y='671.45' style='font-size: 7.11px; font-weight: 0;fill: #FFFFFF; font-family: "TeX Gyre Heros";' textLength='67.96px' lengthAdjust='spacingAndGlyphs'>Glycerophospholipids</text>
 </g>
 <g clip-path='url(#cpMC4wMHwxMDA4LjAwfDAuMDB8NzIwLjAw)'>
 </g>
@@ -197,16 +199,17 @@
 <text x='716.99' y='35.21' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #1A1A1A; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>M</text>
 </g>
 <g clip-path='url(#cpMC4wMHwxMDA4LjAwfDAuMDB8NzIwLjAw)'>
-<text x='29.45' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>0.0e+00</text>
-<text x='139.13' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>2.5e+08</text>
-<text x='248.81' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>5.0e+08</text>
-<text x='358.49' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>7.5e+08</text>
-<text x='468.17' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>1.0e+09</text>
-<text x='504.71' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='24.70px' lengthAdjust='spacingAndGlyphs'>0e+00</text>
-<text x='609.65' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='24.70px' lengthAdjust='spacingAndGlyphs'>2e+08</text>
-<text x='714.60' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='24.70px' lengthAdjust='spacingAndGlyphs'>4e+08</text>
-<text x='819.55' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='24.70px' lengthAdjust='spacingAndGlyphs'>6e+08</text>
-<text x='924.50' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='24.70px' lengthAdjust='spacingAndGlyphs'>8e+08</text>
+<text x='29.45' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='36.92px' lengthAdjust='spacingAndGlyphs'>0.00e+00</text>
+<text x='116.24' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='36.92px' lengthAdjust='spacingAndGlyphs'>2.50e+08</text>
+<text x='203.04' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='36.92px' lengthAdjust='spacingAndGlyphs'>5.00e+08</text>
+<text x='289.83' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='36.92px' lengthAdjust='spacingAndGlyphs'>7.50e+08</text>
+<text x='376.63' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='36.92px' lengthAdjust='spacingAndGlyphs'>1.00e+09</text>
+<text x='463.42' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='36.92px' lengthAdjust='spacingAndGlyphs'>1.25e+09</text>
+<text x='504.71' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>0.0e+00</text>
+<text x='608.47' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>2.5e+08</text>
+<text x='712.24' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>5.0e+08</text>
+<text x='816.00' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>7.5e+08</text>
+<text x='919.77' y='699.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='32.03px' lengthAdjust='spacingAndGlyphs'>1.0e+09</text>
 <text x='479.37' y='712.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='99.65px' lengthAdjust='spacingAndGlyphs'>Mean Peak Intensity</text>
 <text x='966.95' y='348.32' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='18.95px' lengthAdjust='spacingAndGlyphs'>Sex</text>
 <rect x='967.66' y='355.70' width='15.86' height='15.86' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #F8766D;' />
