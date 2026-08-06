@@ -44,7 +44,7 @@ set.seed(123)
 #| label: load-model-objects
 # METHOD selects which transform run to analyze; it sets the parquet read below
 # AND the reporter's predictor transform, so they can never mismatch.
-METHOD <- "log2_na"                            # "int" | "zscore" | "zscore_trim" | "log2_na"
+METHOD <- "log2_na"                            
 suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
 parquet_dir <- if (METHOD == "int") {"../../results/gene-metabolite/parquet"} else {sprintf("../../results/gene-metabolite/parquet-%s", METHOD)}
 
@@ -462,3 +462,235 @@ for (i in seq_len(nrow(top20))) {
 }
 cat("\nSaved", nrow(top20), "global-FDR scatters to", scatter_dir, "\n")
 ```
+
+
+## Associations count by cell type (Figure 5A)
+
+Bar chart showing total number of associations, distinct metabolites, and distinct
+genes per cell type — complements the recurrence plots which show only one metric.
+
+```{r}
+#| label: associations-bar
+#| fig-width: 10
+#| fig-height: 6
+ct_long <- ct_recur |>
+  pivot_longer(cols = c(n_associations, n_metabolites, n_genes),
+               names_to  = "metric",
+               values_to = "count") |>
+  mutate(metric = factor(metric,
+    levels = c("n_associations", "n_metabolites", "n_genes"),
+    labels = c("Associations", "Distinct metabolites", "Distinct genes")))
+
+p_assoc <- ggplot(ct_long,
+                  aes(x = reorder(cell_type, count, .fun = max),
+                      y = count, fill = metric)) +
+  geom_col(position = position_dodge(width = 0.8), alpha = 0.85, width = 0.7) +
+  coord_flip() +
+  scale_fill_manual(values = c("Associations"        = "#4E79A7",
+                                "Distinct metabolites" = "#F28E2B",
+                                "Distinct genes"       = "#59A14F"),
+                    name = NULL) +
+  labs(x = NULL, y = "Count",
+       title = "Gene–metabolite associations by cell type") +
+  theme_cowplot(12) +
+  theme(legend.position = "top")
+
+save_dual_format(p_assoc, out_dir, "associations_by_celltype", width = 10, height = 6)
+print(p_assoc)
+```
+
+
+## Spotlight scatter — helper function
+
+Simple 1-panel scatter showing the covariate-adjusted partial residual
+(the actual model relationship: gene ~ metabolite after adjusting for
+GW + Sex + batch1_frac). Points colored by GW, shaped by Sex. One pooled
+regression line matching model structure.
+
+```{r}
+#| label: spotlight-scatter-fn
+make_spotlight_scatter <- function(cid, gene, ct, meta_name,
+                                   label = NULL, subtitle = NULL) {
+  idx      <- which(row_ct == ct)
+  pos      <- match(metab_col[idx], colnames(metab_tx))
+  present  <- !is.na(pos) & gene %in% colnames(pb$counts)
+  rows_use <- idx[present]; pos_p <- pos[present]
+  if (length(rows_use) < 3) { message("Too few samples for ", gene, " ~ ", meta_name); return(NULL) }
+
+  # Gene expression: log1p(CPM) computed per cell type
+  expr <- as.numeric(log1p(
+    edgeR::cpm(t(pb$counts[rows_use, , drop = FALSE]), log = FALSE)[gene, ]
+  ))
+  md <- pb$metadata[rn[rows_use], ]
+
+  df <- tibble(
+    metab = as.numeric(metab_tx[cid, pos_p]),
+    expr  = expr,
+    Sex   = md$Sex,
+    GW    = md$GW,
+    batch1_frac = md$batch1_frac
+  ) |> filter(!is.na(metab))
+
+  if (nrow(df) < 4) { message("Too few non-NA for ", gene, " ~ ", meta_name); return(NULL) }
+
+  # Partial residual: remove covariate effects, keep metabolite slope
+  covs   <- c("GW", "Sex", "batch1_frac")
+  keepc  <- covs[vapply(covs, function(cv) length(unique(df[[cv]])) >= 2, logical(1))]
+  fit    <- lm(reformulate(c("metab", keepc), response = "expr"), data = df)
+  df$partial <- resid(fit) + coef(fit)[["metab"]] * df$metab
+
+  # Stats annotation
+  hit_row <- hits |> filter(Compound.ID == cid, gene == !!gene, cell_type == ct)
+  lfc_txt <- if (nrow(hit_row) > 0) sprintf("logFC = %.2f", hit_row$logFC[1]) else ""
+  fdr_txt <- if (nrow(hit_row) > 0) sprintf("FDR = %.3f",   hit_row$FDR_global[1]) else ""
+  stat_label <- paste(lfc_txt, fdr_txt, sep = "  |  ")
+
+  if (is.null(label)) label <- paste0(gene, " ~ ", meta_name, "  (", ct, ")")
+
+  p <- ggplot(df, aes(metab, partial, color = GW)) +
+    geom_point(aes(shape = Sex), size = 3, alpha = 0.85) +
+    geom_smooth(method = "lm", formula = y ~ x, se = TRUE, linewidth = 0.9,
+                color = "grey30") +
+    scale_color_viridis_c(name = "GW") +
+    scale_shape_manual(values = c("M" = 16, "F" = 17)) +
+    annotate("text", x = Inf, y = -Inf, hjust = 1.05, vjust = -0.5,
+             label = stat_label, size = 3.5, color = "grey40") +
+    labs(x = paste0(meta_name, " [", METHOD, " transformed]"),
+         y = "Gene expression [log1p(CPM), adjusted]",
+         title    = label,
+         subtitle = subtitle) +
+    theme_cowplot(13) +
+    theme(plot.subtitle = element_text(color = "grey40", size = 10))
+
+  p
+}
+```
+
+
+## OPC lipid spotlight (Figure 5C)
+
+OPC has the most distinct metabolites (n = `r ct_recur |> filter(cell_type == "OPC") |> pull(n_metabolites)`),
+with lipids representing the largest metabolite class. Spotlight pairs connect
+myelination-associated genes to lipid metabolites.
+
+```{r}
+#| label: opc-lipid-spotlight
+#| fig-width: 8
+#| fig-height: 6
+opc_spotlight_dir <- file.path(csv_dir, "spotlight-opc")
+dir.create(opc_spotlight_dir, recursive = TRUE, showWarnings = FALSE)
+
+# ---- BCAS1 ~ Pc(19:5cooh_25:8): myelination marker + phospholipid ----
+p_bcas1 <- make_spotlight_scatter(
+  cid  = hits |> filter(gene == "BCAS1", cell_type == "OPC",
+                         grepl("Glycerophospholipid", Class)) |> pull(Compound.ID) |> first(),
+  gene = "BCAS1", ct = "OPC",
+  meta_name = hits |> filter(gene == "BCAS1", cell_type == "OPC",
+                              grepl("Glycerophospholipid", Class)) |> pull(Name) |> first(),
+  subtitle = "Active-myelination marker with phospholipid"
+)
+if (!is.null(p_bcas1)) {
+  save_dual_format(p_bcas1, opc_spotlight_dir, "OPC_BCAS1_phospholipid", width = 8, height = 6)
+  print(p_bcas1)
+}
+
+# ---- PLCG2 ~ Palmitic Acid: phospholipase + fatty acid substrate ----
+p_plcg2 <- make_spotlight_scatter(
+  cid  = hits |> filter(gene == "PLCG2", Name == "Palmitic Acid", cell_type == "OPC") |>
+           pull(Compound.ID) |> first(),
+  gene = "PLCG2", ct = "OPC",
+  meta_name = "Palmitic Acid",
+  subtitle = "Phospholipase C with fatty acid substrate"
+)
+if (!is.null(p_plcg2)) {
+  save_dual_format(p_plcg2, opc_spotlight_dir, "OPC_PLCG2_palmitic", width = 8, height = 6)
+  print(p_plcg2)
+}
+
+# ---- NRG1 ~ Pc(O-10:0_23:2): OPC differentiation signal + phospholipid ----
+p_nrg1 <- make_spotlight_scatter(
+  cid  = hits |> filter(gene == "NRG1", cell_type == "OPC") |> pull(Compound.ID) |> first(),
+  gene = "NRG1", ct = "OPC",
+  meta_name = hits |> filter(gene == "NRG1", cell_type == "OPC") |> pull(Name) |> first(),
+  subtitle = "Oligodendrocyte differentiation signal with phospholipid"
+)
+if (!is.null(p_nrg1)) {
+  save_dual_format(p_nrg1, opc_spotlight_dir, "OPC_NRG1_phospholipid", width = 8, height = 6)
+  print(p_nrg1)
+}
+```
+
+
+## Interpretation spotlight scatters
+
+Three categories of gene–metabolite association for the manuscript narrative:
+
+1. **Direct / expected** — enzyme whose protein directly processes the associated
+   metabolite class (PLCG2, a phospholipase, with lipid metabolites in OPC).
+2. **Ribosomal / expected** — ribosomal protein genes whose expression covaries
+   broadly with metabolic activity rather than specific metabolites.
+3. **Indirect / transcription factor** — TF with no enzymatic metabolite link;
+   association implies coordinated developmental programs.
+
+```{r}
+#| label: interpretation-spotlights
+#| fig-width: 8
+#| fig-height: 6
+interp_dir <- file.path(csv_dir, "spotlight-interpretation")
+dir.create(interp_dir, recursive = TRUE, showWarnings = FALSE)
+
+# ---- 1. Direct: PLCG2 ~ Cer(D15:2_7:0) in OPC ----
+# Phospholipase C gamma 2 cleaves lipid substrates; ceramide association is
+# a direct enzyme-substrate class relationship.
+p_direct <- make_spotlight_scatter(
+  cid  = hits |> filter(gene == "PLCG2", cell_type == "OPC",
+                         grepl("Cer", Name)) |> pull(Compound.ID) |> first(),
+  gene = "PLCG2", ct = "OPC",
+  meta_name = hits |> filter(gene == "PLCG2", cell_type == "OPC",
+                              grepl("Cer", Name)) |> pull(Name) |> first(),
+  label    = "Direct: PLCG2 ~ ceramide (OPC)",
+  subtitle = "Phospholipase C with lipid substrate — expected association"
+)
+if (!is.null(p_direct)) {
+  save_dual_format(p_direct, interp_dir, "direct_PLCG2_ceramide", width = 8, height = 6)
+  print(p_direct)
+}
+
+# ---- 2. Ribosomal: RPL37A ~ Pyrrole-2-Carboxylic Acid in EN-Non-IT-Immature ----
+# RPL37A has the most metabolite associations among ribosomal genes (5).
+# 73 RPL/RPS genes collectively associate with Pyrrole-2-Carboxylic Acid,
+# reflecting coordinated translational machinery and metabolic activity.
+p_ribo <- make_spotlight_scatter(
+  cid  = hits |> filter(gene == "RPL37A",
+                         Name == "Pyrrole-2-Carboxylic Acid") |>
+           pull(Compound.ID) |> first(),
+  gene = "RPL37A", ct = "EN-Non-IT-Immature",
+  meta_name = "Pyrrole-2-Carboxylic Acid",
+  label    = "Ribosomal: RPL37A ~ Pyrrole-2-Carboxylic Acid (EN-Non-IT-Immature)",
+  subtitle = "1 of 73 ribosomal genes associated with this metabolite — expected broad covariation"
+)
+if (!is.null(p_ribo)) {
+  save_dual_format(p_ribo, interp_dir, "ribosomal_RPL37A_pyrrole", width = 8, height = 6)
+  print(p_ribo)
+}
+
+# ---- 3. Indirect: TSHZ2 ~ Palmitic Acid in IN-MGE-SST ----
+# TSHZ2 is a zinc-finger TF for cortical neuron specification (Caubit et al.
+# 2016, Cerebral Cortex). No enzymatic link to fatty acid metabolism; suggests
+# coordinated developmental gene expression programs that covary with metabolic
+# state.
+p_tf <- make_spotlight_scatter(
+  cid  = hits |> filter(gene == "TSHZ2", Name == "Palmitic Acid",
+                         cell_type == "IN-MGE-SST") |>
+           pull(Compound.ID) |> first(),
+  gene = "TSHZ2", ct = "IN-MGE-SST",
+  meta_name = "Palmitic Acid",
+  label    = "Indirect: TSHZ2 ~ Palmitic Acid (IN-MGE-SST)",
+  subtitle = "Zinc-finger TF with no enzymatic metabolite link — indirect covariation"
+)
+if (!is.null(p_tf)) {
+  save_dual_format(p_tf, interp_dir, "indirect_TSHZ2_palmitic", width = 8, height = 6)
+  print(p_tf)
+}
+```
+

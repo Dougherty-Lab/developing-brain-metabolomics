@@ -10,7 +10,7 @@
 <link href="metabolite_gene_associations_files/libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.3.450">
 
-  <meta name="dcterms.date" content="2026-07-23">
+  <meta name="dcterms.date" content="2026-08-05">
   <title>Metabolite–Gene Associations</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -397,7 +397,7 @@
 <div class="quarto-title-authors">
 </div>
 
-  <p class="date">2026-07-23</p>
+  <p class="date">2026-08-05</p>
 </section>
 <section id="overview" class="slide level2">
 <h2>Overview</h2>
@@ -414,7 +414,7 @@
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>Packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"arrow"</span>, <span class="st">"cowplot"</span>, <span class="st">"svglite"</span>, <span class="st">"UpSetR"</span>, <span class="st">"edgeR"</span>)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>Packages <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"tidyverse"</span>, <span class="st">"arrow"</span>, <span class="st">"cowplot"</span>, <span class="st">"svglite"</span>, <span class="st">"UpSetR"</span>, <span class="st">"edgeR"</span>, <span class="st">"patchwork"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2"></a><span class="fu">lapply</span>(Packages, library, <span class="at">character.only =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
@@ -450,7 +450,13 @@
  [1] "edgeR"     "limma"     "UpSetR"    "svglite"   "cowplot"   "arrow"    
  [7] "lubridate" "forcats"   "stringr"   "dplyr"     "purrr"     "readr"    
 [13] "tidyr"     "tibble"    "ggplot2"   "tidyverse" "stats"     "graphics" 
-[19] "grDevices" "utils"     "datasets"  "methods"   "base"     </code></pre>
+[19] "grDevices" "utils"     "datasets"  "methods"   "base"     
+
+[[7]]
+ [1] "patchwork" "edgeR"     "limma"     "UpSetR"    "svglite"   "cowplot"  
+ [7] "arrow"     "lubridate" "forcats"   "stringr"   "dplyr"     "purrr"    
+[13] "readr"     "tidyr"     "tibble"    "ggplot2"   "tidyverse" "stats"    
+[19] "graphics"  "grDevices" "utils"     "datasets"  "methods"   "base"     </code></pre>
 </div>
 <details>
 <summary>Code</summary>
@@ -482,12 +488,30 @@
 <span id="cb4-18"><a href="#cb4-18"></a></span>
 <span id="cb4-19"><a href="#cb4-19"></a>pb       <span class="ot">&lt;-</span> <span class="fu">build_metab_covariates</span>(pb_base, targeted_comparison_raw, batch_props,</span>
 <span id="cb4-20"><a href="#cb4-20"></a>                                   <span class="at">min_cells =</span> <span class="dv">30</span>)</span>
-<span id="cb4-21"><a href="#cb4-21"></a>metab_tx <span class="ot">&lt;-</span> <span class="fu">transform_metabolite_matrix</span>(<span class="fu">read_metabolite_matrix</span>(metab_path),</span>
-<span id="cb4-22"><a href="#cb4-22"></a>                                        <span class="at">method =</span> METHOD)   <span class="co"># matches the parquet run</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a>metab_mat <span class="ot">&lt;-</span> <span class="fu">read_metabolite_matrix</span>(metab_path)</span>
+<span id="cb4-22"><a href="#cb4-22"></a>metab_tx  <span class="ot">&lt;-</span> <span class="fu">transform_metabolite_matrix</span>(metab_mat, <span class="at">method =</span> METHOD)</span>
 <span id="cb4-23"><a href="#cb4-23"></a></span>
-<span id="cb4-24"><a href="#cb4-24"></a>rn        <span class="ot">&lt;-</span> <span class="fu">rownames</span>(pb<span class="sc">$</span>counts)</span>
-<span id="cb4-25"><a href="#cb4-25"></a>row_ct    <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^[^.]+</span><span class="sc">\\</span><span class="st">.(.*)$"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, rn)</span>
-<span id="cb4-26"><a href="#cb4-26"></a>metab_col <span class="ot">&lt;-</span> <span class="fu">metab_sample_to_pb</span>(<span class="fu">colnames</span>(metab_tx), <span class="fu">sub</span>(<span class="st">"^([^.]+)</span><span class="sc">\\</span><span class="st">..*$"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, rn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="co"># Raw log2 (no imputation — panel 1 x-axis)</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a>metab_log <span class="ot">&lt;-</span> <span class="fu">log2</span>(metab_mat <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-26"><a href="#cb4-26"></a></span>
+<span id="cb4-27"><a href="#cb4-27"></a><span class="co"># Log2 with IQR outliers flagged NA (panels 2–3 x-axis)</span></span>
+<span id="cb4-28"><a href="#cb4-28"></a>.log2_trim_only <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb4-29"><a href="#cb4-29"></a>  logged  <span class="ot">&lt;-</span> <span class="fu">log2</span>(x <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb4-30"><a href="#cb4-30"></a>  orig_na <span class="ot">&lt;-</span> <span class="fu">is.na</span>(logged)</span>
+<span id="cb4-31"><a href="#cb4-31"></a>  obs     <span class="ot">&lt;-</span> logged[<span class="sc">!</span>orig_na]</span>
+<span id="cb4-32"><a href="#cb4-32"></a>  <span class="cf">if</span> (<span class="fu">length</span>(obs) <span class="sc">&lt;</span> <span class="dv">2</span>) <span class="fu">return</span>(<span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">length</span>(x)))</span>
+<span id="cb4-33"><a href="#cb4-33"></a>  qs  <span class="ot">&lt;-</span> <span class="fu">quantile</span>(obs, <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.75</span>), <span class="at">names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-34"><a href="#cb4-34"></a>  iqr <span class="ot">&lt;-</span> qs[<span class="dv">2</span>] <span class="sc">-</span> qs[<span class="dv">1</span>]</span>
+<span id="cb4-35"><a href="#cb4-35"></a>  v   <span class="ot">&lt;-</span> logged</span>
+<span id="cb4-36"><a href="#cb4-36"></a>  v[<span class="sc">!</span>orig_na <span class="sc">&amp;</span> (logged <span class="sc">&lt;</span> qs[<span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.75</span> <span class="sc">*</span> iqr <span class="sc">|</span> logged <span class="sc">&gt;</span> qs[<span class="dv">2</span>] <span class="sc">+</span> <span class="fl">0.75</span> <span class="sc">*</span> iqr)] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb4-37"><a href="#cb4-37"></a>  v</span>
+<span id="cb4-38"><a href="#cb4-38"></a>}</span>
+<span id="cb4-39"><a href="#cb4-39"></a>metab_log_trim <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(metab_mat, <span class="dv">1</span>, .log2_trim_only))</span>
+<span id="cb4-40"><a href="#cb4-40"></a><span class="fu">dimnames</span>(metab_log_trim) <span class="ot">&lt;-</span> <span class="fu">dimnames</span>(metab_mat)</span>
+<span id="cb4-41"><a href="#cb4-41"></a></span>
+<span id="cb4-42"><a href="#cb4-42"></a>rn        <span class="ot">&lt;-</span> <span class="fu">rownames</span>(pb<span class="sc">$</span>counts)</span>
+<span id="cb4-43"><a href="#cb4-43"></a>row_ct    <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^[^.]+</span><span class="sc">\\</span><span class="st">.(.*)$"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, rn)</span>
+<span id="cb4-44"><a href="#cb4-44"></a>metab_col <span class="ot">&lt;-</span> <span class="fu">metab_sample_to_pb</span>(<span class="fu">colnames</span>(metab_tx), <span class="fu">sub</span>(<span class="st">"^([^.]+)</span><span class="sc">\\</span><span class="st">..*$"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, rn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -857,6 +881,127 @@
 <pre><code>Recurrence tables written to ../../results/gene-metabolite/csv-log2_na </code></pre>
 </div>
 </div>
+</section>
+<section id="top-20-global-fdr-scatters" class="slide level2">
+<h2>Top-20 global-FDR scatters</h2>
+<p>Five-panel scatter: raw log2 (all samples) | outlier-trimmed log2 | covariate-adjusted log2 || outlier-trimmed z-score | covariate-adjusted z-score. Log2 panels use free x-axis per metabolite; z-score panels share a fixed axis across all plots for cross-metabolite comparison. One pooled regression line per panel; points colored by GW and shaped by Sex.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>scatter_dir <span class="ot">&lt;-</span> <span class="fu">file.path</span>(csv_dir, <span class="st">"scatter-plots"</span>)</span>
+<span id="cb21-2"><a href="#cb21-2"></a><span class="fu">dir.create</span>(scatter_dir, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb21-3"><a href="#cb21-3"></a></span>
+<span id="cb21-4"><a href="#cb21-4"></a>make_pair_plot <span class="ot">&lt;-</span> <span class="cf">function</span>(cid, gene, ct, meta_name, z_x_lim) {</span>
+<span id="cb21-5"><a href="#cb21-5"></a>  idx      <span class="ot">&lt;-</span> <span class="fu">which</span>(row_ct <span class="sc">==</span> ct)</span>
+<span id="cb21-6"><a href="#cb21-6"></a>  pos      <span class="ot">&lt;-</span> <span class="fu">match</span>(metab_col[idx], <span class="fu">colnames</span>(metab_tx))</span>
+<span id="cb21-7"><a href="#cb21-7"></a>  present  <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(pos) <span class="sc">&amp;</span> gene <span class="sc">%in%</span> <span class="fu">colnames</span>(pb<span class="sc">$</span>counts)</span>
+<span id="cb21-8"><a href="#cb21-8"></a>  rows_use <span class="ot">&lt;-</span> idx[present]; pos_p <span class="ot">&lt;-</span> pos[present]</span>
+<span id="cb21-9"><a href="#cb21-9"></a>  <span class="cf">if</span> (<span class="fu">length</span>(rows_use) <span class="sc">&lt;</span> <span class="dv">3</span>) <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb21-10"><a href="#cb21-10"></a></span>
+<span id="cb21-11"><a href="#cb21-11"></a>  expr <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">log1p</span>(edgeR<span class="sc">::</span><span class="fu">cpm</span>(<span class="fu">t</span>(pb<span class="sc">$</span>counts[rows_use, , <span class="at">drop =</span> <span class="cn">FALSE</span>]), <span class="at">log =</span> <span class="cn">FALSE</span>)[gene, ]))</span>
+<span id="cb21-12"><a href="#cb21-12"></a>  md   <span class="ot">&lt;-</span> pb<span class="sc">$</span>metadata[rn[rows_use], ]</span>
+<span id="cb21-13"><a href="#cb21-13"></a></span>
+<span id="cb21-14"><a href="#cb21-14"></a>  df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb21-15"><a href="#cb21-15"></a>    <span class="at">metab_raw     =</span> <span class="fu">as.numeric</span>(metab_log[cid, pos_p]),</span>
+<span id="cb21-16"><a href="#cb21-16"></a>    <span class="at">metab_logtrim =</span> <span class="fu">as.numeric</span>(metab_log_trim[cid, pos_p]),</span>
+<span id="cb21-17"><a href="#cb21-17"></a>    <span class="at">metab_trim    =</span> <span class="fu">as.numeric</span>(metab_tx[cid, pos_p]),</span>
+<span id="cb21-18"><a href="#cb21-18"></a>    <span class="at">expr          =</span> expr,</span>
+<span id="cb21-19"><a href="#cb21-19"></a>    <span class="at">Sex           =</span> md<span class="sc">$</span>Sex,</span>
+<span id="cb21-20"><a href="#cb21-20"></a>    <span class="at">GW            =</span> md<span class="sc">$</span>GW,</span>
+<span id="cb21-21"><a href="#cb21-21"></a>    <span class="at">batch1_frac   =</span> md<span class="sc">$</span>batch1_frac</span>
+<span id="cb21-22"><a href="#cb21-22"></a>  )</span>
+<span id="cb21-23"><a href="#cb21-23"></a></span>
+<span id="cb21-24"><a href="#cb21-24"></a>  covs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"GW"</span>, <span class="st">"Sex"</span>, <span class="st">"batch1_frac"</span>)</span>
+<span id="cb21-25"><a href="#cb21-25"></a></span>
+<span id="cb21-26"><a href="#cb21-26"></a>  <span class="co"># ---- log2 panels (free x-axis per metabolite) ----</span></span>
+<span id="cb21-27"><a href="#cb21-27"></a>  x_range <span class="ot">&lt;-</span> <span class="fu">range</span>(df<span class="sc">$</span>metab_raw, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-28"><a href="#cb21-28"></a>  x_pad   <span class="ot">&lt;-</span> <span class="fu">diff</span>(x_range) <span class="sc">*</span> <span class="fl">0.05</span></span>
+<span id="cb21-29"><a href="#cb21-29"></a>  x_lim   <span class="ot">&lt;-</span> <span class="fu">c</span>(x_range[<span class="dv">1</span>] <span class="sc">-</span> x_pad, x_range[<span class="dv">2</span>] <span class="sc">+</span> x_pad)</span>
+<span id="cb21-30"><a href="#cb21-30"></a>  x_lab   <span class="ot">&lt;-</span> <span class="fu">paste0</span>(meta_name, <span class="st">" [log2 peak area]"</span>)</span>
+<span id="cb21-31"><a href="#cb21-31"></a></span>
+<span id="cb21-32"><a href="#cb21-32"></a>  bl_log <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb21-33"><a href="#cb21-33"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">shape =</span> Sex), <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>),</span>
+<span id="cb21-34"><a href="#cb21-34"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> x, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>),</span>
+<span id="cb21-35"><a href="#cb21-35"></a>    <span class="fu">scale_color_viridis_c</span>(<span class="at">name =</span> <span class="st">"GW"</span>),</span>
+<span id="cb21-36"><a href="#cb21-36"></a>    <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"M"</span> <span class="ot">=</span> <span class="dv">16</span>, <span class="st">"F"</span> <span class="ot">=</span> <span class="dv">17</span>)),</span>
+<span id="cb21-37"><a href="#cb21-37"></a>    <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> x_lim),</span>
+<span id="cb21-38"><a href="#cb21-38"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb21-39"><a href="#cb21-39"></a>  )</span>
+<span id="cb21-40"><a href="#cb21-40"></a></span>
+<span id="cb21-41"><a href="#cb21-41"></a>  df_raw <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(metab_raw))</span>
+<span id="cb21-42"><a href="#cb21-42"></a>  p_raw <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_raw, <span class="fu">aes</span>(metab_raw, expr, <span class="at">color =</span> GW)) <span class="sc">+</span> bl_log <span class="sc">+</span></span>
+<span id="cb21-43"><a href="#cb21-43"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Raw log2 (all samples)"</span>, <span class="at">x =</span> x_lab, <span class="at">y =</span> <span class="st">"log1p(CPM)"</span>)</span>
+<span id="cb21-44"><a href="#cb21-44"></a></span>
+<span id="cb21-45"><a href="#cb21-45"></a>  dft <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(metab_logtrim))</span>
+<span id="cb21-46"><a href="#cb21-46"></a>  keepc <span class="ot">&lt;-</span> covs[<span class="fu">vapply</span>(covs, <span class="cf">function</span>(cv) <span class="fu">length</span>(<span class="fu">unique</span>(dft[[cv]])) <span class="sc">&gt;=</span> <span class="dv">2</span>, <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
+<span id="cb21-47"><a href="#cb21-47"></a>  p_mid <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dft, <span class="fu">aes</span>(metab_logtrim, expr, <span class="at">color =</span> GW)) <span class="sc">+</span> bl_log <span class="sc">+</span></span>
+<span id="cb21-48"><a href="#cb21-48"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Outlier-trimmed (log2)"</span>, <span class="at">x =</span> x_lab, <span class="at">y =</span> <span class="st">"log1p(CPM)"</span>)</span>
+<span id="cb21-49"><a href="#cb21-49"></a></span>
+<span id="cb21-50"><a href="#cb21-50"></a>  fit_log  <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">reformulate</span>(<span class="fu">c</span>(<span class="st">"metab_logtrim"</span>, keepc), <span class="at">response =</span> <span class="st">"expr"</span>), <span class="at">data =</span> dft)</span>
+<span id="cb21-51"><a href="#cb21-51"></a>  dft<span class="sc">$</span>part <span class="ot">&lt;-</span> <span class="fu">resid</span>(fit_log) <span class="sc">+</span> <span class="fu">coef</span>(fit_log)[[<span class="st">"metab_logtrim"</span>]] <span class="sc">*</span> dft<span class="sc">$</span>metab_logtrim</span>
+<span id="cb21-52"><a href="#cb21-52"></a>  p_adj <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dft, <span class="fu">aes</span>(metab_logtrim, part, <span class="at">color =</span> GW)) <span class="sc">+</span> bl_log <span class="sc">+</span></span>
+<span id="cb21-53"><a href="#cb21-53"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Covariate-adjusted (log2)"</span>, <span class="at">x =</span> x_lab, <span class="at">y =</span> <span class="st">"log1p(CPM), adjusted"</span>)</span>
+<span id="cb21-54"><a href="#cb21-54"></a></span>
+<span id="cb21-55"><a href="#cb21-55"></a>  <span class="co"># ---- z-score panels (fixed x-axis across all plots) ----</span></span>
+<span id="cb21-56"><a href="#cb21-56"></a>  z_lab <span class="ot">&lt;-</span> <span class="fu">paste0</span>(meta_name, <span class="st">" [z-score]"</span>)</span>
+<span id="cb21-57"><a href="#cb21-57"></a></span>
+<span id="cb21-58"><a href="#cb21-58"></a>  bl_z <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb21-59"><a href="#cb21-59"></a>    <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">shape =</span> Sex), <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">alpha =</span> <span class="fl">0.85</span>),</span>
+<span id="cb21-60"><a href="#cb21-60"></a>    <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">formula =</span> y <span class="sc">~</span> x, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>),</span>
+<span id="cb21-61"><a href="#cb21-61"></a>    <span class="fu">scale_color_viridis_c</span>(<span class="at">name =</span> <span class="st">"GW"</span>),</span>
+<span id="cb21-62"><a href="#cb21-62"></a>    <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"M"</span> <span class="ot">=</span> <span class="dv">16</span>, <span class="st">"F"</span> <span class="ot">=</span> <span class="dv">17</span>)),</span>
+<span id="cb21-63"><a href="#cb21-63"></a>    <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> z_x_lim),</span>
+<span id="cb21-64"><a href="#cb21-64"></a>    <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb21-65"><a href="#cb21-65"></a>  )</span>
+<span id="cb21-66"><a href="#cb21-66"></a></span>
+<span id="cb21-67"><a href="#cb21-67"></a>  dft_z   <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(metab_trim))</span>
+<span id="cb21-68"><a href="#cb21-68"></a>  keepc_z <span class="ot">&lt;-</span> covs[<span class="fu">vapply</span>(covs, <span class="cf">function</span>(cv) <span class="fu">length</span>(<span class="fu">unique</span>(dft_z[[cv]])) <span class="sc">&gt;=</span> <span class="dv">2</span>, <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
+<span id="cb21-69"><a href="#cb21-69"></a>  p_zmid  <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dft_z, <span class="fu">aes</span>(metab_trim, expr, <span class="at">color =</span> GW)) <span class="sc">+</span> bl_z <span class="sc">+</span></span>
+<span id="cb21-70"><a href="#cb21-70"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Outlier-trimmed (z-score)"</span>, <span class="at">x =</span> z_lab, <span class="at">y =</span> <span class="st">"log1p(CPM)"</span>)</span>
+<span id="cb21-71"><a href="#cb21-71"></a></span>
+<span id="cb21-72"><a href="#cb21-72"></a>  fit_z        <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">reformulate</span>(<span class="fu">c</span>(<span class="st">"metab_trim"</span>, keepc_z), <span class="at">response =</span> <span class="st">"expr"</span>), <span class="at">data =</span> dft_z)</span>
+<span id="cb21-73"><a href="#cb21-73"></a>  dft_z<span class="sc">$</span>part_z <span class="ot">&lt;-</span> <span class="fu">resid</span>(fit_z) <span class="sc">+</span> <span class="fu">coef</span>(fit_z)[[<span class="st">"metab_trim"</span>]] <span class="sc">*</span> dft_z<span class="sc">$</span>metab_trim</span>
+<span id="cb21-74"><a href="#cb21-74"></a>  p_zadj <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dft_z, <span class="fu">aes</span>(metab_trim, part_z, <span class="at">color =</span> GW)) <span class="sc">+</span> bl_z <span class="sc">+</span></span>
+<span id="cb21-75"><a href="#cb21-75"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Covariate-adjusted (z-score)"</span>, <span class="at">x =</span> z_lab, <span class="at">y =</span> <span class="st">"log1p(CPM), adjusted"</span>)</span>
+<span id="cb21-76"><a href="#cb21-76"></a></span>
+<span id="cb21-77"><a href="#cb21-77"></a>  (p_raw <span class="sc">|</span> p_mid <span class="sc">|</span> p_adj) <span class="sc">/</span> (<span class="fu">plot_spacer</span>() <span class="sc">|</span> p_zmid <span class="sc">|</span> p_zadj) <span class="sc">+</span></span>
+<span id="cb21-78"><a href="#cb21-78"></a>    <span class="fu">plot_annotation</span>(<span class="at">title =</span> <span class="fu">paste0</span>(gene, <span class="st">"  ~  "</span>, meta_name, <span class="st">"   ("</span>, ct, <span class="st">")"</span>)) <span class="sc">+</span></span>
+<span id="cb21-79"><a href="#cb21-79"></a>    <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">"collect"</span>)</span>
+<span id="cb21-80"><a href="#cb21-80"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>top20 <span class="ot">&lt;-</span> hits <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2"></a>  <span class="fu">arrange</span>(FDR_global, <span class="fu">desc</span>(<span class="fu">abs</span>(logFC))) <span class="sc">|&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">distinct</span>(Compound.ID, <span class="at">.keep_all =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">20</span>)</span>
+<span id="cb22-5"><a href="#cb22-5"></a></span>
+<span id="cb22-6"><a href="#cb22-6"></a><span class="co"># Global z-score x-axis: symmetric range covering 99.8% of all z-scores across</span></span>
+<span id="cb22-7"><a href="#cb22-7"></a><span class="co"># all metabolites. Fixed once so z-score panels are directly comparable.</span></span>
+<span id="cb22-8"><a href="#cb22-8"></a>z_vals   <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(metab_tx)</span>
+<span id="cb22-9"><a href="#cb22-9"></a>z_abs    <span class="ot">&lt;-</span> <span class="fu">quantile</span>(<span class="fu">abs</span>(z_vals), <span class="fl">0.999</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-10"><a href="#cb22-10"></a>z_x_lim  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span>z_abs, z_abs)</span>
+<span id="cb22-11"><a href="#cb22-11"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Global z-score x-axis: [%.2f, %.2f]</span><span class="sc">\n</span><span class="st">"</span>, z_x_lim[<span class="dv">1</span>], z_x_lim[<span class="dv">2</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p>Global z-score x-axis: [-2.39, 2.39]</p>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(top20))) {</span>
+<span id="cb23-2"><a href="#cb23-2"></a>  r  <span class="ot">&lt;-</span> top20[i, ]</span>
+<span id="cb23-3"><a href="#cb23-3"></a>  pl <span class="ot">&lt;-</span> <span class="fu">make_pair_plot</span>(r<span class="sc">$</span>Compound.ID, r<span class="sc">$</span>gene, r<span class="sc">$</span>cell_type, r<span class="sc">$</span>Name, z_x_lim)</span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(pl)) <span class="cf">next</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a>  base <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"[^A-Za-z0-9]+"</span>, <span class="st">"-"</span>, <span class="fu">paste</span>(r<span class="sc">$</span>Compound.ID, r<span class="sc">$</span>gene, r<span class="sc">$</span>cell_type, <span class="at">sep =</span> <span class="st">"_"</span>))</span>
+<span id="cb23-6"><a href="#cb23-6"></a>  <span class="fu">save_dual_format</span>(pl, scatter_dir, base, <span class="at">width =</span> <span class="dv">16</span>, <span class="at">height =</span> <span class="dv">10</span>)</span>
+<span id="cb23-7"><a href="#cb23-7"></a>  <span class="fu">print</span>(pl)</span>
+<span id="cb23-8"><a href="#cb23-8"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-1.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-2.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-3.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-4.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-5.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-6.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-7.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-8.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-9.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-10.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-11.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-12.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-13.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-14.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-15.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-16.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-17.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-18.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-19.png" width="960"><img data-src="metabolite_gene_associations_files/figure-revealjs/scatter-generate-20.png" width="960"></p>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">Saved"</span>, <span class="fu">nrow</span>(top20), <span class="st">"global-FDR scatters to"</span>, scatter_dir, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p>Saved 20 global-FDR scatters to ../../results/gene-metabolite/csv-log2_na/scatter-plots</p>
 <div class="footer footer-default">
 
 </div>

@@ -1,0 +1,26 @@
+Job ID     : 44461279
+Start time : Tue Aug  4 23:46:45 CDT 2026
+Node       : n018
+SIF        : /scratch/jdlab/sneha/developing-brain-metabolomics/bin/docker/developing-brain-metabolomics_1.0.4.sif
+Script dir : /scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-metabolite
+---
+Pseudobulk samples: 483 | cell types: 27
+Transform: log2_na | metabolites: 569 | metabolite samples: 24
+pb samples matched to a metabolite column: 241 / 483
+[12.00548 mins] 50/569 metabolites processed (48 with results)
+[25.29388 mins] 100/569 metabolites processed (98 with results)
+[38.85539 mins] 150/569 metabolites processed (146 with results)
+[52.44455 mins] 200/569 metabolites processed (196 with results)
+[1.099164 hours] 250/569 metabolites processed (245 with results)
+[1.314583 hours] 300/569 metabolites processed (293 with results)
+[1.52195 hours] 350/569 metabolites processed (342 with results)
+[1.740829 hours] 400/569 metabolites processed (391 with results)
+[1.954236 hours] 450/569 metabolites processed (441 with results)
+[2.154639 hours] 500/569 metabolites processed (489 with results)
+[2.363525 hours] 550/569 metabolites processed (538 with results)
+[2.443443 hours] 569/569 metabolites processed (557 with results)
+
+Done. 557 metabolite parquet files written to ../../results/gene-metabolite/parquet-log2_na
+---
+End time  : Wed Aug  5 02:13:58 CDT 2026
+Exit code : 0
