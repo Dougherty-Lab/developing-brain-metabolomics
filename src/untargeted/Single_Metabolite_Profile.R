@@ -12,7 +12,7 @@
 # ============================================================
 setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/untargeted")
 # ── USER SETTINGS ────────────────────────────────────────────
-metabolite_query <- "Prolinamide"   # Full Name OR Compound.ID
+metabolite_query <- "Tryptophan"   # Full Name OR Compound.ID
 dataset          <- "batch2"          # "batch1" | "batch2" | "newbatch2"
 results_base     <- "../../results/untargeted"
 output_dir       <- "."               # Directory for saved PNG
