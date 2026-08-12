@@ -103,7 +103,7 @@
 <text x='169.09' y='337.04' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.33px' lengthAdjust='spacingAndGlyphs'>F</text>
 <text x='374.67' y='337.04' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.99px' lengthAdjust='spacingAndGlyphs'>M</text>
 <text x='271.88' y='351.40' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='20.68px' lengthAdjust='spacingAndGlyphs'>Sex</text>
-<text transform='translate(14.73,194.85) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='59.36px' lengthAdjust='spacingAndGlyphs'>P4 (ng/mL)</text>
+<text transform='translate(14.73,194.85) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='59.36px' lengthAdjust='spacingAndGlyphs'>P4 (pg/mg)</text>
 <rect x='219.40' y='25.58' width='104.96' height='29.24' style='stroke-width: 1.16; stroke: none; fill: #FFFFFF;' />
 <text x='225.38' y='44.58' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='20.68px' lengthAdjust='spacingAndGlyphs'>Sex</text>
 <polyline points='260.68,47.11 260.68,44.52 ' style='stroke-width: 1.07; stroke: #F8766D; stroke-linecap: butt; stroke-linejoin: miter;' />

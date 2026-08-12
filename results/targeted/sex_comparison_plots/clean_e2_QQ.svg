@@ -99,6 +99,6 @@
 <text x='454.23' y='337.04' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='6.67px' lengthAdjust='spacingAndGlyphs'>2</text>
 <text x='270.21' y='351.40' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='59.36px' lengthAdjust='spacingAndGlyphs'>Theoretical</text>
 <text transform='translate(14.73,174.25) rotate(-90)' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='40.69px' lengthAdjust='spacingAndGlyphs'>Sample</text>
-<text x='42.40' y='16.47' style='font-size: 14.40px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='217.56px' lengthAdjust='spacingAndGlyphs'>QQ Plot of 17B-E2 (ng/mL) - Total</text>
+<text x='42.40' y='16.47' style='font-size: 14.40px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='217.56px' lengthAdjust='spacingAndGlyphs'>QQ Plot of 17B-E2 (pg/mg) - Total</text>
 </g>
 </svg>

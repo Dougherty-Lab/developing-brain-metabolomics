@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='216.00pt' height='288.00pt' viewBox='0 0 216.00 288.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMC4wMHwyMTYuMDB8MC4wMHwyODguMDA='>
+    <rect x='0.00' y='0.00' width='216.00' height='288.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHwyMTYuMDB8MC4wMHwyODguMDA=)'>
+<rect x='0.00' y='0.00' width='216.00' height='288.00' style='stroke-width: 1.16; stroke: #FFFFFF; fill: #FFFFFF;' />
+</g>
+<defs>
+  <clipPath id='cpNS45OHwxNTYuNTh8NS45OHwxOTYuNzU='>
+    <rect x='5.98' y='5.98' width='150.60' height='190.77' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpNS45OHwxNTYuNTh8NS45OHwxOTYuNzU=)'>
+<rect x='5.98' y='5.98' width='150.60' height='190.77' style='stroke-width: 1.16; stroke: none; fill: #FFFFFF;' />
+<circle cx='127.78' cy='34.33' r='3.63' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<rect x='74.64' y='184.86' width='6.43' height='6.43' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<rect x='75.02' y='140.11' width='6.43' height='6.43' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<rect x='80.99' y='95.35' width='6.43' height='6.43' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<rect x='79.20' y='64.07' width='6.43' height='6.43' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<rect x='77.75' y='32.79' width='6.43' height='6.43' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<rect x='76.34' y='11.44' width='6.43' height='6.43' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<polygon points='32.53,28.70 37.42,37.15 27.65,37.15 ' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<polygon points='35.04,64.32 39.92,72.77 30.16,72.77 ' style='stroke-width: 0.85; fill: #000000;' />
+</g>
+<g clip-path='url(#cpMC4wMHwyMTYuMDB8MC4wMHwyODguMDA=)'>
+<polyline points='156.58,196.75 156.58,5.98 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='159.57,185.87 156.58,185.87 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='159.57,141.12 156.58,141.12 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='159.57,96.36 156.58,96.36 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='159.57,51.61 156.58,51.61 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='159.57,6.85 156.58,6.85 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<text x='161.96' y='190.25' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='30.69px' lengthAdjust='spacingAndGlyphs'>1e-02</text>
+<text x='161.96' y='145.49' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='30.69px' lengthAdjust='spacingAndGlyphs'>1e-01</text>
+<text x='161.96' y='100.74' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='33.70px' lengthAdjust='spacingAndGlyphs'>1e+00</text>
+<text x='161.96' y='55.98' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='33.70px' lengthAdjust='spacingAndGlyphs'>1e+01</text>
+<text x='161.96' y='11.23' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='33.70px' lengthAdjust='spacingAndGlyphs'>1e+02</text>
+<polyline points='5.98,196.75 156.58,196.75 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='34.22,199.74 34.22,196.75 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='81.28,199.74 81.28,196.75 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<polyline points='128.34,199.74 128.34,196.75 ' style='stroke-width: 1.16; stroke: #333333; stroke-linecap: butt;' />
+<text transform='translate(40.40,208.31) rotate(-45)' text-anchor='end' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='36.69px' lengthAdjust='spacingAndGlyphs'>Kelava</text>
+<text transform='translate(87.47,208.31) rotate(-45)' text-anchor='end' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='41.36px' lengthAdjust='spacingAndGlyphs'>Smeeth</text>
+<text transform='translate(134.53,208.31) rotate(-45)' text-anchor='end' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='43.37px' lengthAdjust='spacingAndGlyphs'>Supakul</text>
+<text transform='translate(201.27,101.36) rotate(90)' text-anchor='middle' style='font-size: 12.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='84.71px' lengthAdjust='spacingAndGlyphs'>17B-E2 (pg/mg)</text>
+<rect x='7.46' y='252.79' width='147.64' height='29.24' style='stroke-width: 1.16; stroke: none; fill: #FFFFFF;' />
+<circle cx='22.08' cy='267.40' r='3.63' style='stroke-width: 0.85; fill: #FFFFFF;' />
+<circle cx='91.84' cy='267.40' r='3.63' style='stroke-width: 0.85; fill: #000000;' />
+<text x='36.70' y='270.90' style='font-size: 9.60px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='40.53px' lengthAdjust='spacingAndGlyphs'>Exposure</text>
+<text x='106.46' y='270.90' style='font-size: 9.60px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='42.66px' lengthAdjust='spacingAndGlyphs'>Measured</text>
+</g>
+</svg>

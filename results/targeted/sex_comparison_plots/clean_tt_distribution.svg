@@ -93,8 +93,8 @@
 <text x='175.81' y='339.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.25</text>
 <text x='290.08' y='339.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.50</text>
 <text x='404.35' y='339.44' text-anchor='middle' style='font-size: 8.80px; font-weight: 0;fill: #4D4D4D; font-family: "TeX Gyre Heros";' textLength='17.11px' lengthAdjust='spacingAndGlyphs'>0.75</text>
-<text x='265.93' y='352.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='54.39px' lengthAdjust='spacingAndGlyphs'>TT (ng/mL)</text>
+<text x='265.93' y='352.12' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='54.39px' lengthAdjust='spacingAndGlyphs'>TT (pg/mg)</text>
 <text transform='translate(13.50,175.77) rotate(-90)' text-anchor='middle' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='29.34px' lengthAdjust='spacingAndGlyphs'>Count</text>
-<text x='33.35' y='15.09' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='190.50px' lengthAdjust='spacingAndGlyphs'>Distribution of TT (ng/mL) - Total</text>
+<text x='33.35' y='15.09' style='font-size: 13.20px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='190.50px' lengthAdjust='spacingAndGlyphs'>Distribution of TT (pg/mg) - Total</text>
 </g>
 </svg>
