@@ -1,0 +1,9 @@
+plot_order,axis_label,pathway_full,pathway_source,stars,NES,size,pval,padj
+1,Diseases of nucleotide metabolism (Reactome),Diseases of nucleotide metabolism (Reactome),Reactome,,1.824191608143686,7,0.009082217973231358,0.7477575757575758
+2,T cell modulation in pancreatic cancer (WikiPathways),T cell modulation in pancreatic cancer (WikiPathways),WikiPathways,,1.7502190731340124,7,0.01410133843212237,0.7477575757575758
+3,Purine catabolism (Reactome),Purine catabolism (Reactome),Reactome,,1.707974568259567,13,0.015030303030303031,0.7477575757575758
+4,Fructose and mannose metabolism (KEGG),Fructose and mannose metabolism (KEGG),KEGG,,1.5769276216173114,8,0.048644724104549855,0.8758892471467322
+5,Organic anion transporters (Reactome),Organic anion transporters (Reactome),Reactome,,-1.5642633595862698,6,0.02488765986864846,0.8254407189768406
+6,Urea cycle and associated pathways (WikiPathways),Urea cycle and associated pathways (WikiPathways),WikiPathways,,-1.5770131279304709,13,0.02943678747660371,0.8368458154063054
+7,Hereditary leiomyomatosis and renal cell c... (WikiPathways),Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),WikiPathways,,-1.5804669494074095,6,0.021776702385067404,0.8254407189768406
+8,Amino acid metabolism in triple-negative b... (WikiPathways),Amino acid metabolism in triple-negative breast cancer cells (WikiPathways),WikiPathways,,-1.7328405971622916,9,0.006297872340425532,0.7477575757575758

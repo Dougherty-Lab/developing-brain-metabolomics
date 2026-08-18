@@ -28,6 +28,28 @@ source("functions.R")
 png_path <- "../../results/untargeted/batch2_clean"
 svg_path <- "../../results/untargeted/batch2_clean/svg"
 csv_path <- "../../results/untargeted/batch2_clean/csv"
+
+# Input files referenced by name so the KEGGREST cache can key off them
+annotation_file <- "../../results/untargeted/batch2_metabolite_annotations.csv"
+peak_area_file  <- "../../results/untargeted/batch2_peak_area_clean.csv"
+```
+
+```{r cache_control, include=FALSE}
+# The keggrest_remap chunk issues ~80 rate-limited KEGGREST queries
+# (~30 s per render), so it is cached. The cache invalidates automatically
+# when the annotation or peak-area file changes (see cache.extra below).
+#
+# Set refresh_kegg <- TRUE to force a fresh pull from KEGG — do this when
+# you want current KEGG pathway assignments even though the input files
+# have not changed (KEGG is updated on their end, not ours).
+refresh_kegg <- FALSE
+
+cache_dir <- "Batch2_Pathway_Analysis_cache"
+
+if (refresh_kegg && dir.exists(cache_dir)) {
+  unlink(cache_dir, recursive = TRUE)
+  message("Cleared knitr cache: ", cache_dir)
+}
 ```
 
 ## Load Data
@@ -35,13 +57,13 @@ csv_path <- "../../results/untargeted/batch2_clean/csv"
 ```{r load_annotation}
 # Full annotation file — needed for KEGG IDs and Pathways column
 batch2_compound_annotation_full <- read_csv(
-  "../../results/untargeted/batch2_metabolite_annotations.csv",
+  annotation_file,
   show_col_types = FALSE
 )
 
 # Peak area file defines the compounds that survived filtering
 batch2_peak_area <- read_csv(
-  "../../results/untargeted/batch2_peak_area_clean.csv",
+  peak_area_file,
   show_col_types = FALSE
 )
 
@@ -118,7 +140,7 @@ print(count(pathways_parsed, pathway_source))
 
 ## KEGGREST Re-Mapping
 
-```{r keggrest_remap}
+```{r keggrest_remap, cache=TRUE, cache.extra=tools::md5sum(c(annotation_file, peak_area_file))}
 # Use the KEGG column (KEGG compound IDs, e.g. "C00031") to fetch
 # additional pathway annotations for metabolites missing from Pathways column.
 # With only ~80 compounds to query, per-compound keggLink() calls are feasible.
@@ -185,7 +207,7 @@ query_kegg_pathways <- function(kegg_ids) {
 kegg_link_df <- query_kegg_pathways(valid_ids)
 ```
 
-```{r build_kegg_new, dependson="keggrest_remap"}
+```{r build_kegg_new, cache=TRUE, dependson="keggrest_remap"}
 if (nrow(kegg_link_df) > 0) {
   kegg_new <- metabolites_missing_pathways %>%
     inner_join(kegg_link_df, by = "KEGG") %>%
@@ -432,11 +454,44 @@ if (!is.null(msea_sex)) {
 # Visualizations
 
 ```{r plot_function}
+# Companion label file for truncated pathway axes.
+# The dotplots clip pathway names to 45 chars; this writes the full names
+# (plus plotted statistics) next to the SVG so figures stay editable.
+write_pathway_labels <- function(plot_data, file_stem, label_dir, order_by) {
+  if (is.null(label_dir) || is.null(file_stem)) return(invisible(NULL))
+  dir.create(label_dir, recursive = TRUE, showWarnings = FALSE)
+
+  # Degrade to unsorted rather than aborting a long render if the sort
+  # column is absent (e.g. a plot function stops computing it).
+  if (!is.null(order_by) && !order_by %in% names(plot_data)) {
+    warning("write_pathway_labels: '", order_by,
+            "' not found; writing unsorted labels for ", file_stem, ".")
+    order_by <- NULL
+  }
+
+  out <- plot_data
+  if (!is.null(order_by)) out <- arrange(out, desc(.data[[order_by]]))
+
+  out <- out %>%
+    mutate(plot_order = row_number()) %>%
+    dplyr::select(
+      plot_order,
+      axis_label   = pathway_label,   # truncated string drawn on the y-axis
+      pathway_full = pathway,         # untruncated, with " (Source)" suffix
+      pathway_source, stars,
+      dplyr::any_of(c("NES", "size", "n_hits", "set_size",
+                      "odds_ratio", "pval", "padj"))
+    )
+
+  readr::write_csv(out, file.path(label_dir, paste0(file_stem, "_labels.csv")))
+  invisible(out)
+}
+
 # Dot plot: NES on x, pathway on y, color = database, size = set size
 # FDR significance shown as stars appended to pathway labels on the y-axis
 # * p < 0.05, ** FDR < 0.05, *** FDR < 0.01
 plot_msea_dotplot <- function(results, pathway_source_lookup, analysis_label,
-                              top_n = 25) {
+                              top_n = 25, file_stem = NULL, label_dir = NULL) {
   if (is.null(results) || nrow(results) == 0) {
     message("No results to plot for: ", analysis_label)
     return(NULL)
@@ -468,6 +523,8 @@ plot_msea_dotplot <- function(results, pathway_source_lookup, analysis_label,
     message("No nominally significant pathways for: ", analysis_label)
     return(NULL)
   }
+
+  write_pathway_labels(plot_data, file_stem, label_dir, order_by = "NES")
 
   ggplot(
     plot_data,
@@ -522,7 +579,8 @@ plot_msea_dotplot <- function(results, pathway_source_lookup, analysis_label,
 ## GW Dot Plot
 
 ```{r plot_gw, fig.width=10, fig.height=8}
-p_gw <- plot_msea_dotplot(msea_gw, pathway_source_lookup, "GW")
+p_gw  <- plot_msea_dotplot(msea_gw,  pathway_source_lookup, "GW",
+                           file_stem = "msea_gw_dotplot",  label_dir = svg_path)
 if (!is.null(p_gw)) {
   save_dual_format(p_gw, "msea_gw_dotplot", png_path = png_path, svg_path = svg_path)
   print(p_gw)
@@ -532,7 +590,9 @@ if (!is.null(p_gw)) {
 ## Sex Dot Plot
 
 ```{r plot_sex, fig.width=10, fig.height=8}
-p_sex <- plot_msea_dotplot(msea_sex, pathway_source_lookup, "Sex (positive NES = enriched in males)")
+p_sex <- plot_msea_dotplot(msea_sex, pathway_source_lookup,
+                           "Sex (positive NES = enriched in males)",
+                           file_stem = "msea_sex_dotplot", label_dir = svg_path)
 if (!is.null(p_sex)) {
   save_dual_format(p_sex, "msea_sex_dotplot", png_path = png_path, svg_path = svg_path)
   print(p_sex)
@@ -718,7 +778,8 @@ display_ora_table <- function(results, caption, top_n = 20) {
 }
 
 # ORA dot plot — mirrors MSEA plot style
-plot_ora_dotplot <- function(results, analysis_label, top_n = 20) {
+plot_ora_dotplot <- function(results, analysis_label, top_n = 20,
+                             file_stem = NULL, label_dir = NULL) {
   if (is.null(results) || nrow(results) == 0) return(NULL)
 
   plot_data <- results %>%
@@ -730,6 +791,7 @@ plot_ora_dotplot <- function(results, analysis_label, top_n = 20) {
         padj < 0.05 ~ "*",
         TRUE        ~ ""
       ),
+      log2_or = log2(odds_ratio),
       pathway_base  = str_remove(pathway,
         " \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$"),
       pathway_short = str_trunc(pathway_base, 45),
@@ -741,6 +803,8 @@ plot_ora_dotplot <- function(results, analysis_label, top_n = 20) {
     message("No nominally significant pathways for: ", analysis_label)
     return(NULL)
   }
+  
+  write_pathway_labels(plot_data, file_stem, label_dir, order_by = "log2_or")
 
   ggplot(plot_data,
          aes(x = log2(odds_ratio),
@@ -841,7 +905,8 @@ ora_vip2        <- run_ora(sex_hits_vip2,    background_all, pathway_list,
 ```{r ora_results_sex_nominal, fig.width=10, fig.height=7}
 display_ora_table(ora_sex_nominal,
                   "ORA: Sex limma nominal (p < 0.05) — top 20 by p-value")
-p <- plot_ora_dotplot(ora_sex_nominal, "Sex limma nominal (p < 0.05)")
+p <- plot_ora_dotplot(ora_sex_nominal, "Sex limma nominal (p < 0.05)",
+                      file_stem = "ora_sex_limma_nominal", label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, "ora_sex_limma_nominal",
                    png_path = png_path, svg_path = svg_path)
@@ -854,7 +919,8 @@ if (!is.null(p)) {
 ```{r ora_results_gw_nominal, fig.width=10, fig.height=7}
 display_ora_table(ora_gw_nominal,
                   "ORA: GW limma nominal (p < 0.05) — top 20 by p-value")
-p <- plot_ora_dotplot(ora_gw_nominal, "GW limma nominal (p < 0.05)")
+p <- plot_ora_dotplot(ora_gw_nominal,  "GW limma nominal (p < 0.05)",
+                      file_stem = "ora_gw_limma_nominal",  label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, "ora_gw_limma_nominal",
                    png_path = png_path, svg_path = svg_path)
@@ -867,7 +933,8 @@ if (!is.null(p)) {
 ```{r ora_results_gw_fdr, fig.width=10, fig.height=7}
 display_ora_table(ora_gw_fdr,
                   "ORA: GW limma FDR (adj.P < 0.05) — top 20 by p-value")
-p <- plot_ora_dotplot(ora_gw_fdr, "GW limma FDR (adj.P < 0.05)")
+p <- plot_ora_dotplot(ora_gw_fdr,      "GW limma FDR (adj.P < 0.05)",
+                      file_stem = "ora_gw_limma_fdr",      label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, "ora_gw_limma_fdr",
                    png_path = png_path, svg_path = svg_path)
@@ -880,7 +947,8 @@ if (!is.null(p)) {
 ```{r ora_results_vip1, fig.width=10, fig.height=7}
 display_ora_table(ora_vip1,
                   "ORA: Sex PLS-DA VIP > 1 — top 20 by p-value")
-p <- plot_ora_dotplot(ora_vip1, "Sex PLS-DA VIP > 1")
+p <- plot_ora_dotplot(ora_vip1,        "Sex PLS-DA VIP > 1",
+                      file_stem = "ora_sex_plsda_vip1",    label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, "ora_sex_plsda_vip1",
                    png_path = png_path, svg_path = svg_path)
@@ -893,7 +961,8 @@ if (!is.null(p)) {
 ```{r ora_results_vip2, fig.width=10, fig.height=7}
 display_ora_table(ora_vip2,
                   "ORA: Sex PLS-DA VIP > 2 — top 20 by p-value")
-p <- plot_ora_dotplot(ora_vip2, "Sex PLS-DA VIP > 2")
+p <- plot_ora_dotplot(ora_vip2,        "Sex PLS-DA VIP > 2",
+                      file_stem = "ora_sex_plsda_vip2",    label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, "ora_sex_plsda_vip2",
                    png_path = png_path, svg_path = svg_path)

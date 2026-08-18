@@ -11,7 +11,7 @@
 
 <meta name="author" content="Sneha Michaela Chaturvedi" />
 
-<meta name="date" content="2026-08-04" />
+<meta name="date" content="2026-08-18" />
 
 <title>New Batch 2 Pathway Analysis (MSEA)</title>
 
@@ -576,7 +576,7 @@ display: none;
 
 <h1 class="title toc-ignore">New Batch 2 Pathway Analysis (MSEA)</h1>
 <h4 class="author">Sneha Michaela Chaturvedi</h4>
-<h4 class="date">August 04, 2026</h4>
+<h4 class="date">August 18, 2026</h4>
 
 </div>
 
@@ -651,13 +651,13 @@ Results</a></li>
 <h2>Load Data</h2>
 <pre class="r"><code># Full annotation file — needed for KEGG IDs and Pathways column
 batch2_compound_annotation_full &lt;- read_csv(
-  &quot;../../results/untargeted/batch2_metabolite_annotations.csv&quot;,
+  annotation_file,
   show_col_types = FALSE
 )
 
 # Peak area file defines the compounds that survived filtering
 batch2_peak_area &lt;- read_csv(
-  &quot;../../results/untargeted/batch2_peak_area_clean.csv&quot;,
+  peak_area_file,
   show_col_types = FALSE
 )
 
@@ -2547,11 +2547,44 @@ Inosine, Adenosine
 </div>
 <div id="visualizations" class="section level1">
 <h1>Visualizations</h1>
-<pre class="r"><code># Dot plot: NES on x, pathway on y, color = database, size = set size
+<pre class="r"><code># Companion label file for truncated pathway axes.
+# The dotplots clip pathway names to 45 chars; this writes the full names
+# (plus plotted statistics) next to the SVG so figures stay editable.
+write_pathway_labels &lt;- function(plot_data, file_stem, label_dir, order_by) {
+  if (is.null(label_dir) || is.null(file_stem)) return(invisible(NULL))
+  dir.create(label_dir, recursive = TRUE, showWarnings = FALSE)
+
+  # Degrade to unsorted rather than aborting a long render if the sort
+  # column is absent (e.g. a plot function stops computing it).
+  if (!is.null(order_by) &amp;&amp; !order_by %in% names(plot_data)) {
+    warning(&quot;write_pathway_labels: &#39;&quot;, order_by,
+            &quot;&#39; not found; writing unsorted labels for &quot;, file_stem, &quot;.&quot;)
+    order_by &lt;- NULL
+  }
+
+  out &lt;- plot_data
+  if (!is.null(order_by)) out &lt;- arrange(out, desc(.data[[order_by]]))
+
+  out &lt;- out %&gt;%
+    mutate(plot_order = row_number()) %&gt;%
+    dplyr::select(
+      plot_order,
+      axis_label   = pathway_label,   # truncated string drawn on the y-axis
+      pathway_full = pathway,         # untruncated, with &quot; (Source)&quot; suffix
+      pathway_source, stars,
+      dplyr::any_of(c(&quot;NES&quot;, &quot;size&quot;, &quot;n_hits&quot;, &quot;set_size&quot;,
+                      &quot;odds_ratio&quot;, &quot;pval&quot;, &quot;padj&quot;))
+    )
+
+  readr::write_csv(out, file.path(label_dir, paste0(file_stem, &quot;_labels.csv&quot;)))
+  invisible(out)
+}
+
+# Dot plot: NES on x, pathway on y, color = database, size = set size
 # FDR significance shown as stars appended to pathway labels on the y-axis
 # * p &lt; 0.05, ** FDR &lt; 0.05, *** FDR &lt; 0.01
 plot_msea_dotplot &lt;- function(results, pathway_source_lookup, analysis_label,
-                              top_n = 25) {
+                              top_n = 25, file_stem = NULL, label_dir = NULL) {
   if (is.null(results) || nrow(results) == 0) {
     message(&quot;No results to plot for: &quot;, analysis_label)
     return(NULL)
@@ -2583,6 +2616,8 @@ plot_msea_dotplot &lt;- function(results, pathway_source_lookup, analysis_label,
     message(&quot;No nominally significant pathways for: &quot;, analysis_label)
     return(NULL)
   }
+
+  write_pathway_labels(plot_data, file_stem, label_dir, order_by = &quot;NES&quot;)
 
   ggplot(
     plot_data,
@@ -2634,7 +2669,8 @@ plot_msea_dotplot &lt;- function(results, pathway_source_lookup, analysis_label,
 }</code></pre>
 <div id="gw-dot-plot" class="section level2">
 <h2>GW Dot Plot</h2>
-<pre class="r"><code>p_gw &lt;- plot_msea_dotplot(msea_gw, pathway_source_lookup, &quot;GW&quot;)
+<pre class="r"><code>p_gw  &lt;- plot_msea_dotplot(msea_gw,  pathway_source_lookup, &quot;GW&quot;,
+                           file_stem = &quot;msea_gw_dotplot&quot;,  label_dir = svg_path)
 if (!is.null(p_gw)) {
   save_dual_format(p_gw, &quot;msea_gw_dotplot&quot;, png_path = png_path, svg_path = svg_path)
   print(p_gw)
@@ -2643,7 +2679,9 @@ if (!is.null(p_gw)) {
 </div>
 <div id="sex-dot-plot" class="section level2">
 <h2>Sex Dot Plot</h2>
-<pre class="r"><code>p_sex &lt;- plot_msea_dotplot(msea_sex, pathway_source_lookup, &quot;Sex (positive NES = enriched in males)&quot;)
+<pre class="r"><code>p_sex &lt;- plot_msea_dotplot(msea_sex, pathway_source_lookup,
+                           &quot;Sex (positive NES = enriched in males)&quot;,
+                           file_stem = &quot;msea_sex_dotplot&quot;, label_dir = svg_path)
 if (!is.null(p_sex)) {
   save_dual_format(p_sex, &quot;msea_sex_dotplot&quot;, png_path = png_path, svg_path = svg_path)
   print(p_sex)
@@ -2826,7 +2864,8 @@ display_ora_table &lt;- function(results, caption, top_n = 20) {
 }
 
 # ORA dot plot — mirrors MSEA plot style
-plot_ora_dotplot &lt;- function(results, analysis_label, top_n = 20) {
+plot_ora_dotplot &lt;- function(results, analysis_label, top_n = 20,
+                             file_stem = NULL, label_dir = NULL) {
   if (is.null(results) || nrow(results) == 0) return(NULL)
 
   plot_data &lt;- results %&gt;%
@@ -2838,6 +2877,7 @@ plot_ora_dotplot &lt;- function(results, analysis_label, top_n = 20) {
         padj &lt; 0.05 ~ &quot;*&quot;,
         TRUE        ~ &quot;&quot;
       ),
+      log2_or = log2(odds_ratio),
       pathway_base  = str_remove(pathway,
         &quot; \\(KEGG\\)$| \\(Reactome\\)$| \\(WikiPathways\\)$| \\(PFOCR\\)$&quot;),
       pathway_short = str_trunc(pathway_base, 45),
@@ -2849,6 +2889,8 @@ plot_ora_dotplot &lt;- function(results, analysis_label, top_n = 20) {
     message(&quot;No nominally significant pathways for: &quot;, analysis_label)
     return(NULL)
   }
+  
+  write_pathway_labels(plot_data, file_stem, label_dir, order_by = &quot;log2_or&quot;)
 
   ggplot(plot_data,
          aes(x = log2(odds_ratio),
@@ -3193,7 +3235,8 @@ cat(&quot;Sex PLS-DA VIP &gt; 1:                &quot;, length(sex_hits_vip1), &
 ##   &lt;/tr&gt;
 ## &lt;/tbody&gt;
 ## &lt;/table&gt;</code></pre>
-<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_sex_nominal, &quot;Sex limma nominal (p &lt; 0.05)&quot;)
+<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_sex_nominal, &quot;Sex limma nominal (p &lt; 0.05)&quot;,
+                      file_stem = &quot;ora_sex_limma_nominal&quot;, label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, &quot;ora_sex_limma_nominal&quot;,
                    png_path = png_path, svg_path = svg_path)
@@ -3423,7 +3466,8 @@ if (!is.null(p)) {
 ##   &lt;/tr&gt;
 ## &lt;/tbody&gt;
 ## &lt;/table&gt;</code></pre>
-<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_gw_nominal, &quot;GW limma nominal (p &lt; 0.05)&quot;)
+<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_gw_nominal,  &quot;GW limma nominal (p &lt; 0.05)&quot;,
+                      file_stem = &quot;ora_gw_limma_nominal&quot;,  label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, &quot;ora_gw_limma_nominal&quot;,
                    png_path = png_path, svg_path = svg_path)
@@ -3436,7 +3480,8 @@ if (!is.null(p)) {
 <pre class="r"><code>display_ora_table(ora_gw_fdr,
                   &quot;ORA: GW limma FDR (adj.P &lt; 0.05) — top 20 by p-value&quot;)</code></pre>
 <pre><code>## No results.</code></pre>
-<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_gw_fdr, &quot;GW limma FDR (adj.P &lt; 0.05)&quot;)
+<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_gw_fdr,      &quot;GW limma FDR (adj.P &lt; 0.05)&quot;,
+                      file_stem = &quot;ora_gw_limma_fdr&quot;,      label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, &quot;ora_gw_limma_fdr&quot;,
                    png_path = png_path, svg_path = svg_path)
@@ -3664,7 +3709,8 @@ if (!is.null(p)) {
 ##   &lt;/tr&gt;
 ## &lt;/tbody&gt;
 ## &lt;/table&gt;</code></pre>
-<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_vip1, &quot;Sex PLS-DA VIP &gt; 1&quot;)
+<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_vip1,        &quot;Sex PLS-DA VIP &gt; 1&quot;,
+                      file_stem = &quot;ora_sex_plsda_vip1&quot;,    label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, &quot;ora_sex_plsda_vip1&quot;,
                    png_path = png_path, svg_path = svg_path)
@@ -3893,7 +3939,8 @@ if (!is.null(p)) {
 ##   &lt;/tr&gt;
 ## &lt;/tbody&gt;
 ## &lt;/table&gt;</code></pre>
-<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_vip2, &quot;Sex PLS-DA VIP &gt; 2&quot;)
+<pre class="r"><code>p &lt;- plot_ora_dotplot(ora_vip2,        &quot;Sex PLS-DA VIP &gt; 2&quot;,
+                      file_stem = &quot;ora_sex_plsda_vip2&quot;,    label_dir = svg_path)
 if (!is.null(p)) {
   save_dual_format(p, &quot;ora_sex_plsda_vip2&quot;,
                    png_path = png_path, svg_path = svg_path)

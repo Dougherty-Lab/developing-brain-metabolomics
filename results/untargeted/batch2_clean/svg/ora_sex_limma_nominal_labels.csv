@@ -1,0 +1,2 @@
+plot_order,axis_label,pathway_full,pathway_source,stars,n_hits,set_size,odds_ratio,pval,padj
+1,"mRNA, protein, and metabolite inducation p... (WikiPathways)","mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",WikiPathways,,2,10,7.254287654123992,0.046990394993626526,0.39990044933587376
