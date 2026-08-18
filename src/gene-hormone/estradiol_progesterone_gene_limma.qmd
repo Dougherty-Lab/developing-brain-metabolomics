@@ -184,7 +184,9 @@ summary_E2_base <- summarize_sig_genes(res_E2_base$combined_results)
 plot_top_genes_from_subsets(
   res_E2_base$by_group_data,
   output_dir = "../../results/gene-hormone/estradiol_genes/run_voom_lm",
-  hormone    = "E2"
+  hormone    = "E2",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -241,7 +243,9 @@ summary_E2_sex <- summarize_sig_genes(res_E2_sex$combined_results)
 plot_top_genes_from_subsets(
   res_E2_sex$by_group_data,
   output_dir = "../../results/gene-hormone/estradiol_genes/run_voom_lm_sex",
-  hormone    = "E2"
+  hormone    = "E2",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -298,7 +302,9 @@ summary_E2_batch <- summarize_sig_genes(res_E2_batch$combined_results)
 plot_top_genes_from_subsets(
   res_E2_batch$by_group_data,
   output_dir = "../../results/gene-hormone/estradiol_genes/run_voom_lm_batch",
-  hormone    = "E2"
+  hormone    = "E2",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -355,7 +361,9 @@ summary_E2_sex_batch <- summarize_sig_genes(res_E2_sex_batch$combined_results)
 plot_top_genes_from_subsets(
   res_E2_sex_batch$by_group_data,
   output_dir = "../../results/gene-hormone/estradiol_genes/run_voom_lm_sex_batch",
-  hormone    = "E2"
+  hormone    = "E2",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -420,7 +428,9 @@ summary_P4_base <- summarize_sig_genes(res_P4_base$combined_results)
 plot_top_genes_from_subsets(
   res_P4_base$by_group_data,
   output_dir = "../../results/gene-hormone/progesterone_genes/run_voom_lm",
-  hormone    = "P4"
+  hormone    = "P4",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -477,7 +487,9 @@ summary_P4_sex <- summarize_sig_genes(res_P4_sex$combined_results)
 plot_top_genes_from_subsets(
   res_P4_sex$by_group_data,
   output_dir = "../../results/gene-hormone/progesterone_genes/run_voom_lm_sex",
-  hormone    = "P4"
+  hormone    = "P4",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -534,7 +546,9 @@ summary_P4_batch <- summarize_sig_genes(res_P4_batch$combined_results)
 plot_top_genes_from_subsets(
   res_P4_batch$by_group_data,
   output_dir = "../../results/gene-hormone/progesterone_genes/run_voom_lm_batch",
-  hormone    = "P4"
+  hormone    = "P4",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(
@@ -591,7 +605,9 @@ summary_P4_sex_batch <- summarize_sig_genes(res_P4_sex_batch$combined_results)
 plot_top_genes_from_subsets(
   res_P4_sex_batch$by_group_data,
   output_dir = "../../results/gene-hormone/progesterone_genes/run_voom_lm_sex_batch",
-  hormone    = "P4"
+  hormone    = "P4",
+  color_by   = "GW",
+  single_fit = TRUE
 )
 
 save_dual_format(

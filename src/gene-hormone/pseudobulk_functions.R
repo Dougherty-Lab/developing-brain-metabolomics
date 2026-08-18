@@ -510,10 +510,23 @@ analyze_hormone_combined <- function(pb_counts, metadata_merged, hormone,
 
 # ---- 5. Plotting & summary helpers ------------------------------------------
 
+#' Plot expression-vs-hormone trajectories for significant genes.
+#'
+#' @param color_by  Point colour aesthetic. "cell_count" (default, viridis)
+#'   preserves the original behaviour; "GW" uses the gestational-week gradient
+#'   shared with the sample PCA plots (#C8E6C9 -> #1B5E20).
+#' @param single_fit  If TRUE, draw ONE `lm` fit across the whole subset instead
+#'   of one per sex. Set TRUE for sex-combined models (e.g. ~ hormone + GW + Sex),
+#'   where the model estimates a single hormone slope and sex enters only as an
+#'   intercept offset -- a per-sex fit would misrepresent the tested effect.
+#'   Sex is still encoded by point shape.
 plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone,
                                         fdr_cutoff = 0.1,
                                         logfc_cutoff = 0.25,
-                                        top_n = 15) {
+                                        top_n = 15,
+                                        color_by = c("cell_count", "GW"),
+                                        single_fit = FALSE) {
+  color_by <- match.arg(color_by)
   dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
   message("Number of groups to plot: ", length(by_group_data))
 
@@ -531,6 +544,15 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone,
       message("- Skipping empty subset: ",
               metadata_sub$cell_type[1], "_", metadata_sub$Sex[1])
       return()
+    }
+
+    # Fall back to cell_count if GW was requested but is absent/all-NA for this
+    # subset (run_voom_* fills GW with NA when it is missing from metadata).
+    color_var <- color_by
+    if (color_by == "GW" &&
+        (!"GW" %in% colnames(metadata_sub) || all(is.na(metadata_sub$GW)))) {
+      message("- GW unavailable for this subset; colouring by cell_count")
+      color_var <- "cell_count"
     }
 
     counts_cpm <- edgeR::cpm(counts_sub, log = FALSE)
@@ -583,10 +605,23 @@ plot_top_genes_from_subsets <- function(by_group_data, output_dir, hormone,
       df <- metadata_sub %>% dplyr::mutate(expr = expr_vals)
 
       ggplot(df, aes(x = !!sym(hormone), y = expr,
-                     color = cell_count, shape = Sex)) +
+                     color = !!sym(color_var), shape = Sex)) +
         geom_point(size = 2, alpha = 0.8) +
-        geom_smooth(method = "lm", se = TRUE) +
-        scale_color_viridis_c() +
+        # aes(group = 1) overrides the grouping that `shape = Sex` would
+        # otherwise pass to geom_smooth; colour/fill are fixed so the fit is not
+        # split by the continuous colour aesthetic either.
+        (if (single_fit) {
+          geom_smooth(aes(group = 1), method = "lm", se = TRUE,
+                      color = "grey25", fill = "grey70")
+        } else {
+          geom_smooth(method = "lm", se = TRUE)
+        }) +
+        (if (color_var == "GW") {
+          scale_color_gradient(name = "Gestational Week",
+                               low = "#C8E6C9", high = "#1B5E20")
+        } else {
+          scale_color_viridis_c()
+        }) +
         scale_shape_manual(values = c("M" = 16, "F" = 17)) +
         labs(title = paste0(gene,
                             " (adj. p-value: ", format(adj_pval, digits = 3),
