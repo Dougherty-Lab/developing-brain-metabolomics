@@ -44,7 +44,7 @@ set.seed(123)
 #| label: load-model-objects
 # METHOD selects which transform run to analyze; it sets the parquet read below
 # AND the reporter's predictor transform, so they can never mismatch.
-METHOD <- "log2_na"                            
+METHOD <- "log2_na"                             
 suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
 parquet_dir <- if (METHOD == "int") {"../../results/gene-metabolite/parquet"} else {sprintf("../../results/gene-metabolite/parquet-%s", METHOD)}
 
@@ -464,39 +464,58 @@ cat("\nSaved", nrow(top20), "global-FDR scatters to", scatter_dir, "\n")
 ```
 
 
-## Associations count by cell type (Figure 5A)
-
-Bar chart showing total number of associations, distinct metabolites, and distinct
-genes per cell type — complements the recurrence plots which show only one metric.
+## Total associations by cell type
 
 ```{r}
 #| label: associations-bar
-#| fig-width: 10
+#| fig-width: 8
 #| fig-height: 6
-ct_long <- ct_recur |>
-  pivot_longer(cols = c(n_associations, n_metabolites, n_genes),
-               names_to  = "metric",
-               values_to = "count") |>
-  mutate(metric = factor(metric,
-    levels = c("n_associations", "n_metabolites", "n_genes"),
-    labels = c("Associations", "Distinct metabolites", "Distinct genes")))
-
-p_assoc <- ggplot(ct_long,
-                  aes(x = reorder(cell_type, count, .fun = max),
-                      y = count, fill = metric)) +
-  geom_col(position = position_dodge(width = 0.8), alpha = 0.85, width = 0.7) +
+p_assoc <- ggplot(ct_recur,
+                  aes(x = reorder(cell_type, n_associations), y = n_associations)) +
+  geom_col(fill = "#4E79A7", alpha = 0.85) +
   coord_flip() +
-  scale_fill_manual(values = c("Associations"        = "#4E79A7",
-                                "Distinct metabolites" = "#F28E2B",
-                                "Distinct genes"       = "#59A14F"),
-                    name = NULL) +
-  labs(x = NULL, y = "Count",
-       title = "Gene–metabolite associations by cell type") +
-  theme_cowplot(12) +
-  theme(legend.position = "top")
+  labs(x = NULL, y = "Total associations",
+       title = "Gene\u2013metabolite associations by cell type") +
+  theme_cowplot(12)
 
-save_dual_format(p_assoc, out_dir, "associations_by_celltype", width = 10, height = 6)
+save_dual_format(p_assoc, out_dir, "associations_by_celltype", width = 8, height = 6)
 print(p_assoc)
+```
+
+## Distinct metabolites by cell type
+
+```{r}
+#| label: distinct-metab-bar
+#| fig-width: 8
+#| fig-height: 6
+p_ct_metab <- ggplot(ct_recur,
+                     aes(x = reorder(cell_type, n_metabolites), y = n_metabolites)) +
+  geom_col(fill = "#F28E2B", alpha = 0.85) +
+  coord_flip() +
+  labs(x = NULL, y = "Distinct metabolites",
+       title = "Distinct metabolites associated per cell type") +
+  theme_cowplot(12)
+
+save_dual_format(p_ct_metab, out_dir, "distinct_metabolites_by_celltype", width = 8, height = 6)
+print(p_ct_metab)
+```
+
+## Distinct genes by cell type
+
+```{r}
+#| label: distinct-genes-bar
+#| fig-width: 8
+#| fig-height: 6
+p_ct_genes <- ggplot(ct_recur,
+                     aes(x = reorder(cell_type, n_genes), y = n_genes)) +
+  geom_col(fill = "#59A14F", alpha = 0.85) +
+  coord_flip() +
+  labs(x = NULL, y = "Distinct genes",
+       title = "Distinct genes associated per cell type") +
+  theme_cowplot(12)
+
+save_dual_format(p_ct_genes, out_dir, "distinct_genes_by_celltype", width = 8, height = 6)
+print(p_ct_genes)
 ```
 
 
@@ -510,7 +529,7 @@ regression line matching model structure.
 ```{r}
 #| label: spotlight-scatter-fn
 make_spotlight_scatter <- function(cid, gene, ct, meta_name,
-                                   label = NULL, subtitle = NULL) {
+                                   label = NULL) {
   idx      <- which(row_ct == ct)
   pos      <- match(metab_col[idx], colnames(metab_tx))
   present  <- !is.na(pos) & gene %in% colnames(pb$counts)
@@ -557,10 +576,8 @@ make_spotlight_scatter <- function(cid, gene, ct, meta_name,
              label = stat_label, size = 3.5, color = "grey40") +
     labs(x = paste0(meta_name, " [", METHOD, " transformed]"),
          y = "Gene expression [log1p(CPM), adjusted]",
-         title    = label,
-         subtitle = subtitle) +
-    theme_cowplot(13) +
-    theme(plot.subtitle = element_text(color = "grey40", size = 10))
+         title = label) +
+    theme_cowplot(13)
 
   p
 }
@@ -586,8 +603,7 @@ p_bcas1 <- make_spotlight_scatter(
                          grepl("Glycerophospholipid", Class)) |> pull(Compound.ID) |> first(),
   gene = "BCAS1", ct = "OPC",
   meta_name = hits |> filter(gene == "BCAS1", cell_type == "OPC",
-                              grepl("Glycerophospholipid", Class)) |> pull(Name) |> first(),
-  subtitle = "Active-myelination marker with phospholipid"
+                              grepl("Glycerophospholipid", Class)) |> pull(Name) |> first()
 )
 if (!is.null(p_bcas1)) {
   save_dual_format(p_bcas1, opc_spotlight_dir, "OPC_BCAS1_phospholipid", width = 8, height = 6)
@@ -599,8 +615,7 @@ p_plcg2 <- make_spotlight_scatter(
   cid  = hits |> filter(gene == "PLCG2", Name == "Palmitic Acid", cell_type == "OPC") |>
            pull(Compound.ID) |> first(),
   gene = "PLCG2", ct = "OPC",
-  meta_name = "Palmitic Acid",
-  subtitle = "Phospholipase C with fatty acid substrate"
+  meta_name = "Palmitic Acid"
 )
 if (!is.null(p_plcg2)) {
   save_dual_format(p_plcg2, opc_spotlight_dir, "OPC_PLCG2_palmitic", width = 8, height = 6)
@@ -611,8 +626,7 @@ if (!is.null(p_plcg2)) {
 p_nrg1 <- make_spotlight_scatter(
   cid  = hits |> filter(gene == "NRG1", cell_type == "OPC") |> pull(Compound.ID) |> first(),
   gene = "NRG1", ct = "OPC",
-  meta_name = hits |> filter(gene == "NRG1", cell_type == "OPC") |> pull(Name) |> first(),
-  subtitle = "Oligodendrocyte differentiation signal with phospholipid"
+  meta_name = hits |> filter(gene == "NRG1", cell_type == "OPC") |> pull(Name) |> first()
 )
 if (!is.null(p_nrg1)) {
   save_dual_format(p_nrg1, opc_spotlight_dir, "OPC_NRG1_phospholipid", width = 8, height = 6)
@@ -648,8 +662,7 @@ p_direct <- make_spotlight_scatter(
   gene = "PLCG2", ct = "OPC",
   meta_name = hits |> filter(gene == "PLCG2", cell_type == "OPC",
                               grepl("Cer", Name)) |> pull(Name) |> first(),
-  label    = "Direct: PLCG2 ~ ceramide (OPC)",
-  subtitle = "Phospholipase C with lipid substrate — expected association"
+  label    = "Direct: PLCG2 ~ ceramide (OPC)"
 )
 if (!is.null(p_direct)) {
   save_dual_format(p_direct, interp_dir, "direct_PLCG2_ceramide", width = 8, height = 6)
@@ -666,8 +679,7 @@ p_ribo <- make_spotlight_scatter(
            pull(Compound.ID) |> first(),
   gene = "RPL37A", ct = "EN-Non-IT-Immature",
   meta_name = "Pyrrole-2-Carboxylic Acid",
-  label    = "Ribosomal: RPL37A ~ Pyrrole-2-Carboxylic Acid (EN-Non-IT-Immature)",
-  subtitle = "1 of 73 ribosomal genes associated with this metabolite — expected broad covariation"
+  label    = "Ribosomal: RPL37A ~ Pyrrole-2-Carboxylic Acid (EN-Non-IT-Immature)"
 )
 if (!is.null(p_ribo)) {
   save_dual_format(p_ribo, interp_dir, "ribosomal_RPL37A_pyrrole", width = 8, height = 6)
@@ -685,12 +697,45 @@ p_tf <- make_spotlight_scatter(
            pull(Compound.ID) |> first(),
   gene = "TSHZ2", ct = "IN-MGE-SST",
   meta_name = "Palmitic Acid",
-  label    = "Indirect: TSHZ2 ~ Palmitic Acid (IN-MGE-SST)",
-  subtitle = "Zinc-finger TF with no enzymatic metabolite link — indirect covariation"
+  label    = "Indirect: TSHZ2 ~ Palmitic Acid (IN-MGE-SST)"
 )
 if (!is.null(p_tf)) {
   save_dual_format(p_tf, interp_dir, "indirect_TSHZ2_palmitic", width = 8, height = 6)
   print(p_tf)
 }
+```
+
+
+## IN-MGE-SST top 10 associations
+
+IN-MGE-SST has the highest total association count. Spotlight scatters for
+the 10 strongest associations (ranked by global FDR, then |logFC|).
+
+```{r}
+#| label: inmge-sst-top10
+#| fig-width: 8
+#| fig-height: 6
+sst_dir <- file.path(csv_dir, "spotlight-IN-MGE-SST")
+dir.create(sst_dir, recursive = TRUE, showWarnings = FALSE)
+
+sst_top10 <- hits |>
+  filter(cell_type == "IN-MGE-SST") |>
+  arrange(FDR_global, desc(abs(logFC))) |>
+  slice_head(n = 10)
+
+for (i in seq_len(nrow(sst_top10))) {
+  r  <- sst_top10[i, ]
+  pl <- make_spotlight_scatter(
+    cid       = r$Compound.ID,
+    gene      = r$gene,
+    ct        = "IN-MGE-SST",
+    meta_name = r$Name
+  )
+  if (is.null(pl)) next
+  base <- gsub("[^A-Za-z0-9]+", "-", paste("SST", r$gene, r$Name, sep = "_"))
+  save_dual_format(pl, sst_dir, base, width = 8, height = 6)
+  print(pl)
+}
+cat("Saved", nrow(sst_top10), "IN-MGE-SST spotlight scatters to", sst_dir, "\n")
 ```
 

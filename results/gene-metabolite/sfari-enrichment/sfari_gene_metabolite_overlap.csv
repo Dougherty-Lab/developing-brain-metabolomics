@@ -1,0 +1,81 @@
+gene,n_metabolites,n_cell_types,n_associations,is_sfari,sfari_score,is_hub,gene_name,score,syndromic,genetic-category,number-of-reports
+RBFOX1,9,3,9,TRUE,2,TRUE,"RNA binding protein, fox-1 homolog (C. elegans) 1",2,0,"Rare Single Gene Mutation, Genetic Association, Functional",46
+CNTNAP2,7,3,7,TRUE,2,TRUE,contactin associated protein-like 2,2,1,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",111
+DCC,7,3,7,TRUE,2,TRUE,DCCnetrin 1 receptor,2,0,"Rare Single Gene Mutation, Genetic Association",6
+MEIS2,7,2,7,TRUE,1,TRUE,Meis homeobox 2,1,1,"Rare Single Gene Mutation, Syndromic",16
+FOXP1,6,2,6,TRUE,1,TRUE,forkhead box P1,1,1,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",95
+CDH8,5,2,5,TRUE,2,TRUE,"cadherin 8, type 2",2,0,Rare Single Gene Mutation,13
+CDH9,5,2,5,TRUE,2,TRUE,"cadherin 9, type 2 (T1-cadherin)",2,0,"Rare Single Gene Mutation, Genetic Association",7
+FOXP2,5,2,7,TRUE,1,TRUE,forkhead box P2,1,0,"Rare Single Gene Mutation, Genetic Association, Functional",63
+RELN,5,3,5,TRUE,1,TRUE,Reelin,1,0,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",69
+CCSER1,4,3,4,TRUE,2,FALSE,coiled-coil serine rich protein 1,2,0,Rare Single Gene Mutation,4
+HS3ST5,4,2,4,TRUE,2,FALSE,heparan sulfate (glucosamine) 3-O-sulfotransferase 5,2,0,"Rare Single Gene Mutation, Genetic Association",9
+IL1RAPL2,4,1,4,TRUE,2,FALSE,interleukin 1 receptor accessory protein-like 2,2,0,"Rare Single Gene Mutation, Genetic Association",3
+PARD3B,4,3,4,TRUE,2,FALSE,Par-3 partitioning defective 3 homolog B (C. elegans),2,0,"Rare Single Gene Mutation, Genetic Association",11
+ZFHX4,4,3,4,TRUE,3,FALSE,zinc finger homeobox 4,3,1,"Rare Single Gene Mutation, Syndromic",6
+CNTN6,3,2,3,TRUE,2,FALSE,Contactin 6,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",19
+CNTNAP5,3,1,3,TRUE,2,FALSE,contactin associated protein-like 5,2,0,"Rare Single Gene Mutation, Genetic Association",17
+DSCAM,3,2,3,TRUE,1,FALSE,Down syndrome cell adhesion molecule,1,0,"Rare Single Gene Mutation, Genetic Association, Functional",24
+PRICKLE2,3,1,3,TRUE,2,FALSE,prickle planar cell polarity protein 2,2,0,"Rare Single Gene Mutation, Functional",10
+ROBO2,3,2,3,TRUE,2,FALSE,roundabout guidance receptor 2,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",12
+RPL10,3,3,3,TRUE,2,FALSE,ribosomal protein L10,2,0,"Rare Single Gene Mutation, Syndromic",14
+UNC5D,3,3,3,TRUE,3,FALSE,unc-5 netrin receptor D,3,0,Rare Single Gene Mutation,6
+BCAS1,2,1,2,TRUE,2,FALSE,breast carcinoma amplified sequence 1,2,0,Rare Single Gene Mutation,6
+CCDC88C,2,1,2,TRUE,2,FALSE,Coiled-coil domain containing 88C,2,0,Rare Single Gene Mutation,12
+CNTN4,2,2,2,TRUE,2,FALSE,contactin 4,2,0,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",31
+CSMD1,2,1,2,TRUE,2,FALSE,CUB and Sushi multiple domains 1,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",27
+CSMD2,2,1,2,TRUE,3,FALSE,CUB and Sushi multiple domains 2,3,0,"Rare Single Gene Mutation, Genetic Association",9
+H4C3,2,2,2,TRUE,NA,FALSE,H4 clustered histone 3,NA,1,"Rare Single Gene Mutation, Syndromic",3
+IL1RAPL1,2,2,2,TRUE,2,FALSE,interleukin 1 receptor accessory protein-like 1,2,0,Rare Single Gene Mutation,32
+LRRC4C,2,2,2,TRUE,1,FALSE,leucine rich repeat containing 4C,1,0,Rare Single Gene Mutation,4
+NEGR1,2,2,2,TRUE,2,FALSE,neuronal growth regulator 1,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",7
+PCDH15,2,1,2,TRUE,2,FALSE,protocadherin related 15,2,0,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",15
+RIT2,2,1,2,TRUE,2,FALSE,Ras-like without CAAX 2,2,0,Genetic Association,3
+RORA,2,1,2,TRUE,NA,FALSE,RAR-related orphan receptor A,NA,1,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",26
+SYT1,2,1,2,TRUE,NA,FALSE,synaptotagmin 1,NA,1,"Rare Single Gene Mutation, Syndromic",14
+ZBTB20,2,1,2,TRUE,1,FALSE,Zinc finger and BTB domain containing 20,1,1,"Rare Single Gene Mutation, Syndromic, Functional",34
+ACTB,1,1,1,TRUE,1,FALSE,actin beta,1,1,"Rare Single Gene Mutation, Syndromic",13
+AGAP1,1,1,1,TRUE,2,FALSE,"ArfGAP with GTPase domain, ankyrin repeat and PH domain 1",2,0,Rare Single Gene Mutation,10
+ASTN2,1,1,1,TRUE,2,FALSE,astrotactin 2,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",27
+BCL11B,1,1,1,TRUE,3,FALSE,BCL11 transcription factor B,3,0,"Rare Single Gene Mutation, Syndromic, Functional",13
+BRINP3,1,1,1,TRUE,3,FALSE,BMP/retinoic acid inducible neural specific 3,3,0,"Rare Single Gene Mutation, Genetic Association, Functional",4
+C12orf57,1,1,1,TRUE,NA,FALSE,Chromosome 12 open reading frame 57,NA,1,"Rare Single Gene Mutation, Syndromic",20
+CACNA2D3,1,1,1,TRUE,1,FALSE,"Calcium channel, voltage-dependent, alpha 2/delta subunit 3",1,0,"Rare Single Gene Mutation, Functional",18
+CADM2,1,1,1,TRUE,2,FALSE,Cell adhesion molecule 2,2,0,"Rare Single Gene Mutation, Genetic Association",7
+CDH10,1,1,1,TRUE,2,FALSE,"cadherin 10, type 2 (T2-cadherin)",2,0,"Rare Single Gene Mutation, Genetic Association",11
+CNTN5,1,1,1,TRUE,2,FALSE,Contactin 5,2,0,"Rare Single Gene Mutation, Genetic Association",11
+CTNNA2,1,1,1,TRUE,NA,FALSE,catenin alpha 2,NA,1,"Rare Single Gene Mutation, Syndromic",7
+DOCK1,1,1,1,TRUE,2,FALSE,Dedicator of cytokinesis 1,2,0,Rare Single Gene Mutation,5
+DRD3,1,1,1,TRUE,2,FALSE,dopamine receptor D3,2,0,"Rare Single Gene Mutation, Genetic Association",9
+EEF1A2,1,1,1,TRUE,NA,FALSE,Eukaryotic translation elongation factor 1 alpha 2,NA,1,"Rare Single Gene Mutation, Syndromic",25
+FAT1,1,1,1,TRUE,2,FALSE,FAT atypical cadherin 1,2,0,"Rare Single Gene Mutation, Functional",15
+GABRA4,1,1,1,TRUE,2,FALSE,"gamma-aminobutyric acid (GABA) A receptor, alpha 4",2,0,"Rare Single Gene Mutation, Genetic Association, Functional",11
+GALNT13,1,1,1,TRUE,2,FALSE,polypeptide N-acetylgalactosaminyltransferase 13,2,0,Rare Single Gene Mutation,6
+GLI3,1,1,1,TRUE,3,FALSE,GLI family zinc finger 3,3,0,"Rare Single Gene Mutation, Syndromic",7
+GPC6,1,1,1,TRUE,2,FALSE,glypican 6,2,0,"Rare Single Gene Mutation, Genetic Association",8
+GRIK4,1,1,1,TRUE,2,FALSE,"Glutamate receptor, ionotropic, kainate 4",2,0,"Rare Single Gene Mutation, Functional",8
+H3-3B,1,1,1,TRUE,3,FALSE,H3.3 histone B,3,1,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",8
+HTR2C,1,1,1,TRUE,3,FALSE,5-hydroxytryptamine receptor 2C,3,0,"Genetic Association, Functional",2
+ITGA8,1,1,1,TRUE,3,FALSE,integrin subunit alpha 8,3,0,Rare Single Gene Mutation,8
+MDGA2,1,1,1,TRUE,2,FALSE,MAM domain containing glycosylphosphatidylinositol anchor 2,2,0,"Rare Single Gene Mutation, Genetic Association",10
+MED12L,1,1,1,TRUE,2,FALSE,mediator complex subunit 12L,2,1,"Rare Single Gene Mutation, Syndromic",8
+NPAS2,1,1,1,TRUE,2,FALSE,neuronal PAS domain protein 2,2,0,"Rare Single Gene Mutation, Genetic Association",5
+NPAS3,1,1,1,TRUE,3,FALSE,neuronal PAS domain protein 3,3,0,"Rare Single Gene Mutation, Functional",9
+NR3C2,1,1,1,TRUE,1,FALSE,"Nuclear receptor subfamily 3, group C, member 2",1,1,"Rare Single Gene Mutation, Syndromic",13
+PCDH11X,1,1,1,TRUE,2,FALSE,protocadherin 11 X-linked,2,0,"Rare Single Gene Mutation, Genetic Association",5
+PCDH9,1,1,1,TRUE,2,FALSE,protocadherin 9,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",14
+PDE1C,1,1,1,TRUE,2,FALSE,phosphodiesterase 1C,2,0,"Rare Single Gene Mutation, Genetic Association",3
+PRKCB,1,1,1,TRUE,2,FALSE,protein kinase C beta,2,0,"Rare Single Gene Mutation, Genetic Association",9
+PTPRD,1,1,1,TRUE,2,FALSE,protein tyrosine phosphatase receptor type D,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",15
+RGS7,1,1,1,TRUE,2,FALSE,regulator of G-protein signaling 7,2,0,Rare Single Gene Mutation,6
+RUNX1T1,1,1,1,TRUE,1,FALSE,RUNX1 partner transcriptional co-repressor 1,1,0,"Rare Single Gene Mutation, Syndromic",4
+SASH1,1,1,1,TRUE,2,FALSE,SAM and SH3 domain containing 1,2,0,Rare Single Gene Mutation,4
+SLC6A1,1,1,1,TRUE,1,FALSE,"Solute carrier family 6 (neurotransmitter transporter), member 1",1,1,"Rare Single Gene Mutation, Syndromic, Genetic Association",68
+SLC9A9,1,1,1,TRUE,2,FALSE,"solute carrier family 9 (sodium/hydrogen exchanger), member 9",2,0,"Rare Single Gene Mutation, Genetic Association, Functional",19
+SNTG2,1,1,1,TRUE,2,FALSE,syntrophin gamma 2,2,0,Rare Single Gene Mutation,7
+SORCS3,1,1,1,TRUE,2,FALSE,sortilin related VPS10 domain containing receptor 3,2,0,"Rare Single Gene Mutation, Syndromic, Genetic Association",7
+SYN2,1,1,1,TRUE,2,FALSE,Synapsin II,2,0,"Rare Single Gene Mutation, Genetic Association, Functional",7
+TCF4,1,1,1,TRUE,1,FALSE,Transcription factor 4,1,1,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",84
+TRPM3,1,1,1,TRUE,NA,FALSE,transient receptor potential cation channel subfamily M member 3,NA,1,"Rare Single Gene Mutation, Syndromic",15
+TSHZ3,1,1,1,TRUE,1,FALSE,teashirt zinc finger homeobox 3,1,0,"Rare Single Gene Mutation, Functional",8
+ZEB2,1,1,1,TRUE,3,FALSE,zinc finger E-box binding homeobox 2,3,0,"Rare Single Gene Mutation, Syndromic",9

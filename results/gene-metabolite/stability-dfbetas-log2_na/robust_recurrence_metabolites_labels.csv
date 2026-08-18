@@ -5,7 +5,6 @@ N-Acetylglycine,N-Acetylglycine,Amide-Neg-000219
 L-Lysine,L-Lysine,Amide-Neg-000484
 Dl-Arginine,Dl-Arginine,Amide-Neg-000697
 5'-Xanthylic Acid,5'-Xanthylic Acid,Amide-Neg-001943
-Cyclohexylamine,Cyclohexylamine,Amide-Pos-000085
 Cytosine,Cytosine,Amide-Pos-000171
 N-Acetylputrescine,N-Acetylputrescine,Amide-Pos-000336
 Anserine,Anserine,Amide-Pos-000913
@@ -13,14 +12,15 @@ Anserine,Anserine,Amide-Pos-000913
 Ophthalmate,Ophthalmate,Amide-Pos-001163
 "[2,2'-Biquinoline]-4,4'-Dicarb…","[2,2'-Biquinoline]-4,4'-Dicarboxylic Acid",Amide-Pos-001385
 Adenosine 5'-Diphosphate,Adenosine 5'-Diphosphate,Amide-Pos-001677
+Methyl Dihydrogen Phosphate,Methyl Dihydrogen Phosphate,C18-Neg-000020
 L-Aspartic Acid,L-Aspartic Acid,C18-Pos-000393
 L-(-)-Methionine,L-(-)-Methionine,C18-Pos-000574
 Lpc(23:5),Lpc(23:5),C8-Neg-002641
 Dgdg(18:0_11:1),Dgdg(18:0_11:1),C8-Neg-003439
 Ps(22:3_24:7),Ps(22:3_24:7),C8-Neg-003619
-Citroflex 2,Citroflex 2,C8-Pos-000350
-Triethyleneglycol Bis(2-Ethylh…,Triethyleneglycol Bis(2-Ethylhexanoate),C8-Pos-001521
+Lpc 20:3-Sn1,Lpc 20:3-Sn1,C8-Pos-002542
 "1,2-Dimyristoyl-Sn-Glycero-3-P…","1,2-Dimyristoyl-Sn-Glycero-3-Pc",C8-Pos-003474
+Pe 16:0_18:1,Pe 16:0_18:1,C8-Pos-003759
 Pc(11:1_29:4),Pc(11:1_29:4),C8-Pos-005020
 Ps 22:4_22:5,Ps 22:4_22:5,C8-Pos-005189
 Pc(14:1_28:3),Pc(14:1_28:3),C8-Pos-005214

@@ -887,6 +887,110 @@ if (!is.null(ora_glia) && !is.null(ora_neuron)) {
 
 ---
 
+# Metabolic Hub Genes (≥ 5 distinct metabolites)
+
+Genes associated with ≥5 distinct metabolites are metabolic "hubs" — broadly
+coupled to the metabolome rather than one-off associations. ORA tests whether
+these hubs are enriched in specific pathways (foreground = hub genes, same
+background). GSEA uses the metabolite recurrence count itself as the ranking
+statistic, directly asking: which pathways contain genes that associate with
+many metabolites?
+
+## Identify hub genes
+
+```{r}
+#| label: hub-genes
+MIN_METAB_RECURRENCE <- 5
+
+hub_recur <- hits |>
+  group_by(gene) |>
+  summarise(n_metabolites = n_distinct(Compound.ID),
+            n_cell_types  = n_distinct(cell_type), .groups = "drop") |>
+  arrange(desc(n_metabolites))
+
+hub_genes <- hub_recur |>
+  filter(n_metabolites >= MIN_METAB_RECURRENCE) |>
+  pull(gene)
+
+cat(sprintf(
+  "Metabolite recurrence distribution (all %d genes):\n", nrow(hub_recur)))
+print(summary(hub_recur$n_metabolites))
+cat(sprintf(
+  "\nHub genes (>= %d distinct metabolites): %d of %d (%.1f%%)\n",
+  MIN_METAB_RECURRENCE, length(hub_genes), nrow(hub_recur),
+  100 * length(hub_genes) / nrow(hub_recur)))
+
+knitr::kable(
+  hub_recur |> filter(n_metabolites >= MIN_METAB_RECURRENCE) |> head(30),
+  caption = sprintf("Top hub genes (>= %d distinct metabolites)", MIN_METAB_RECURRENCE)
+)
+```
+
+## Hub gene ORA
+
+```{r}
+#| label: hub-ora
+ora_hub <- run_gene_ora(
+  foreground              = hub_genes,
+  background              = background_genes,
+  gene_set_list           = gene_set_list,
+  gene_set_source_lookup  = gene_set_source_lookup,
+  analysis_label          = sprintf("Hub genes (>= %d metabolites)", MIN_METAB_RECURRENCE)
+)
+
+if (!is.null(ora_hub) && sum(ora_hub$pval < 0.05) > 0) {
+  p_ora_hub <- plot_ora_dotplot(ora_hub,
+    sprintf("Hub genes (>= %d distinct metabolites)", MIN_METAB_RECURRENCE))
+  if (!is.null(p_ora_hub)) {
+    save_dual_format(p_ora_hub, out_dir, "ora_hub_genes", width = 10, height = 8)
+    print(p_ora_hub)
+  }
+} else {
+  cat("No nominally significant ORA results for hub genes.\n")
+}
+```
+
+## Hub gene GSEA (ranked by metabolite recurrence)
+
+Ranking = number of distinct metabolites per gene (not p-value). Tests which
+pathways are enriched for metabolically broad genes.
+
+```{r}
+#| label: hub-gsea
+hub_ranking <- tibble(gene = background_genes) |>
+  left_join(hub_recur, by = "gene") |>
+  mutate(min_P = 10^(-replace_na(n_metabolites, 0)))  # synthetic P for fgsea interface
+
+# Use the existing run_gene_gsea with this recurrence-derived ranking
+gsea_hub <- run_gene_gsea(
+  ranking_df       = hub_ranking,
+  background_genes = background_genes,
+  gene_set_list    = gene_set_list,
+  analysis_label   = "GSEA: metabolite recurrence ranking"
+)
+
+if (!is.null(gsea_hub) && sum(gsea_hub$padj < 0.05) > 0) {
+  p_gsea_hub <- plot_gsea_dotplot(gsea_hub,
+    "GSEA: pathways enriched for metabolic hub genes")
+  if (!is.null(p_gsea_hub)) {
+    save_dual_format(p_gsea_hub, out_dir, "gsea_hub_genes", width = 10, height = 8)
+    print(p_gsea_hub)
+  }
+} else {
+  cat("No FDR-significant GSEA results for hub gene ranking.\n")
+  # Show top nominal results anyway
+  if (!is.null(gsea_hub) && nrow(gsea_hub) > 0) {
+    cat("\nTop 10 nominal results:\n")
+    gsea_hub |>
+      head(10) |>
+      dplyr::select(pathway, NES, pval, padj, size) |>
+      knitr::kable(digits = 4)
+  }
+}
+```
+
+---
+
 # Save Results
 
 ```{r}
@@ -920,6 +1024,10 @@ if (!is.null(ora_glia_only))   write_csv(ora_glia_only,                      fil
 if (!is.null(ora_neuron_only)) write_csv(ora_neuron_only,                    file.path(csv_path, "ora_neuron_only.csv"))
 if (!is.null(gsea_glia))       write_csv(flatten_leading_edge(gsea_glia),    file.path(csv_path, "gsea_glia.csv"))
 if (!is.null(gsea_neuron))     write_csv(flatten_leading_edge(gsea_neuron),  file.path(csv_path, "gsea_neuron.csv"))
+
+# Hub genes
+if (!is.null(ora_hub))  write_csv(ora_hub,  file.path(csv_path, "ora_hub_genes.csv"))
+if (!is.null(gsea_hub)) write_csv(flatten_leading_edge(gsea_hub), file.path(csv_path, "gsea_hub_genes.csv"))
 
 cat("All results saved to:", csv_path, "\n")
 ```
