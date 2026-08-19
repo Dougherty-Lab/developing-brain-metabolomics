@@ -38,7 +38,8 @@ fetal brain snRNA-seq dataset.
 #| output: false
 Packages <- c(
   "tidyverse", "Seurat", "Signac", "glue", "readxl", "cowplot",
-  "edgeR", "limma", "patchwork", "svglite", "Matrix", "viridis"
+  "edgeR", "limma", "patchwork", "svglite", "Matrix", "viridis",
+  "ggrepel", "scales"
 )
 lapply(Packages, library, character.only = TRUE)
 source("pseudobulk_functions.R")
@@ -51,6 +52,77 @@ set.seed(123)
 SSD_data <- readRDS("../../data/cache/receptor_expr_object.rds")
 DefaultAssay(SSD_data) <- "RNA"
 Idents(SSD_data)       <- "celltype"
+```
+
+## Restrict to Cell Types in the Hormone–Gene Analysis
+
+Receptor plots are restricted to the cell types that actually entered the
+hormone–gene limma models, so receptor expression is shown only where a
+hormone–gene association could have been detected. The cell type set is read
+from the base-model result tables (union across TT, E2, P4) rather than
+hard-coded, so it stays in sync if the models are rerun.
+
+```{r}
+#| label: analysis-celltypes
+HORMONE_RESULT_FILES <- c(
+  TT = "../../results/gene-hormone/testosterone_genes/run_voom_lm/TT_base_results.csv",
+  E2 = "../../results/gene-hormone/estradiol_genes/run_voom_lm/E2_base_results.csv",
+  P4 = "../../results/gene-hormone/progesterone_genes/run_voom_lm/P4_base_results.csv"
+)
+N_EXPECTED_CELLTYPES <- 11
+
+stopifnot(all(file.exists(HORMONE_RESULT_FILES)))
+
+# Per-analysis cell type sets, kept separate so partial coverage can be flagged
+CT_BY_ANALYSIS <- HORMONE_RESULT_FILES %>%
+  purrr::map(~ readr::read_csv(.x, show_col_types = FALSE)) %>%
+  purrr::map(~ sort(unique(as.character(.x$cell_type))))
+
+ANALYSIS_CELLTYPES <- sort(unique(unlist(CT_BY_ANALYSIS, use.names = FALSE)))
+
+# How many of the three models each cell type contributed to
+ct_coverage <- tibble::tibble(celltype = ANALYSIS_CELLTYPES) %>%
+  dplyr::mutate(
+    analyses  = purrr::map_chr(
+      celltype,
+      ~ paste(names(CT_BY_ANALYSIS)[purrr::map_lgl(CT_BY_ANALYSIS, function(s) .x %in% s)],
+              collapse = ", ")
+    ),
+    n_analyses = purrr::map_int(
+      celltype,
+      ~ sum(purrr::map_lgl(CT_BY_ANALYSIS, function(s) .x %in% s))
+    ),
+    partial   = n_analyses < length(CT_BY_ANALYSIS)
+  )
+
+cat("Cell types in hormone-gene analysis:", length(ANALYSIS_CELLTYPES), "\n")
+print(ct_coverage, n = Inf)
+
+if (length(ANALYSIS_CELLTYPES) != N_EXPECTED_CELLTYPES) {
+  warning("Expected ", N_EXPECTED_CELLTYPES, " cell types, found ",
+          length(ANALYSIS_CELLTYPES),
+          " — check that the result files match the current models.")
+}
+
+missing_ct <- setdiff(ANALYSIS_CELLTYPES, unique(as.character(SSD_data$celltype)))
+if (length(missing_ct) > 0) {
+  warning("Cell types absent from the Seurat object: ",
+          paste(missing_ct, collapse = ", "))
+}
+```
+
+```{r}
+#| label: subset-object
+SSD_sub <- subset(SSD_data, subset = celltype %in% ANALYSIS_CELLTYPES)
+
+# Drop unused levels so empty cell types do not appear on plot axes / legends
+SSD_sub$celltype <- factor(as.character(SSD_sub$celltype),
+                           levels = ANALYSIS_CELLTYPES)
+Idents(SSD_sub) <- "celltype"
+
+cat(sprintf("Cells retained: %d / %d (%.1f%%)\n",
+            ncol(SSD_sub), ncol(SSD_data),
+            100 * ncol(SSD_sub) / ncol(SSD_data)))
 ```
 
 ```{r}
@@ -69,14 +141,96 @@ cat("Receptor genes in assay:",
 cat("Missing:", setdiff(receptor_genes, rownames(SSD_data)), "\n")
 ```
 
+## UMAP — Analysis Coverage
+
+All cells are shown. Cell types entering at least one hormone–gene model are
+colored; all other cells are grey. Labels marked with an asterisk (\*) denote
+cell types included in some but not all three models (TT is male-only, so
+cell types absent in male samples drop out there).
+
+Points are rasterized at `r 600` dpi while text, labels, and axes stay vector,
+which keeps the SVG editable in Illustrator without tens of thousands of
+individual point objects.
+
+```{r}
+#| label: coverage-umap
+#| fig-width: 10
+#| fig-height: 7
+REDUCTION   <- if ("umap.rna" %in% SeuratObject::Reductions(SSD_data)) {
+  "umap.rna"
+} else {
+  SeuratObject::DefaultDimReduc(SSD_data)
+}
+RASTER_DPI        <- 600    # rasterization resolution for point layers
+PT_SIZE           <- 0.2
+MAX_CELLS_NORASTR <- 20000  # fallback subsample if ggrastr is unavailable
+
+emb <- SeuratObject::Embeddings(SSD_data, reduction = REDUCTION)[, 1:2] %>%
+  as.data.frame() %>%
+  setNames(c("dim1", "dim2")) %>%
+  dplyr::mutate(
+    celltype = as.character(SSD_data$celltype),
+    included = celltype %in% ANALYSIS_CELLTYPES
+  )
+
+# Colors assigned over ANALYSIS_CELLTYPES only, so they match the subset DimPlot
+ct_colors <- setNames(scales::hue_pal()(length(ANALYSIS_CELLTYPES)),
+                      ANALYSIS_CELLTYPES)
+
+# Centroids computed on ALL cells so label positions match the full UMAP
+label_df <- emb %>%
+  dplyr::group_by(celltype, included) %>%
+  dplyr::summarise(dim1 = median(dim1), dim2 = median(dim2), .groups = "drop") %>%
+  dplyr::left_join(dplyr::select(ct_coverage, celltype, partial, n_analyses),
+                   by = "celltype") %>%
+  dplyr::mutate(
+    partial = tidyr::replace_na(partial, FALSE),
+    label   = paste0(celltype, ifelse(partial, "*", "")),
+    color   = ifelse(included, ct_colors[celltype], "grey50")
+  )
+
+has_rastr <- requireNamespace("ggrastr", quietly = TRUE)
+if (!has_rastr) {
+  warning("ggrastr not installed — subsampling to ", MAX_CELLS_NORASTR,
+          " cells instead of rasterizing.")
+  set.seed(123)
+  emb <- emb[sample(nrow(emb), min(nrow(emb), MAX_CELLS_NORASTR)), ]
+}
+
+p_coverage_umap <- ggplot(mapping = aes(dim1, dim2)) +
+  geom_point(data = dplyr::filter(emb, !included),
+             color = "grey85", size = PT_SIZE, shape = 16, alpha = 0.5) +
+  geom_point(data = dplyr::filter(emb, included),
+             aes(color = celltype), size = PT_SIZE, shape = 16, alpha = 0.7) +
+  scale_color_manual(values = ct_colors, breaks = ANALYSIS_CELLTYPES,
+                     name = "Cell type") +
+  ggrepel::geom_text_repel(data = label_df,
+                           aes(label = label), color = label_df$color,
+                           size = 3, box.padding = 0.3, max.overlaps = Inf,
+                           bg.color = "white", bg.r = 0.1, seed = 123) +
+  guides(color = guide_legend(override.aes = list(size = 3, alpha = 1))) +
+  cowplot::theme_cowplot(12) +
+  labs(x = "UMAP 1", y = "UMAP 2",
+       title = "Cell types included in hormone-gene analyses",
+       caption = "* included in some but not all of TT / E2 / P4")
+
+if (has_rastr) {
+  p_coverage_umap <- ggrastr::rasterise(p_coverage_umap,
+                                        layers = "Point", dpi = RASTER_DPI)
+}
+p_coverage_umap
+```
+
 ## Cell Type UMAP
 
 ```{r}
 #| label: dimplot
 #| fig-width: 10
 #| fig-height: 7
-p_dimplot <- DimPlot(SSD_data, group.by = "celltype", label = TRUE, repel = TRUE) +
-  theme(legend.position = "right")
+p_dimplot <- DimPlot(SSD_sub, group.by = "celltype", label = TRUE, repel = TRUE) +
+  theme(legend.position = "right") +
+  ggtitle(sprintf("Cell types in hormone-gene analysis (n = %d)",
+                  length(ANALYSIS_CELLTYPES)))
 p_dimplot
 ```
 
@@ -89,7 +243,7 @@ p_dimplot
 #| label: vln-ar
 #| fig-width: 12
 #| fig-height: 5
-p_vln_ar <- VlnPlot(SSD_data, features = "AR", group.by = "celltype", pt.size = 0) +
+p_vln_ar <- VlnPlot(SSD_sub, features = "AR", group.by = "celltype", pt.size = 0) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
 p_vln_ar
@@ -101,7 +255,7 @@ p_vln_ar
 #| label: vln-esr1
 #| fig-width: 12
 #| fig-height: 5
-p_vln_esr1 <- VlnPlot(SSD_data, features = "ESR1", group.by = "celltype", pt.size = 0) +
+p_vln_esr1 <- VlnPlot(SSD_sub, features = "ESR1", group.by = "celltype", pt.size = 0) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
 p_vln_esr1
@@ -113,7 +267,7 @@ p_vln_esr1
 #| label: vln-esr2
 #| fig-width: 12
 #| fig-height: 5
-p_vln_esr2 <- VlnPlot(SSD_data, features = "ESR2", group.by = "celltype", pt.size = 0) +
+p_vln_esr2 <- VlnPlot(SSD_sub, features = "ESR2", group.by = "celltype", pt.size = 0) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
 p_vln_esr2
@@ -125,7 +279,7 @@ p_vln_esr2
 #| label: vln-pgr
 #| fig-width: 12
 #| fig-height: 5
-p_vln_pgr <- VlnPlot(SSD_data, features = "PGR", group.by = "celltype", pt.size = 0) +
+p_vln_pgr <- VlnPlot(SSD_sub, features = "PGR", group.by = "celltype", pt.size = 0) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
 p_vln_pgr
@@ -141,7 +295,7 @@ p_vln_pgr
 #| label: feat-ar
 #| fig-width: 8
 #| fig-height: 6
-p_feat_ar <- FeaturePlot(SSD_data, features = "AR",
+p_feat_ar <- FeaturePlot(SSD_sub, features = "AR",
             cols = c("lightgrey", "#440154FF"), alpha = 0.7)
 p_feat_ar
 ```
@@ -152,7 +306,7 @@ p_feat_ar
 #| label: feat-esr1
 #| fig-width: 8
 #| fig-height: 6
-p_feat_esr1 <- FeaturePlot(SSD_data, features = "ESR1",
+p_feat_esr1 <- FeaturePlot(SSD_sub, features = "ESR1",
             cols = c("lightgrey", "#440154FF"), alpha = 0.7)
 p_feat_esr1
 ```
@@ -163,7 +317,7 @@ p_feat_esr1
 #| label: feat-esr2
 #| fig-width: 8
 #| fig-height: 6
-p_feat_esr2 <- FeaturePlot(SSD_data, features = "ESR2",
+p_feat_esr2 <- FeaturePlot(SSD_sub, features = "ESR2",
             cols = c("lightgrey", "#440154FF"), alpha = 0.7)
 p_feat_esr2
 ```
@@ -174,7 +328,7 @@ p_feat_esr2
 #| label: feat-pgr
 #| fig-width: 8
 #| fig-height: 6
-p_feat_pgr <- FeaturePlot(SSD_data, features = "PGR",
+p_feat_pgr <- FeaturePlot(SSD_sub, features = "PGR",
             cols = c("lightgrey", "#440154FF"), alpha = 0.7)
 p_feat_pgr
 ```
@@ -186,7 +340,7 @@ p_feat_pgr
 #| label: vln-paqr
 #| fig-width: 18
 #| fig-height: 5
-p_vln_paqr <- VlnPlot(SSD_data, features = c("PAQR5", "PAQR7", "PAQR8"),
+p_vln_paqr <- VlnPlot(SSD_sub, features = c("PAQR5", "PAQR7", "PAQR8"),
                       group.by = "celltype", pt.size = 0, ncol = 3) &
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
@@ -199,7 +353,7 @@ p_vln_paqr
 #| label: feat-paqr
 #| fig-width: 18
 #| fig-height: 6
-p_feat_paqr <- FeaturePlot(SSD_data, features = c("PAQR5", "PAQR7", "PAQR8"),
+p_feat_paqr <- FeaturePlot(SSD_sub, features = c("PAQR5", "PAQR7", "PAQR8"),
             cols = c("lightgrey", "#440154FF"), alpha = 0.7, ncol = 3)
 p_feat_paqr
 ```
@@ -210,7 +364,7 @@ p_feat_paqr
 #| label: vln-pgrmc
 #| fig-width: 12
 #| fig-height: 5
-p_vln_pgrmc <- VlnPlot(SSD_data, features = c("PGRMC1", "PGRMC2"),
+p_vln_pgrmc <- VlnPlot(SSD_sub, features = c("PGRMC1", "PGRMC2"),
                        group.by = "celltype", pt.size = 0, ncol = 2) &
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.position = "none")
@@ -223,7 +377,7 @@ p_vln_pgrmc
 #| label: feat-pgrmc
 #| fig-width: 12
 #| fig-height: 6
-p_feat_pgrmc <- FeaturePlot(SSD_data, features = c("PGRMC1", "PGRMC2"),
+p_feat_pgrmc <- FeaturePlot(SSD_sub, features = c("PGRMC1", "PGRMC2"),
             cols = c("lightgrey", "#440154FF"), alpha = 0.7, ncol = 2)
 p_feat_pgrmc
 ```
@@ -238,11 +392,11 @@ thresholds (applied to the log-normalized RNA data layer).
 #| fig-width: 12
 #| fig-height: 8
 esr2_expr <- as.numeric(
-  GetAssayData(SSD_data, assay = "RNA", layer = "data")["ESR2", ]
+  GetAssayData(SSD_sub, assay = "RNA", layer = "data")["ESR2", ]
 )
-SSD_data$esr2_expr <- esr2_expr
+SSD_sub$esr2_expr <- esr2_expr
 
-esr2_pct <- SSD_data@meta.data %>%
+esr2_pct <- SSD_sub@meta.data %>%
   dplyr::group_by(celltype) %>%
   dplyr::summarise(
     `Any (> 0)`    = mean(esr2_expr > 0)   * 100,
@@ -272,8 +426,17 @@ p_esr2_pct
 
 ```{r}
 #| label: save-plots
-out_dir <- "../../results/gene-hormone/single_cell_plots"
+out_dir <- "../../results/gene-hormone/single_cell_plots_analysis_celltypes"
 
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+# Record the exact cell type set used for these figures
+readr::write_csv(
+  ct_coverage,
+  file.path(out_dir, "analysis_celltypes.csv")
+)
+
+save_dual_format(p_coverage_umap, out_dir, "celltype_umap_analysis_coverage", width = 10, height = 7)
 save_dual_format(p_dimplot,    out_dir, "celltype_umap",             width = 10, height = 7)
 save_dual_format(p_vln_ar,     out_dir, "vln_AR",                    width = 12, height = 5)
 save_dual_format(p_vln_esr1,   out_dir, "vln_ESR1",                  width = 12, height = 5)

@@ -1,0 +1,13 @@
+celltype,analyses,n_analyses,partial
+Astrocyte-Immature,"TT, E2, P4",3,FALSE
+EN-IT-Immature,"TT, E2, P4",3,FALSE
+EN-L5_6-NP,TT,1,TRUE
+EN-L6-IT,"TT, E2, P4",3,FALSE
+EN-L6b,"TT, E2, P4",3,FALSE
+EN-Newborn,"TT, E2, P4",3,FALSE
+EN-Non-IT-Immature,"TT, E2, P4",3,FALSE
+IN-CGE-Immature,"TT, E2, P4",3,FALSE
+IN-MGE-Immature,"TT, E2, P4",3,FALSE
+IN-MGE-SST,"TT, E2, P4",3,FALSE
+IPC-EN,"TT, E2, P4",3,FALSE
+OPC,TT,1,TRUE
