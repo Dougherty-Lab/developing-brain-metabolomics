@@ -38,25 +38,25 @@
 <polyline points='370.83,400.09 370.83,41.69 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='478.77,400.09 478.77,41.69 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <circle cx='514.75' cy='62.77' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='505.74' cy='97.91' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='503.63' cy='133.04' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='503.52' cy='168.18' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='487.72' cy='203.32' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='487.06' cy='238.46' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='483.92' cy='273.60' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='483.42' cy='308.73' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='479.78' cy='343.87' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='479.14' cy='379.01' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='505.66' cy='97.91' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='503.64' cy='133.04' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='503.54' cy='168.18' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='487.64' cy='203.32' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='486.98' cy='238.46' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='483.96' cy='273.60' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='483.30' cy='308.73' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='479.77' cy='343.87' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='479.11' cy='379.01' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
 <line x1='514.75' y1='62.77' x2='154.94' y2='62.77' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='505.74' y1='97.91' x2='154.94' y2='97.91' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='503.63' y1='133.04' x2='154.94' y2='133.04' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='503.52' y1='168.18' x2='154.94' y2='168.18' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='487.72' y1='203.32' x2='154.94' y2='203.32' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='487.06' y1='238.46' x2='154.94' y2='238.46' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='483.92' y1='273.60' x2='154.94' y2='273.60' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='483.42' y1='308.73' x2='154.94' y2='308.73' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='479.78' y1='343.87' x2='154.94' y2='343.87' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='479.14' y1='379.01' x2='154.94' y2='379.01' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='505.66' y1='97.91' x2='154.94' y2='97.91' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='503.64' y1='133.04' x2='154.94' y2='133.04' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='503.54' y1='168.18' x2='154.94' y2='168.18' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='487.64' y1='203.32' x2='154.94' y2='203.32' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='486.98' y1='238.46' x2='154.94' y2='238.46' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='483.96' y1='273.60' x2='154.94' y2='273.60' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='483.30' y1='308.73' x2='154.94' y2='308.73' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='479.77' y1='343.87' x2='154.94' y2='343.87' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='479.11' y1='379.01' x2='154.94' y2='379.01' style='stroke-width: 1.60; stroke-linecap: butt;' />
 <text x='550.73' y='73.14' text-anchor='middle' style='font-size: 28.45px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.47px' lengthAdjust='spacingAndGlyphs'>-</text>
 <text x='550.73' y='108.27' text-anchor='middle' style='font-size: 28.45px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.47px' lengthAdjust='spacingAndGlyphs'>-</text>
 <text x='550.73' y='143.41' text-anchor='middle' style='font-size: 28.45px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.47px' lengthAdjust='spacingAndGlyphs'>-</text>

@@ -38,25 +38,25 @@
 <polyline points='381.91,400.09 381.91,41.69 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <polyline points='483.86,400.09 483.86,41.69 ' style='stroke-width: 1.07; stroke: #EBEBEB; stroke-linecap: butt;' />
 <circle cx='517.85' cy='62.77' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='506.05' cy='97.91' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='506.03' cy='97.91' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
 <circle cx='490.56' cy='133.04' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='469.98' cy='168.18' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='455.09' cy='203.32' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='455.08' cy='238.46' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='452.17' cy='273.60' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='469.73' cy='168.18' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='455.15' cy='203.32' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='454.71' cy='238.46' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='452.06' cy='273.60' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
 <circle cx='437.42' cy='308.73' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='432.51' cy='343.87' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
-<circle cx='428.63' cy='379.01' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='432.39' cy='343.87' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
+<circle cx='428.34' cy='379.01' r='2.49' style='stroke-width: 0.71; fill: #000000;' />
 <line x1='517.85' y1='62.77' x2='178.01' y2='62.77' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='506.05' y1='97.91' x2='178.01' y2='97.91' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='506.03' y1='97.91' x2='178.01' y2='97.91' style='stroke-width: 1.60; stroke-linecap: butt;' />
 <line x1='490.56' y1='133.04' x2='178.01' y2='133.04' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='469.98' y1='168.18' x2='178.01' y2='168.18' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='455.09' y1='203.32' x2='178.01' y2='203.32' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='455.08' y1='238.46' x2='178.01' y2='238.46' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='452.17' y1='273.60' x2='178.01' y2='273.60' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='469.73' y1='168.18' x2='178.01' y2='168.18' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='455.15' y1='203.32' x2='178.01' y2='203.32' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='454.71' y1='238.46' x2='178.01' y2='238.46' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='452.06' y1='273.60' x2='178.01' y2='273.60' style='stroke-width: 1.60; stroke-linecap: butt;' />
 <line x1='437.42' y1='308.73' x2='178.01' y2='308.73' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='432.51' y1='343.87' x2='178.01' y2='343.87' style='stroke-width: 1.60; stroke-linecap: butt;' />
-<line x1='428.63' y1='379.01' x2='178.01' y2='379.01' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='432.39' y1='343.87' x2='178.01' y2='343.87' style='stroke-width: 1.60; stroke-linecap: butt;' />
+<line x1='428.34' y1='379.01' x2='178.01' y2='379.01' style='stroke-width: 1.60; stroke-linecap: butt;' />
 <text x='551.83' y='73.14' text-anchor='middle' style='font-size: 28.45px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.47px' lengthAdjust='spacingAndGlyphs'>-</text>
 <text x='551.83' y='108.27' text-anchor='middle' style='font-size: 28.45px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.47px' lengthAdjust='spacingAndGlyphs'>-</text>
 <text x='551.83' y='143.41' text-anchor='middle' style='font-size: 28.45px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='9.47px' lengthAdjust='spacingAndGlyphs'>-</text>

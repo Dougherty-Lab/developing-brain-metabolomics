@@ -749,7 +749,7 @@ hormone_cor_results <- expand.grid(
     pval = if (!is.null(test)) test$p.value  else NA_real_
   ) %>%
   ungroup() %>%
-  select(-test) %>%
+  dplyr::select(-test) %>%
   mutate(padj = p.adjust(pval, method = "BH"))
 
 # Heatmap
