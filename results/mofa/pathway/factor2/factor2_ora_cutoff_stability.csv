@@ -1,0 +1,17 @@
+direction,pathway,n_cutoffs,min_padj
+negative,Nucleotide salvage defects (Reactome),1,0.49659862690000134
+negative,Diseases of nucleotide metabolism (Reactome),1,0.49682726818718886
+negative,T cell modulation in pancreatic cancer (WikiPathways),1,0.49682726818718886
+negative,Omega-3 / omega-6 fatty acid synthesis (WikiPathways),1,0.6353842904961319
+negative,alpha-Linolenic acid metabolism (KEGG),1,0.6353842904961319
+positive,Pyrimidine catabolism (Reactome),1,0.44814939314527913
+positive,Sphingolipid metabolism: integrated pathway (WikiPathways),1,0.44814939314527913
+positive,Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),1,0.5157878503589871
+positive,Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),1,0.5157878503589871
+positive,Amino Sugar Metabolism (KEGG),1,0.5379754401375586
+positive,Cori cycle (WikiPathways),1,0.5379754401375586
+positive,Galactose Metabolism (KEGG),1,0.5379754401375586
+positive,Glucuronidation (WikiPathways),1,0.5379754401375586
+positive,Krebs cycle disorders (WikiPathways),1,0.5379754401375586
+positive,Lactate shuttle in glial cells (WikiPathways),1,0.5379754401375586
+positive,Purinergic signaling (WikiPathways),1,0.5379754401375586

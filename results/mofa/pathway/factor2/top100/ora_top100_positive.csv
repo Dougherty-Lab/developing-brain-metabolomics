@@ -1,0 +1,106 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source,analysis,direction,top_n
+Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),3,6,11.239339316509932,0.009824530483028325,Pyruvic Acid;Dl-Lactic Acid;Adenosine Triphosphate (Atp),0.5157878503589871,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),3,6,11.239339316509932,0.009824530483028325,Pyruvic Acid;Dl-Lactic Acid;D-Glucose 6-Phosphate,0.5157878503589871,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Lactate shuttle in glial cells (WikiPathways),3,7,8.42702463876841,0.016164347515519567,Pyruvic Acid;Dl-Lactic Acid;D-Glucose 6-Phosphate,0.5379754401375586,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Cori cycle (WikiPathways),3,9,5.607083921350366,0.03431177687001541,Pyruvic Acid;Dl-Lactic Acid;D-Glucose 6-Phosphate,0.5379754401375586,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Glucuronidation (WikiPathways),3,9,5.607083921350366,0.03431177687001541,Uridine 5'-Triphosphate Sodium Salt;Adenosine Triphosphate (Atp);D-Glucose 6-Phosphate,0.5379754401375586,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Purinergic signaling (WikiPathways),3,9,5.607083921350366,0.03431177687001541,Uridine 5'-Triphosphate Sodium Salt;Adenosine Triphosphate (Atp);N-Methyl-D-Glucamine,0.5379754401375586,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Amino Sugar Metabolism (KEGG),4,16,3.7887007172192972,0.03996274952332791,Pyruvic Acid;Uridine 5'-Triphosphate Sodium Salt;Adenosine Triphosphate (Atp);D-Glucose 6-Phosphate,0.5379754401375586,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Galactose Metabolism (KEGG),3,10,4.800673099501529,0.04611218058321931,Uridine 5'-Triphosphate Sodium Salt;Adenosine Triphosphate (Atp);D-Glucose 6-Phosphate,0.5379754401375586,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Krebs cycle disorders (WikiPathways),3,10,4.800673099501529,0.04611218058321931,Pyruvic Acid;Dl-Lactic Acid;Adenosine Triphosphate (Atp),0.5379754401375586,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Deadenylation-dependent mRNA decay (Reactome),2,5,7.337794699586469,0.060837941953771534,Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.5807258095587282,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Glycolysis in senescence (WikiPathways),2,5,7.337794699586469,0.060837941953771534,Pyruvic Acid;Dl-Lactic Acid,0.5807258095587282,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Aerobic glycolysis - augmented (WikiPathways),3,12,3.7225014233260736,0.07486485122562005,Pyruvic Acid;Phosphocreatine;Adenosine Triphosphate (Atp),0.6475848576685733,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Disorders of fructose metabolism (WikiPathways),2,6,5.500937065782535,0.08634464768914311,Pyruvic Acid;D-Glucose 6-Phosphate,0.6475848576685733,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Glycogen metabolism (Reactome),2,6,5.500937065782535,0.08634464768914311,Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6475848576685733,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Biomarkers for pyrimidine metabolism disorders (WikiPathways),3,14,3.035700328686055,0.10979127053268052,Uridine Monophosphate;Phosphocreatine;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Metabolic reprogramming in pancreatic cancer (WikiPathways),2,7,4.396865980178926,0.11441676775859262,Pyruvic Acid;Dl-Lactic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Arginine and proline metabolism (KEGG),3,15,2.7776672031151786,0.12925167802709017,Pyruvic Acid;Phosphocreatine;Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Synthesis of substrates in N-glycan biosythesis (Reactome),3,15,2.7776672031151786,0.12925167802709017,Pyruvic Acid;Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Aerobic glycolysis (WikiPathways),2,8,3.659388474038282,0.14444887819325142,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Thiamine metabolic pathways (WikiPathways),2,8,3.659388474038282,0.14444887819325142,Pyruvic Acid;D-Glucose 6-Phosphate,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Trans-sulfuration pathway (WikiPathways),2,8,3.659388474038282,0.14444887819325142,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Citric Acid Cycle (KEGG),2,9,3.132208217173725,0.17591662142846165,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Glycolysis and gluconeogenesis (WikiPathways),2,9,3.132208217173725,0.17591662142846165,Pyruvic Acid;D-Glucose 6-Phosphate,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Pyrimidine catabolism (Reactome),2,9,3.132208217173725,0.17591662142846165,Pyruvic Acid;Uridine Monophosphate,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Pyruvate metabolism (KEGG),2,9,3.132208217173725,0.17591662142846165,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Sphingolipid metabolism: integrated pathway (WikiPathways),2,9,3.132208217173725,0.17591662142846165,N-Nervonoyl-D-Erythro-Sphingosylphosphorylcholine;Palmitoyl Sphingomyelin,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Phosphate bond hydrolysis by NTPDase proteins (Reactome),2,10,2.736365505422132,0.20836773163977232,Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Pyrimidine metabolism (WikiPathways),2,11,2.4282893457405117,0.24141395390458048,Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Interconversion of nucleotide di- and triphosphates (Reactome),2,12,2.181591052562132,0.2747237744403722,Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Methionine de novo and salvage pathway (WikiPathways),2,12,2.181591052562132,0.2747237744403722,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Nitrogen metabolism (KEGG),2,12,2.181591052562132,0.2747237744403722,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Metabolic pathways of fibroblasts (WikiPathways),2,13,1.9797401321370587,0.30801588640597055,Pyruvic Acid;D-Glucose 6-Phosphate,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Urea cycle and associated pathways (WikiPathways),2,13,1.9797401321370587,0.30801588640597055,Pyruvic Acid;Uridine Monophosphate,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Metabolic reprogramming in colon cancer (WikiPathways),2,14,1.8113405422699094,0.3410533223848521,Pyruvic Acid;D-Glucose 6-Phosphate,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Carnosine metabolism of glial cells (WikiPathways),1,5,2.6969350844674556,0.36228082791725424,Dl-Lactic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+"Gamma-glutamyl cycle for the biosynthesis and degradation of glutathione, including diseases (WikiPathways)",1,5,2.6969350844674556,0.36228082791725424,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Maternal to zygotic transition (MZT) (Reactome),1,5,2.6969350844674556,0.36228082791725424,Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Nicotinamide salvaging (Reactome),1,5,2.6969350844674556,0.36228082791725424,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Pantothenate and CoA Biosynthesis (KEGG),1,5,2.6969350844674556,0.36228082791725424,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Phenylalanine metabolism (Reactome),1,5,2.6969350844674556,0.36228082791725424,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Pyrimidine biosynthesis (Reactome),1,5,2.6969350844674556,0.36228082791725424,Uridine Monophosphate,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Serine biosynthesis (Reactome),1,5,2.6969350844674556,0.36228082791725424,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Synthesis of UDP-N-acetyl-glucosamine (Reactome),1,5,2.6969350844674556,0.36228082791725424,Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Synthesis of wybutosine at G37 of tRNA(Phe) (Reactome),1,5,2.6969350844674556,0.36228082791725424,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Thermogenesis (WikiPathways),1,5,2.6969350844674556,0.36228082791725424,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Nucleotide catabolism (Reactome),3,26,1.4181712237677306,0.3885597430284401,Pyruvic Acid;Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Pyrimidine metabolism and related diseases (WikiPathways),2,16,1.546633622656296,0.4056069586580803,Uridine Monophosphate;Uridine 5'-Triphosphate Sodium Salt,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Acetylcholine synthesis (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Cannabinoid receptor signaling (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Creatine pathway (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Phosphocreatine,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Glycine metabolism (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+HIF1A and PPARG in cardiac hypertropthy (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+NAD biosynthesis II from tryptophan (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Organic anion transporters (Reactome),1,6,2.154791019127685,0.4174680639628766,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Phosphatidylcholine catabolism (WikiPathways),1,6,2.154791019127685,0.4174680639628766,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Primary bile acid biosynthesis (KEGG),1,6,2.154791019127685,0.4174680639628766,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Sialic acid metabolism (Reactome),1,6,2.154791019127685,0.4174680639628766,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Tryptophan metabolism (KEGG),1,6,2.154791019127685,0.4174680639628766,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+tRNA modification in the nucleus and cytosol (Reactome),1,6,2.154791019127685,0.4174680639628766,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Methionine Metabolism (KEGG),2,17,1.4406955666936818,0.4368262295867851,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Amino acid metabolism pathway excerpt: histidine catabolism extension (WikiPathways),1,7,1.792923885791409,0.4679766133302573,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Aspirin ADME (Reactome),1,7,1.792923885791409,0.4679766133302573,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Cell recruitment (pro-inflammatory response) (Reactome),1,7,1.792923885791409,0.4679766133302573,Uridine Monophosphate,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Glycolysis (Reactome),1,7,1.792923885791409,0.4679766133302573,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Nicotinate metabolism (Reactome),1,7,1.792923885791409,0.4679766133302573,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Phenylalanine and Tyrosine Metabolism (KEGG),1,7,1.792923885791409,0.4679766133302573,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Purinergic signaling in leishmaniasis infection (Reactome),1,7,1.792923885791409,0.4679766133302573,Uridine Monophosphate,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Pyrimidine salvage (Reactome),1,7,1.792923885791409,0.4679766133302573,Uridine Monophosphate,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Selenocompound metabolism (KEGG),1,7,1.792923885791409,0.4679766133302573,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Serine metabolism (WikiPathways),1,7,1.792923885791409,0.4679766133302573,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+TCA cycle (aka Krebs or citric acid cycle) (WikiPathways),1,7,1.792923885791409,0.4679766133302573,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Creatine metabolism (Reactome),1,8,1.5342130912197622,0.5141948612069722,Phosphocreatine,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Fructose and mannose metabolism (KEGG),1,8,1.5342130912197622,0.5141948612069722,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Gluconeogenesis (Reactome),1,8,1.5342130912197622,0.5141948612069722,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Glutathione metabolism (KEGG),1,8,1.5342130912197622,0.5141948612069722,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Glyoxylate metabolism (WikiPathways),1,8,1.5342130912197622,0.5141948612069722,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Glyoxylate metabolism and glycine degradation (Reactome),1,8,1.5342130912197622,0.5141948612069722,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Methionine metabolism leading to sulfur amino acids and related disorders (WikiPathways),1,8,1.5342130912197622,0.5141948612069722,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Nicotinate and nicotinamide metabolism (KEGG),1,8,1.5342130912197622,0.5141948612069722,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Amino acid metabolism in triple-negative breast cancer cells (WikiPathways),1,9,1.340061670781896,0.55647964117928606,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Degradation of cysteine and homocysteine (Reactome),1,9,1.340061670781896,0.55647964117928606,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Folate metabolism (WikiPathways),1,9,1.340061670781896,0.55647964117928606,Adenosine Triphosphate (Atp),0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Phenylalanine and tyrosine metabolism (Reactome),1,9,1.340061670781896,0.55647964117928606,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Propanoate metabolism (KEGG),1,9,1.340061670781896,0.55647964117928606,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+"Valine, leucine and isoleucine degradation (KEGG)",1,9,1.340061670781896,0.55647964117928606,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Alanine and aspartate metabolism (WikiPathways),1,10,1.1889720741836627,0.5951587422392319,Pyruvic Acid,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+GABA metabolism (aka GHB) (WikiPathways),1,10,1.1889720741836627,0.5951587422392319,N-Acetylputrescine,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Glucose metabolism (Reactome),1,10,1.1889720741836627,0.5951587422392319,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Glutamate and glutamine metabolism (Reactome),1,10,1.1889720741836627,0.5951587422392319,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Histidine metabolism (KEGG),1,10,1.1889720741836627,0.5951587422392319,Adenosine Triphosphate (Atp),0.6792572601643407,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Pyruvate metabolism (Reactome),1,10,1.1889720741836627,0.5951587422392319,Pyruvic Acid,0.6792572601643407,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Urea cycle and metabolism of amino groups (WikiPathways),1,10,1.1889720741836627,0.5951587422392319,Phosphocreatine,0.6792572601643407,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+"Alanine, aspartate and glutamate metabolism (KEGG)",2,23,1.016580953121417,0.6038582224308249,Pyruvic Acid;Adenosine Triphosphate (Atp),0.6817754124218991,KEGG,Factor2 top 100 |weight| (positive),positive,100
+Glycerophospholipid biosynthetic pathway (WikiPathways),1,11,1.0680691890240723,0.6305332210726972,Adenosine Triphosphate (Atp),0.6825359609549814,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+"Metabolism of ingested SeMet, Sec, MeSec into H2Se (Reactome)",1,11,1.0680691890240723,0.6305332210726972,Pyruvic Acid,0.6825359609549814,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,11,1.0680691890240723,0.6305332210726972,1-Methyladenosine,0.6825359609549814,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Nucleotide biosynthesis (Reactome),1,11,1.0680691890240723,0.6305332210726972,Uridine Monophosphate,0.6825359609549814,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Tryptophan catabolism (Reactome),1,12,0.9690647725973551,0.6628795344029086,Pyruvic Acid,0.7102280725745449,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Cysteine and methionine catabolism (WikiPathways),1,13,0.8865472119146983,0.6924515050693201,Pyruvic Acid,0.7344182629523092,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Sulfur amino acid metabolism (Reactome),1,14,0.8166996539368692,0.7194821345065867,Pyruvic Acid,0.7554562412319161,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Glucose homeostasis (WikiPathways),1,16,0.7049614050917165,0.7667571609924113,Pyruvic Acid,0.7893088421980704,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+Nucleotide salvage (Reactome),1,16,0.7049614050917165,0.7667571609924113,Uridine Monophosphate,0.7893088421980704,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Metabolism overview (WikiPathways),1,18,0.6194542941448267,0.8062124839902298,Pyruvic Acid,0.8218670953298459,WikiPathways,Factor2 top 100 |weight| (positive),positive,100
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",1,20,0.5519337845766259,0.8391169760320226,Uridine Monophosphate,0.8471854084938689,Reactome,Factor2 top 100 |weight| (positive),positive,100
+Purine metabolism and related disorders (WikiPathways),1,22,0.497261581644712,0.866537632875221,Adenosine Triphosphate (Atp),0.866537632875221,WikiPathways,Factor2 top 100 |weight| (positive),positive,100

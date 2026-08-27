@@ -10,6 +10,7 @@
 *.rds
 *.sif
 *.parquet
+*.tsv.bgz
 
 # Large Results CSVs
 results/gene-hormone/gene_hormone_csv/

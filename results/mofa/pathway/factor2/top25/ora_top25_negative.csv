@@ -1,0 +1,28 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source,analysis,direction,top_n
+15q25 copy number variation (WikiPathways),1,5,9.623036231394673,0.1268677600178496,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Abacavir ADME (Reactome),1,5,9.623036231394673,0.1268677600178496,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Abacavir metabolism (Reactome),1,5,9.623036231394673,0.1268677600178496,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Nucleotide salvage defects (Reactome),1,5,9.623036231394673,0.1268677600178496,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Defective SLC29A3 causes histiocytosis-lymphadenopathy plus syndrome (HLAS) (Reactome),1,6,7.704151122461318,0.15037516647890747,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Phospholipid Biosynthesis (KEGG),1,6,7.704151122461318,0.15037516647890747,1-Palmitoyl-Sn-Glycero-3-Phosphocholine,0.4038983858058731,KEGG,Factor2 top 25 |weight| (negative),negative,25
+Diseases of nucleotide metabolism (Reactome),1,7,6.418071837639076,0.17329375543708736,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Selenocompound metabolism (KEGG),1,7,6.418071837639076,0.17329375543708736,Adenosine,0.4038983858058731,KEGG,Factor2 top 25 |weight| (negative),negative,25
+T cell modulation in pancreatic cancer (WikiPathways),1,7,6.418071837639076,0.17329375543708736,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Methionine metabolism leading to sulfur amino acids and related disorders (WikiPathways),1,8,5.497242885560095,0.1956371674523013,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Tyrosine metabolism (KEGG),1,8,5.497242885560095,0.1956371674523013,Dehydroascorbic Acid,0.4038983858058731,KEGG,Factor2 top 25 |weight| (negative),negative,25
+Purinergic signaling (WikiPathways),1,9,4.806128965208444,0.2174187528597824,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+16p11.2 proximal deletion syndrome (WikiPathways),1,10,4.267538007493433,0.23865157739459453,1-Palmitoyl-Sn-Glycero-3-Phosphocholine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Purine salvage (Reactome),1,10,4.267538007493433,0.23865157739459453,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+"Metabolism of ingested SeMet, Sec, MeSec into H2Se (Reactome)",1,11,3.8353695302266124,0.2593484277178483,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,11,3.8353695302266124,0.2593484277178483,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Methionine de novo and salvage pathway (WikiPathways),1,12,3.481568701167074,0.27952181684615596,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),1,12,3.481568701167074,0.27952181684615596,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Cysteine and methionine catabolism (WikiPathways),1,13,3.1865676799858185,0.2991839894858319,Adenosine,0.4038983858058731,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Purine catabolism (Reactome),1,13,3.1865676799858185,0.2991839894858319,Adenosine,0.4038983858058731,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Sulfur amino acid metabolism (Reactome),1,14,2.936762271302234,0.3183469272733289,Adenosine,0.40930319220856576,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Nucleotide salvage (Reactome),1,16,2.5368676539419655,0.3552217402862625,Adenosine,0.4195758479801814,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Methionine Metabolism (KEGG),1,17,2.3739871466480125,0.37295630931571677,Adenosine,0.4195758479801814,KEGG,Factor2 top 25 |weight| (negative),negative,25
+Purine metabolism (WikiPathways),1,17,2.3739871466480125,0.37295630931571677,Adenosine,0.4195758479801814,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",1,20,1.9883571512512572,0.42347972536413003,Adenosine,0.45735810339326044,Reactome,Factor2 top 25 |weight| (negative),negative,25
+Purine metabolism and related disorders (WikiPathways),1,22,1.7922562840416938,0.45503295271631305,Adenosine,0.47253422012847895,WikiPathways,Factor2 top 25 |weight| (negative),negative,25
+Nucleotide catabolism (Reactome),1,26,1.4940058178675457,0.5133858631893844,Adenosine,0.5133858631893844,Reactome,Factor2 top 25 |weight| (negative),negative,25

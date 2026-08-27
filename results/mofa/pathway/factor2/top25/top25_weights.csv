@@ -1,0 +1,26 @@
+feature,Compound.ID,Name,weight
+Tg(49:11_2:0),C8-Pos-004921,Tg(49:11_2:0),0.4328131675720215
+(+/-)5-Hepe,C8-Pos-000501,(±)5-Hepe,-0.3639065623283386
+1-Palmitoyl-Sn-Glycero-3-Phosphocholine,C8-Pos-002038,1-Palmitoyl-Sn-Glycero-3-Phosphocholine,-0.3312201499938965
+Lpc 14:0-Sn2,C8-Pos-001973,Lpc 14:0-Sn2,-0.32045724987983704
+Pc(14:0_4:1cho),C8-Neg-002453,Pc(14:0_4:1cho),-0.3162934184074402
+Pi(18:0_22:6),C8-Pos-005434,Pi(18:0_22:6),0.2995218336582184
+Glu-Glu-Glu,Amide-Pos-001625,Glu-Glu-Glu,-0.29615283012390137
+Pe(O-17:3_21:1),C8-Pos-004072,Pe(O-17:3_21:1),0.29570189118385315
+Gamma-Glu-Glu,Amide-Pos-001102,Gamma-Glu-Glu,0.29273688793182373
+N-Acetylputrescine,Amide-Pos-000336,N-Acetylputrescine,0.28640061616897583
+Pe 16:1_16:1,C8-Pos-003535,Pe 16:1_16:1,0.2835341989994049
+Dehydroascorbic Acid,Amide-Neg-000678,Dehydroascorbic Acid,-0.2769685387611389
+N-Acetyl-L-Valine,Amide-Neg-000574,N-Acetyl-L-Valine,-0.2728717625141144
+Adenosine,Amide-Pos-001066,Adenosine,-0.2725084125995636
+Lpc(14:0),C8-Neg-001710,Lpc(14:0),-0.2691159248352051
+1-(1z-Octadecenyl)-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,C8-Pos-004250,1-(1z-Octadecenyl)-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,0.2673417925834656
+Cholest-4-En-3-One,C8-Pos-001061,Cholest-4-En-3-One,-0.2632368206977844
+Dihydronicotinamide-Adenine Dinucleotide,Amide-Pos-002120,Dihydronicotinamide-Adenine Dinucleotide,0.26216042041778564
+Pc O-42:6,C8-Pos-004947,Pc O-42:6,0.25921711325645447
+N8-Acetylspermidine,Amide-Pos-000661,N8-Acetylspermidine,0.2543255090713501
+Pyruvic Acid,Amide-Neg-000032,Pyruvic Acid,0.2504562437534332
+Pc(18:2_20:4cooh),C8-Pos-005013,Pc(18:2_20:4cooh),-0.24994595348834991
+Pro-Glu,Amide-Pos-000960,Pro-Glu,-0.24667662382125857
+Pc 38:4,C8-Pos-004446,Pc 38:4,-0.24051791429519653
+Lpc 20:3-Sn1,C8-Pos-002542,Lpc 20:3-Sn1,-0.22564597427845

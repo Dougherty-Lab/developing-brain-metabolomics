@@ -1,0 +1,60 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source,analysis,direction,top_n
+Glycolysis in senescence (WikiPathways),1,5,12.532284821385307,0.10083164155695867,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Nicotinamide salvaging (Reactome),1,5,12.532284821385307,0.10083164155695867,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Phenylalanine metabolism (Reactome),1,5,12.532284821385307,0.10083164155695867,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Serine biosynthesis (Reactome),1,5,12.532284821385307,0.10083164155695867,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Synthesis of wybutosine at G37 of tRNA(Phe) (Reactome),1,5,12.532284821385307,0.10083164155695867,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Acetylcholine synthesis (WikiPathways),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Disorders of fructose metabolism (WikiPathways),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Glycine metabolism (WikiPathways),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+HIF1A and PPARG in cardiac hypertropthy (WikiPathways),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Organic anion transporters (Reactome),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Sialic acid metabolism (Reactome),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+tRNA modification in the nucleus and cytosol (Reactome),1,6,10.03829567148838,0.1198525106778695,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Amino acid metabolism pathway excerpt: histidine catabolism extension (WikiPathways),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Aspirin ADME (Reactome),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Glycolysis (Reactome),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Lactate shuttle in glial cells (WikiPathways),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Metabolic reprogramming in pancreatic cancer (WikiPathways),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Nicotinate metabolism (Reactome),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Serine metabolism (WikiPathways),1,7,8.368881867441374,0.13850688906427322,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Aerobic glycolysis (WikiPathways),1,8,7.17282314471852,0.1568011443158035,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Gluconeogenesis (Reactome),1,8,7.17282314471852,0.1568011443158035,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Glyoxylate metabolism (WikiPathways),1,8,7.17282314471852,0.1568011443158035,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Glyoxylate metabolism and glycine degradation (Reactome),1,8,7.17282314471852,0.1568011443158035,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Thiamine metabolic pathways (WikiPathways),1,8,7.17282314471852,0.1568011443158035,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Trans-sulfuration pathway (WikiPathways),1,8,7.17282314471852,0.1568011443158035,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Amino acid metabolism in triple-negative breast cancer cells (WikiPathways),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Citric Acid Cycle (KEGG),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Cori cycle (WikiPathways),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Degradation of cysteine and homocysteine (Reactome),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Glycolysis and gluconeogenesis (WikiPathways),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Phenylalanine and tyrosine metabolism (Reactome),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Pyrimidine catabolism (Reactome),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Pyruvate metabolism (KEGG),1,9,6.270796128561701,0.1747415455005742,Pyruvic Acid,0.27677369768338045,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Alanine and aspartate metabolism (WikiPathways),1,10,5.569066572838951,0.19233426449184066,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+GABA metabolism (aka GHB) (WikiPathways),1,10,5.569066572838951,0.19233426449184066,N-Acetylputrescine,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Glucose metabolism (Reactome),1,10,5.569066572838951,0.19233426449184066,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Glutamate and glutamine metabolism (Reactome),1,10,5.569066572838951,0.19233426449184066,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Krebs cycle disorders (WikiPathways),1,10,5.569066572838951,0.19233426449184066,Pyruvic Acid,0.27677369768338045,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Pyruvate metabolism (Reactome),1,10,5.569066572838951,0.19233426449184066,Pyruvic Acid,0.27677369768338045,Reactome,Factor2 top 25 |weight| (positive),positive,25
+"Metabolism of ingested SeMet, Sec, MeSec into H2Se (Reactome)",1,11,5.006382517492574,0.20958537728910231,Pyruvic Acid,0.2905119794370109,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Aerobic glycolysis - augmented (WikiPathways),1,12,4.545070606755205,0.22650086532377123,Pyruvic Acid,0.2905119794370109,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Methionine de novo and salvage pathway (WikiPathways),1,12,4.545070606755205,0.22650086532377123,Pyruvic Acid,0.2905119794370109,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Nitrogen metabolism (KEGG),1,12,4.545070606755205,0.22650086532377123,Pyruvic Acid,0.2905119794370109,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Tryptophan catabolism (Reactome),1,12,4.545070606755205,0.22650086532377123,Pyruvic Acid,0.2905119794370109,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Cysteine and methionine catabolism (WikiPathways),1,13,4.160971514795637,0.24308661674957743,Pyruvic Acid,0.2926961303719402,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Metabolic pathways of fibroblasts (WikiPathways),1,13,4.160971514795637,0.24308661674957743,Pyruvic Acid,0.2926961303719402,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Urea cycle and associated pathways (WikiPathways),1,13,4.160971514795637,0.24308661674957743,Pyruvic Acid,0.2926961303719402,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Metabolic reprogramming in colon cancer (WikiPathways),1,14,3.8353695302266115,0.2593484277178484,Pyruvic Acid,0.3000305340265305,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Sulfur amino acid metabolism (Reactome),1,14,3.8353695302266115,0.2593484277178484,Pyruvic Acid,0.3000305340265305,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Arginine and proline metabolism (KEGG),1,15,3.555603677970691,0.27529200363781636,Pyruvic Acid,0.3064571361251163,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Synthesis of substrates in N-glycan biosythesis (Reactome),1,15,3.555603677970691,0.27529200363781636,Pyruvic Acid,0.3064571361251163,Reactome,Factor2 top 25 |weight| (positive),positive,25
+Amino Sugar Metabolism (KEGG),1,16,3.3133795878393077,0.290922960422099,Pyruvic Acid,0.31208099390734256,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Glucose homeostasis (WikiPathways),1,16,3.3133795878393077,0.290922960422099,Pyruvic Acid,0.31208099390734256,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+Methionine Metabolism (KEGG),1,17,3.1011423977905532,0.3062468257174954,Pyruvic Acid,0.32265290566664695,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Metabolism overview (WikiPathways),1,18,2.9137685643825844,0.3212690401212508,Pyruvic Acid,0.33254163802024206,WikiPathways,Factor2 top 25 |weight| (positive),positive,25
+"Alanine, aspartate and glutamate metabolism (KEGG)",1,23,2.2314674492877584,0.39203982644330315,Pyruvic Acid,0.39879913379577386,KEGG,Factor2 top 25 |weight| (positive),positive,25
+Nucleotide catabolism (Reactome),1,26,1.9526672145727269,0.4312124073901059,Pyruvic Acid,0.4312124073901059,Reactome,Factor2 top 25 |weight| (positive),positive,25

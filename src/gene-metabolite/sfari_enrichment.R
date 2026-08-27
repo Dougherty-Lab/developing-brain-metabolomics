@@ -5,13 +5,21 @@
 #
 #   Test 1: Are SFARI genes enriched among genes with ANY significant
 #           gene-metabolite association?
-#           Foreground = hit genes (542), Background = all pseudobulk genes (~20k)
+#           Foreground = hit genes, Background = TESTED gene universe
 #
 #   Test 2: Among hit genes, are SFARI genes more likely to be hubs
 #           (>= N distinct metabolite associations)?
-#           Foreground = hub genes, Background = hit genes (542)
+#           Foreground = hub genes, Background = hit genes
 #
 # Each test: Fisher's exact + Wilcoxon rank-sum + SFARI score stratification.
+#
+# Background note (Test 1): the background is the set of genes that actually
+# entered a limma model -- i.e. every gene appearing in the parquet archive --
+# NOT colnames(pb_base$counts). Genes dropped by the per-cell-type expression
+# filter had zero opportunity to become a hit; including them inflates the
+# non-hit/non-SFARI cell and biases the OR upward. 
+# Universe = union over cell types (a gene tested in >=1 cell type), which
+# matches the foreground definition ("a hit in >=1 cell type").
 #
 # Run from src/gene-metabolite/:
 #   Rscript sfari_enrichment.R
@@ -19,6 +27,7 @@
 
 suppressPackageStartupMessages({
   library(tidyverse)
+  library(arrow)
   library(cowplot)
   library(svglite)
 })
@@ -26,20 +35,55 @@ suppressPackageStartupMessages({
 source("pseudobulk_functions.R")
 
 # ---- Config ----------------------------------------------------------------
-hits_path  <- "../../results/gene-metabolite/csv-log2_na/metabolite_gene_hits.csv"
+# METHOD keys the parquet archive, the hits CSV, and the cached gene universe
+# together so a run can never mix transforms.
+METHOD      <- "log2_na"                       # "int" | "zscore" | "zscore_trim" | "log2_na"
+suffix      <- if (METHOD == "int") "" else paste0("-", METHOD)
+parquet_dir <- if (METHOD == "int") {
+  "../../results/gene-metabolite/parquet"
+} else {
+  sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
+}
+
+hits_path  <- sprintf("../../results/gene-metabolite/csv%s/metabolite_gene_hits.csv", suffix)
 sfari_path <- "../../doc/gene_lists/SFARI-Gene_genes_07-12-2026release_08-13-2026export.csv"
 cache_dir  <- "../../data/cache"
 out_dir    <- "../../results/gene-metabolite/sfari-enrichment"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 MIN_METAB_RECURRENCE <- 5
+REBUILD_UNIVERSE     <- FALSE   # TRUE to force a re-scan of the parquet archive
 
 # ---- Load data -------------------------------------------------------------
 hits <- read_csv(hits_path, show_col_types = FALSE)
 
+# ---- Tested-gene universe (Test 1 background) ------------------------------
+# Union of genes that entered >=1 limma model, scanned once from the parquet
+# archive and cached. distinct() on a single column is a cheap Arrow query --
+# only the `gene` column is read -- but it still touches every file, so cache it.
+universe_cache <- file.path(cache_dir,
+                            sprintf("tested_gene_universe_%s.rds", METHOD))
+
+if (!REBUILD_UNIVERSE && file.exists(universe_cache)) {
+  background_genes <- readRDS(universe_cache)
+  cat(sprintf("Tested-gene universe (cached): %d\n", length(background_genes)))
+} else {
+  cat("Scanning parquet archive for tested-gene universe ...\n")
+  background_genes <- open_dataset(parquet_dir) |>
+    dplyr::distinct(gene) |>
+    collect() |>
+    dplyr::pull(gene) |>
+    unique() |>
+    sort()
+  saveRDS(background_genes, universe_cache)
+  cat(sprintf("Tested-gene universe (scanned, cached to %s): %d\n",
+              universe_cache, length(background_genes)))
+}
+
+# Sanity check against the unfiltered pseudobulk matrix, for reporting only.
 pb_base <- readRDS(file.path(cache_dir, "pb_base.rds"))
-background_genes <- colnames(pb_base$counts)
-cat(sprintf("Background genes (from pseudobulk): %d\n", length(background_genes)))
+cat(sprintf("  (pseudobulk matrix has %d genes; %d dropped by expression filtering)\n",
+            ncol(pb_base$counts), ncol(pb_base$counts) - length(background_genes)))
 cat(sprintf("Gene-metabolite hits: %d associations, %d unique genes\n",
             nrow(hits), n_distinct(hits$gene)))
 
@@ -51,8 +95,10 @@ sfari_symbols <- sfari$symbol
 sfari_ensembl <- sfari$ensembl
 
 # ---- SFARI lookup -----------------------------------------------------------
-sfari_by_sym <- sfari |> dplyr::select(symbol, score) |> deframe()
-sfari_by_ens <- sfari |> dplyr::select(ensembl, score) |> deframe()
+sfari_by_sym <- sfari |> dplyr::filter(!is.na(symbol),  symbol  != "") |>
+  dplyr::select(symbol, score)  |> deframe()
+sfari_by_ens <- sfari |> dplyr::filter(!is.na(ensembl), ensembl != "") |>
+  dplyr::select(ensembl, score) |> deframe()
 
 is_sfari_gene <- function(g) g %in% sfari_symbols | g %in% sfari_ensembl
 
@@ -104,14 +150,81 @@ run_fisher <- function(fg, bg, label_fg, label_bg) {
   ft
 }
 
+# ---- Helper: SFARI score-stratified Fisher ---------------------------------
+# For each SFARI score s, ask whether score-s genes are over-represented in the
+# foreground relative to NON-SFARI genes, with both restricted to `bg`. Using
+# non-SFARI (rather than all-other) as the comparator keeps every score's test
+# against the same reference group, so ORs are comparable across scores.
+#
+# `bg` MUST be the tested/eligible universe: a SFARI gene that never entered a
+# model is not a failed foreground, it is an unobserved one, and counting it as
+# a non-foreground SFARI gene deflates the OR.
+#
+# p is one-sided (greater), matching run_fisher(); the CI comes from the
+# two-sided test because the one-sided interval is [lo, Inf) and cannot be drawn.
+run_score_strata <- function(fg, bg, test_label, fg_label) {
+  bg     <- unique(bg)
+  in_fg  <- bg %in% unique(fg)
+  is_s   <- is_sfari_gene(bg)
+  scores <- get_sfari_score(bg)
+
+  ns_fg    <- sum(!is_s &  in_fg)
+  ns_nonfg <- sum(!is_s & !in_fg)
+
+  one_row <- function(sel, label, n_pool) {
+    s_fg    <- sum(sel &  in_fg)
+    s_nonfg <- sum(sel & !in_fg)
+    mat <- matrix(c(s_fg, ns_fg, s_nonfg, ns_nonfg), nrow = 2)
+    ft1 <- fisher.test(mat, alternative = "greater")
+    ft2 <- fisher.test(mat)                       # two-sided, for the CI only
+    tibble(test = test_label, stratum = label,
+           n_tested = n_pool, n_fg = s_fg,
+           pct_fg = 100 * s_fg / max(n_pool, 1),
+           OR = unname(ft1$estimate),
+           ci_lo = ft2$conf.int[1], ci_hi = ft2$conf.int[2],
+           p = ft1$p.value)
+  }
+
+  rows <- purrr::map_dfr(
+    sort(unique(scores[!is.na(scores)])),
+    ~ one_row(!is.na(scores) & scores == .x, paste("Score", .x),
+              sum(!is.na(scores) & scores == .x))
+  )
+
+  # Unscored (syndromic-only) SFARI genes and an all-SFARI reference row.
+  n_unscored <- sum(is_s & is.na(scores))
+  if (n_unscored > 0)
+    rows <- bind_rows(rows, one_row(is_s & is.na(scores), "Unscored", n_unscored))
+  rows <- bind_rows(rows, one_row(is_s, "All SFARI", sum(is_s)))
+
+  cat(sprintf("\n--- SFARI score stratification (%s) ---\n", test_label))
+  cat(sprintf("  Comparator: %d non-SFARI genes (%d %s)\n",
+              ns_fg + ns_nonfg, ns_fg, fg_label))
+  for (i in seq_len(nrow(rows)))
+    cat(sprintf("  %-10s %3d/%4d %s (%.1f%%), OR=%.2f [%.2f, %.2f], p=%.2e\n",
+                rows$stratum[i], rows$n_fg[i], rows$n_tested[i], fg_label,
+                rows$pct_fg[i], rows$OR[i], rows$ci_lo[i], rows$ci_hi[i],
+                rows$p[i]))
+  rows
+}
+
 # ---- TEST 1: SFARI enrichment among hit genes ------------------------------
 cat("\n##########################################################\n")
 cat("TEST 1: Are SFARI genes enriched among significant genes?\n")
 cat("  Foreground: genes with any hit (", length(hit_genes), ")\n")
-cat("  Background: all pseudobulk genes (", length(background_genes), ")\n")
+cat("  Background: tested-gene universe (", length(background_genes), ")\n")
 cat("##########################################################\n")
 
+# Every hit gene must be in the tested universe by construction; a non-empty
+# setdiff means the hits CSV and the parquet archive came from different runs.
+orphan_hits <- setdiff(hit_genes, background_genes)
+if (length(orphan_hits) > 0)
+  warning(sprintf("%d hit genes absent from the tested universe (METHOD/run mismatch?): %s",
+                  length(orphan_hits),
+                  paste(head(orphan_hits, 5), collapse = ", ")))
+
 fisher_t1 <- run_fisher(hit_genes, background_genes, "Hit", "Background")
+strata_t1 <- run_score_strata(hit_genes, background_genes, "Test 1", "hit")
 
 # Wilcoxon: do SFARI genes have more associations than non-SFARI (among all genes)?
 full_df <- tibble(gene = background_genes) |>
@@ -161,22 +274,53 @@ sfari_hits |>
             median_metab = median(n_metabolites), .groups = "drop") |>
   print()
 
-non_sfari_hits <- hit_recur |> filter(!is_sfari)
-ns_hub    <- sum(non_sfari_hits$is_hub)
-ns_nonhub <- sum(!non_sfari_hits$is_hub)
+strata_t2 <- run_score_strata(hub_genes, hit_genes, "Test 2", "hub")
 
-for (s in sort(unique(sfari_hits$sfari_score))) {
-  s_hub    <- sum(sfari_hits$sfari_score == s & sfari_hits$is_hub)
-  s_nonhub <- sum(sfari_hits$sfari_score == s & !sfari_hits$is_hub)
-  mat <- matrix(c(s_hub, ns_hub, s_nonhub, ns_nonhub), nrow = 2)
-  ft  <- fisher.test(mat, alternative = "greater")
-  cat(sprintf("  Score %s: %d/%d hub (%.0f%%), OR=%.2f, p=%.2e\n",
-              s, s_hub, s_hub + s_nonhub,
-              100 * s_hub / max(s_hub + s_nonhub, 1),
-              ft$estimate, ft$p.value))
-}
+# Both tests share the helper, so the score axis is defined identically:
+# Test 1 asks "does this score reach ANY association?", Test 2 asks "given an
+# association, does this score reach hub status?".
+strata_all <- bind_rows(strata_t1, strata_t2)
+write_csv(strata_all, file.path(out_dir, "sfari_score_stratified_enrichment.csv"))
 
 # ---- Visualizations --------------------------------------------------------
+
+# A0) Score-stratified OR forest, both tests. Log x-axis so OR and 1/OR are
+# symmetric about the null. Zero-count strata give OR = 0 or Inf with an
+# unbounded CI; those are dropped from the panel and reported in the CSV only.
+forest_df <- strata_all |>
+  mutate(stratum = factor(stratum,
+                          levels = rev(c("Score 1", "Score 2", "Score 3",
+                                         "Unscored", "All SFARI"))),
+         test = factor(test, levels = c("Test 1", "Test 2")),
+         sig  = ifelse(p < 0.05, "p < 0.05", "n.s."),
+         lab  = sprintf("%d/%d", n_fg, n_tested)) |>
+  filter(is.finite(OR), OR > 0, is.finite(ci_hi))
+
+if (nrow(forest_df) < nrow(strata_all))
+  cat(sprintf("\nNote: %d stratum/strata with unbounded OR omitted from the forest plot.\n",
+              nrow(strata_all) - nrow(forest_df)))
+
+p_forest <- ggplot(forest_df, aes(x = OR, y = stratum, color = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "grey50") +
+  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, linewidth = 0.6) +
+  geom_point(size = 3) +
+  geom_text(aes(label = lab), vjust = -1.1, size = 3, show.legend = FALSE) +
+  facet_wrap(~ test, ncol = 1, scales = "free_y",
+             labeller = as_labeller(c(
+               "Test 1" = "Test 1: any association (vs tested universe)",
+               "Test 2" = "Test 2: hub status (vs all hit genes)"))) +
+  scale_x_log10() +
+  scale_color_manual(values = c("p < 0.05" = "#E15759", "n.s." = "grey55"),
+                     name = NULL) +
+  labs(x = "Odds ratio vs non-SFARI genes (log scale)", y = NULL,
+       title = "SFARI enrichment by gene score",
+       caption = "Points labelled foreground/tested. p one-sided (greater); CI two-sided.") +
+  theme_cowplot(12) +
+  theme(legend.position = "bottom",
+        strip.background = element_rect(fill = "grey92", color = NA))
+
+save_dual_format(p_forest, out_dir, "sfari_score_forest", width = 8, height = 7)
+print(p_forest)
 
 # A) Recurrence distribution among hit genes: SFARI vs non-SFARI
 p_dist <- ggplot(hit_recur |> mutate(group = ifelse(is_sfari, "SFARI", "Non-SFARI")),
@@ -231,7 +375,9 @@ print(p_hub)
 
 # ---- Summary ---------------------------------------------------------------
 cat("\n========== SUMMARY ==========\n")
-cat(sprintf("Test 1 (SFARI in hits vs background): Fisher OR=%.2f, p=%.2e\n",
+cat(sprintf("Method: %s | background = %d tested genes (union across cell types)\n",
+            METHOD, length(background_genes)))
+cat(sprintf("Test 1 (SFARI in hits vs tested universe): Fisher OR=%.2f, p=%.2e\n",
             fisher_t1$estimate, fisher_t1$p.value))
 cat(sprintf("Test 2 (SFARI hubs vs hits):          Fisher OR=%.2f, p=%.2e; Wilcoxon p=%.2e\n",
             fisher_t2$estimate, fisher_t2$p.value, wilcox_t2$p.value))

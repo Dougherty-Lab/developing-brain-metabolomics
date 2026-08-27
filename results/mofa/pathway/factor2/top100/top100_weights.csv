@@ -1,0 +1,101 @@
+feature,Compound.ID,Name,weight
+Tg(49:11_2:0),C8-Pos-004921,Tg(49:11_2:0),0.4328131675720215
+(+/-)5-Hepe,C8-Pos-000501,(±)5-Hepe,-0.3639065623283386
+1-Palmitoyl-Sn-Glycero-3-Phosphocholine,C8-Pos-002038,1-Palmitoyl-Sn-Glycero-3-Phosphocholine,-0.3312201499938965
+Lpc 14:0-Sn2,C8-Pos-001973,Lpc 14:0-Sn2,-0.32045724987983704
+Pc(14:0_4:1cho),C8-Neg-002453,Pc(14:0_4:1cho),-0.3162934184074402
+Pi(18:0_22:6),C8-Pos-005434,Pi(18:0_22:6),0.2995218336582184
+Glu-Glu-Glu,Amide-Pos-001625,Glu-Glu-Glu,-0.29615283012390137
+Pe(O-17:3_21:1),C8-Pos-004072,Pe(O-17:3_21:1),0.29570189118385315
+Gamma-Glu-Glu,Amide-Pos-001102,Gamma-Glu-Glu,0.29273688793182373
+N-Acetylputrescine,Amide-Pos-000336,N-Acetylputrescine,0.28640061616897583
+Pe 16:1_16:1,C8-Pos-003535,Pe 16:1_16:1,0.2835341989994049
+Dehydroascorbic Acid,Amide-Neg-000678,Dehydroascorbic Acid,-0.2769685387611389
+N-Acetyl-L-Valine,Amide-Neg-000574,N-Acetyl-L-Valine,-0.2728717625141144
+Adenosine,Amide-Pos-001066,Adenosine,-0.2725084125995636
+Lpc(14:0),C8-Neg-001710,Lpc(14:0),-0.2691159248352051
+1-(1z-Octadecenyl)-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,C8-Pos-004250,1-(1z-Octadecenyl)-2-(9z-Octadecenoyl)-Sn-Glycero-3-Phosphocholine,0.2673417925834656
+Cholest-4-En-3-One,C8-Pos-001061,Cholest-4-En-3-One,-0.2632368206977844
+Dihydronicotinamide-Adenine Dinucleotide,Amide-Pos-002120,Dihydronicotinamide-Adenine Dinucleotide,0.26216042041778564
+Pc O-42:6,C8-Pos-004947,Pc O-42:6,0.25921711325645447
+N8-Acetylspermidine,Amide-Pos-000661,N8-Acetylspermidine,0.2543255090713501
+Pyruvic Acid,Amide-Neg-000032,Pyruvic Acid,0.2504562437534332
+Pc(18:2_20:4cooh),C8-Pos-005013,Pc(18:2_20:4cooh),-0.24994595348834991
+Pro-Glu,Amide-Pos-000960,Pro-Glu,-0.24667662382125857
+Pc 38:4,C8-Pos-004446,Pc 38:4,-0.24051791429519653
+Lpc 20:3-Sn1,C8-Pos-002542,Lpc 20:3-Sn1,-0.22564597427845
+Pseudouridine,Amide-Neg-001331,Pseudouridine,-0.22354422509670255
+3-Methylhistidine,Amide-Pos-000601,3-Methylhistidine,-0.2226756364107132
+5-Methyl D-Glutamate,Amide-Pos-000563,5-Methyl D-Glutamate,0.21352802217006683
+4-(Acetylamino)Butanoic Acid,Amide-Neg-000479,4-(Acetylamino)Butanoic Acid,-0.21098193526268005
+Pc(11:2cho_11:2),C8-Pos-002985,Pc(11:2cho_11:2),-0.21024347841739657
+Ps(18:0_24:6),C8-Neg-003479,Ps(18:0_24:6),-0.2100619077682495
+Uridine Monophosphate,C18-Pos-002017,Uridine Monophosphate,0.20698341727256775
+N-Acetylalanine,Amide-Neg-000318,N-Acetylalanine,-0.2056034356355667
+N-Nervonoyl-D-Erythro-Sphingosylphosphorylcholine,C8-Pos-004641,N-Nervonoyl-D-Erythro-Sphingosylphosphorylcholine,0.20498286187648773
+Sqdg(14:0_30:6),C8-Neg-003807,Sqdg(14:0_30:6),-0.204542338848114
+5-(Z-Heptadec-8-Enyl) Resorcinol,C8-Pos-000887,5-(Z-Heptadec-8-Enyl) Resorcinol,-0.2033262997865677
+Pc(19:1cooh_23:3),C8-Neg-003578,Pc(19:1cooh_23:3),-0.2010214626789093
+S-Adenosylmethionine,Amide-Pos-001585,S-Adenosylmethionine,0.19937701523303983
+Pc(20:4cooh_23:6),C8-Neg-003538,Pc(20:4cooh_23:6),0.19866792857646945
+Pyrrole-2-Carboxylic Acid,Amide-Neg-000142,Pyrrole-2-Carboxylic Acid,0.1983691155910492
+Phosphocreatine,Amide-Neg-001041,Phosphocreatine,0.19624952971935272
+L-N-Acetylhistidine,Amide-Neg-000933,L-N-Acetylhistidine,-0.19495275616645813
+"All-Cis-4,7,10,13,16-Docosapentaenoic Acid",C8-Neg-000540,"All-Cis-4,7,10,13,16-Docosapentaenoic Acid",-0.19435657560825348
+Pc(19:2cooh_21:6),C8-Neg-003658,Pc(19:2cooh_21:6),0.1938129216432571
+Palmitoyl Sphingomyelin,C8-Pos-003642,Palmitoyl Sphingomyelin,0.1937660127878189
+(2s)-2-[(2-Azaniumylacetyl)Amino]-4-Methylpentanoate,C18-Pos-000888,(2s)-2-[(2-Azaniumylacetyl)Amino]-4-Methylpentanoate,-0.1927754431962967
+I-Inositol,Amide-Neg-000766,I-Inositol,-0.1921578347682953
+"N3,N4-Dimethyl-L-Arginine",Amide-Pos-000747,"N3,N4-Dimethyl-L-Arginine",0.19215095043182373
+Docosahexaenoic Acid,C8-Neg-000532,Docosahexaenoic Acid,-0.19165650010108948
+Asp-Pro-Asn,Amide-Pos-001387,Asp-Pro-Asn,-0.1915806233882904
+1-Octadecanoyl-2-Octadecenoyl-Sn-Glycero-3-Phosphocholine,Amide-Pos-002309,1-Octadecanoyl-2-Octadecenoyl-Sn-Glycero-3-Phosphocholine,-0.1905981153249741
+Lpe 22:3,C8-Pos-002412,Lpe 22:3,0.18808461725711825
+Pc(20:0_18:1),C8-Pos-004510,Pc(20:0_18:1),0.1852511316537857
+Pc(21:2cho_19:4),C8-Pos-004942,Pc(21:2cho_19:4),0.18422220647335052
+Pc(O-29:1_5:0),C8-Pos-004203,Pc(O-29:1_5:0),0.18249037861824036
+1-Methyladenosine,Amide-Pos-001132,1-Methyladenosine,0.18024685978889465
+Crotonic Acid,Amide-Pos-000010,Crotonic Acid,-0.18023207783699036
+Dgdg(18:0_11:1),C8-Neg-003439,Dgdg(18:0_11:1),0.180199533700943
+1h-Imidazole-1-Acetic Acid,Amide-Pos-000303,1h-Imidazole-1-Acetic Acid,0.17967768013477323
+Uridine 5'-Triphosphate Sodium Salt,Amide-Neg-002149,Uridine 5'-Triphosphate Sodium Salt,0.17883875966072085
+Dl-Lactic Acid,Amide-Neg-000051,Dl-Lactic Acid,0.17692072689533234
+Adenosine Triphosphate (Atp),Amide-Neg-001422,Adenosine Triphosphate (Atp),0.17655465006828308
+Pa(29:1_20:6),C8-Neg-003516,Pa(29:1_20:6),0.1757589429616928
+Methyl L-Tryptophanate,C18-Pos-001113,Methyl L-Tryptophanate,0.17346389591693878
+Tg(36:6_4:0),C8-Pos-003614,Tg(36:6_4:0),-0.17318545281887054
+Adenine,Amide-Pos-000383,Adenine,-0.17314474284648895
+Pc(O-10:0_23:2),C8-Pos-003714,Pc(O-10:0_23:2),0.1726878434419632
+Oahfa(15:1_25:3),C8-Neg-002832,Oahfa(15:1_25:3),-0.17167732119560242
+Pe(22:2_21:4cooh),C8-Pos-005188,Pe(22:2_21:4cooh),0.17132829129695892
+Pc(O-24:5_10:0),C8-Pos-003944,Pc(O-24:5_10:0),-0.16970789432525635
+1-Stearoylglycerol,C8-Pos-000832,1-Stearoylglycerol,0.16931040585041046
+N-(Octadecanoyl)Sphing-4-Enine-1-Phosphocholine,Amide-Pos-002226,N-(Octadecanoyl)Sphing-4-Enine-1-Phosphocholine,-0.16878703236579895
+Lpi(O-14:1),C8-Neg-001716,Lpi(O-14:1),-0.16640231013298035
+Cl(23:1_19:4cho_22:4_22:4cho),C8-Neg-003382,Cl(23:1_19:4cho_22:4_22:4cho),-0.16594259440898895
+Ps 22:4_22:5,C8-Pos-005189,Ps 22:4_22:5,0.1635349541902542
+Gdp-L-Fucose,Amide-Pos-001983,Gdp-L-Fucose,-0.16332289576530457
+Dl-Arginine,Amide-Neg-000697,Dl-Arginine,-0.16313116252422333
+Pc(14:1_28:3),C8-Pos-005214,Pc(14:1_28:3),0.1629343330860138
+Cyclic Adp-Ribose,C18-Pos-004919,Cyclic Adp-Ribose,-0.16279205679893494
+Xanthosine,C18-Neg-001023,Xanthosine,-0.16216319799423218
+Pe(22:3_26:5),C8-Neg-003594,Pe(22:3_26:5),-0.1614605188369751
+3-Hydroxystigmast-5-En-7-One,C8-Pos-001621,3-Hydroxystigmast-5-En-7-One,-0.1591474860906601
+N-Methyl-D-Glucamine,Amide-Pos-000715,N-Methyl-D-Glucamine,0.1578555554151535
+Ps(20:1_24:6),C8-Neg-003556,Ps(20:1_24:6),-0.15632957220077515
+Oleoyl-L-Carnitine,C18-Pos-003241,Oleoyl-L-Carnitine,0.15601323544979095
+"2-(6-Hydroxy-1-Methyl-2-Methylidene-9-Propan-2-Yl-5-Oxatricyclo[5.4.0.03,8]Undecan-4-Yl)Acetic Acid",C18-Neg-000965,"2-(6-Hydroxy-1-Methyl-2-Methylidene-9-Propan-2-Yl-5-Oxatricyclo[5.4.0.03,8]Undecan-4-Yl)Acetic Acid",0.15477338433265686
+Pc(26:6_21:6cho),C8-Pos-005464,Pc(26:6_21:6cho),-0.15463867783546448
+1-Myristoyl-Sn-Glycero-3-Phosphocholine,Amide-Pos-001743,1-Myristoyl-Sn-Glycero-3-Phosphocholine,-0.1541605293750763
+Pc(22:3cho_28:6),C8-Pos-005761,Pc(22:3cho_28:6),0.1535290628671646
+2-Oxobutanoic Acid,Amide-Neg-000108,2-Oxobutanoic Acid,-0.15266594290733335
+Lpe 24:4,C8-Pos-002633,Lpe 24:4,-0.15200874209403992
+Progesterone,C8-Pos-000616,Progesterone,-0.15147896111011505
+Pc(20:0_22:5),C8-Pos-005193,Pc(20:0_22:5),0.14988963305950165
+Pc(15:1cooh_27:7),C8-Pos-005208,Pc(15:1cooh_27:7),0.14983326196670532
+Histamine,Amide-Neg-000145,Histamine,-0.1486650109291077
+D-Glucose 6-Phosphate,Amide-Neg-001431,D-Glucose 6-Phosphate,0.148039311170578
+Guanine,Amide-Pos-000503,Guanine,-0.14734354615211487
+2-(Alpha-D-Mannopyranosyl)-L-Tryptophan,C18-Pos-002507,2-(Alpha-D-Mannopyranosyl)-L-Tryptophan,-0.14707288146018982
+Maleic Acid,Amide-Neg-000196,Maleic Acid,-0.14680616557598114
+"2,3-Dihydroxypropyl 13-Methyltetradecanoate",C8-Pos-000764,"2,3-Dihydroxypropyl 13-Methyltetradecanoate",-0.1465664654970169

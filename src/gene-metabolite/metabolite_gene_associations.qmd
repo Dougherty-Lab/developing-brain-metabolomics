@@ -324,12 +324,41 @@ gene_by_ct <- hits |>
 
 ct_cols <- setdiff(colnames(gene_by_ct), "gene")
 
+# UpSetR >= 1.4.0: upset() RETURNS an object of class `upset`; all drawing lives
+# in print.upset(). So it cannot be passed to ggsave()/save_dual_format(), and it
+# must be print()-ed explicitly — inside eval() there is no auto-printing, which
+# silently yields a blank file. `expr` is passed unevaluated and forced (and
+# printed) once per device.
+save_dual_format_base <- function(expr, output_dir, filename_base,
+                                  width = 10, height = 6, dpi = 300) {
+  expr     <- substitute(expr)
+  penv     <- parent.frame()
+  svg_out  <- file.path(output_dir, "svg")
+  dir.create(svg_out, recursive = TRUE, showWarnings = FALSE)
+
+  png(file.path(output_dir, paste0(filename_base, ".png")),
+      width = width, height = height, units = "in", res = dpi)
+  print(eval(expr, envir = penv)); dev.off()   # print() is load-bearing
+
+  svglite::svglite(file.path(svg_out, paste0(filename_base, ".svg")),
+                   width = width, height = height)
+  print(eval(expr, envir = penv)); dev.off()
+
+  message("Saved: ", filename_base, ".png  +  svg/", filename_base, ".svg")
+}
+
 if (length(ct_cols) >= 2 && nrow(gene_by_ct) > 0) {
-  UpSetR::upset(
-    as.data.frame(gene_by_ct), sets = ct_cols,
-    nsets = length(ct_cols), nintersects = NA,   # keep all non-empty intersections
-    order.by = "freq", keep.order = TRUE
+  upset_call <- quote(
+    UpSetR::upset(
+      as.data.frame(gene_by_ct), sets = ct_cols,
+      nsets = length(ct_cols), nintersects = NA,   # keep all non-empty intersections
+      order.by = "freq", keep.order = TRUE,
+      text.scale = 1.3
+    )
   )
+  save_dual_format_base(eval(upset_call), out_dir, "upset_genes_by_celltype",
+                        width = 10, height = 6)
+  print(eval(upset_call))   # render inline in the rendered document
 } else {
   cat("Not enough cell types / genes for an UpSet plot.\n")
 }

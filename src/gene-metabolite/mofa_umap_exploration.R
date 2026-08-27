@@ -116,14 +116,50 @@ cat("\n========== MOFA Factor UMAPs ==========\n")
 n_factors <- MOFA2::get_dimensions(mofa)$K
 factor_cols <- paste0("Factor", seq_len(n_factors))
 
+# ---- Shared color scale for the sex-associated factors ----------------------
+# Factor1 and Factor5 are plotted on a COMMON symmetric scale so the panels are
+# directly comparable side by side. Latent factor signs are arbitrary in MOFA
+# (only the factor x weight product is identified), so signs are retained here
+# rather than flipped, and a diverging palette centered at zero is used: warm =
+# positive, cool = negative, magnitude comparable across both panels.
+# Limits are computed on the pseudobulk-sample factor values (not per cell),
+# so replicated cells from the same sample cannot inflate the range.
+shared_factors <- intersect(c("Factor1", "Factor5"), factor_cols)
+
+shared_lim <- max(abs(as.matrix(factor_df[, shared_factors, drop = FALSE])),
+                  na.rm = TRUE)
+shared_lim <- ceiling(shared_lim * 100) / 100  # round up for a clean legend
+cat(sprintf("\nShared symmetric limits for %s: [%.2f, %.2f]\n",
+            paste(shared_factors, collapse = " & "), -shared_lim, shared_lim))
+
+# Returns the appropriate color scale for a given factor:
+#   Factor1 / Factor5 -> shared diverging scale, fixed limits, centered at 0
+#   all others        -> per-factor magma scale (free limits, as before)
+factor_scale <- function(f) {
+  if (f %in% shared_factors) {
+    ggplot2::scale_color_gradient2(
+      low      = "#2166AC",
+      mid      = "grey95",
+      high     = "#B2182B",
+      midpoint = 0,
+      limits   = c(-shared_lim, shared_lim),
+      oob      = scales::squish,
+      na.value = "grey60",
+      name     = f
+    )
+  } else {
+    ggplot2::scale_color_viridis_c(option = "magma", na.value = "grey85",
+                                   name = f)
+  }
+}
+
 # Individual factor plots
 factor_plots <- list()
 for (f in factor_cols) {
   p <- ggplot(cell_factors %>% arrange(!is.na(.data[[f]]), .data[[f]]),
               aes(x = UMAP_1, y = UMAP_2, color = .data[[f]])) +
     geom_point(size = 0.1, alpha = 0.6) +
-    scale_color_viridis_c(option = "magma", na.value = "grey85",
-                          name = f) +
+    factor_scale(f) +
     theme_minimal(base_size = 11) +
     theme(
       panel.grid   = element_blank(),
@@ -159,7 +195,7 @@ for (f in key_factors) {
   p_sex <- ggplot(cell_factors %>% arrange(!is.na(.data[[f]]), .data[[f]]),
                   aes(x = UMAP_1, y = UMAP_2, color = .data[[f]])) +
     geom_point(size = 0.1, alpha = 0.6) +
-    scale_color_viridis_c(option = "magma", na.value = "grey85", name = f) +
+    factor_scale(f) +
     facet_wrap(~ Sex, ncol = 2) +
     theme_minimal(base_size = 11) +
     theme(
