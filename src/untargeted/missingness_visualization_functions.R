@@ -1,3 +1,14 @@
+# missingness_visualization_functions.R
+# ---------------------------------------------------------------------------
+# Missingness visualization helpers: histograms of per-metabolite sample
+# missingness, overall and stratified by sex.
+#
+# Sourced by: Clean_Visualization.Rmd,
+#             Sex_and_GW_Analysis.Rmd,
+#             Neurotransmitter_Analysis.Rmd,
+#             Steroid_Analysis.Rmd
+# ---------------------------------------------------------------------------
+
 # ============================================================================
 # Missingness Visualization Functions
 # ============================================================================
@@ -75,3 +86,7 @@ plot_all_missingness <- function(missing_stats, missing_stats_by_sex = NULL,
 
   return(plots)
 }
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this file was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.

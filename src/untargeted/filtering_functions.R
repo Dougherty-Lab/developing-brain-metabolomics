@@ -1,3 +1,12 @@
+# filtering_functions.R
+# ---------------------------------------------------------------------------
+# Functions for metabolomics sample and metabolite filtering: intensity-based
+# sample outlier removal, detection-based sample outlier removal, retention
+# time filtering, duplicate detection, and missingness filtering.
+#
+# Sourced by: Filtering.Rmd
+# ---------------------------------------------------------------------------
+
 # =============================================================================
 # OUTLIER REMOVAL FUNCTIONS
 # =============================================================================
@@ -20,8 +29,8 @@ remove_intensity_outliers <- function(data,
                                       sample_cols = 4:ncol(data),
                                       save_plot = TRUE,
                                       output_prefix = "intensity_outliers",
-                                      png_path = "../../results/untargeted/Batch 2",
-                                      csv_path = "../../results/untargeted/Batch 2") {
+                                      png_path = NULL,
+                                      csv_path = NULL) {
   # Extract sample columns
   sample_data <- data[, sample_cols]
 
@@ -55,8 +64,8 @@ remove_intensity_outliers <- function(data,
   cat("Outliers detected:", sum(outlier_mask), "\n")
   if (sum(outlier_mask) > 0) {
     cat("\nOutlier samples:\n")
-    print(diagnostic_df %>% filter(IsOutlier) %>%
-      select(Sample, TotalIntensity, ZScore))
+    print(diagnostic_df %>% dplyr::filter(IsOutlier) %>%
+      dplyr::select(Sample, TotalIntensity, ZScore))
   }
   cat("Samples retained:", sum(!outlier_mask), "\n\n")
 
@@ -105,7 +114,7 @@ remove_intensity_outliers <- function(data,
 
   # Filter data to remove outliers
   filtered_data <- data %>%
-    select(-all_of(outlier_samples))
+    dplyr::select(-all_of(outlier_samples))
 
   # Save diagnostic information
   write.csv(diagnostic_df,
@@ -144,8 +153,8 @@ remove_detection_outliers <- function(data,
                                       na_threshold = 0,
                                       save_plot = TRUE,
                                       output_prefix = "detection_outliers",
-                                      png_path = "../../results/untargeted/Batch 2",
-                                      csv_path = "../../results/untargeted/Batch2") {
+                                      png_path = NULL,
+                                      csv_path = NULL) {
   # Extract sample columns
   sample_data <- data[, sample_cols]
 
@@ -181,8 +190,8 @@ remove_detection_outliers <- function(data,
   cat("Outliers detected:", sum(outlier_mask), "\n")
   if (sum(outlier_mask) > 0) {
     cat("\nOutlier samples:\n")
-    print(diagnostic_df %>% filter(IsOutlier) %>%
-      select(Sample, PeaksDetected, DetectionRate, ZScore))
+    print(diagnostic_df %>% dplyr::filter(IsOutlier) %>%
+      dplyr::select(Sample, PeaksDetected, DetectionRate, ZScore))
   }
   cat("Samples retained:", sum(!outlier_mask), "\n")
   cat("Mean detection rate:", round(mean(diagnostic_df$DetectionRate), 2), "%\n\n")
@@ -232,7 +241,7 @@ remove_detection_outliers <- function(data,
 
   # Filter data to remove outliers
   filtered_data <- data %>%
-    select(-all_of(outlier_samples))
+    dplyr::select(-all_of(outlier_samples))
 
   # Save diagnostic information
   write.csv(diagnostic_df,
@@ -279,9 +288,9 @@ detect_rt_threshold_from_density <- function(
   }
 
   # Set defaults if still null
-  if (is.null(png_path)) png_path <- "../../results/untargeted/RT_threshold_diagnostics"
-  if (is.null(svg_path)) svg_path <- "../../results/untargeted/RT_threshold_diagnostics"
-  if (is.null(csv_path)) csv_path <- "../../results/untargeted/RT_threshold_diagnostics"
+  if (is.null(png_path)) stop("png_path must be specified")
+  if (is.null(svg_path)) stop("svg_path must be specified")
+  if (is.null(csv_path)) stop("csv_path must be specified")
 
   # Create output directories if needed
   for (path in c(png_path, svg_path, csv_path)) {
@@ -297,7 +306,7 @@ detect_rt_threshold_from_density <- function(
       Mode = sub(".*-(.*?)-.*", "\\1", Compound.ID),
       RT_min = `RT[min]` # ensure RT column is accessible
     ) %>%
-    select(Compound.ID, Column, Mode, RT_min)
+    dplyr::select(Compound.ID, Column, Mode, RT_min)
 
   # Identify all column-mode combinations if not provided
   if (is.null(column_mode_combinations)) {
@@ -322,7 +331,7 @@ detect_rt_threshold_from_density <- function(
 
     # Filter data for this column-mode
     subset_data <- data_with_colmode %>%
-      filter(Column == col_name, Mode == mode_name) %>%
+      dplyr::filter(Column == col_name, Mode == mode_name) %>%
       pull(RT_min) %>%
       na.omit()
 
@@ -494,12 +503,12 @@ detect_rt_threshold_from_density <- function(
 
       # Filter data and density for this combination
       subset_data <- data_with_colmode %>%
-        filter(Column == col_name, Mode == mode_name) %>%
+        dplyr::filter(Column == col_name, Mode == mode_name) %>%
         pull(RT_min) %>%
         na.omit()
 
       density_subset <- density_data_long %>%
-        filter(Column == col_name, Mode == mode_name)
+        dplyr::filter(Column == col_name, Mode == mode_name)
 
       rt_threshold <- density_subset$RT_threshold[1]
 
@@ -558,7 +567,7 @@ detect_rt_threshold_from_density <- function(
     thresholds_summary = thresholds_df,
     density_data = density_data_long,
     recommended_thresholds = thresholds_df %>%
-      select(Column, Mode, RT_cutoff = RT_threshold) %>%
+      dplyr::select(Column, Mode, RT_cutoff = RT_threshold) %>%
       distinct()
   ))
 }
@@ -587,12 +596,12 @@ apply_density_detected_thresholds <- function(
       RT_min = `RT[min]`
     ) %>%
     left_join(recommended_thresholds, by = c("Column", "Mode")) %>%
-    filter(RT_min >= RT_cutoff) %>%
-    select(Compound.ID)
+    dplyr::filter(RT_min >= RT_cutoff) %>%
+    dplyr::select(Compound.ID)
 
   # Filter dataset
   dataset_filtered <- dataset %>%
-    filter(Compound.ID %in% compound_with_cutoff$Compound.ID)
+    dplyr::filter(Compound.ID %in% compound_with_cutoff$Compound.ID)
 
   # Summary by column-mode
   filtering_summary <- compound_annotation %>%
@@ -745,11 +754,11 @@ filter_metabolites_by_missingness <- function(
   min_detected <- detection_threshold * n_samples
 
   metabolites_to_keep <- missingness_stats %>%
-    filter(detection_rate >= detection_threshold) %>%
+    dplyr::filter(detection_rate >= detection_threshold) %>%
     pull(metabolite_id)
 
   metabolites_to_remove <- missingness_stats %>%
-    filter(detection_rate < detection_threshold) %>%
+    dplyr::filter(detection_rate < detection_threshold) %>%
     pull(metabolite_id)
 
   # ========================================================================
@@ -757,7 +766,7 @@ filter_metabolites_by_missingness <- function(
   # ========================================================================
 
   dataset_filtered <- dataset %>%
-    filter(!!sym(metabolite_id_col) %in% metabolites_to_keep)
+    dplyr::filter(!!sym(metabolite_id_col) %in% metabolites_to_keep)
 
   # ========================================================================
   # FILTER ANNOTATION IF PROVIDED
@@ -766,7 +775,7 @@ filter_metabolites_by_missingness <- function(
   annotation_filtered <- NULL
   if (!is.null(compound_annotation)) {
     annotation_filtered <- compound_annotation %>%
-      filter(Compound.ID %in% metabolites_to_keep)
+      dplyr::filter(Compound.ID %in% metabolites_to_keep)
   }
 
   # ========================================================================
@@ -798,7 +807,7 @@ filter_metabolites_by_missingness <- function(
 
     cat("DETECTION RATE STATISTICS (after filtering):\n")
     filtered_stats <- missingness_stats %>%
-      filter(metabolite_id %in% metabolites_to_keep)
+      dplyr::filter(metabolite_id %in% metabolites_to_keep)
     cat("  Mean detection rate:", round(mean(filtered_stats$detection_rate) * 100, 2), "%\n")
     cat("  Median detection rate:", round(median(filtered_stats$detection_rate) * 100, 2), "%\n")
     cat("  Min detection rate:", round(min(filtered_stats$detection_rate) * 100, 2), "%\n")
@@ -807,7 +816,7 @@ filter_metabolites_by_missingness <- function(
     # Missingness distribution
     cat("METABOLITES REMOVED BY DETECTION RATE:\n")
     removed_stats <- missingness_stats %>%
-      filter(metabolite_id %in% metabolites_to_remove) %>%
+      dplyr::filter(metabolite_id %in% metabolites_to_remove) %>%
       arrange(detection_rate)
 
     rate_bins <- c(0, 0.25, 0.50, 0.75)
@@ -999,12 +1008,12 @@ detect_metabolite_duplicates <- function(
   if (!is.null(compound_annotation)) {
     # Use compound annotation if provided
     metabolite_info <- compound_annotation %>%
-      select(Compound.ID, all_of(name_column)) %>%
+      dplyr::select(Compound.ID, all_of(name_column)) %>%
       distinct()
 
     # Join with dataset
     dataset_with_names <- dataset %>%
-      select(colnames(dataset)[1]) %>%
+      dplyr::select(colnames(dataset)[1]) %>%
       left_join(
         metabolite_info,
         by = setNames("Compound.ID", colnames(dataset)[1])
@@ -1012,7 +1021,7 @@ detect_metabolite_duplicates <- function(
   } else {
     # Assume dataset has a Name column
     dataset_with_names <- dataset %>%
-      select(colnames(dataset)[1], all_of(name_column))
+      dplyr::select(colnames(dataset)[1], all_of(name_column))
   }
 
   # Normalize metabolite name case before duplicate detection
@@ -1032,10 +1041,10 @@ detect_metabolite_duplicates <- function(
 
   # Separate duplicates and unique
   duplicates <- duplicate_summary %>%
-    filter(is_duplicate)
+    dplyr::filter(is_duplicate)
 
   unique_metabolites <- duplicate_summary %>%
-    filter(!is_duplicate)
+    dplyr::filter(!is_duplicate)
 
   # ========================================================================
   # SAVE DUPLICATES TO CSV IF PATH PROVIDED
@@ -1066,7 +1075,7 @@ detect_metabolite_duplicates <- function(
     if (nrow(duplicates) > 0) {
       cat("DUPLICATE SUMMARY:\n")
       cat(strrep("-", 70), "\n")
-      print(duplicates %>% select(!!sym(name_column), n_occurrences))
+      print(duplicates %>% dplyr::select(!!sym(name_column), n_occurrences))
       cat(strrep("-", 70), "\n\n")
 
       if (!is.null(csv_file)) {
@@ -1182,11 +1191,11 @@ remove_duplicates_by_intensity <- function(
   if (!is.null(compound_annotation)) {
     # Use compound annotation if provided
     metabolite_info <- compound_annotation %>%
-      select(Compound.ID, all_of(name_column), Formula) %>%
+      dplyr::select(Compound.ID, all_of(name_column), Formula) %>%
       distinct()
 
     dataset_with_names <- dataset %>%
-      select(all_of(c(metabolite_id_col, sample_names))) %>%
+      dplyr::select(all_of(c(metabolite_id_col, sample_names))) %>%
       left_join(
         metabolite_info,
         by = setNames("Compound.ID", metabolite_id_col)
@@ -1194,7 +1203,7 @@ remove_duplicates_by_intensity <- function(
   } else {
     # Assume dataset has a Name column
     dataset_with_names <- dataset %>%
-      select(all_of(c(metabolite_id_col, sample_names, name_column)))
+      dplyr::select(all_of(c(metabolite_id_col, sample_names, name_column)))
   }
   # ========================================================================
   # NORMALIZE METABOLITE NAME CASE (title case to collapse case-variant duplicates)
@@ -1209,7 +1218,7 @@ remove_duplicates_by_intensity <- function(
   dataset_with_intensity <- dataset_with_names %>%
     mutate(
       mean_intensity = rowMeans(
-        select(., all_of(sample_names)),
+        dplyr::select(., all_of(sample_names)),
         na.rm = TRUE
       )
     )
@@ -1224,16 +1233,16 @@ remove_duplicates_by_intensity <- function(
     arrange(desc(mean_intensity), .by_group = TRUE) %>%
     slice(1) %>% # Keep only first row (highest intensity)
     ungroup() %>%
-    select(-mean_intensity) # Remove temporary intensity column
+    dplyr::select(-mean_intensity) # Remove temporary intensity column
 
   # Get the removed metabolites for reporting
   metabolites_removed <- dataset_with_intensity %>%
     group_by(!!sym(name_column)) %>%
-    filter(n() > 1) %>% # Only groups with duplicates
+    dplyr::filter(n() > 1) %>% # Only groups with duplicates
     arrange(desc(mean_intensity), .by_group = TRUE) %>%
     slice(2:n()) %>% # All except the first (highest intensity)
     ungroup() %>%
-    select(!!sym(metabolite_id_col), !!sym(name_column), mean_intensity) %>%
+    dplyr::select(!!sym(metabolite_id_col), !!sym(name_column), mean_intensity) %>%
     arrange(!!sym(name_column), desc(mean_intensity))
 
   # Count duplicate groups
@@ -1248,7 +1257,7 @@ remove_duplicates_by_intensity <- function(
   annotation_cols <- setdiff(colnames(dataset_with_intensity), c(metabolite_id_col, sample_names, "mean_intensity"))
 
   dataset_deduplicated <- dataset_deduplicated %>%
-    select(all_of(c(metabolite_id_col, annotation_cols, sample_names)))
+    dplyr::select(all_of(c(metabolite_id_col, annotation_cols, sample_names)))
 
   # ========================================================================
   # GENERATE COMPREHENSIVE SUMMARY
@@ -1363,3 +1372,7 @@ quick_dedup <- function(dataset, compound_annotation = NULL, name_column = "Name
 #
 # # Access summary
 # dedup_results$summary
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this file was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.

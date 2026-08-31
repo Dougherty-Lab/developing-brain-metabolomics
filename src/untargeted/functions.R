@@ -1,4 +1,44 @@
-# Metabolomics Processing and Analysis Functions
+# functions.R
+# ---------------------------------------------------------------------------
+# Shared utility functions for untargeted metabolomics processing, filtering,
+# visualization, and statistical analysis. Sourced by all scripts in
+# src/untargeted/.
+#
+# Key function groups:
+#   Data prep:       clean_metabolomics_data(), prepare_long_data(),
+#                    min_value_impute()
+#   Peak features:   calculate_peak_detection(), plot_all_detection(),
+#                    plot_all_intensity(), test_peak_features()
+#   Missingness:     calculate_missingness(), calculate_missingness_by_sex()
+#   Abundance:       calculate_metabolite_abundance(),
+#                    calculate_metabolite_abundance_by_group(),
+#                    analyze_category_abundance()
+#   Variability:     calculate_metabolite_variability(),
+#                    calculate_metabolite_variability_by_group(),
+#                    analyze_category_variability()
+#   Heatmaps:        plot_top_metabolites_heatmaps()
+#   Trajectories:    plot_trajectory(), build_trajectory_plots(),
+#                    save_trajectory_grids()
+#   Helpers:         save_dual_format(), bold_high_confidence(),
+#                    truncate_labels(), build_label_lookup()
+# ---------------------------------------------------------------------------
+
+# ============================================================================
+# Project Root
+# ============================================================================
+
+#' Find the project root by walking up from the working directory.
+#' @param marker Directory name that marks the root (default: ".git").
+#' @return Absolute path to the project root.
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
 
 # ============================================================================
 # Global ggplot Theme
@@ -104,7 +144,7 @@ clean_metabolomics_data <- function(peak_data,
     # Convert sample columns to numeric
     mutate(across(all_of(first_sample_col:last_sample_col), convert_to_numeric)) %>%
     # Remove rows that are completely NA across all samples
-    filter(if_any(all_of(first_sample_col:last_sample_col), ~ !is.na(.)))
+    dplyr::filter(if_any(all_of(first_sample_col:last_sample_col), ~ !is.na(.)))
 
   # Replace NA with NaN in sample columns for downstream functions
   peak_data_clean <- cbind(
@@ -133,7 +173,7 @@ clean_metabolomics_data <- function(peak_data,
   # Filter metadata to only samples present in peak data
   sample_cols_in_data <- names(peak_data_clean)[sample_col_indices]
   sample_metadata_clean <- sample_metadata_clean %>%
-    filter(Sample %in% sample_cols_in_data)
+    dplyr::filter(Sample %in% sample_cols_in_data)
 
   # Report cleaning summary
   removed_rows <- orig_rows - nrow(peak_data_clean)
@@ -246,7 +286,7 @@ prepare_long_data <- function(dataset,
   if (remove_nonfinite) {
     n_before <- nrow(data_long)
     data_long <- data_long %>%
-      filter(is.finite(Intensity))
+      dplyr::filter(is.finite(Intensity))
     n_removed <- n_before - nrow(data_long)
     if (n_removed > 0) {
       cat("  Removed", n_removed, "non-finite values\n")
@@ -262,7 +302,7 @@ prepare_long_data <- function(dataset,
 
   # Filter metadata to samples present in dataset
   sample_metadata_filtered <- sample_metadata %>%
-    filter(Sample %in% sample_names)
+    dplyr::filter(Sample %in% sample_names)
 
   if (nrow(sample_metadata_filtered) != length(sample_names)) {
     warning(sprintf(
@@ -327,26 +367,7 @@ prepare_long_data <- function(dataset,
 #' @param metadata Metadata dataframe with GW column
 #' @param buckets Named list of GW bucket definitions
 #' @return Metadata with GW_bucket column added
-create_gw_buckets <- function(metadata,
-                              buckets = list(
-                                "16-18" = c(16, 18),
-                                "19-21" = c(19, 21),
-                                "22-24" = c(22, 24)
-                              )) {
-  if (!"GW" %in% names(metadata)) {
-    stop("Metadata must contain a 'GW' column")
-  }
-
-  metadata <- metadata %>%
-    mutate(GW_bucket = case_when(
-      GW >= buckets[[1]][1] & GW <= buckets[[1]][2] ~ names(buckets)[1],
-      GW >= buckets[[2]][1] & GW <= buckets[[2]][2] ~ names(buckets)[2],
-      GW >= buckets[[3]][1] & GW <= buckets[[3]][2] ~ names(buckets)[3],
-      TRUE ~ NA_character_
-    ))
-
-  return(metadata)
-} # ============================================================================
+# ============================================================================
 # Helper Function for Saving Plots
 # ============================================================================
 
@@ -626,7 +647,7 @@ calculate_peak_detection <- function(dataset,
 
   # Filter metadata to samples present in dataset
   sample_metadata_filtered <- sample_metadata %>%
-    filter(Sample %in% sample_names)
+    dplyr::filter(Sample %in% sample_names)
 
   # Create GW buckets if not already present
   if (!"GW_bucket" %in% names(sample_metadata_filtered) && "GW" %in% names(sample_metadata_filtered)) {
@@ -723,14 +744,14 @@ calculate_missingness_by_sex <- function(dataset, sample_metadata, sample_cols =
 
   # Filter metadata to available samples
   sample_metadata_filtered <- sample_metadata %>%
-    filter(Sample %in% sample_names)
+    dplyr::filter(Sample %in% sample_names)
 
   # Split samples by sex
   female_samples <- sample_metadata_filtered %>%
-    filter(Sex == "F") %>%
+    dplyr::filter(Sex == "F") %>%
     pull(Sample)
   male_samples <- sample_metadata_filtered %>%
-    filter(Sex == "M") %>%
+    dplyr::filter(Sex == "M") %>%
     pull(Sample)
 
   # Calculate missingness for female samples
@@ -959,7 +980,7 @@ test_peak_features <- function(dataset,
   # Filter metadata to samples present in dataset
   sample_names <- names(dataset)[sample_cols]
   sample_metadata_filtered <- sample_metadata %>%
-    filter(Sample %in% sample_names)
+    dplyr::filter(Sample %in% sample_names)
 
   # Create GW buckets if not already present
   if (!"GW_bucket" %in% names(sample_metadata_filtered)) {
@@ -981,7 +1002,7 @@ test_peak_features <- function(dataset,
     missing_count = colSums(is.na(dataset[, sample_cols])),
     missing_proportion = colSums(is.na(dataset[, sample_cols])) / nrow(dataset)
   ) %>%
-    left_join(sample_metadata_filtered %>% select(Sample, Sex, GW, GW_bucket),
+    left_join(sample_metadata_filtered %>% dplyr::select(Sample, Sex, GW, GW_bucket),
       by = "Sample"
     )
 
@@ -1137,77 +1158,6 @@ test_peak_features <- function(dataset,
   ))
 }
 
-#' Run statistical tests on a single peak metric
-#'
-#' @param sample_metrics Dataframe with sample-level metrics and metadata
-#' @param metric_name Column name of the metric to test
-#' @param metric_label Human-readable label for output
-#' @return List containing continuous and bins models plus p-values
-test_single_metric <- function(sample_metrics,
-                               metric_name,
-                               metric_label = metric_name) {
-  cat("\n=== ", toupper(metric_label), " ANALYSIS ===\n", sep = "")
-
-  # Continuous GW model
-  formula_cont <- as.formula(paste(metric_name, "~ Sex * GW"))
-  model_cont <- lm(formula_cont, data = sample_metrics)
-
-  cat("\nLinear Model (continuous GW):\n")
-  print(summary(model_cont))
-  cat("\nANOVA:\n")
-  print(anova(model_cont))
-
-  # GW bins model
-  formula_bins <- as.formula(paste(metric_name, "~ Sex * GW_bucket"))
-  model_bins <- lm(formula_bins, data = sample_metrics)
-
-  cat("\nLinear Model (GW bins):\n")
-  print(summary(model_bins))
-  cat("\nANOVA:\n")
-  print(anova(model_bins))
-
-  # Extract p-values
-  coef_cont <- summary(model_cont)$coefficients
-  anova_bins <- anova(model_bins)
-
-  results <- list(
-    model_continuous = model_cont,
-    model_bins = model_bins,
-    p_values_continuous = list(
-      Sex = if ("SexM" %in% rownames(coef_cont)) coef_cont["SexM", "Pr(>|t|)"] else NA,
-      GW = if ("GW" %in% rownames(coef_cont)) coef_cont["GW", "Pr(>|t|)"] else NA,
-      Interaction = if ("SexM:GW" %in% rownames(coef_cont)) coef_cont["SexM:GW", "Pr(>|t|)"] else NA
-    ),
-    p_values_bins = list(
-      Sex = if ("Sex" %in% rownames(anova_bins)) anova_bins["Sex", "Pr(>F)"] else NA,
-      GW_bucket = if ("GW_bucket" %in% rownames(anova_bins)) anova_bins["GW_bucket", "Pr(>F)"] else NA,
-      Interaction = if ("Sex:GW_bucket" %in% rownames(anova_bins)) anova_bins["Sex:GW_bucket", "Pr(>F)"] else NA
-    )
-  )
-
-  return(results)
-}
-
-#' Format p-value with significance stars
-#'
-#' @param p_value Numeric p-value
-#' @return Formatted string with p-value and significance annotation
-format_p_value <- function(p_value) {
-  if (is.na(p_value)) {
-    return("NA")
-  }
-
-  sig <- case_when(
-    p_value < 0.001 ~ "***",
-    p_value < 0.01 ~ "**",
-    p_value < 0.05 ~ "*",
-    p_value < 0.1 ~ ".",
-    TRUE ~ "NS"
-  )
-
-  sprintf("%.4f %s", p_value, sig)
-}
-
 # ============================================================================
 # Metabolite Abundance Calculation Functions
 # ============================================================================
@@ -1241,8 +1191,8 @@ calculate_metabolite_abundance <- function(dataset,
   keep_cols <- intersect(c(id_col, "Name", "Formula"), names(dataset))
 
   metabolite_abundance <- dataset %>%
-    mutate(mean_intensity = rowMeans(select(., all_of(sample_cols)), na.rm = TRUE)) %>%
-    select(all_of(keep_cols), mean_intensity) %>%
+    mutate(mean_intensity = rowMeans(dplyr::select(., all_of(sample_cols)), na.rm = TRUE)) %>%
+    dplyr::select(all_of(keep_cols), mean_intensity) %>%
     arrange(desc(mean_intensity)) %>%
     mutate(display_name = Name)
 
@@ -1255,7 +1205,7 @@ calculate_metabolite_abundance <- function(dataset,
     )
     metabolite_abundance <- metabolite_abundance %>%
       left_join(
-        compound_annotation %>% select(all_of(anno_select_cols)),
+        compound_annotation %>% dplyr::select(all_of(anno_select_cols)),
         by = intersect(anno_join_cols, names(metabolite_abundance))
       )
     cat("  Added compound annotations\n")
@@ -1297,7 +1247,7 @@ calculate_metabolite_abundance_by_group <- function(data_long,
   # Add Formula if dataset provided
   if (!is.null(dataset) && "Formula" %in% names(dataset) && id_col %in% names(dataset)) {
     metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
-      left_join(dataset %>% select(all_of(id_col), Formula), by = id_col)
+      left_join(dataset %>% dplyr::select(all_of(id_col), Formula), by = id_col)
   }
 
   metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
@@ -1312,7 +1262,7 @@ calculate_metabolite_abundance_by_group <- function(data_long,
     )
     metabolite_abundance_grouped <- metabolite_abundance_grouped %>%
       left_join(
-        compound_annotation %>% select(all_of(anno_select_cols)),
+        compound_annotation %>% dplyr::select(all_of(anno_select_cols)),
         by = intersect(c(id_col, "Name"), names(metabolite_abundance_grouped))
       )
   }
@@ -1470,13 +1420,13 @@ prepare_heatmap_matrix <- function(dataset,
 
   # Filter to specified metabolites and prepare matrix
   heatmap_data <- dataset %>%
-    filter(Compound.ID %in% metabolite_ids) %>%
-    select(Compound.ID, Name, all_of(sample_cols)) %>%
+    dplyr::filter(Compound.ID %in% metabolite_ids) %>%
+    dplyr::select(Compound.ID, Name, all_of(sample_cols)) %>%
     mutate(display_name = ifelse(is.na(Name) | Name == "",
       Compound.ID,
       Name
     )) %>%
-    select(display_name, all_of(sample_cols)) %>%
+    dplyr::select(display_name, all_of(sample_cols)) %>%
     column_to_rownames("display_name") %>%
     as.matrix()
 
@@ -1543,8 +1493,8 @@ plot_metabolite_heatmap <- function(heatmap_matrix,
 
     if (length(available_annotation_cols) > 0) {
       sample_annotation <- sample_metadata %>%
-        filter(Sample %in% matrix_samples) %>%
-        select(Sample, all_of(available_annotation_cols)) %>%
+        dplyr::filter(Sample %in% matrix_samples) %>%
+        dplyr::select(Sample, all_of(available_annotation_cols)) %>%
         column_to_rownames("Sample")
     }
   }
@@ -1683,7 +1633,7 @@ calculate_category_abundance <- function(abundance_df,
 
   # Aggregate by category
   category_abundance <- abundance_df %>%
-    filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
+    dplyr::filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
     group_by(.data[[category]]) %>%
     summarise(
       mean_intensity = mean(mean_intensity, na.rm = TRUE),
@@ -1723,7 +1673,7 @@ calculate_category_abundance_by_group <- function(metabolite_abundance_grouped,
 
   # Aggregate by category and group
   category_abundance_grouped <- metabolite_abundance_grouped %>%
-    filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
+    dplyr::filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
     group_by(.data[[category]], .data[[group_by]]) %>%
     summarise(
       mean_intensity = mean(mean_intensity, na.rm = TRUE),
@@ -1759,7 +1709,7 @@ calculate_category_variability <- function(variability_df,
   cat("Calculating variability by", category, "...\n")
 
   category_variability <- variability_df %>%
-    filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
+    dplyr::filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
     group_by(.data[[category]]) %>%
     summarise(
       mean_cv = mean(cv, na.rm = TRUE),
@@ -1796,7 +1746,7 @@ calculate_category_variability_by_group <- function(variability_grouped_df,
   cat("Calculating", category, "variability by", group_by, "...\n")
 
   category_variability_grouped <- variability_grouped_df %>%
-    filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
+    dplyr::filter(!is.na(.data[[category]]) & .data[[category]] != "") %>%
     group_by(.data[[category]], .data[[group_by]]) %>%
     summarise(
       mean_cv = mean(cv, na.rm = TRUE),
@@ -2142,7 +2092,7 @@ calculate_metabolite_variability_by_group <- function(data_long,
 
   if (!is.null(dataset) && "Formula" %in% names(dataset) && id_col %in% names(dataset)) {
     metabolite_variability_grouped <- metabolite_variability_grouped %>%
-      left_join(dataset %>% select(all_of(id_col), Formula), by = id_col)
+      left_join(dataset %>% dplyr::select(all_of(id_col), Formula), by = id_col)
   }
 
   metabolite_variability_grouped <- metabolite_variability_grouped %>%
@@ -2159,7 +2109,7 @@ calculate_metabolite_variability_by_group <- function(data_long,
     )
     metabolite_variability_grouped <- metabolite_variability_grouped %>%
       left_join(
-        compound_annotation %>% select(all_of(anno_select_cols)),
+        compound_annotation %>% dplyr::select(all_of(anno_select_cols)),
         by = intersect(c(id_col, "Name"), names(metabolite_variability_grouped))
       )
   }
@@ -2447,14 +2397,14 @@ prepare_category_heatmap_matrix <- function(dataset,
 
   # Get metabolites in the specified categories
   metabolites_in_categories <- metabolite_abundance_annotated %>%
-    filter(.data[[category]] %in% category_ids) %>%
-    select(Compound.ID, !!sym(category))
+    dplyr::filter(.data[[category]] %in% category_ids) %>%
+    dplyr::select(Compound.ID, !!sym(category))
 
   # Aggregate intensities by category and sample
   category_heatmap_data <- metabolite_abundance_annotated %>%
-    filter(.data[[category]] %in% category_ids) %>%
-    left_join(dataset %>% select(Compound.ID, all_of(sample_cols)), by = "Compound.ID") %>%
-    select(!!sym(category), all_of(sample_cols)) %>%
+    dplyr::filter(.data[[category]] %in% category_ids) %>%
+    left_join(dataset %>% dplyr::select(Compound.ID, all_of(sample_cols)), by = "Compound.ID") %>%
+    dplyr::select(!!sym(category), all_of(sample_cols)) %>%
     pivot_longer(cols = all_of(sample_cols), names_to = "Sample", values_to = "Intensity") %>%
     group_by(.data[[category]], Sample) %>%
     summarise(mean_intensity = mean(Intensity, na.rm = TRUE), .groups = "drop") %>%
@@ -2771,3 +2721,7 @@ save_trajectory_grids <- function(plots,
   }
   invisible(NULL)
 }
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this file was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.

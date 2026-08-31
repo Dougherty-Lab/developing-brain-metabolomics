@@ -1,0 +1,35 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Abacavir ADME (Reactome),1,5,15.663501238664729,0.08313188452993459,Inosine,0.292387012402269,Reactome
+Abacavir metabolism (Reactome),1,5,15.663501238664729,0.08313188452993459,Inosine,0.292387012402269,Reactome
+"Cerebral organic acidurias, including diseases (WikiPathways)",1,5,15.663501238664729,0.08313188452993459,Tryptophan,0.292387012402269,WikiPathways
+Metabolism of amine-derived hormones (Reactome),1,5,15.663501238664729,0.08313188452993459,Tryptophan,0.292387012402269,Reactome
+Thermogenesis (WikiPathways),1,5,15.663501238664729,0.08313188452993459,2-Arachidonoyl Glycerol,0.292387012402269,WikiPathways
+Cannabinoid receptor signaling (WikiPathways),1,6,12.549206842142217,0.09900075575922429,2-Arachidonoyl Glycerol,0.292387012402269,WikiPathways
+Defective SLC29A3 causes histiocytosis-lymphadenopathy plus syndrome (HLAS) (Reactome),1,6,12.549206842142217,0.09900075575922429,Inosine,0.292387012402269,Reactome
+NAD biosynthesis II from tryptophan (WikiPathways),1,6,12.549206842142217,0.09900075575922429,Tryptophan,0.292387012402269,WikiPathways
+Tryptophan metabolism (KEGG),1,6,12.549206842142217,0.09900075575922429,Tryptophan,0.292387012402269,KEGG
+Diseases of nucleotide metabolism (Reactome),1,7,10.471986435531342,0.11462502011022047,Inosine,0.292387012402269,Reactome
+Orexin receptor pathway (WikiPathways),1,7,10.471986435531342,0.11462502011022047,2-Arachidonoyl Glycerol,0.292387012402269,WikiPathways
+T cell modulation in pancreatic cancer (WikiPathways),1,7,10.471986435531342,0.11462502011022047,Tryptophan,0.292387012402269,WikiPathways
+Fructose and mannose metabolism (KEGG),1,8,8.975783925463055,0.13000798308127814,D-Mannitol 1-Phosphate,0.292387012402269,KEGG
+Biogenic amine synthesis (WikiPathways),1,9,7.851352499000536,0.1451529118090703,Tryptophan,0.292387012402269,WikiPathways
+Purine salvage (Reactome),1,10,6.972745761999446,0.1600630354403073,Inosine,0.292387012402269,Reactome
+"mRNA, protein, and metabolite inducation pathway by cyclosporin A (WikiPathways)",1,10,6.972745761999446,0.1600630354403073,Tryptophan,0.292387012402269,WikiPathways
+Modified nucleosides derived from tRNA as urinary cancer markers (WikiPathways),1,11,6.270796128561709,0.17474154550057375,Inosine,0.292387012402269,WikiPathways
+Amino acid transport defects (IEMs) (WikiPathways),1,12,5.694464213607382,0.1891915962602917,Tryptophan,0.292387012402269,WikiPathways
+Defective SLC6A19 causes Hartnup disorder (HND) (Reactome),1,12,5.694464213607382,0.1891915962602917,Tryptophan,0.292387012402269,Reactome
+Transport of nucleosides and free purine and pyrimidine bases across the plasma membrane (Reactome),1,12,5.694464213607382,0.1891915962602917,Inosine,0.292387012402269,Reactome
+Tryptophan catabolism (Reactome),1,12,5.694464213607382,0.1891915962602917,Tryptophan,0.292387012402269,Reactome
+Variant SLC6A14 may confer susceptibility towards obesity (Reactome),1,12,5.694464213607382,0.1891915962602917,Tryptophan,0.292387012402269,Reactome
+Purine catabolism (Reactome),1,13,5.213361042599267,0.20341630509783049,Inosine,0.30070236405766243,Reactome
+KEGG:map01100 (KEGG),1,16,4.152859627196979,0.24476900802632662,D-Mannitol 1-Phosphate,0.3180363416535662,KEGG
+Nucleotide salvage (Reactome),1,16,4.152859627196979,0.24476900802632662,Inosine,0.3180363416535662,Reactome
+Purine metabolism (WikiPathways),1,17,3.8873158644570673,0.2581227976682975,Inosine,0.3180363416535662,WikiPathways
+Cytosolic tRNA aminoacylation (Reactome),1,18,3.6522546537284226,0.2712662914103947,Tryptophan,0.3180363416535662,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),1,18,3.6522546537284226,0.2712662914103947,Tryptophan,0.3180363416535662,Reactome
+tRNA Aminoacylation (Reactome),1,18,3.6522546537284226,0.2712662914103947,Tryptophan,0.3180363416535662,Reactome
+"Transport of vitamins, nucleosides, and related molecules (Reactome)",1,20,3.2570574619099286,0.29693397074093575,Inosine,0.33652516683972716,Reactome
+Na+/Cl- dependent neurotransmitter transporters (Reactome),1,21,3.08883323213365,0.30946386037129525,Tryptophan,0.339411975891098,Reactome
+Purine metabolism and related disorders (WikiPathways),1,22,2.9365544730274653,0.32179486286466497,Inosine,0.3419070417937065,WikiPathways
+Amino acid transport across the plasma membrane (Reactome),1,23,2.7980568656739653,0.3339297460340841,Tryptophan,0.3440488292472382,Reactome
+Nucleotide catabolism (Reactome),1,26,2.448757861618963,0.369184863485859,Inosine,0.369184863485859,Reactome

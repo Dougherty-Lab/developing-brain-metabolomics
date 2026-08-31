@@ -1,21 +1,24 @@
-# ============================================================
-# Single-Metabolite Profile Script
-# ============================================================
+# Single_Metabolite_Profile.R
+# ---------------------------------------------------------------------------
 # Produces a 4-panel figure for one metabolite:
-#   Panel 1 – Sex comparison (violin + box + jitter)
-#   Panel 2 – GW trajectory (overall, no sex coloring)
-#   Panel 3 – Sex × GW (plot_trajectory: per-sex lm)
-#   Panel 4 – Significance summary across all analyses
+#   Panel A – Sex comparison (violin + box + jitter)
+#   Panel B – GW trajectory (overall)
+#   Panel C – Sex x GW trajectory (per-sex regression)
+#   Panel D – Significance summary tile across all analyses
 #
-# Run order: must follow Filtering → Exogenous Flagging → all
-#            analysis scripts so CSVs exist on disk.
-# ============================================================
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/untargeted")
+# Inputs:  Result CSVs from all Batch2 analysis scripts
+# Outputs: PNG profile figure in results/untargeted/profiles/
+#
+# Upstream:  All Batch2 analysis scripts (reads their CSV outputs)
+# Downstream: None (standalone visualization)
+#
+# Usage: Rscript Single_Metabolite_Profile.R
+#        Edit metabolite_query and dataset below before running.
+# ---------------------------------------------------------------------------
+
 # ── USER SETTINGS ────────────────────────────────────────────
 metabolite_query <- "Tryptophan"   # Full Name OR Compound.ID
-dataset          <- "batch2"          # "batch1" | "batch2" | "newbatch2"
-results_base     <- "../../results/untargeted"
-output_dir       <- "."               # Directory for saved PNG
+dataset <- "dataset"
 # ─────────────────────────────────────────────────────────────
 
 suppressPackageStartupMessages({
@@ -24,47 +27,45 @@ suppressPackageStartupMessages({
   library(cowplot)
   library(ggtext)
 })
-source("functions.R")
+
+# source functions.R from any working directory
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+
+root <- find_project_root()
+source(file.path(root, "src/untargeted/functions.R"))
+
+results_base <- file.path(root, "results/untargeted")
+output_dir   <- file.path(root, "results/untargeted/profiles")
+dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+root         <- find_project_root()
 
 # ============================================================
 # 1. Dataset configuration
 # ============================================================
 dataset_config <- list(
-  batch1 = list(
-    peak_file       = "batch1_peak_area_values.csv",
-    metadata_file   = "batch1_sample_metadata.csv",
-    annotation_file = "batch1_metabolite_annotations.csv",
-    csv_folder      = "batch1_filtering/csv",
-    subgroup_prefix = "batch1",
-    has_analysis    = FALSE,
-    has_pathway     = FALSE
-  ),
-  batch2 = list(
-    peak_file       = "batch2_peak_area_clean.csv",
-    metadata_file   = "batch2_sample_metadata.csv",
-    annotation_file = "batch2_metabolite_annotations.csv",
-    csv_folder      = "batch2_clean/csv",
-    subgroup_prefix = "batch2",
+  dataset = list(
+    peak_file       = "peak_area_clean.csv",
+    metadata_file   = "sample_metadata.csv",
+    annotation_file = "metabolite_annotations.csv",
+    csv_folder      = "untargeted_clean/csv",
     has_analysis    = TRUE,
-    has_pathway     = TRUE   # MSEA / ORA only run for batch2
-  ),
-  newbatch2 = list(
-    peak_file       = "newbatch2_peak_area_clean.csv",
-    metadata_file   = "newbatch2_sample_metadata.csv",
-    annotation_file = "newbatch2_metabolite_annotations.csv",
-    csv_folder      = "newbatch2_clean/csv",
-    subgroup_prefix = "newbatch2",
-    has_analysis    = TRUE,
-    has_pathway     = FALSE
+    has_pathway     = TRUE
   )
 )
 
 if (!dataset %in% names(dataset_config))
-  stop("dataset must be one of: 'batch1', 'batch2', 'newbatch2'")
+  stop("dataset must be 'batch2'")
 
 cfg     <- dataset_config[[dataset]]
 csv_dir <- file.path(results_base, cfg$csv_folder)
-pfx     <- cfg$subgroup_prefix
 
 # ============================================================
 # 2. Load data
@@ -317,20 +318,20 @@ if (!cfg$has_analysis) {
 } else {
 
   # Main analysis CSVs
-  gw_limma    <- safe_read(file.path(csv_dir, paste0(pfx, "_gw_limma_results.csv")))
-  sex_limma   <- safe_read(file.path(csv_dir, paste0(pfx, "_sex_limma_results.csv")))
-  sex_wilcox  <- safe_read(file.path(csv_dir, paste0(pfx, "_sex_differential_analysis.csv")))
-  sex_vip     <- safe_read(file.path(csv_dir, paste0(pfx, "_sex_plsda_vip.csv")))
-  gw_vip      <- safe_read(file.path(csv_dir, paste0(pfx, "_gw_plsda_vip.csv")))
-  sex_adj     <- safe_read(file.path(csv_dir, paste0(pfx, "_sex_adjusted_limma_results.csv")))
-  gw_adj      <- safe_read(file.path(csv_dir, paste0(pfx, "_gw_adjusted_limma_results.csv")))
-  int_limma   <- safe_read(file.path(csv_dir, paste0(pfx, "_interaction_limma_results.csv")))
+  gw_limma    <- safe_read(file.path(csv_dir, "gw_limma_results.csv"))
+  sex_limma   <- safe_read(file.path(csv_dir, "sex_limma_results.csv"))
+  sex_wilcox  <- safe_read(file.path(csv_dir, "sex_differential_analysis.csv"))
+  sex_vip     <- safe_read(file.path(csv_dir, "sex_plsda_vip.csv"))
+  gw_vip      <- safe_read(file.path(csv_dir, "gw_plsda_vip.csv"))
+  sex_adj     <- safe_read(file.path(csv_dir, "sex_adjusted_limma_results.csv"))
+  gw_adj      <- safe_read(file.path(csv_dir, "gw_adjusted_limma_results.csv"))
+  int_limma   <- safe_read(file.path(csv_dir, "interaction_limma_results.csv"))
 
   # Subgroup CSVs – try "all" scope first, fall back to first available
   find_subgroup_csv <- function(subtype, suffix) {
-    base_dir  <- file.path(results_base, paste0(pfx, "_", subtype))
+    base_dir  <- file.path(results_base, paste0("untargeted_", subtype))
     all_path  <- file.path(base_dir, "all", "csv",
-                           paste0(pfx, "_", subtype, "_all_", suffix, ".csv"))
+                           paste0(subtype, "_all_", suffix, ".csv"))
     if (file.exists(all_path)) return(safe_read(all_path))
     # Fall back: look for any scope CSV matching the suffix
     candidates <- list.files(base_dir, recursive = TRUE,
@@ -347,13 +348,13 @@ if (!cfg$has_analysis) {
 
   # Pathway CSVs (batch2 only)
   if (cfg$has_pathway) {
-    msea_sex <- safe_read(file.path(csv_dir, "batch2_msea_sex.csv"))
-    msea_gw  <- safe_read(file.path(csv_dir, "batch2_msea_gw.csv"))
-    ora_sex  <- safe_read(file.path(csv_dir, "batch2_ora_sex_limma_nominal.csv"))
-    ora_gw_n <- safe_read(file.path(csv_dir, "batch2_ora_gw_limma_nominal.csv"))
-    ora_gw_f <- safe_read(file.path(csv_dir, "batch2_ora_gw_limma_fdr.csv"))
-    ora_vip1 <- safe_read(file.path(csv_dir, "batch2_ora_sex_plsda_vip1.csv"))
-    ora_vip2 <- safe_read(file.path(csv_dir, "batch2_ora_sex_plsda_vip2.csv"))
+    msea_sex <- safe_read(file.path(csv_dir, "msea_sex.csv"))
+    msea_gw  <- safe_read(file.path(csv_dir, "msea_gw.csv"))
+    ora_sex  <- safe_read(file.path(csv_dir, "ora_sex_limma_nominal.csv"))
+    ora_gw_n <- safe_read(file.path(csv_dir, "ora_gw_limma_nominal.csv"))
+    ora_gw_f <- safe_read(file.path(csv_dir, "ora_gw_limma_fdr.csv"))
+    ora_vip1 <- safe_read(file.path(csv_dir, "ora_sex_plsda_vip1.csv"))
+    ora_vip2 <- safe_read(file.path(csv_dir, "ora_sex_plsda_vip2.csv"))
   } else {
     msea_sex <- msea_gw <- ora_sex <- ora_gw_n <- ora_gw_f <-
       ora_vip1 <- ora_vip2 <- NULL
@@ -476,3 +477,11 @@ out_file <- file.path(output_dir,
 
 ggsave(out_file, final_plot, width = 15, height = 12, dpi = 180)
 cat("\nSaved:", out_file, "\n")
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

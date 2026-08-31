@@ -1,3 +1,0 @@
-plot_order,axis_label,pathway_full,pathway_source,stars,n_hits,set_size,odds_ratio,pval,padj
-1,Nicotinate metabolism (Reactome),Nicotinate metabolism (Reactome),Reactome,,3,7,6.149013119103384,0.034003686789020084,0.693036993711023
-2,"Trans-sulfuration, one-carbon metabolism a... (WikiPathways)","Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",WikiPathways,,7,23,3.770924309846824,0.009169304750158716,0.693036993711023

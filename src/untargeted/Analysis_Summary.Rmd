@@ -1,0 +1,448 @@
+---
+title: "Analysis Results Summary"
+author: "Sneha M. Chaturvedi"
+date: "Last updated `r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: show
+---
+
+Aggregates significant and nominally significant metabolites across all
+analysis methods (main, subgroup, pathway) into summary tables with hit counts,
+overlap statistics, and cross-method comparison.
+
+| | |
+|---|---|
+| **Inputs** | Result CSVs from `Sex_and_GW_Analysis.Rmd`, `Pathway_Analysis.Rmd`, `Neurotransmitter_Analysis.Rmd`, `Steroid_Analysis.Rmd` |
+| **Outputs** | Summary tables and figures in `results/untargeted/untargeted_clean/` |
+| **Upstream** | All analysis scripts |
+| **Downstream** | None (summary endpoint) |
+
+
+# Set Up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+Packages <- c("tidyverse", "knitr", "kableExtra")
+lapply(Packages, library, character.only = TRUE)
+```
+
+```{r source}
+source("functions.R")
+```
+
+```{r paths, include=FALSE}
+root <- find_project_root()
+
+# Input: CSVs produced by the individual analysis scripts
+clean_csv   <- file.path(root, "results/untargeted/untargeted_clean/csv")
+steroid_csv <- function(scope) file.path(root, "results/untargeted/untargeted_steroids", scope, "csv")
+nt_csv      <- function(scope) file.path(root, "results/untargeted/untargeted_neurotransmitters", scope, "csv")
+med_csv     <- file.path(root, "results/untargeted/untargeted_medications/csv")
+
+# Output
+png_path <- file.path(root, "results/untargeted/untargeted_clean")
+svg_path <- file.path(root, "results/untargeted/untargeted_clean/svg")
+csv_path <- clean_csv
+```
+
+```{r helpers, include=FALSE}
+# Safely read a CSV; returns NULL with a message if file not found
+safe_read <- function(path) {
+  if (file.exists(path)) {
+    read_csv(path, show_col_types = FALSE)
+  } else {
+    message("File not found (analysis may not have been run): ", path)
+    NULL
+  }
+}
+
+# Count significant hits from a limma-style results data frame
+# Expects columns: P.Value, adj.P.Val
+limma_counts <- function(df) {
+  if (is.null(df)) {
+    return(list(n_total = NA, n_nominal = NA, n_fdr = NA))
+  }
+  list(
+    n_total   = nrow(df),
+    n_nominal = sum(df$P.Value < 0.05, na.rm = TRUE),
+    n_fdr     = sum(df$adj.P.Val < 0.1, na.rm = TRUE)
+  )
+}
+
+# Count significant hits from a wilcoxon-style results data frame
+# Expects columns: p_value, FDR
+wilcox_counts <- function(df) {
+  if (is.null(df)) {
+    return(list(n_total = NA, n_nominal = NA, n_fdr = NA))
+  }
+  list(
+    n_total   = nrow(df),
+    n_nominal = sum(df$p_value < 0.05, na.rm = TRUE),
+    n_fdr     = sum(df$FDR < 0.1, na.rm = TRUE)
+  )
+}
+
+# Count VIP hits from a PLS-DA VIP data frame
+# Expects column: VIP_comp1
+vip_counts <- function(df) {
+  if (is.null(df)) {
+    return(list(n_total = NA, n_vip1 = NA, n_vip2 = NA))
+  }
+  list(
+    n_total = nrow(df),
+    n_vip1  = sum(df$VIP_comp1 > 1, na.rm = TRUE),
+    n_vip2  = sum(df$VIP_comp1 > 2, na.rm = TRUE)
+  )
+}
+
+# Count metabolites in both VIP > 1 (PLS-DA) and limma nominal (p < 0.05)
+# limma_df: expects column P.Value; vip_df: expects column VIP_comp1; joined on Name
+overlap_vip_nominal <- function(limma_df, vip_df) {
+  if (is.null(limma_df) || is.null(vip_df)) return(NA_integer_)
+  nominal_names <- limma_df %>% filter(P.Value < 0.05) %>% pull(Name)
+  vip_names     <- vip_df   %>% filter(VIP_comp1 > 1)  %>% pull(Name)
+  length(intersect(nominal_names, vip_names))
+}
+
+# Count significant pathways from MSEA (fgsea); expects columns pval, padj
+msea_counts <- function(df) {
+  if (is.null(df)) return(list(n_total = NA, n_nominal = NA, n_fdr = NA))
+  list(
+    n_total   = nrow(df),
+    n_nominal = sum(df$pval < 0.05, na.rm = TRUE),
+    n_fdr     = sum(df$padj < 0.1,  na.rm = TRUE)
+  )
+}
+
+# Count significant pathways from ORA (Fisher); expects columns pval, padj
+ora_counts <- function(df) {
+  if (is.null(df)) return(list(n_total = NA, n_nominal = NA, n_fdr = NA))
+  list(
+    n_total   = nrow(df),
+    n_nominal = sum(df$pval < 0.05, na.rm = TRUE),
+    n_fdr     = sum(df$padj < 0.1,  na.rm = TRUE)
+  )
+}
+
+# Build one summary row
+summary_row <- function(analysis, subgroup, method, n_total, n_nominal, n_fdr,
+                        n_vip1 = NA, n_vip2 = NA, n_overlap = NA) {
+  data.frame(
+    Analysis  = analysis,
+    Subgroup  = subgroup,
+    Method    = method,
+    N_Total   = n_total,
+    N_Nominal = n_nominal,
+    N_FDR     = n_fdr,
+    N_VIP1    = n_vip1,
+    N_VIP2    = n_vip2,
+    N_Overlap = n_overlap,
+    stringsAsFactors = FALSE
+  )
+}
+```
+
+# Load Results
+
+```{r load_untargeted}
+# ── Full Untargeted (untargeted_clean) ─────────────────────────────────────────────
+gw_limma <- safe_read(file.path(clean_csv, "gw_limma_results.csv"))
+sex_limma <- safe_read(file.path(clean_csv, "sex_limma_results.csv"))
+sex_wilcox <- safe_read(file.path(clean_csv, "sex_differential_analysis.csv"))
+plsda_vip <- safe_read(file.path(clean_csv, "sex_plsda_vip.csv"))
+
+# Interaction model (Sex * GW): three extractable coefficients
+sex_adj_limma <- safe_read(file.path(clean_csv, "sex_adjusted_limma_results.csv"))
+gw_adj_limma  <- safe_read(file.path(clean_csv, "gw_adjusted_limma_results.csv"))
+int_limma     <- safe_read(file.path(clean_csv, "interaction_limma_results.csv"))
+```
+
+```{r load_pathway}
+# ── Pathway Analysis ───────────────────────────────────────────────────────────
+msea_gw  <- safe_read(file.path(clean_csv, "msea_gw.csv"))
+msea_sex <- safe_read(file.path(clean_csv, "msea_sex.csv"))
+ora_sex_nominal   <- safe_read(file.path(clean_csv, "ora_sex_limma_nominal.csv"))
+ora_gw_nominal    <- safe_read(file.path(clean_csv, "ora_gw_limma_nominal.csv"))
+ora_gw_fdr        <- safe_read(file.path(clean_csv, "ora_gw_limma_fdr.csv"))
+ora_vip1          <- safe_read(file.path(clean_csv, "ora_sex_plsda_vip1.csv"))
+ora_vip2          <- safe_read(file.path(clean_csv, "ora_sex_plsda_vip2.csv"))
+```
+
+```{r load_steroids}
+# ── Steroid Subanalysis ────────────────────────────────────────────────────────
+steroid_broad_inventory <- safe_read(file.path(steroid_csv("broad"), "steroid_broad_inventory.csv"))
+steroid_strict_inventory <- safe_read(file.path(steroid_csv("strict"), "steroid_strict_inventory.csv"))
+
+steroid_broad_gw_limma <- safe_read(file.path(steroid_csv("broad"), "steroid_broad_gw_limma.csv"))
+steroid_broad_sex_limma <- safe_read(file.path(steroid_csv("broad"), "steroid_broad_sex_limma.csv"))
+steroid_broad_plsda_vip <- safe_read(file.path(steroid_csv("broad"), "steroid_broad_plsda_vip.csv"))
+
+steroid_strict_gw_limma <- safe_read(file.path(steroid_csv("strict"), "steroid_strict_gw_limma.csv"))
+steroid_strict_sex_limma <- safe_read(file.path(steroid_csv("strict"), "steroid_strict_sex_limma.csv"))
+steroid_strict_plsda_vip <- safe_read(file.path(steroid_csv("strict"), "steroid_strict_plsda_vip.csv"))
+```
+
+```{r load_neurotransmitters}
+# ── Neurotransmitter Subanalysis ───────────────────────────────────────────────
+nt_broad_inventory <- safe_read(file.path(nt_csv("broad"), "nt_broad_inventory.csv"))
+nt_strict_inventory <- safe_read(file.path(nt_csv("strict"), "nt_strict_inventory.csv"))
+
+nt_broad_gw_limma <- safe_read(file.path(nt_csv("broad"), "nt_broad_gw_limma.csv"))
+nt_broad_sex_limma <- safe_read(file.path(nt_csv("broad"), "nt_broad_sex_limma.csv"))
+nt_broad_plsda_vip <- safe_read(file.path(nt_csv("broad"), "nt_broad_plsda_vip.csv"))
+
+nt_strict_gw_limma <- safe_read(file.path(nt_csv("strict"), "nt_strict_gw_limma.csv"))
+nt_strict_sex_limma <- safe_read(file.path(nt_csv("strict"), "nt_strict_sex_limma.csv"))
+nt_strict_plsda_vip <- safe_read(file.path(nt_csv("strict"), "nt_strict_plsda_vip.csv"))
+```
+
+```{r load_medications}
+# ── Medication Subanalysis ─────────────────────────────────────────────────────
+med_inventory    <- safe_read(file.path(med_csv, "medication_inventory.csv"))
+med_gw_limma     <- safe_read(file.path(med_csv, "medication_gw_limma.csv"))
+med_sex_limma    <- safe_read(file.path(med_csv, "medication_sex_limma.csv"))
+med_sex_wilcoxon <- safe_read(file.path(med_csv, "medication_sex_wilcoxon.csv"))
+```
+
+# Results Summary
+
+```{r build_summary_table}
+# Helper to build a limma row without repeating boilerplate
+limma_row <- function(analysis, subgroup, df) {
+  c <- limma_counts(df)
+  summary_row(analysis, subgroup, "limma",
+    n_total = c$n_total, n_nominal = c$n_nominal, n_fdr = c$n_fdr
+  )
+}
+
+wilcox_row <- function(analysis, subgroup, df) {
+  c <- wilcox_counts(df)
+  summary_row(analysis, subgroup, "Wilcoxon",
+    n_total = c$n_total, n_nominal = c$n_nominal, n_fdr = c$n_fdr
+  )
+}
+
+plsda_row <- function(analysis, subgroup, df, limma_df = NULL) {
+  c <- vip_counts(df)
+  summary_row(analysis, subgroup, "PLS-DA VIP",
+    n_total = c$n_total, n_nominal = NA, n_fdr = NA,
+    n_vip1 = c$n_vip1, n_vip2 = c$n_vip2,
+    n_overlap = if (!is.null(limma_df)) overlap_vip_nominal(limma_df, df) else NA
+  )
+}
+
+# pathway_row: N_Total = pathways tested; N_Nominal = pval < 0.05; N_FDR = padj < 0.1
+pathway_row <- function(analysis, subgroup, method, df, count_fn) {
+  c <- count_fn(df)
+  summary_row(analysis, subgroup, method,
+    n_total = c$n_total, n_nominal = c$n_nominal, n_fdr = c$n_fdr
+  )
+}
+
+rows <- list(
+
+  # ── Full Untargeted — independent models ─────────────────────────────────────
+  limma_row("GW (independent)", "Full untargeted", gw_limma),
+  limma_row("Sex (independent)", "Full untargeted", sex_limma),
+  wilcox_row("Sex", "Full untargeted", sex_wilcox),
+  plsda_row("Sex", "Full untargeted", plsda_vip, limma_df = sex_limma),
+
+  # ── Full Untargeted — interaction model (Sex * GW) ───────────────────────────
+  limma_row("Sex | GW (adjusted)", "Full untargeted", sex_adj_limma),
+  limma_row("GW | Sex (adjusted)", "Full untargeted", gw_adj_limma),
+  limma_row("Sex:GW interaction", "Full untargeted", int_limma),
+
+  # ── Steroids (broad) ────────────────────────────────────────────────────────
+  limma_row("GW", "Steroids (broad)", steroid_broad_gw_limma),
+  limma_row("Sex", "Steroids (broad)", steroid_broad_sex_limma),
+  plsda_row("Sex", "Steroids (broad)", steroid_broad_plsda_vip),
+
+  # ── Steroids (strict) ───────────────────────────────────────────────────────
+  limma_row("GW", "Steroids (strict)", steroid_strict_gw_limma),
+  limma_row("Sex", "Steroids (strict)", steroid_strict_sex_limma),
+  plsda_row("Sex", "Steroids (strict)", steroid_strict_plsda_vip),
+
+  # ── Neurotransmitters (broad) ────────────────────────────────────────────────
+  limma_row("GW", "Neurotransmitters (broad)", nt_broad_gw_limma),
+  limma_row("Sex", "Neurotransmitters (broad)", nt_broad_sex_limma),
+  plsda_row("Sex", "Neurotransmitters (broad)", nt_broad_plsda_vip),
+
+  # ── Neurotransmitters (strict) ───────────────────────────────────────────────
+  limma_row("GW", "Neurotransmitters (strict)", nt_strict_gw_limma),
+  limma_row("Sex", "Neurotransmitters (strict)", nt_strict_sex_limma),
+  plsda_row("Sex", "Neurotransmitters (strict)", nt_strict_plsda_vip),
+
+  # ── Medications ──────────────────────────────────────────────────────────────
+  limma_row("GW",  "Medications", med_gw_limma),
+  limma_row("Sex", "Medications", med_sex_limma),
+  wilcox_row("Sex", "Medications", med_sex_wilcoxon),
+
+  # ── Pathway Analysis (MSEA) ───────────────────────────────────────────────────
+  pathway_row("GW",  "Full untargeted", "MSEA (fgsea)", msea_gw,  msea_counts),
+  pathway_row("Sex", "Full untargeted", "MSEA (fgsea)", msea_sex, msea_counts),
+
+  # ── Pathway Analysis (ORA) ────────────────────────────────────────────────────
+  pathway_row("GW (nominal hits)",  "Full untargeted", "ORA (Fisher)", ora_gw_nominal,  ora_counts),
+  pathway_row("GW (FDR hits)",      "Full untargeted", "ORA (Fisher)", ora_gw_fdr,      ora_counts),
+  pathway_row("Sex (nominal hits)", "Full untargeted", "ORA (Fisher)", ora_sex_nominal,  ora_counts),
+  pathway_row("Sex (VIP > 1)",      "Full untargeted", "ORA (Fisher)", ora_vip1,         ora_counts),
+  pathway_row("Sex (VIP > 2)",      "Full untargeted", "ORA (Fisher)", ora_vip2,         ora_counts)
+)
+
+summary_df <- bind_rows(rows)
+```
+
+```{r display_table}
+summary_df %>%
+  mutate(
+    N_Nominal = ifelse(is.na(N_Nominal), "—", as.character(N_Nominal)),
+    N_FDR     = ifelse(is.na(N_FDR), "—", as.character(N_FDR)),
+    N_VIP1    = ifelse(is.na(N_VIP1), "—", as.character(N_VIP1)),
+    N_VIP2    = ifelse(is.na(N_VIP2), "—", as.character(N_VIP2)),
+    N_Overlap = ifelse(is.na(N_Overlap), "—", as.character(N_Overlap))
+  ) %>%
+  rename(
+    `Analysis`              = Analysis,
+    `Subgroup`              = Subgroup,
+    `Method`                = Method,
+    `N Total`               = N_Total,
+    `p < 0.05`              = N_Nominal,
+    `FDR < 0.1`             = N_FDR,
+    `VIP > 1`               = N_VIP1,
+    `VIP > 2`               = N_VIP2,
+    `VIP>1 ∩ p<0.05`        = N_Overlap
+  ) %>%
+  kable(caption = "Batch 2 Analysis Results Summary") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE
+  ) %>%
+  pack_rows("Full Untargeted — independent models", 1, 4) %>%
+  pack_rows("Full Untargeted — interaction model", 5, 7) %>%
+  pack_rows("Steroids (broad)", 8, 10) %>%
+  pack_rows("Steroids (strict)", 11, 13) %>%
+  pack_rows("Neurotransmitters (broad)", 14, 16) %>%
+  pack_rows("Neurotransmitters (strict)", 17, 19) %>%
+  pack_rows("Medications", 20, 22) %>%
+  pack_rows("Pathway Analysis — MSEA", 23, 24) %>%
+  pack_rows("Pathway Analysis — ORA", 25, 29)
+```
+
+# Top Hits Per Analysis
+
+## GW — Full Untargeted (limma, top 20 by p-value)
+```{r top_gw}
+if (!is.null(gw_limma)) {
+  gw_limma %>%
+    arrange(P.Value) %>%
+    head(20) %>%
+    dplyr::select(Name, logFC, P.Value, adj.P.Val, Super.Class, Class) %>%
+    mutate(across(where(is.numeric), ~ signif(., 3))) %>%
+    rename(`log2FC` = logFC, `p-value` = P.Value, `FDR` = adj.P.Val) %>%
+    kable(caption = "Top 20 GW-associated metabolites (full untargeted)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE)
+}
+```
+
+## Sex — Full Untargeted (limma, top 20 by p-value)
+```{r top_sex_limma}
+if (!is.null(sex_limma)) {
+  sex_limma %>%
+    arrange(P.Value) %>%
+    head(20) %>%
+    dplyr::select(Name, logFC, P.Value, adj.P.Val, Direction, Super.Class, Class) %>%
+    mutate(across(where(is.numeric), ~ signif(., 3))) %>%
+    rename(`log2FC` = logFC, `p-value` = P.Value, `FDR` = adj.P.Val) %>%
+    kable(caption = "Top 20 sex-differential metabolites (full untargeted, limma)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE)
+}
+```
+
+## Sex — Full Untargeted (PLS-DA VIP > 2)
+```{r top_plsda}
+if (!is.null(plsda_vip)) {
+  plsda_vip %>%
+    filter(VIP_comp1 > 2) %>%
+    arrange(desc(VIP_comp1)) %>%
+    dplyr::select(Name, VIP_comp1, Super.Class, Class) %>%
+    mutate(VIP_comp1 = round(VIP_comp1, 3)) %>%
+    kable(caption = "PLS-DA metabolites with VIP > 2 (full untargeted)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE)
+}
+```
+
+## Steroids — Top Hits (broad scope)
+```{r top_steroid_broad}
+if (!is.null(steroid_broad_gw_limma)) {
+  cat("GW limma — Steroids (broad)\n")
+  steroid_broad_gw_limma %>%
+    arrange(P.Value) %>%
+    head(10) %>%
+    dplyr::select(Name, logFC, P.Value, adj.P.Val) %>%
+    mutate(across(where(is.numeric), ~ signif(., 3))) %>%
+    rename(`log2FC` = logFC, `p-value` = P.Value, `FDR` = adj.P.Val) %>%
+    kable(caption = "Top 10 GW-associated steroids (broad)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>%
+    print()
+}
+
+if (!is.null(steroid_broad_sex_limma)) {
+  steroid_broad_sex_limma %>%
+    arrange(P.Value) %>%
+    head(10) %>%
+    dplyr::select(Name, logFC, P.Value, adj.P.Val, Direction) %>%
+    mutate(across(where(is.numeric), ~ signif(., 3))) %>%
+    rename(`log2FC` = logFC, `p-value` = P.Value, `FDR` = adj.P.Val) %>%
+    kable(caption = "Top 10 sex-differential steroids (broad, limma)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>%
+    print()
+}
+```
+
+## Neurotransmitters — Top Hits (broad scope)
+```{r top_nt_broad}
+if (!is.null(nt_broad_gw_limma)) {
+  nt_broad_gw_limma %>%
+    arrange(P.Value) %>%
+    head(10) %>%
+    dplyr::select(Name, logFC, P.Value, adj.P.Val) %>%
+    mutate(across(where(is.numeric), ~ signif(., 3))) %>%
+    rename(`log2FC` = logFC, `p-value` = P.Value, `FDR` = adj.P.Val) %>%
+    kable(caption = "Top 10 GW-associated neurotransmitters (broad)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>%
+    print()
+}
+
+if (!is.null(nt_broad_sex_limma)) {
+  nt_broad_sex_limma %>%
+    arrange(P.Value) %>%
+    head(10) %>%
+    dplyr::select(Name, logFC, P.Value, adj.P.Val, Direction) %>%
+    mutate(across(where(is.numeric), ~ signif(., 3))) %>%
+    rename(`log2FC` = logFC, `p-value` = P.Value, `FDR` = adj.P.Val) %>%
+    kable(caption = "Top 10 sex-differential neurotransmitters (broad, limma)") %>%
+    kable_styling(bootstrap_options = c("striped", "condensed"), full_width = FALSE) %>%
+    print()
+}
+```
+
+# Save Summary Table
+
+```{r save_summary}
+write_csv(summary_df, file.path(csv_path, "analysis_summary.csv"))
+cat("Summary saved to:", file.path(csv_path, "analysis_summary.csv"), "\n")
+```
+
+# AI Assistance Disclosure
+
+Code in this script was developed with assistance from Claude (Anthropic). All
+AI-generated code was reviewed, validated, and adapted by the author.
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
+```
