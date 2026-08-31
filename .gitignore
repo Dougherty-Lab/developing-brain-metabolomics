@@ -10,6 +10,7 @@
 *.rds
 *.sif
 *.parquet
+*.tsv.bgz
 
 # User-specific files
 .Ruserdata

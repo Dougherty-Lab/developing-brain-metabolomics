@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 
 Packages <- c(
   "readxl", "tidyverse", "fgsea", "KEGGREST", "knitr",
-  "kableExtra", "svglite", "ggrepel"
+  "kableExtra", "svglite", "ggrepel", "patchwork"
 )
 
 lapply(Packages, library, character.only = TRUE)
@@ -447,6 +447,492 @@ if (!is.null(msea_sex)) {
       full_width = FALSE, font_size = 11
     )
 }
+```
+
+---
+
+# Leading-Edge Interrogation
+
+Two enriched pathways require inspection of their *members* before they can be
+interpreted, because the pathway label may be doing more work than the underlying
+metabolites support:
+
+- **Peptide hormone metabolism** — the Reactome set aggregates incretin
+  processing (GLP-1/GIP, DPP-4-mediated cleavage) with generic peptide
+  catabolism. If the leading edge is composed of unmodified di-/tripeptides
+  rather than anything incretin-specific, the enrichment reflects broad
+  peptide turnover and the hormonal interpretation does not hold.
+- **Glucuronidation** — a Phase II conjugation set. If the leading edge is
+  dominated by conjugates of exogenous compounds, the signal reflects xenobiotic
+  handling rather than endogenous developmental metabolism.
+
+The leading edge is the subset of set members contributing to the running
+enrichment score up to its peak (Korotkevich et al. 2021, `fgsea`); it is
+**contrast-specific and directional**, so GW and sex are inspected separately.
+Full set membership is reported alongside the leading edge — if the whole set as
+mapped here is generic, the problem is in the annotation, not the enrichment.
+
+```{r leading_edge_setup}
+# Name-based classification. These are heuristics on compound Names and are
+# intentionally exposed here so they can be inspected and edited.
+
+# Di-/tripeptides in Metabolon-style naming: "<aa>yl<aa>", e.g. "glycylvaline",
+# "leucylglycine", "gamma-glutamylglutamate".
+aa_stem <- paste(
+  c("glyc", "alan", "valy", "leuc", "isoleuc", "prol", "phenylalan", "tryptoph",
+    "methion", "ser", "threon", "cyste", "tyros", "asparag", "glutam", "aspart",
+    "lys", "arginy", "histid"),
+  collapse = "|"
+)
+dipeptide_regex <- regex(
+  paste0("(", aa_stem, ")[a-z]*yl[- ]?(", aa_stem, ")"),
+  ignore_case = TRUE
+)
+
+# Anything with genuine incretin / peptide-hormone specificity
+incretin_regex <- regex(
+  paste(c("glp-?1", "\\bgip\\b", "glucagon", "insulin", "incretin",
+          "\\bdpp-?4\\b", "exendin", "oxyntomodulin", "\\bpyy\\b",
+          "somatostatin", "ghrelin"), collapse = "|"),
+  ignore_case = TRUE
+)
+
+glucuronide_regex <- regex("glucuronid|glucuronate", ignore_case = TRUE)
+
+# Pull the exogenous flag through if the annotation carries one (column name
+# varies across flagging rounds), so glucuronidation members can be split into
+# endogenous vs xenobiotic conjugates.
+exog_col <- grep("exogenous|xenobiotic",
+                 names(batch2_compound_annotation_full),
+                 ignore.case = TRUE, value = TRUE)[1]
+
+if (!is.na(exog_col)) {
+  exogenous_flags <- batch2_compound_annotation_full %>%
+    dplyr::select(Name, exogenous_flag = all_of(exog_col)) %>%
+    distinct(Name, .keep_all = TRUE)
+  cat("Exogenous flag column found:", exog_col, "\n")
+} else {
+  exogenous_flags <- tibble(Name = character(), exogenous_flag = character())
+  cat("No exogenous/xenobiotic flag column found in annotation ",
+      "— glucuronidation members will not be split by origin.\n")
+}
+```
+
+```{r leading_edge_function}
+# For each pathway matching `pattern`, return every set member (restricted to the
+# ranked list) with its rank statistics and whether it is in the leading edge.
+inspect_leading_edge <- function(msea_results, limma_results, pathway_list,
+                                 pattern, analysis_label) {
+  if (is.null(msea_results)) return(NULL)
+
+  hits <- msea_results %>%
+    filter(str_detect(pathway, regex(pattern, ignore_case = TRUE)))
+
+  cat("\n===", analysis_label, "|", pattern, "===\n")
+  if (nrow(hits) == 0) {
+    cat("No pathway matched this pattern in the tested sets.\n")
+    return(NULL)
+  }
+
+  ranked <- limma_results %>%
+    filter(!is.na(t)) %>%
+    arrange(desc(t)) %>%
+    mutate(rank = row_number())
+
+  out <- purrr::map_dfr(seq_len(nrow(hits)), function(i) {
+    pw <- hits$pathway[i]
+    le <- hits$leadingEdge[[i]]
+    members <- intersect(pathway_list[[pw]], ranked$Name)
+
+    ranked %>%
+      filter(Name %in% members) %>%
+      # logFC is present in the GW table but not guaranteed elsewhere
+      dplyr::select(any_of(c("Name", "rank", "t", "logFC",
+                             "P.Value", "adj.P.Val"))) %>%
+      mutate(
+        analysis      = analysis_label,
+        pathway       = pw,
+        NES           = round(hits$NES[i], 3),
+        pval          = signif(hits$pval[i], 3),
+        padj          = signif(hits$padj[i], 3),
+        set_size      = length(members),
+        across(any_of(c("t", "logFC")), ~ round(.x, 4)),
+        across(any_of(c("P.Value", "adj.P.Val")), ~ signif(.x, 3)),
+        leading_edge  = Name %in% le,
+        is_dipeptide  = str_detect(Name, dipeptide_regex),
+        is_incretin   = str_detect(Name, incretin_regex),
+        is_glucuronide = str_detect(Name, glucuronide_regex)
+      ) %>%
+      left_join(exogenous_flags, by = "Name") %>%
+      arrange(desc(leading_edge), rank)
+  })
+
+  # Composition summary — this is the number the interpretation turns on
+  le_only <- out %>% filter(leading_edge)
+  cat("Pathways matched:", nrow(hits), "\n")
+  cat("Set members in ranked list:", nrow(out),
+      "| leading edge:", nrow(le_only), "\n")
+  cat("Leading edge that is di-/tripeptide-like:",
+      sum(le_only$is_dipeptide), "/", nrow(le_only),
+      sprintf("(%.0f%%)", 100 * mean(le_only$is_dipeptide)), "\n")
+  cat("Leading edge with incretin-specific identity:",
+      sum(le_only$is_incretin), "\n")
+  cat("Leading edge that is a glucuronide conjugate:",
+      sum(le_only$is_glucuronide), "\n")
+  if (nrow(exogenous_flags) > 0) {
+    cat("Leading edge flagged exogenous/xenobiotic:",
+        sum(!is.na(le_only$exogenous_flag) &
+              !le_only$exogenous_flag %in% c("", "FALSE", "no", "No")), "\n")
+  }
+  cat("\nLeading-edge members:\n")
+  cat(paste(" -", le_only$Name, collapse = "\n"), "\n")
+
+  out
+}
+```
+
+```{r leading_edge_run}
+le_checks <- list(
+  gw_peptide_hormone  = inspect_leading_edge(
+    msea_gw,  gw_limma,  pathway_list, "peptide hormone", "GW"),
+  sex_peptide_hormone = inspect_leading_edge(
+    msea_sex, sex_limma, pathway_list, "peptide hormone", "Sex"),
+  gw_glucuronidation  = inspect_leading_edge(
+    msea_gw,  gw_limma,  pathway_list, "glucuronidat", "GW"),
+  sex_glucuronidation = inspect_leading_edge(
+    msea_sex, sex_limma, pathway_list, "glucuronidat", "Sex")
+)
+
+le_checks <- purrr::compact(le_checks)
+```
+
+```{r leading_edge_tables}
+for (nm in names(le_checks)) {
+  df <- le_checks[[nm]]
+  tbl <- df %>%
+    dplyr::select(pathway, Name, rank, t, P.Value, leading_edge,
+                  is_dipeptide, is_incretin, is_glucuronide,
+                  any_of("exogenous_flag"))
+  print(
+    kable(tbl,
+          caption = paste0("Set members and leading edge — ", nm,
+                           " (leading_edge = TRUE contributes to the NES)")) %>%
+      kable_styling(bootstrap_options = c("striped", "condensed"),
+                    full_width = FALSE, font_size = 10)
+  )
+}
+```
+
+```{r leading_edge_save}
+if (length(le_checks) > 0) {
+  le_all <- bind_rows(le_checks)
+  write_csv(le_all,
+            file.path(csv_path, "batch2_msea_leading_edge_checks.csv"))
+  cat("Leading-edge check saved to:",
+      file.path(csv_path, "batch2_msea_leading_edge_checks.csv"), "\n")
+}
+```
+
+---
+
+# Leading-Edge Redundancy and Collapse
+
+Nominally enriched pathway terms are not independent tests: sets drawn from KEGG,
+Reactome and WikiPathways overlap heavily, so a handful of metabolites can drive
+many terms. Here every nominal pathway (`pval < 0.05`) is reduced to its leading
+edge, terms are clustered on **Jaccard similarity of their leading edges**, and
+near-identical terms are collapsed to a single representative signal.
+
+
+```{r le_all_function}
+# Long table of leading-edge membership for every nominally enriched pathway.
+collect_leading_edges <- function(msea_results, limma_results, pathway_list,
+                                  pathway_source_lookup, analysis_label,
+                                  p_cut = 0.05) {
+  if (is.null(msea_results)) return(NULL)
+
+  hits <- msea_results %>%
+    filter(!is.na(pval), pval < p_cut) %>%
+    left_join(pathway_source_lookup, by = c("pathway" = "pathway_label_src"))
+
+  cat("\n===", analysis_label, "===\n")
+  cat("Nominally enriched pathways (p <", p_cut, "):", nrow(hits), "\n")
+  if (nrow(hits) == 0) return(NULL)
+
+  ranked <- limma_results %>%
+    filter(!is.na(t)) %>%
+    arrange(desc(t)) %>%
+    mutate(rank = row_number()) %>%
+    dplyr::select(any_of(c("Name", "rank", "t", "logFC",
+                           "P.Value", "adj.P.Val")))
+
+  out <- purrr::map_dfr(seq_len(nrow(hits)), function(i) {
+    tibble(Name = hits$leadingEdge[[i]]) %>%
+      mutate(
+        analysis       = analysis_label,
+        pathway        = hits$pathway[i],
+        pathway_source = as.character(hits$pathway_source[i]),
+        NES            = hits$NES[i],
+        pval           = hits$pval[i],
+        padj           = hits$padj[i],
+        set_size       = hits$size[i],
+        direction      = if_else(hits$NES[i] > 0, "Up", "Down")
+      ) %>%
+      left_join(ranked, by = "Name")
+  })
+
+  cat("Distinct leading-edge metabolites:", n_distinct(out$Name), "\n")
+  cat("Median leading-edge size:",
+      median(count(out, pathway)$n), "\n")
+  out
+}
+```
+
+```{r le_collapse_function}
+# Pairwise Jaccard on leading-edge sets.
+jaccard_matrix <- function(sets) {
+  n <- length(sets)
+  m <- matrix(0, n, n, dimnames = list(names(sets), names(sets)))
+  for (i in seq_len(n)) {
+    for (j in seq_len(n)) {
+      u <- length(union(sets[[i]], sets[[j]]))
+      m[i, j] <- if (u == 0) 0 else length(intersect(sets[[i]], sets[[j]])) / u
+    }
+  }
+  m
+}
+
+# Collapse near-identical terms. cutoff is a *minimum within-cluster* Jaccard,
+# enforced by complete linkage at height 1 - cutoff.
+collapse_leading_edges <- function(le_long, cutoff = 0.7) {
+  if (is.null(le_long) || nrow(le_long) == 0) return(NULL)
+
+  sets <- split(le_long$Name, le_long$pathway)
+
+  if (length(sets) == 1) {
+    cluster_map <- tibble(pathway = names(sets), cluster = 1L)
+    order_paths <- names(sets)
+  } else {
+    J  <- jaccard_matrix(sets)
+    hc <- hclust(as.dist(1 - J), method = "complete")
+    cluster_map <- tibble(
+      pathway = names(sets),
+      cluster = cutree(hc, h = 1 - cutoff)[names(sets)]
+    )
+    order_paths <- hc$labels[hc$order]
+  }
+
+  pw_stats <- le_long %>%
+    distinct(pathway, pathway_source, NES, pval, padj, set_size, direction) %>%
+    left_join(cluster_map, by = "pathway")
+
+  # Representative term per cluster: strongest evidence, ties by larger set.
+  reps <- pw_stats %>%
+    group_by(cluster) %>%
+    arrange(pval, desc(set_size), .by_group = TRUE) %>%
+    summarise(
+      representative = first(pathway),
+      rep_source     = first(pathway_source),
+      n_terms        = n(),
+      NES_rep        = first(NES),
+      pval_rep       = first(pval),
+      padj_rep       = first(padj),
+      NES_median     = median(NES),
+      # A cluster with mixed NES signs is not one signal — flagged, not silently
+      # averaged.
+      mixed_direction = n_distinct(direction) > 1,
+      .groups = "drop"
+    )
+
+  cluster_mets <- le_long %>%
+    left_join(cluster_map, by = "pathway") %>%
+    group_by(cluster) %>%
+    summarise(
+      n_metabolites   = n_distinct(Name),
+      driver_metabolites = paste(sort(unique(Name)), collapse = "; "),
+      .groups = "drop"
+    )
+
+  clusters <- reps %>%
+    left_join(cluster_mets, by = "cluster") %>%
+    arrange(pval_rep) %>%
+    mutate(direction = if_else(NES_rep > 0, "Up", "Down"))
+
+  cat("Terms collapsed:", nrow(pw_stats), "->", nrow(clusters),
+      "independent signals (Jaccard >=", cutoff, ")\n")
+  cat("Clusters with mixed NES direction:", sum(clusters$mixed_direction), "\n")
+  cat("Exactly-identical leading edges:",
+      nrow(pw_stats) - n_distinct(map_chr(sets, ~ paste(sort(.x), collapse = "|"))),
+      "redundant terms\n")
+
+  list(
+    cluster_map = cluster_map,
+    clusters    = clusters,
+    order_paths = order_paths,
+    le_long     = le_long %>% left_join(cluster_map, by = "pathway")
+  )
+}
+```
+
+```{r le_plot_function}
+# Panel A — leading-edge membership matrix.
+# Rows are pathways in dendrogram order, faceted into cluster blocks so
+# redundancy is visible; columns are the driving metabolites. Tile fill is the
+# metabolite's own rank statistic, so the direction of each driver is readable.
+plot_le_matrix <- function(collapsed, analysis_label, name_trunc = 34) {
+  d <- collapsed$le_long %>%
+    mutate(
+      pathway = factor(pathway, levels = collapsed$order_paths),
+      pathway_short = str_trunc(as.character(pathway), 45)
+    )
+
+  met_order <- d %>%
+    distinct(Name, t) %>%
+    arrange(desc(t)) %>%
+    pull(Name)
+
+  d <- d %>%
+    mutate(
+      Name = factor(Name, levels = met_order),
+      met_short = str_trunc(as.character(Name), name_trunc),
+      cluster_lab = paste0("C", cluster)
+    ) %>%
+    arrange(pathway) %>%
+    mutate(pathway_short = factor(pathway_short, levels = unique(pathway_short)))
+
+  ggplot(d, aes(x = Name, y = fct_rev(pathway_short), fill = t)) +
+    geom_tile(color = "white", linewidth = 0.3) +
+    facet_grid(cluster_lab ~ ., scales = "free_y", space = "free_y",
+               switch = "y") +
+    scale_fill_gradient2(name = "Metabolite t",
+                         low = "#377EB8", mid = "grey92", high = "#E41A1C",
+                         midpoint = 0) +
+    scale_x_discrete(labels = function(x) str_trunc(x, name_trunc)) +
+    theme_minimal(base_size = 10) +
+    labs(
+      x = NULL, y = NULL,
+      title = paste0("Leading-edge membership — ", analysis_label),
+      subtitle = paste0(
+        n_distinct(d$pathway), " nominal terms, ",
+        n_distinct(d$Name), " distinct driving metabolites, ",
+        n_distinct(d$cluster), " collapsed signals"
+      )
+    ) +
+    theme(
+      axis.text.x = element_text(angle = 60, hjust = 1, size = 7),
+      axis.text.y = element_text(size = 7),
+      panel.grid  = element_blank(),
+      strip.placement = "outside",
+      strip.text.y.left = element_text(angle = 0, size = 8, face = "bold"),
+      plot.title    = element_text(hjust = 0),
+      plot.subtitle = element_text(color = "grey40", size = 8)
+    )
+}
+
+# Panel B — collapsed signals, one row per cluster.
+plot_le_collapsed <- function(collapsed, analysis_label) {
+  d <- collapsed$clusters %>%
+    mutate(
+      label = paste0("C", cluster, ": ", str_trunc(representative, 40),
+                     " (", n_terms, " terms)",
+                     if_else(mixed_direction, " [mixed]", ""))
+    )
+
+  ggplot(d, aes(x = NES_rep, y = reorder(label, NES_rep),
+                size = n_metabolites, color = direction)) +
+    geom_point(alpha = 0.9) +
+    geom_vline(xintercept = 0, linetype = "dashed", color = "grey50") +
+    scale_color_manual(name = "Direction",
+                       values = c("Up" = "#E41A1C", "Down" = "#377EB8")) +
+    scale_size_continuous(name = "Driving\nmetabolites", range = c(3, 9)) +
+    theme_minimal(base_size = 10) +
+    labs(
+      x = "NES (representative term)", y = NULL,
+      title = paste0("Collapsed signals — ", analysis_label),
+      subtitle = "Representative term = lowest p-value within cluster"
+    ) +
+    theme(
+      axis.text.y   = element_text(size = 8),
+      plot.title    = element_text(hjust = 0),
+      plot.subtitle = element_text(color = "grey40", size = 8)
+    )
+}
+```
+
+```{r le_redundancy_run}
+le_all_gw  <- collect_leading_edges(msea_gw,  gw_limma,  pathway_list,
+                                    pathway_source_lookup, "GW")
+le_all_sex <- collect_leading_edges(msea_sex, sex_limma, pathway_list,
+                                    pathway_source_lookup, "Sex")
+
+collapsed_gw  <- collapse_leading_edges(le_all_gw,  cutoff = 0.7)
+collapsed_sex <- collapse_leading_edges(le_all_sex, cutoff = 0.7)
+```
+
+```{r le_figure_gw, fig.width=13, fig.height=11}
+if (!is.null(collapsed_gw)) {
+  pA <- plot_le_matrix(collapsed_gw, "GW")
+  pB <- plot_le_collapsed(collapsed_gw, "GW")
+
+  fig_gw <- pA / pB +
+    plot_layout(heights = c(2.2, 1)) +
+    plot_annotation(tag_levels = "A")
+
+  save_dual_format(fig_gw, "msea_leading_edge_collapse_gw",
+                   png_path = png_path, svg_path = svg_path)
+  print(fig_gw)
+}
+```
+
+```{r le_figure_sex, fig.width=13, fig.height=11}
+if (!is.null(collapsed_sex)) {
+  pA <- plot_le_matrix(collapsed_sex, "Sex")
+  pB <- plot_le_collapsed(collapsed_sex, "Sex")
+
+  fig_sex <- pA / pB +
+    plot_layout(heights = c(2.2, 1)) +
+    plot_annotation(tag_levels = "A")
+
+  save_dual_format(fig_sex, "msea_leading_edge_collapse_sex",
+                   png_path = png_path, svg_path = svg_path)
+  print(fig_sex)
+}
+```
+
+```{r le_redundancy_tables}
+for (nm in c("GW", "Sex")) {
+  cl <- if (nm == "GW") collapsed_gw else collapsed_sex
+  if (is.null(cl)) next
+  print(
+    cl$clusters %>%
+      dplyr::select(cluster, representative, rep_source, n_terms,
+                    NES_rep, pval_rep, padj_rep, direction,
+                    mixed_direction, n_metabolites, driver_metabolites) %>%
+      mutate(across(c(NES_rep), ~ round(.x, 3)),
+             across(c(pval_rep, padj_rep), ~ signif(.x, 3))) %>%
+      kable(caption = paste0(nm, " — collapsed leading-edge signals ",
+                             "(Jaccard >= 0.7, complete linkage)")) %>%
+      kable_styling(bootstrap_options = c("striped", "condensed"),
+                    full_width = FALSE, font_size = 10)
+  )
+}
+```
+
+```{r le_redundancy_save}
+# Full untruncated names live here; the figure axes are truncated for legibility.
+for (nm in c("gw", "sex")) {
+  cl <- if (nm == "gw") collapsed_gw else collapsed_sex
+  le <- if (nm == "gw") le_all_gw   else le_all_sex
+  if (is.null(cl)) next
+
+  write_csv(le,
+            file.path(csv_path, paste0("batch2_msea_leading_edge_all_", nm, ".csv")))
+  write_csv(cl$clusters,
+            file.path(csv_path, paste0("batch2_msea_le_clusters_", nm, ".csv")))
+  write_csv(cl$cluster_map,
+            file.path(csv_path, paste0("batch2_msea_le_cluster_map_", nm, ".csv")))
+}
+cat("Leading-edge redundancy tables saved to:", csv_path, "\n")
 ```
 
 ---
