@@ -1,0 +1,9 @@
+Group,N_metabolites,Category,Wilcoxon_statistic,p_value,Mean_Female,Mean_Male,logFC,Group_display,FDR,Bonferroni,Significant_FDR,Significant_Bonferroni,Significant_nominal,Direction
+Lipids and lipid-like molecules,268,Super.Class,103,0.07825222852623709,19.820263081841272,19.70275321139748,-0.008578869873511932,Lipids and lipid-...,0.6260178282098967,0.6260178282098967,FALSE,FALSE,FALSE,Higher in Females
+Organic oxygen compounds,35,Super.Class,53,0.28547630885188235,20.564173509350937,20.787278237255432,0.015567782711055371,Organic oxygen co...,0.9977678150331024,1,FALSE,FALSE,FALSE,Higher in Males
+Phenylpropanoids and polyketides,2,Super.Class,83,0.5443701458566099,19.18596633724598,19.60904240103027,0.03146765305453324,Phenylpropanoids ...,0.9977678150331024,1,FALSE,FALSE,FALSE,Higher in Males
+"Nucleosides, nucleotides, and analogues",45,Super.Class,62,0.5833604667027033,21.34366743147908,21.41429961854663,0.004766400543749061,"Nucleosides, nucl...",0.9977678150331024,1,FALSE,FALSE,FALSE,Higher in Males
+Organoheterocyclic compounds,34,Super.Class,81,0.623604884395689,20.28877384517179,20.133958147859037,-0.011050857763601915,Organoheterocycli...,0.9977678150331024,1,FALSE,FALSE,FALSE,Higher in Females
+Organic acids and derivatives,123,Super.Class,66,0.7508318840891169,20.242720590107254,20.26560723626299,0.0016302057476306022,Organic acids and...,1,1,FALSE,FALSE,FALSE,Higher in Males
+Benzenoids,3,Super.Class,73,0.9769702553219757,20.11445264483001,20.141218150418254,0.0019184610320182917,Benzenoids,1,1,FALSE,FALSE,FALSE,Higher in Males
+Organic nitrogen compounds,15,Super.Class,72,1,19.742693286396864,19.738548768707698,-3.0289194704949705e-4,Organic nitrogen ...,1,1,FALSE,FALSE,FALSE,Higher in Females
