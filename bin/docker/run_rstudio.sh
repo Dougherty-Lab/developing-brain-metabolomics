@@ -2,7 +2,7 @@
 #SBATCH --job-name=rstudio
 #SBATCH --mem=100GB
 #SBATCH --cpus-per-task=2
-#SBATCH --time=2-00:00:00
+#SBATCH --time=12:00:00
 
 
 # configure spack
@@ -25,7 +25,7 @@ singularity exec \
    -B /tmp:/var/lib/rstudio-server \
    -B /tmp:/var/run/rstudio-server \
    -B /scratch/jdlab/sneha/developing-brain-metabolomics \
-   developing-brain-metabolomics_1.0.4.sif \
+   developing-brain-metabolomics_1.0.5.sif \
    rserver \
      --server-user=$USER
 
