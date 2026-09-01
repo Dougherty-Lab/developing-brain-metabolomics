@@ -1,3 +1,7 @@
+# Slurm outputs
+*.out
+*.err
+
 # History files
 .Rhistory
 .Rapp.history
@@ -11,6 +15,7 @@
 *.sif
 *.parquet
 *.tsv.bgz
+*.RData
 
 # User-specific files
 .Ruserdata
@@ -26,6 +31,7 @@
 
 # RStudio files
 .Rproj.user/
+.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -58,5 +64,4 @@ rsconnect/
 .DS_Store
 # Mac Files
 .DS_Store
-results/gene-metabolite/stability-dfbetas-zscore_trim/qq-plots/svg/
-results/gene-metabolite/csv-log2_na/qq-plots/svg/
+
