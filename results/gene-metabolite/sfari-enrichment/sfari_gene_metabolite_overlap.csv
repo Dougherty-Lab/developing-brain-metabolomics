@@ -1,4 +1,4 @@
-gene,n_metabolites,n_cell_types,n_associations,is_sfari,sfari_score,is_hub,gene_name,score,syndromic,genetic-category,number-of-reports
+gene,n_metabolites,n_cell_types,n_associations,is_sfari,sfari_score,is_recurrent,gene_name,score,syndromic,genetic-category,number-of-reports
 RBFOX1,9,3,9,TRUE,2,TRUE,"RNA binding protein, fox-1 homolog (C. elegans) 1",2,0,"Rare Single Gene Mutation, Genetic Association, Functional",46
 CNTNAP2,7,3,7,TRUE,2,TRUE,contactin associated protein-like 2,2,1,"Rare Single Gene Mutation, Syndromic, Genetic Association, Functional",111
 DCC,7,3,7,TRUE,2,TRUE,DCCnetrin 1 receptor,2,0,"Rare Single Gene Mutation, Genetic Association",6

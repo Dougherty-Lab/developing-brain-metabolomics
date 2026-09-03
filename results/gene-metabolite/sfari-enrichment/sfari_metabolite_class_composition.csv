@@ -1,0 +1,61 @@
+group,metab_class,n,pct
+Non-SFARI,(3'->5')-dinucleotides and analogues,1,0.10515247108307045
+Non-SFARI,(5'->5')-dinucleotides,26,2.7339642481598316
+Non-SFARI,5'-deoxyribonucleosides,2,0.2103049421661409
+Non-SFARI,Benzene and substituted derivatives,1,0.10515247108307045
+Non-SFARI,Benzodioxoles,1,0.10515247108307045
+Non-SFARI,Benzoxazoles,3,0.31545741324921134
+Non-SFARI,Carboximidic acids and derivatives,6,0.6309148264984227
+Non-SFARI,Carboxylic acids and derivatives,230,24.185068349106203
+Non-SFARI,Diazines,7,0.7360672975814931
+Non-SFARI,Fatty Acyls,21,2.2082018927444795
+Non-SFARI,Fatty acyls,4,0.4206098843322818
+Non-SFARI,Furans,3,0.31545741324921134
+Non-SFARI,Glycerolipids,83,8.727655099894848
+Non-SFARI,Glycerophospholipids,153,16.08832807570978
+Non-SFARI,Hydroxy acids and derivatives,5,0.5257623554153522
+Non-SFARI,Imidazopyrimidines,15,1.5772870662460567
+Non-SFARI,Indoles and derivatives,1,0.10515247108307045
+Non-SFARI,Keto acids and derivatives,69,7.255520504731861
+Non-SFARI,Lactones,9,0.9463722397476341
+Non-SFARI,Nucleoside and nucleotide analogues,7,0.7360672975814931
+Non-SFARI,Organic phosphoric acids and derivatives,15,1.5772870662460567
+Non-SFARI,Organic sulfuric acids and derivatives,3,0.31545741324921134
+Non-SFARI,Organonitrogen compounds,4,0.4206098843322818
+Non-SFARI,Organooxygen compounds,27,2.8391167192429023
+Non-SFARI,Peptidomimetics,1,0.10515247108307045
+Non-SFARI,Phenols,1,0.10515247108307045
+Non-SFARI,Phenylpropanoic acids,3,0.31545741324921134
+Non-SFARI,Piperidines,1,0.10515247108307045
+Non-SFARI,Prenol lipids,30,3.1545741324921135
+Non-SFARI,Purine nucleosides,11,1.1566771819137749
+Non-SFARI,Purine nucleotides,11,1.1566771819137749
+Non-SFARI,Pyrimidine nucleosides,2,0.2103049421661409
+Non-SFARI,Pyrimidine nucleotides,9,0.9463722397476341
+Non-SFARI,Pyrroles,98,10.304942166140904
+Non-SFARI,Quinolines and derivatives,2,0.2103049421661409
+Non-SFARI,Sphingolipids,12,1.2618296529968454
+Non-SFARI,Steroids and steroid derivatives,74,7.781282860147213
+SFARI,(5'->5')-dinucleotides,8,4.705882352941177
+SFARI,Benzene and substituted derivatives,1,0.5882352941176471
+SFARI,Benzodioxoles,2,1.1764705882352942
+SFARI,Biotin and derivatives,1,0.5882352941176471
+SFARI,Carboximidic acids and derivatives,1,0.5882352941176471
+SFARI,Carboxylic acids and derivatives,57,33.529411764705884
+SFARI,Fatty Acyls,5,2.9411764705882355
+SFARI,Glycerolipids,13,7.647058823529412
+SFARI,Glycerophospholipids,47,27.647058823529413
+SFARI,Hydroxy acids and derivatives,2,1.1764705882352942
+SFARI,Imidazopyrimidines,2,1.1764705882352942
+SFARI,Indoles and derivatives,2,1.1764705882352942
+SFARI,Keto acids and derivatives,6,3.5294117647058822
+SFARI,Lactones,2,1.1764705882352942
+SFARI,Nucleoside and nucleotide analogues,5,2.9411764705882355
+SFARI,Organic phosphoric acids and derivatives,4,2.3529411764705883
+SFARI,Organonitrogen compounds,1,0.5882352941176471
+SFARI,Organooxygen compounds,1,0.5882352941176471
+SFARI,Prenol lipids,2,1.1764705882352942
+SFARI,Purine nucleotides,3,1.7647058823529411
+SFARI,Pyrroles,2,1.1764705882352942
+SFARI,Sphingolipids,1,0.5882352941176471
+SFARI,Steroids and steroid derivatives,2,1.1764705882352942

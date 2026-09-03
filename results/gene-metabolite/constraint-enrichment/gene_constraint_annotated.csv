@@ -1,4 +1,4 @@
-gene,loeuf,exp_lof,n_metabolites,is_hit,is_hub,mean_expr
+gene,loeuf,exp_lof,n_metabolites,is_hit,is_recurrent,mean_expr
 A1BG,1.2292,46.024,0,FALSE,FALSE,2.315125224805712
 A1BG-AS1,NA,NA,0,FALSE,FALSE,2.3285081185152587
 A1CF,0.88662,68.861,0,FALSE,FALSE,1.0157766931141088

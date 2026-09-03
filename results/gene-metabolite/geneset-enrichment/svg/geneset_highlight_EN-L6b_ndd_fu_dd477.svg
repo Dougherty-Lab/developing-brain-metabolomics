@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='504.00pt' height='288.00pt' viewBox='0 0 504.00 288.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHw1MDQuMDB8MC4wMHwyODguMDA='>
+    <rect x='0.00' y='0.00' width='504.00' height='288.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw1MDQuMDB8MC4wMHwyODguMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpNDAuMzZ8NDUwLjkwfDM3LjI3fDE3OS40NA=='>
+    <rect x='40.36' y='37.27' width='410.54' height='142.17' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpNDAuMzZ8NDUwLjkwfDM3LjI3fDE3OS40NA==)'>
+<rect x='160.10' y='137.98' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #E3918B;' />
+<rect x='46.06' y='98.48' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #C03F41;' />
+<rect x='103.08' y='98.48' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #2166AC;' />
+<rect x='103.08' y='78.74' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #7E98C9;' />
+<rect x='274.14' y='98.48' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #557EBA;' />
+<rect x='274.14' y='78.74' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #97ABD4;' />
+<rect x='274.14' y='58.99' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #C4CEE6;' />
+<rect x='331.16' y='118.23' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #E89F99;' />
+<rect x='217.12' y='39.24' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #7995C7;' />
+<rect x='388.18' y='157.72' width='57.02' height='19.75' style='stroke-width: 0.85; stroke: #FFFFFF; stroke-linecap: butt; stroke-linejoin: miter; fill: #AEBDDD;' />
+</g>
+<g clip-path='url(#cpMC4wMHw1MDQuMDB8MC4wMHwyODguMDA=)'>
+<polyline points='40.36,179.44 40.36,37.27 ' style='stroke-width: 1.07; stroke-linecap: square;' />
+<text x='35.27' y='170.51' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='16.00px' lengthAdjust='spacingAndGlyphs'>ERF</text>
+<text x='35.27' y='150.76' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='17.34px' lengthAdjust='spacingAndGlyphs'>GLI3</text>
+<text x='35.27' y='131.02' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='24.44px' lengthAdjust='spacingAndGlyphs'>INHBA</text>
+<text x='35.27' y='111.27' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='22.22px' lengthAdjust='spacingAndGlyphs'>RARB</text>
+<text x='35.27' y='91.52' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='23.10px' lengthAdjust='spacingAndGlyphs'>RORA</text>
+<text x='35.27' y='71.78' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='29.79px' lengthAdjust='spacingAndGlyphs'>SLC6A1</text>
+<text x='35.27' y='52.03' text-anchor='end' style='font-size: 8.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='25.34px' lengthAdjust='spacingAndGlyphs'>ZFHX4</text>
+<polyline points='37.62,167.59 40.36,167.59 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='37.62,147.85 40.36,147.85 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='37.62,128.10 40.36,128.10 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='37.62,108.36 40.36,108.36 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='37.62,88.61 40.36,88.61 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='37.62,68.86 40.36,68.86 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='37.62,49.12 40.36,49.12 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='40.36,179.44 450.90,179.44 ' style='stroke-width: 1.07; stroke-linecap: square;' />
+<polyline points='74.57,182.18 74.57,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='131.59,182.18 131.59,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='188.61,182.18 188.61,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='245.63,182.18 245.63,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='302.65,182.18 302.65,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='359.67,182.18 359.67,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<polyline points='416.69,182.18 416.69,179.44 ' style='stroke-width: 1.07; stroke-linecap: butt;' />
+<text transform='translate(78.18,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='86.80px' lengthAdjust='spacingAndGlyphs'>2-Deoxyribose 5-Phosphate</text>
+<text transform='translate(135.20,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='131.95px' lengthAdjust='spacingAndGlyphs'>Dihydronicotinamide-Adenine Dinucleotide</text>
+<text transform='translate(192.22,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='57.59px' lengthAdjust='spacingAndGlyphs'>Glutaric Anhydride</text>
+<text transform='translate(249.24,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='41.66px' lengthAdjust='spacingAndGlyphs'>Pe 21:2_21:2</text>
+<text transform='translate(306.26,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='90.66px' lengthAdjust='spacingAndGlyphs'>S-4-(2-Oxo-Butyl)Glutathione</text>
+<text transform='translate(363.28,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='52.17px' lengthAdjust='spacingAndGlyphs'>Sqdg(14:0_30:6)</text>
+<text transform='translate(420.30,188.14) rotate(-45)' text-anchor='end' style='font-size: 7.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='43.99px' lengthAdjust='spacingAndGlyphs'>Tg(49:11_2:0)</text>
+<text x='461.86' y='78.36' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='2.44px' lengthAdjust='spacingAndGlyphs'>l</text>
+<text x='464.30' y='78.36' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='6.11px' lengthAdjust='spacingAndGlyphs'>o</text>
+<text x='470.41' y='78.36' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='6.11px' lengthAdjust='spacingAndGlyphs'>g</text>
+<text x='476.52' y='80.37' style='font-size: 7.70px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='4.28px' lengthAdjust='spacingAndGlyphs'>2</text>
+<text x='480.80' y='78.36' style='font-size: 11.00px; font-weight: 0; font-family: "Nimbus Sans L";' textLength='3.06px' lengthAdjust='spacingAndGlyphs'> </text>
+<text x='483.86' y='78.36' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='6.72px' lengthAdjust='spacingAndGlyphs'>F</text>
+<text x='490.58' y='78.36' style='font-size: 11.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='7.94px' lengthAdjust='spacingAndGlyphs'>C</text>
+<image width='12.05' height='60.27' x='461.86' y='87.43' preserveAspectRatio='none' xlink:href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAEsCAYAAAACUNnVAAAAuElEQVQ4jb2QSRbDMAhDBRfr6817sUAXjkkg4KGL7hi+JWF8Xm9lYgKDGK0iIjCYrOXeUp+hVexgKmF2z+wtiJzlnGvI0DKqXAK1ythjdeuMkLRnvgD39IjHdKSMMfO9lIvM91Q+hqncv/NpmcGZR3Zqbp55ZHf0raqCRXFWalWcySJnlcTZhsC66Orsb0a/m0+kUHC58u4XC9aiDZQVLNgQkMS85CTcBrfIYLFAcZZUh3GHAnyo4gtZk46YMF/jrQAAAABJRU5ErkJggg=='/>
+<polyline points='471.50,144.06 473.91,144.06 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='471.50,129.84 473.91,129.84 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='471.50,115.63 473.91,115.63 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='471.50,101.41 473.91,101.41 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='464.27,144.06 461.86,144.06 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='464.27,129.84 461.86,129.84 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='464.27,115.63 461.86,115.63 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<polyline points='464.27,101.41 461.86,101.41 ' style='stroke-width: 0.38; stroke: #FFFFFF; stroke-linecap: butt;' />
+<text x='479.39' y='147.49' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='8.38px' lengthAdjust='spacingAndGlyphs'>-4</text>
+<text x='479.39' y='133.28' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='8.38px' lengthAdjust='spacingAndGlyphs'>-2</text>
+<text x='479.39' y='119.06' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.24px' lengthAdjust='spacingAndGlyphs'>0</text>
+<text x='479.39' y='104.85' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='5.24px' lengthAdjust='spacingAndGlyphs'>2</text>
+<text x='40.36' y='29.73' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='165.04px' lengthAdjust='spacingAndGlyphs'>7 genes, 7 metabolites, 10 associations</text>
+<text x='40.36' y='14.64' style='font-size: 12.57px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='186.38px' lengthAdjust='spacingAndGlyphs'>EN-L6b — DD (Fu 2022, DD477)</text>
+</g>
+</svg>

@@ -7,9 +7,10 @@
 #           gene-metabolite association?
 #           Foreground = hit genes, Background = TESTED gene universe
 #
-#   Test 2: Among hit genes, are SFARI genes more likely to be hubs
-#           (>= N distinct metabolite associations)?
-#           Foreground = hub genes, Background = hit genes
+#   Test 2: Among hit genes, are SFARI genes more likely to be associated
+#           with >= N distinct metabolites?
+#           Foreground = genes associated with >= N metabolites
+#           Background = hit genes
 #
 # Each test: Fisher's exact + Wilcoxon rank-sum + SFARI score stratification.
 #
@@ -52,6 +53,8 @@ out_dir    <- "../../results/gene-metabolite/sfari-enrichment"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 MIN_METAB_RECURRENCE <- 5
+MIN_HIT_GENES_PER_CT <- 20      # cell-type floor, matches geneset_enrichment.R
+FDR_ALPHA            <- 0.05    # significance judged after BH, not on raw p
 REBUILD_UNIVERSE     <- FALSE   # TRUE to force a re-scan of the parquet archive
 
 # ---- Load data -------------------------------------------------------------
@@ -118,7 +121,7 @@ hit_recur <- hits |>
             n_associations = n(), .groups = "drop") |>
   mutate(is_sfari    = is_sfari_gene(gene),
          sfari_score = get_sfari_score(gene),
-         is_hub      = n_metabolites >= MIN_METAB_RECURRENCE) |>
+         is_recurrent      = n_metabolites >= MIN_METAB_RECURRENCE) |>
   arrange(desc(n_metabolites))
 
 hit_genes <- hit_recur$gene
@@ -239,16 +242,16 @@ wilcox_t1 <- wilcox.test(has_hit ~ is_sfari, data = full_df |>
 cat(sprintf("\nWilcoxon (SFARI more likely to have hits): p = %.4f\n",
             wilcox_t1$p.value))
 
-# ---- TEST 2: Among hit genes, are SFARI genes more likely hubs? ------------
+# ---- TEST 2: SFARI genes and multi-metabolite association ------------------
 cat("\n##########################################################\n")
-cat("TEST 2: Among hit genes, are SFARI genes more likely hubs?\n")
-cat("  Foreground: hub genes >= ", MIN_METAB_RECURRENCE, " metabolites (",
-    sum(hit_recur$is_hub), ")\n")
+cat("TEST 2: Among hit genes, are SFARI genes associated with more metabolites?\n")
+cat("  Foreground: genes associated with >=", MIN_METAB_RECURRENCE, "metabolites (",
+    sum(hit_recur$is_recurrent), ")\n")
 cat("  Background: all hit genes (", nrow(hit_recur), ")\n")
 cat("##########################################################\n")
 
-hub_genes <- hit_recur |> filter(is_hub) |> pull(gene)
-fisher_t2 <- run_fisher(hub_genes, hit_genes, "Hub", "Hit")
+recurrent_genes <- hit_recur |> filter(is_recurrent) |> pull(gene)
+fisher_t2 <- run_fisher(recurrent_genes, hit_genes, "Multi-metabolite", "Hit")
 
 # Wilcoxon: among hit genes, do SFARI genes have higher recurrence?
 wilcox_t2 <- wilcox.test(n_metabolites ~ is_sfari, data = hit_recur,
@@ -260,7 +263,7 @@ hit_recur |>
   group_by(is_sfari) |>
   summarise(n = n(), median_metab = median(n_metabolites),
             mean_metab = mean(n_metabolites),
-            n_hub = sum(is_hub), .groups = "drop") |>
+            n_recurrent = sum(is_recurrent), .groups = "drop") |>
   print()
 
 # ---- SFARI score stratification (Test 2) -----------------------------------
@@ -269,16 +272,17 @@ sfari_hits <- hit_recur |> filter(is_sfari, !is.na(sfari_score))
 
 sfari_hits |>
   group_by(sfari_score) |>
-  summarise(n = n(), n_hub = sum(is_hub),
-            pct_hub = 100 * mean(is_hub),
+  summarise(n = n(), n_recurrent = sum(is_recurrent),
+            pct_recurrent = 100 * mean(is_recurrent),
             median_metab = median(n_metabolites), .groups = "drop") |>
   print()
 
-strata_t2 <- run_score_strata(hub_genes, hit_genes, "Test 2", "hub")
+strata_t2 <- run_score_strata(recurrent_genes, hit_genes, "Test 2",
+                              sprintf(">=%d metabolites", MIN_METAB_RECURRENCE))
 
 # Both tests share the helper, so the score axis is defined identically:
 # Test 1 asks "does this score reach ANY association?", Test 2 asks "given an
-# association, does this score reach hub status?".
+# association, does this score reach >= N metabolites?".
 strata_all <- bind_rows(strata_t1, strata_t2)
 write_csv(strata_all, file.path(out_dir, "sfari_score_stratified_enrichment.csv"))
 
@@ -308,7 +312,8 @@ p_forest <- ggplot(forest_df, aes(x = OR, y = stratum, color = sig)) +
   facet_wrap(~ test, ncol = 1, scales = "free_y",
              labeller = as_labeller(c(
                "Test 1" = "Test 1: any association (vs tested universe)",
-               "Test 2" = "Test 2: hub status (vs all hit genes)"))) +
+               "Test 2" = sprintf("Test 2: >=%d metabolites (vs all hit genes)",
+                                  MIN_METAB_RECURRENCE)))) +
   scale_x_log10() +
   scale_color_manual(values = c("p < 0.05" = "#E15759", "n.s." = "grey55"),
                      name = NULL) +
@@ -332,7 +337,7 @@ p_dist <- ggplot(hit_recur |> mutate(group = ifelse(is_sfari, "SFARI", "Non-SFAR
                     name = NULL) +
   annotate("text", x = MIN_METAB_RECURRENCE + 0.5, y = Inf, vjust = 1.5,
            hjust = 0, size = 3.5, color = "grey40",
-           label = sprintf("Hub threshold (%d)", MIN_METAB_RECURRENCE)) +
+           label = sprintf("%d-metabolite threshold", MIN_METAB_RECURRENCE)) +
   labs(x = "Distinct metabolites associated", y = "Number of genes",
        title = "Metabolite recurrence: SFARI vs non-SFARI genes (Test 2)") +
   theme_cowplot(12) +
@@ -341,9 +346,9 @@ p_dist <- ggplot(hit_recur |> mutate(group = ifelse(is_sfari, "SFARI", "Non-SFAR
 save_dual_format(p_dist, out_dir, "sfari_recurrence_distribution", width = 9, height = 6)
 print(p_dist)
 
-# B) Lollipop: hub genes colored by SFARI status/score
-hub_df <- hit_recur |>
-  filter(is_hub) |>
+# B) Lollipop: genes associated with >= N metabolites, coloured by SFARI score
+recurrent_df <- hit_recur |>
+  filter(is_recurrent) |>
   mutate(sfari_label = case_when(
     !is_sfari              ~ "Non-SFARI",
     sfari_score == 1       ~ "SFARI (score 1)",
@@ -352,7 +357,7 @@ hub_df <- hit_recur |>
     TRUE                   ~ "SFARI (unscored)"
   ))
 
-p_hub <- ggplot(hub_df,
+p_recurrent <- ggplot(recurrent_df,
                 aes(x = reorder(gene, n_metabolites), y = n_metabolites,
                     color = sfari_label)) +
   geom_point(size = 3) +
@@ -365,13 +370,545 @@ p_hub <- ggplot(hub_df,
                                  "SFARI (unscored)"  = "#BAB0AC"),
                      name = NULL) +
   labs(x = NULL, y = "Distinct metabolites associated",
-       title = sprintf("Hub genes (\u2265%d metabolites) \u2014 SFARI status",
+       title = sprintf("Genes associated with \u2265%d metabolites \u2014 SFARI status",
                        MIN_METAB_RECURRENCE)) +
   theme_cowplot(12) +
   theme(legend.position = "right")
 
-save_dual_format(p_hub, out_dir, "sfari_hub_genes_lollipop", width = 10, height = 8)
-print(p_hub)
+save_dual_format(p_recurrent, out_dir, "sfari_multimetabolite_genes_lollipop",
+                 width = 10, height = 8)
+print(p_recurrent)
+
+# ---- TEST 3: SFARI enrichment per cell type --------------------------------
+# Tests 1 and 2 pool cell types ("a hit in >=1 cell type"), which cannot tell a
+# signal carried by one well-powered population from one present across the
+# tissue. Test 3 repeats Test 1 within each cell type.
+#
+# BACKGROUND. Foreground = SFARI status of genes hit IN THAT CELL TYPE;
+# background = genes TESTED in that cell type. 
+cat("\n##########################################################\n")
+cat("TEST 3: Is SFARI enrichment cell-type specific?\n")
+cat("##########################################################\n")
+
+ct_universe_cache <- file.path(cache_dir,
+                               sprintf("tested_gene_universe_by_celltype_%s.rds", METHOD))
+
+if (!REBUILD_UNIVERSE && file.exists(ct_universe_cache)) {
+  ct_universe <- readRDS(ct_universe_cache)
+} else {
+  cat("Scanning parquet archive for per-cell-type tested-gene universe ...\n")
+  ct_universe <- open_dataset(parquet_dir) |>
+    dplyr::distinct(cell_type, gene) |> collect()
+  saveRDS(ct_universe, ct_universe_cache)
+}
+
+hits_by_ct <- hits |> distinct(cell_type, gene)
+
+ct_counts <- hits_by_ct |>
+  count(cell_type, name = "n_hit_genes") |>
+  mutate(tested = n_hit_genes >= MIN_HIT_GENES_PER_CT) |>
+  arrange(desc(n_hit_genes))
+
+cat(sprintf("Cell-type floor: %d distinct hit genes\n", MIN_HIT_GENES_PER_CT))
+print(as.data.frame(ct_counts), right = FALSE)
+
+# Silent, tabular version of run_fisher() -- Test 3 runs it once per cell type,
+# so printing a contingency table each time would bury the result.
+fisher_quiet <- function(fg, bg) {
+  fg <- intersect(unique(fg), unique(bg))
+  bg <- unique(bg)
+  fg_s  <- sum(is_sfari_gene(fg))
+  fg_ns <- length(fg) - fg_s
+  bg_only <- setdiff(bg, fg)
+  bg_s  <- sum(is_sfari_gene(bg_only))
+  bg_ns <- length(bg_only) - bg_s
+
+  if (fg_s == 0)
+    return(tibble(n_hit = length(fg), n_bg = length(bg), n_sfari_hit = 0L,
+                  pct_sfari_hit = 0, pct_sfari_bg = 100 * sum(is_sfari_gene(bg)) / length(bg),
+                  OR = NA_real_, ci_lo = NA_real_, ci_hi = NA_real_, p = NA_real_))
+
+  m   <- matrix(c(fg_s, fg_ns, bg_s, bg_ns), nrow = 2, byrow = TRUE)
+  ft  <- fisher.test(m, alternative = "greater")
+  ft2 <- fisher.test(m)
+  tibble(n_hit = length(fg), n_bg = length(bg), n_sfari_hit = fg_s,
+         pct_sfari_hit = 100 * fg_s / length(fg),
+         pct_sfari_bg  = 100 * sum(is_sfari_gene(bg)) / length(bg),
+         OR = unname(ft$estimate),
+         ci_lo = ft2$conf.int[1], ci_hi = ft2$conf.int[2], p = ft$p.value)
+}
+
+ct_keep <- ct_counts |> filter(tested) |> pull(cell_type)
+
+sfari_by_ct <- map_dfr(ct_keep, function(ct) {
+  fg <- hits_by_ct$gene[hits_by_ct$cell_type == ct]
+  bg <- ct_universe$gene[ct_universe$cell_type == ct]
+  fisher_quiet(fg, bg) |> mutate(cell_type = ct, .before = 1)
+}) |>
+  mutate(FDR = p.adjust(p, method = "BH"),
+         significant = !is.na(FDR) & FDR < FDR_ALPHA) |>
+  arrange(p)
+
+print(as.data.frame(sfari_by_ct), right = FALSE, digits = 3)
+cat(sprintf("%d of %d cell types enriched for SFARI genes at FDR < %.2f\n",
+            sum(sfari_by_ct$significant), nrow(sfari_by_ct), FDR_ALPHA))
+
+write_csv(sfari_by_ct, file.path(out_dir, "sfari_enrichment_by_celltype.csv"))
+write_csv(ct_counts,   file.path(out_dir, "sfari_celltype_inclusion.csv"))
+
+# ---- Additional visualizations ---------------------------------------------
+
+# C) Per-cell-type forest. Ordered by OR; unbounded intervals (no SFARI hits)
+# are dropped from the panel but retained in the CSV.
+forest_ct <- sfari_by_ct |>
+  filter(is.finite(OR), OR > 0, is.finite(ci_hi)) |>
+  mutate(cell_type = fct_reorder(cell_type, OR),
+         sig = ifelse(significant, sprintf("FDR < %.2f", FDR_ALPHA), "n.s."),
+         lab = sprintf("%d/%d", n_sfari_hit, n_hit))
+
+p_ct_forest <- ggplot(forest_ct, aes(x = OR, y = cell_type, color = sig)) +
+  geom_vline(xintercept = 1, linetype = "dashed", color = "grey50") +
+  geom_errorbarh(aes(xmin = ci_lo, xmax = ci_hi), height = 0.18, linewidth = 0.6) +
+  geom_point(size = 3) +
+  geom_text(aes(label = lab), vjust = -1.1, size = 3, show.legend = FALSE) +
+  scale_x_log10() +
+  scale_color_manual(values = setNames(c("#E15759", "grey55"),
+                                       c(sprintf("FDR < %.2f", FDR_ALPHA), "n.s.")),
+                     name = NULL) +
+  labs(x = "Odds ratio (log scale)", y = NULL,
+       title = "SFARI enrichment by cell type",
+       caption = "Points labelled SFARI hits / hit genes. Background = genes tested in that cell type.") +
+  theme_cowplot(12) +
+  theme(legend.position = "bottom")
+
+save_dual_format(p_ct_forest, out_dir, "sfari_forest_by_celltype", width = 8, height = 7)
+print(p_ct_forest)
+
+# D) Score-response: proportion of TESTED SFARI genes at each score that reach
+# at least one association. The forest gives odds ratios against a comparator;
+# this gives the raw rate on an absolute scale, which is what shows whether the
+# effect is graded across scores 1 -> 3 rather than driven by one stratum.
+# Wilson intervals, which stay inside [0, 1] at small n where Wald does not.
+wilson_ci <- function(k, n, conf = 0.95) {
+  if (n == 0) return(c(NA_real_, NA_real_))
+  z <- qnorm(1 - (1 - conf) / 2); ph <- k / n
+  d <- 1 + z^2 / n
+  ctr <- (ph + z^2 / (2 * n)) / d
+  hw  <- z * sqrt(ph * (1 - ph) / n + z^2 / (4 * n^2)) / d
+  c(max(0, ctr - hw), min(1, ctr + hw))
+}
+
+score_rate <- tibble(gene = background_genes) |>
+  mutate(is_hit   = gene %in% hit_genes,
+         is_sfari = is_sfari_gene(gene),
+         score    = get_sfari_score(gene),
+         stratum  = case_when(
+           !is_sfari            ~ "Non-SFARI",
+           is.na(score)         ~ "Unscored",
+           TRUE                 ~ paste("Score", score))) |>
+  group_by(stratum) |>
+  summarise(n_tested = n(), n_hit = sum(is_hit), .groups = "drop") |>
+  mutate(rate = n_hit / n_tested,
+         ci   = map2(n_hit, n_tested, wilson_ci),
+         lo   = map_dbl(ci, 1), hi = map_dbl(ci, 2),
+         stratum = factor(stratum,
+                          levels = c("Non-SFARI", "Unscored",
+                                     "Score 3", "Score 2", "Score 1"))) |>
+  dplyr::select(-ci) |>
+  arrange(stratum)
+
+print(as.data.frame(score_rate), right = FALSE, digits = 3)
+write_csv(score_rate, file.path(out_dir, "sfari_hit_rate_by_score.csv"))
+
+p_score_rate <- ggplot(score_rate, aes(x = stratum, y = 100 * rate,
+                                       fill = stratum)) +
+  geom_col(width = 0.68, alpha = 0.9) +
+  geom_errorbar(aes(ymin = 100 * lo, ymax = 100 * hi), width = 0.16,
+                linewidth = 0.5) +
+  geom_text(aes(label = sprintf("%d/%d", n_hit, n_tested)),
+            vjust = -0.6, hjust = -0.15, size = 3) +
+  geom_hline(yintercept = 100 * with(score_rate,
+                                     sum(n_hit) / sum(n_tested)),
+             linetype = "dashed", colour = "grey40") +
+  scale_fill_manual(values = c("Score 1" = "#E15759", "Score 2" = "#F28E2B",
+                               "Score 3" = "#EDC948", "Unscored" = "#BAB0AC",
+                               "Non-SFARI" = "#76B7B2"), guide = "none") +
+  coord_flip() +
+  labs(x = NULL, y = "Tested genes with >=1 metabolite association (%)",
+       title = "Association rate across SFARI confidence scores",
+       subtitle = "Wilson 95% intervals; dashed line = overall rate across the tested universe") +
+  theme_cowplot(12)
+
+save_dual_format(p_score_rate, out_dir, "sfari_hit_rate_by_score",
+                 width = 8, height = 5)
+print(p_score_rate)
+
+# E) Score x cell type. Sparse by construction -- score 1 has few genes and a
+# single cell type contributes few hits -- so this is plotted as raw counts
+# with a rate fill rather than as a grid of odds ratios, which would be mostly
+# unstable estimates. Guarded: skipped entirely if too thin to read.
+score_ct <- ct_universe |>
+  filter(cell_type %in% ct_keep) |>
+  mutate(is_sfari = is_sfari_gene(gene),
+         score    = get_sfari_score(gene)) |>
+  filter(is_sfari) |>
+  mutate(stratum = ifelse(is.na(score), "Unscored", paste("Score", score))) |>
+  left_join(hits_by_ct |> mutate(is_hit = TRUE), by = c("cell_type", "gene")) |>
+  mutate(is_hit = replace_na(is_hit, FALSE)) |>
+  group_by(cell_type, stratum) |>
+  summarise(n_tested = n(), n_hit = sum(is_hit),
+            rate = mean(is_hit), .groups = "drop")
+
+write_csv(score_ct, file.path(out_dir, "sfari_score_by_celltype.csv"))
+
+if (nrow(score_ct) >= 6 && sum(score_ct$n_hit) >= 10) {
+  p_score_ct <- ggplot(score_ct, aes(x = cell_type, y = stratum, fill = 100 * rate)) +
+    geom_tile(colour = "white") +
+    geom_text(aes(label = sprintf("%d/%d", n_hit, n_tested)), size = 2.8) +
+    scale_fill_gradient(low = "white", high = "#E15759",
+                        name = "Hit rate (%)") +
+    labs(x = NULL, y = NULL,
+         title = "SFARI genes reaching an association, by score and cell type",
+         subtitle = "Cell labels = hit genes / tested SFARI genes in that cell type") +
+    theme_cowplot(11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  save_dual_format(p_score_ct, out_dir, "sfari_score_by_celltype",
+                   width = 10, height = 5)
+  print(p_score_ct)
+} else {
+  cat("\nScore x cell type panel skipped: too few SFARI hits to plot meaningfully.\n")
+}
+
+# ---- Threshold-free enrichment (no FDR cut anywhere) -----------------------
+# Every test above depends on the FDR < 0.10 / |logFC| >= 0.25 cut. A reviewer
+# can reasonably ask whether SFARI enrichment is a property of the data or of
+# where that line was drawn -- which is exactly what the co-author's
+# "what about FDR < 0.05?" question was getting at.
+#
+# So: rank EVERY tested gene by its strongest association (smallest p-value
+# across all metabolite x cell-type tests) and walk down the ranking, adding
+# when a gene is SFARI and subtracting when it is not. A curve that climbs
+# smoothly to an early peak means SFARI genes sit toward the top of the whole
+# ranking, independent of any threshold. The statistic is the classic
+# unweighted Kolmogorov-Smirnov running sum used by GSEA; significance comes
+# from permuting gene labels, which preserves the ranking and the set size.
+rank_cache <- file.path(cache_dir, sprintf("gene_min_pvalue_%s.rds", METHOD))
+
+if (!REBUILD_UNIVERSE && file.exists(rank_cache)) {
+  gene_rank <- readRDS(rank_cache)
+} else {
+  cat("\nScanning parquet archive for per-gene minimum p-value ...\n")
+  gene_rank <- open_dataset(parquet_dir) |>
+    group_by(gene) |>
+    summarise(min_p = min(P.Value, na.rm = TRUE)) |>
+    collect()
+  saveRDS(gene_rank, rank_cache)
+}
+
+gene_rank <- gene_rank |>
+  filter(is.finite(min_p)) |>
+  arrange(min_p) |>
+  mutate(is_sfari = is_sfari_gene(gene))
+
+cat(sprintf("Ranked genes: %s (%d SFARI)\n",
+            format(nrow(gene_rank), big.mark = ","), sum(gene_rank$is_sfari)))
+
+# Running enrichment score over a 0/1 membership vector.
+running_es <- function(hit_vec) {
+  n <- length(hit_vec); nh <- sum(hit_vec)
+  if (nh == 0 || nh == n) return(rep(0, n))
+  cumsum(ifelse(hit_vec, 1 / nh, -1 / (n - nh)))
+}
+
+es_curve <- running_es(gene_rank$is_sfari)
+es_obs   <- es_curve[which.max(abs(es_curve))]
+peak_i   <- which.max(abs(es_curve))
+
+set.seed(123)
+N_PERM_ES <- 10000
+es_null <- replicate(N_PERM_ES, {
+  v <- sample(gene_rank$is_sfari)
+  e <- running_es(v)
+  e[which.max(abs(e))]
+})
+p_es <- (sum(es_null >= es_obs) + 1) / (N_PERM_ES + 1)
+
+cat(sprintf("Threshold-free enrichment: ES = %+.4f at rank %s of %s, permutation p = %.4g\n",
+            es_obs, format(peak_i, big.mark = ","),
+            format(nrow(gene_rank), big.mark = ","), p_es))
+
+# F) Running enrichment curve with the SFARI rug beneath it.
+curve_df <- tibble(rank = seq_along(es_curve), es = es_curve)
+rug_df   <- tibble(rank = which(gene_rank$is_sfari))
+
+p_curve <- plot_grid(
+  ggplot(curve_df, aes(x = rank, y = es)) +
+    geom_hline(yintercept = 0, colour = "grey60") +
+    geom_line(colour = "#E15759", linewidth = 0.8) +
+    geom_vline(xintercept = peak_i, linetype = "dotted", colour = "grey40") +
+    annotate("text", x = peak_i, y = es_obs, hjust = -0.1, vjust = -0.5,
+             size = 3.4,
+             label = sprintf("ES = %+.3f\np = %.3g", es_obs, p_es)) +
+    labs(x = NULL, y = "Running enrichment",
+         title = "SFARI enrichment without a significance threshold",
+         subtitle = "All tested genes ranked by strongest metabolite association") +
+    theme_cowplot(12) +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()),
+  ggplot(rug_df, aes(x = rank)) +
+    geom_segment(aes(xend = rank, y = 0, yend = 1), linewidth = 0.2,
+                 colour = "grey25") +
+    scale_x_continuous(limits = c(1, nrow(gene_rank)),
+                       labels = scales::comma) +
+    labs(x = "Gene rank (1 = strongest association)", y = NULL) +
+    theme_cowplot(12) +
+    theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()),
+  ncol = 1, align = "v", rel_heights = c(4, 1))
+
+save_dual_format(p_curve, out_dir, "sfari_enrichment_curve", width = 9, height = 6)
+print(p_curve)
+
+write_csv(tibble(es = es_obs, peak_rank = peak_i, n_ranked = nrow(gene_rank),
+                 n_sfari = sum(gene_rank$is_sfari), n_perm = N_PERM_ES, p = p_es),
+          file.path(out_dir, "sfari_enrichment_curve_stats.csv"))
+
+# ---- Covariate-matched permutation null ------------------------------------
+# The confound both this script and constraint_enrichment.R document: hit genes
+# are longer and better expressed than background, so ANY gene set biased
+# toward large, well-expressed genes will appear enriched. Fisher's test cannot
+# see that. This can.
+#
+# Draw N random gene sets the same size as the tested SFARI set, sampling
+# WITHIN strata defined by expression decile x number of cell types in which
+# the gene was testable -- the two things that most directly determine whether
+# a gene could become a hit at all. If the observed overlap still sits in the
+# tail of that null, the enrichment is not a detectability artefact.
+N_PERM_MATCH <- 10000
+
+cpm       <- pb_base$counts / rowSums(pb_base$counts) * 1e6
+mean_expr <- log2(colMeans(cpm) + 1)
+
+n_ct_tested <- ct_universe |> count(gene, name = "n_ct_tested")
+
+match_df <- tibble(gene = background_genes) |>
+  left_join(n_ct_tested, by = "gene") |>
+  mutate(mean_expr   = unname(mean_expr[gene]),
+         n_ct_tested = replace_na(n_ct_tested, 0L),
+         is_hit      = gene %in% hit_genes,
+         is_sfari    = is_sfari_gene(gene)) |>
+  filter(!is.na(mean_expr)) |>
+  mutate(expr_decile = dplyr::ntile(mean_expr, 10),
+         stratum     = paste(expr_decile, n_ct_tested, sep = "_"))
+
+obs_overlap <- sum(match_df$is_sfari & match_df$is_hit)
+
+# Sample the same number of genes from each stratum as SFARI occupies there.
+strata_n <- match_df |> filter(is_sfari) |> count(stratum, name = "k")
+pool     <- split(match_df$is_hit, match_df$stratum)
+
+set.seed(123)
+null_overlap <- replicate(N_PERM_MATCH, {
+  sum(map2_int(strata_n$stratum, strata_n$k, function(s, k) {
+    v <- pool[[s]]
+    if (is.null(v) || length(v) == 0) return(0L)
+    sum(sample(v, min(k, length(v))))
+  }))
+})
+
+p_match <- (sum(null_overlap >= obs_overlap) + 1) / (N_PERM_MATCH + 1)
+fold    <- obs_overlap / mean(null_overlap)
+
+cat(sprintf("\nMatched permutation: observed %d SFARI hit genes vs null mean %.1f (%.2fx), p = %.4g\n",
+            obs_overlap, mean(null_overlap), fold, p_match))
+cat(sprintf("  Strata: %d (expression decile x cell types tested)\n", nrow(strata_n)))
+
+# G) Null distribution with the observed value marked.
+p_null <- ggplot(tibble(x = null_overlap), aes(x = x)) +
+  geom_histogram(bins = 40, fill = "#BAB0AC", colour = "white", linewidth = 0.2) +
+  geom_vline(xintercept = obs_overlap, colour = "#E15759", linewidth = 1) +
+  annotate("text", x = obs_overlap, y = Inf, hjust = -0.08, vjust = 1.6,
+           size = 3.6, colour = "#E15759",
+           label = sprintf("observed = %d\n%.2fx, p = %.3g",
+                           obs_overlap, fold, p_match)) +
+  labs(x = "SFARI genes among hits in matched random sets",
+       y = "Permutations",
+       title = "Enrichment against a detectability-matched null",
+       subtitle = sprintf("%s permutations, sampled within expression-decile x cell-types-tested strata",
+                          format(N_PERM_MATCH, big.mark = ","))) +
+  theme_cowplot(12)
+
+save_dual_format(p_null, out_dir, "sfari_matched_permutation_null",
+                 width = 8, height = 5)
+print(p_null)
+
+write_csv(tibble(observed = obs_overlap, null_mean = mean(null_overlap),
+                 null_sd = sd(null_overlap), fold = fold,
+                 n_strata = nrow(strata_n), n_perm = N_PERM_MATCH, p = p_match),
+          file.path(out_dir, "sfari_matched_permutation.csv"))
+
+# ---- H) Which SFARI genes, in which cell types? ----------------------------
+# The odds ratio says enrichment exists; this says what it is made of. Fill is
+# the number of distinct metabolites, so a reader can see whether one cell type
+# carries the result and which genes drive it.
+sfari_ct <- hits |>
+  filter(is_sfari_gene(gene)) |>
+  group_by(gene, cell_type) |>
+  summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop")
+
+if (nrow(sfari_ct) > 0) {
+  gene_order <- sfari_ct |>
+    group_by(gene) |>
+    summarise(total = sum(n_metabolites), .groups = "drop") |>
+    arrange(total) |>
+    pull(gene)
+
+  p_sfari_ct <- sfari_ct |>
+    mutate(gene = factor(gene, levels = gene_order),
+           score = get_sfari_score(as.character(gene))) |>
+    ggplot(aes(x = cell_type, y = gene, fill = n_metabolites)) +
+    geom_tile(colour = "white", linewidth = 0.4) +
+    geom_text(aes(label = n_metabolites), size = 2.6, colour = "grey15") +
+    scale_fill_gradient(low = "#FDE0DD", high = "#B2182B",
+                        name = "Metabolites") +
+    labs(x = NULL, y = NULL,
+         title = "SFARI genes with metabolite associations",
+         subtitle = "Genes ordered by total distinct metabolites across cell types") +
+    theme_cowplot(11) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.text.y = element_text(size = 7))
+
+  save_dual_format(p_sfari_ct, out_dir, "sfari_gene_by_celltype_heatmap",
+                   width = 9, height = max(6, 0.16 * n_distinct(sfari_ct$gene)))
+  print(p_sfari_ct)
+  write_csv(sfari_ct, file.path(out_dir, "sfari_gene_by_celltype.csv"))
+}
+
+# ---- I) Metabolite class composition ---------------------------------------
+# A question none of the odds-ratio panels ask: do SFARI genes associate with a
+# DIFFERENT KIND of metabolite, not merely more of them? A flat comparison is a
+# clean negative worth one sentence; a skew toward one class is a result.
+# Guarded on the annotation column, which may not be carried in the hits CSV.
+class_col <- intersect(c("Class", "Super.Class", "Subclass"), names(hits))
+
+if (length(class_col) > 0) {
+  cc <- class_col[1]
+
+  class_df <- hits |>
+    mutate(group = ifelse(is_sfari_gene(gene), "SFARI", "Non-SFARI"),
+           metab_class = replace_na(as.character(.data[[cc]]), "Unannotated")) |>
+    distinct(gene, Compound.ID, group, metab_class) |>
+    count(group, metab_class, name = "n") |>
+    group_by(group) |>
+    mutate(pct = 100 * n / sum(n)) |>
+    ungroup()
+
+  # Keep the classes that matter to either group; collapse the rest so the
+  # panel is readable rather than a 40-row strip of near-zero bars.
+  keep <- class_df |> group_by(metab_class) |>
+    summarise(mx = max(pct), .groups = "drop") |>
+    filter(mx >= 2) |> pull(metab_class)
+
+  class_plot_df <- class_df |>
+    mutate(metab_class = ifelse(metab_class %in% keep, metab_class,
+                                "Other (<2%)")) |>
+    group_by(group, metab_class) |>
+    summarise(n = sum(n), pct = sum(pct), .groups = "drop")
+
+  # Chi-square on the un-collapsed counts, if the table is large enough.
+  tab <- class_df |>
+    dplyr::select(group, metab_class, n) |>
+    pivot_wider(names_from = group, values_from = n, values_fill = 0) |>
+    column_to_rownames("metab_class") |>
+    as.matrix()
+
+  chisq_res <- if (all(dim(tab) >= 2) && sum(tab) > 0) {
+    suppressWarnings(chisq.test(tab, simulate.p.value = TRUE, B = 10000))
+  } else NULL
+
+  if (!is.null(chisq_res)) {
+    cat(sprintf("\nMetabolite class composition, SFARI vs non-SFARI: chi-square p = %.4g (simulated)\n",
+                chisq_res$p.value))
+
+    # Overall test statistics. The p-value is Monte Carlo (B = 10,000) because
+    # most metabolite classes have small expected counts, where the asymptotic
+    # chi-square approximation is unreliable; the asymptotic version is carried
+    # alongside so the two can be compared. `min_expected` is the diagnostic
+    # that justifies the simulation -- the usual rule of thumb is that the
+    # asymptotic test needs expected counts of at least 5.
+    chisq_asym <- suppressWarnings(chisq.test(tab))
+
+    chisq_stats <- tibble(
+      comparison      = "SFARI vs non-SFARI hit genes",
+      unit            = "distinct gene-metabolite pairs",
+      class_column    = cc,
+      n_classes       = nrow(tab),
+      n_pairs_total   = sum(tab),
+      n_pairs_sfari   = sum(tab[, intersect("SFARI", colnames(tab)), drop = FALSE]),
+      n_pairs_nonsfari = sum(tab[, intersect("Non-SFARI", colnames(tab)), drop = FALSE]),
+      statistic       = unname(chisq_res$statistic),
+      df_asymptotic   = unname(chisq_asym$parameter),
+      p_simulated     = chisq_res$p.value,
+      p_asymptotic    = chisq_asym$p.value,
+      B               = 10000,
+      min_expected    = min(chisq_asym$expected),
+      n_cells_exp_lt5 = sum(chisq_asym$expected < 5),
+      method          = chisq_res$method)
+
+    print(as.data.frame(chisq_stats), right = FALSE, digits = 4)
+    write_csv(chisq_stats,
+              file.path(out_dir, "sfari_metabolite_class_chisq.csv"))
+
+    # Per-class contributions. The overall p-value says only that composition
+    # differs somewhere; standardised residuals say WHICH classes drive it and
+    # in which direction (positive = over-represented in that group). These are
+    # the numbers to quote if the test is significant.
+    resid_df <- as.data.frame.table(chisq_asym$stdres,
+                                    responseName = "std_residual") |>
+      rename(metab_class = Var1, group = Var2) |>
+      left_join(as.data.frame.table(chisq_asym$expected,
+                                    responseName = "expected") |>
+                  rename(metab_class = Var1, group = Var2),
+                by = c("metab_class", "group")) |>
+      left_join(as.data.frame.table(tab, responseName = "observed") |>
+                  rename(metab_class = Var1, group = Var2),
+                by = c("metab_class", "group")) |>
+      mutate(across(c(metab_class, group), as.character),
+             # Two-sided normal approximation on the standardised residual,
+             # BH-corrected across classes. Descriptive follow-up to a
+             # significant omnibus test, not an independent set of tests.
+             p_residual   = 2 * pnorm(-abs(std_residual)),
+             FDR_residual = p.adjust(p_residual, method = "BH")) |>
+      arrange(desc(abs(std_residual)))
+
+    write_csv(resid_df,
+              file.path(out_dir, "sfari_metabolite_class_residuals.csv"))
+
+    cat("\nLargest class-level deviations (standardised residuals):\n")
+    print(as.data.frame(head(resid_df, 10)), right = FALSE, digits = 3)
+  }
+
+  p_class <- ggplot(class_plot_df,
+                    aes(x = pct, y = fct_reorder(metab_class, pct),
+                        fill = group)) +
+    geom_col(position = position_dodge(width = 0.75), width = 0.7,
+             alpha = 0.9) +
+    scale_fill_manual(values = c("SFARI" = "#E15759",
+                                 "Non-SFARI" = "#76B7B2"), name = NULL) +
+    labs(x = "Percent of gene-metabolite pairs", y = NULL,
+         title = "Metabolite classes associated with SFARI vs non-SFARI genes",
+         subtitle = if (!is.null(chisq_res))
+           sprintf("Chi-square p = %.3g (simulated); classes below 2%% collapsed",
+                   chisq_res$p.value) else "Classes below 2% collapsed") +
+    theme_cowplot(11) +
+    theme(legend.position = "bottom")
+
+  save_dual_format(p_class, out_dir, "sfari_metabolite_class_composition",
+                   width = 9, height = 7)
+  print(p_class)
+  write_csv(class_df, file.path(out_dir, "sfari_metabolite_class_composition.csv"))
+} else {
+  cat("\nMetabolite class panel skipped: no Class/Super.Class column in the hits CSV.\n")
+}
 
 # ---- Summary ---------------------------------------------------------------
 cat("\n========== SUMMARY ==========\n")
@@ -379,8 +916,16 @@ cat(sprintf("Method: %s | background = %d tested genes (union across cell types)
             METHOD, length(background_genes)))
 cat(sprintf("Test 1 (SFARI in hits vs tested universe): Fisher OR=%.2f, p=%.2e\n",
             fisher_t1$estimate, fisher_t1$p.value))
-cat(sprintf("Test 2 (SFARI hubs vs hits):          Fisher OR=%.2f, p=%.2e; Wilcoxon p=%.2e\n",
+cat(sprintf("Test 2 (SFARI among >=%d-metabolite genes): Fisher OR=%.2f, p=%.2e; Wilcoxon p=%.2e\n",
+            MIN_METAB_RECURRENCE,
             fisher_t2$estimate, fisher_t2$p.value, wilcox_t2$p.value))
+cat(sprintf("Test 3 (per cell type): %d/%d cell types enriched at FDR < %.2f (floor = %d hit genes)\n",
+            sum(sfari_by_ct$significant), nrow(sfari_by_ct), FDR_ALPHA,
+            MIN_HIT_GENES_PER_CT))
+cat(sprintf("Threshold-free (no FDR cut):  ES = %+.4f, permutation p = %.4g\n",
+            es_obs, p_es))
+cat(sprintf("Detectability-matched null:   %d observed vs %.1f expected (%.2fx), p = %.4g\n",
+            obs_overlap, mean(null_overlap), fold, p_match))
 
 # ---- Save results ----------------------------------------------------------
 sfari_overlap <- hit_recur |>
@@ -395,4 +940,6 @@ write_csv(hit_recur,     file.path(out_dir, "gene_recurrence_with_sfari.csv"))
 
 cat(sprintf("\nResults saved to %s\n", out_dir))
 cat(sprintf("SFARI genes in hits: %d\n", nrow(sfari_overlap)))
-cat(sprintf("SFARI hub genes: %d\n", sum(sfari_overlap$n_metabolites >= MIN_METAB_RECURRENCE)))
+cat(sprintf("SFARI genes associated with >=%d metabolites: %d\n",
+            MIN_METAB_RECURRENCE,
+            sum(sfari_overlap$n_metabolites >= MIN_METAB_RECURRENCE)))

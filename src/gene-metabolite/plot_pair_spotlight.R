@@ -21,8 +21,12 @@
 # Each entry: c(Compound.ID = "...", gene = "...", cell_type = "...")
 # Copy values directly from metabolite_gene_hits.csv (global-FDR set)
 PAIRS <- list(
-  c(Compound.ID = "HMDB0000001", gene = "GAPDH",   cell_type = "ExcitatoryNeuron"),
-  c(Compound.ID = "HMDB0000002", gene = "SLC1A2",  cell_type = "Astrocyte")
+  c(Compound.ID = "Amide-Neg-000484", gene = "FOXP2",   cell_type = "IN-CGE-Immature"),
+  c(Compound.ID = "Amide-Neg-000484", gene = "FOXP2",  cell_type = "IN-MGE-SST"),
+  c(Compound.ID = "Amide-Neg-000697", gene = "EBF1",  cell_type = "IN-MGE-SST"),
+  c(Compound.ID = "Amide-Neg-000697", gene = "EBF1",  cell_type = "IN-CGE-Immature"),
+  c(Compound.ID = "Amide-Neg-000697", gene = "CALN1",  cell_type = "IN-MGE-SST"),
+  c(Compound.ID = "Amide-Neg-000697", gene = "CALN1",  cell_type = "IN-CGE-Immature")
 )
 
 SAVE_OUTPUT <- TRUE    # TRUE  → saves PNG + SVG to scatter_dir

@@ -5,7 +5,7 @@
 # gene-metabolite associations? Mirrors sfari_enrichment.R.
 #
 #   Test 1: hit genes vs the TESTED gene universe
-#   Test 2: hub genes (>= N metabolites) vs all hit genes
+#   Test 2: genes associated with >= N metabolites vs all hit genes
 #   Test 3: LOEUF vs metabolite recurrence among hit genes (Spearman)
 #
 # LOEUF is continuous and gnomAD explicitly recommends using it that way, so
@@ -41,6 +41,7 @@ suppressPackageStartupMessages({
   library(arrow)
   library(cowplot)
   library(svglite)
+  library(ggrepel)   # cell-type labels in the power-check panel
 })
 
 source("pseudobulk_functions.R")
@@ -63,9 +64,11 @@ cache_dir      <- "../../data/cache"
 out_dir        <- "../../results/gene-metabolite/constraint-enrichment"
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-MIN_METAB_RECURRENCE <- 5      # hub definition, matches sfari_enrichment.R
+MIN_METAB_RECURRENCE <- 5      # multi-metabolite cut, matches sfari_enrichment.R
 MIN_EXP_LOF          <- 10     # LOEUF unreliable below ~10 expected pLoF variants
 N_MATCH_REPS         <- 1000   # expression-matched resampling iterations
+MIN_HIT_GENES_PER_CT <- 20     # cell-type floor, matches geneset_enrichment.R
+FDR_ALPHA            <- 0.05   # significance judged after BH, not on raw p
 REBUILD_UNIVERSE     <- FALSE
 
 # gnomAD's published LOEUF -> percentile ladder (17,063 MANE Select transcripts)
@@ -180,7 +183,7 @@ gene_df <- tibble(gene = background_genes) |>
   left_join(hit_recur |> dplyr::select(gene, n_metabolites), by = "gene") |>
   mutate(n_metabolites = replace_na(n_metabolites, 0L),
          is_hit    = n_metabolites > 0,
-         is_hub    = n_metabolites >= MIN_METAB_RECURRENCE,
+         is_recurrent    = n_metabolites >= MIN_METAB_RECURRENCE,
          mean_expr = unname(mean_expr[gene]))
 
 cat(sprintf("\nLOEUF matched: %d / %d tested genes (%.1f%%)\n",
@@ -310,14 +313,16 @@ cat(sprintf("    Hit median LOEUF = %.3f | matched-null median = %.3f [%.3f, %.3
             quantile(null_meds, 0.025), quantile(null_meds, 0.975)))
 cat(sprintf("    Empirical one-sided p = %.4f (%d reps)\n", p_match, N_MATCH_REPS))
 
-# ---- TEST 2: constraint among hub genes ------------------------------------
+# ---- TEST 2: constraint among multi-metabolite genes -----------------------
 cat("\n##########################################################\n")
-cat("TEST 2: Among hit genes, are hubs more constrained?\n")
+cat("TEST 2: Among hit genes, are multi-metabolite genes more constrained?\n")
 cat("##########################################################\n")
 
 hit_only    <- analysis_df |> dplyr::filter(is_hit)
-cont_t2     <- compare_loeuf(hit_only, "is_hub", "Hub", "Non-hub hit")
-ladder_t2   <- loeuf_ladder(hit_only, "is_hub", "Test 2")
+cont_t2     <- compare_loeuf(hit_only, "is_recurrent",
+                             sprintf(">=%d metabolites", MIN_METAB_RECURRENCE),
+                             sprintf("<%d metabolites", MIN_METAB_RECURRENCE))
+ladder_t2   <- loeuf_ladder(hit_only, "is_recurrent", "Test 2")
 
 cat("\n  LOEUF threshold ladder (secondary):\n")
 for (i in seq_len(nrow(ladder_t2)))
@@ -392,7 +397,8 @@ p_ladder <- ggplot(ladder_all,
   facet_wrap(~ test, ncol = 1, scales = "free_y",
              labeller = as_labeller(c(
                "Test 1" = "Test 1: hit genes vs tested universe",
-               "Test 2" = "Test 2: hub genes vs all hit genes"))) +
+               "Test 2" = sprintf("Test 2: >=%d metabolites vs all hit genes",
+                                  MIN_METAB_RECURRENCE)))) +
   scale_x_log10() +
   scale_color_manual(values = c(`TRUE` = "#E15759", `FALSE` = "grey55"),
                      labels = c(`TRUE` = "p < 0.05", `FALSE` = "n.s."), name = NULL) +
@@ -431,6 +437,140 @@ p_decile <- ggplot(decile_df, aes(x = loeuf_decile, y = hit_rate, color = expr_t
 save_dual_format(p_decile, out_dir, "loeuf_hitrate_by_expression", width = 8, height = 6)
 print(p_decile)
 
+# ---- PER CELL TYPE: is the constraint gradient cell-type specific? ---------
+# Everything above pools cell types ("a hit in >=1 cell type"). That cannot
+# distinguish a constraint signal driven by one well-powered population from
+# one present throughout the tissue.
+#
+# BACKGROUND. Foreground = genes hit IN THAT CELL TYPE; background = genes
+# TESTED in that cell type. The per-cell-type expression filter admits a
+# different gene set in each cell type, so a gene never testable in IN-MGE-PV
+# is unobserved there, not a failed hit. Reusing the global universe would bias
+# every cell type's result, and most in the shallowest libraries.
+#
+# The primary test stays the Wilcoxon on continuous LOEUF, matching Test 1
+# above. BH is applied across cell types; significance is judged on FDR.
+ct_universe_cache <- file.path(cache_dir,
+                               sprintf("tested_gene_universe_by_celltype_%s.rds", METHOD))
+
+if (!REBUILD_UNIVERSE && file.exists(ct_universe_cache)) {
+  ct_universe <- readRDS(ct_universe_cache)
+} else {
+  cat("\nScanning parquet archive for per-cell-type tested-gene universe ...\n")
+  ct_universe <- open_dataset(parquet_dir) |>
+    dplyr::distinct(cell_type, gene) |> collect()
+  saveRDS(ct_universe, ct_universe_cache)
+}
+
+hits_by_ct <- hits |> distinct(cell_type, gene)
+
+ct_counts <- hits_by_ct |>
+  count(cell_type, name = "n_hit_genes") |>
+  mutate(tested = n_hit_genes >= MIN_HIT_GENES_PER_CT) |>
+  arrange(desc(n_hit_genes))
+
+cat(sprintf("\n=== Constraint per cell type (floor = %d hit genes) ===\n",
+            MIN_HIT_GENES_PER_CT))
+print(as.data.frame(ct_counts), right = FALSE)
+
+# LOEUF for every tested gene in every cell type. MIN_EXP_LOF is applied here
+# exactly as in analysis_df so the pooled and per-cell-type results are
+# comparable rather than differently filtered.
+ct_loeuf <- ct_universe |>
+  filter(cell_type %in% ct_counts$cell_type[ct_counts$tested]) |>
+  left_join(lookup, by = c("gene" = "key")) |>
+  filter(!is.na(loeuf), exp_lof >= MIN_EXP_LOF) |>
+  left_join(hits_by_ct |> mutate(is_hit = TRUE), by = c("cell_type", "gene")) |>
+  mutate(is_hit = replace_na(is_hit, FALSE))
+
+ct_constraint <- ct_loeuf |>
+  group_by(cell_type) |>
+  group_modify(function(d, key) {
+    fg <- d$loeuf[d$is_hit]
+    bg <- d$loeuf[!d$is_hit]
+    if (length(fg) < 3 || length(bg) < 3) {
+      return(tibble(n_hit = length(fg), n_bg = length(bg),
+                    median_hit = NA_real_, median_bg = NA_real_,
+                    delta = NA_real_, W = NA_real_, p = NA_real_))
+    }
+    # One-sided "less": constrained genes have LOWER LOEUF, so enrichment for
+    # constraint means the hit distribution is shifted down.
+    wt <- wilcox.test(fg, bg, alternative = "less")
+    tibble(n_hit = length(fg), n_bg = length(bg),
+           median_hit = median(fg), median_bg = median(bg),
+           delta = median(fg) - median(bg),
+           W = unname(wt$statistic), p = wt$p.value)
+  }) |>
+  ungroup() |>
+  mutate(FDR = p.adjust(p, method = "BH"),
+         significant = !is.na(FDR) & FDR < FDR_ALPHA) |>
+  arrange(p)
+
+print(as.data.frame(ct_constraint), right = FALSE, digits = 3)
+cat(sprintf("%d of %d cell types show lower LOEUF among hit genes at FDR < %.2f\n",
+            sum(ct_constraint$significant), nrow(ct_constraint), FDR_ALPHA))
+
+write_csv(ct_constraint, file.path(out_dir, "loeuf_by_celltype.csv"))
+write_csv(ct_counts,     file.path(out_dir, "constraint_celltype_inclusion.csv"))
+
+# D) LOEUF distribution per cell type, hit vs tested background. Violin rather
+# than another forest: the whole argument for treating LOEUF continuously is
+# that the distribution matters, and a point estimate hides whether a shift is
+# a tail effect or a whole-distribution move.
+ct_order <- ct_constraint |> arrange(delta) |> pull(cell_type)
+
+viol_df <- ct_loeuf |>
+  mutate(cell_type = factor(cell_type, levels = ct_order),
+         group = ifelse(is_hit, "Hit genes", "Tested background")) |>
+  filter(!is.na(cell_type))
+
+sig_lab <- ct_constraint |>
+  filter(significant) |>
+  mutate(cell_type = factor(cell_type, levels = ct_order),
+         lab = "*")
+
+p_ct_viol <- ggplot(viol_df, aes(x = cell_type, y = loeuf, fill = group)) +
+  geom_violin(position = position_dodge(width = 0.8), scale = "width",
+              alpha = 0.65, linewidth = 0.3) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.14,
+               outlier.shape = NA, alpha = 0.9, linewidth = 0.3) +
+  geom_hline(yintercept = PRIMARY_THRESHOLD, linetype = "dashed",
+             colour = "grey50") +
+  geom_text(data = sig_lab, aes(x = cell_type, y = Inf, label = lab),
+            inherit.aes = FALSE, vjust = 1.2, size = 6, colour = "grey20") +
+  scale_fill_manual(values = c("Hit genes" = "#E15759",
+                               "Tested background" = "#BAB0AC"), name = NULL) +
+  coord_flip() +
+  labs(x = NULL, y = "LOEUF (lower = more constrained)",
+       title = "Constraint of metabolite-associated genes, by cell type",
+       subtitle = sprintf("Background = genes tested in that cell type; * FDR < %.2f; dashed line = LOEUF %.2f",
+                          FDR_ALPHA, PRIMARY_THRESHOLD)) +
+  theme_cowplot(12) +
+  theme(legend.position = "bottom")
+
+save_dual_format(p_ct_viol, out_dir, "loeuf_violin_by_celltype",
+                 width = 9, height = 8)
+print(p_ct_viol)
+
+# E) Median LOEUF shift vs hit-gene count. The power check: if the shift tracks
+# how many genes a cell type contributed, it is detection depth, not biology.
+p_ct_power <- ct_constraint |>
+  left_join(ct_counts, by = "cell_type") |>
+  ggplot(aes(x = n_hit_genes, y = delta)) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_point(aes(colour = significant), size = 3) +
+  ggrepel::geom_text_repel(aes(label = cell_type), size = 3, max.overlaps = 20) +
+  scale_x_log10() +
+  scale_colour_manual(values = c(`TRUE` = "#E15759", `FALSE` = "grey60"),
+                      name = paste0("FDR < ", FDR_ALPHA)) +
+  labs(x = "Distinct hit genes in cell type (log scale)",
+       y = "Median LOEUF shift (hit - background)",
+       title = "Constraint shift vs. detection power") +
+  theme_cowplot(12)
+
+save_dual_format(p_ct_power, out_dir, "loeuf_shift_vs_power", width = 8, height = 6)
+print(p_ct_power)
+
 # ---- Save results ----------------------------------------------------------
 continuous_all <- bind_rows(cont_t1, cont_t1_exp, cont_t2, cont_t1_nosfari)
 write_csv(continuous_all, file.path(out_dir, "loeuf_continuous_tests.csv"))
@@ -448,7 +588,8 @@ cat(sprintf("  adjusted for expression + size: OR/unit = %.2f, p = %.3g\n",
             glm_res$or_per_unit[2], glm_res$p[2]))
 cat(sprintf("  expression-matched resampling:  empirical p = %.4f\n", p_match))
 if (!is.null(cont_t2))
-  cat(sprintf("Test 2 (hubs more constrained):  median %.3f vs %.3f, Wilcoxon p = %.3g\n",
+  cat(sprintf("Test 2 (>=%d-metabolite genes more constrained): median %.3f vs %.3f, Wilcoxon p = %.3g\n",
+              MIN_METAB_RECURRENCE,
               cont_t2$median_fg, cont_t2$median_bg, cont_t2$p))
 cat(sprintf("Test 3 (LOEUF vs recurrence):    rho = %+.3f, p = %.3g\n",
             sp$estimate, sp$p.value))

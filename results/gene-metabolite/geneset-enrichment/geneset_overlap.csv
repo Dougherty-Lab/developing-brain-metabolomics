@@ -1,0 +1,31 @@
+a,b,jaccard,n_shared,lab_a,lab_b
+cad_aragam,ibd_alegbe,0.004081632653061225,1,CAD (Aragam 2022),IBD (Alegbe 2026)
+cad_aragam,t2d_xue,0.00796812749003984,2,CAD (Aragam 2022),T2D (Xue 2018)
+cad_aragam,epilepsy_union,0.0026666666666666666,1,CAD (Aragam 2022),Epilepsy (all sources)
+cad_aragam,ndd_fu_dd477,0.017518248175182483,12,CAD (Aragam 2022),"DD (Fu 2022, DD477)"
+cad_aragam,scz_union,0.005780346820809248,2,CAD (Aragam 2022),SCZ (all sources)
+ibd_alegbe,cad_aragam,0.004081632653061225,1,IBD (Alegbe 2026),CAD (Aragam 2022)
+ibd_alegbe,t2d_xue,0,0,IBD (Alegbe 2026),T2D (Xue 2018)
+ibd_alegbe,epilepsy_union,0,0,IBD (Alegbe 2026),Epilepsy (all sources)
+ibd_alegbe,ndd_fu_dd477,0,0,IBD (Alegbe 2026),"DD (Fu 2022, DD477)"
+ibd_alegbe,scz_union,0,0,IBD (Alegbe 2026),SCZ (all sources)
+t2d_xue,cad_aragam,0.00796812749003984,2,T2D (Xue 2018),CAD (Aragam 2022)
+t2d_xue,ibd_alegbe,0,0,T2D (Xue 2018),IBD (Alegbe 2026)
+t2d_xue,epilepsy_union,0,0,T2D (Xue 2018),Epilepsy (all sources)
+t2d_xue,ndd_fu_dd477,0,0,T2D (Xue 2018),"DD (Fu 2022, DD477)"
+t2d_xue,scz_union,0.00625,1,T2D (Xue 2018),SCZ (all sources)
+epilepsy_union,cad_aragam,0.0026666666666666666,1,Epilepsy (all sources),CAD (Aragam 2022)
+epilepsy_union,ibd_alegbe,0,0,Epilepsy (all sources),IBD (Alegbe 2026)
+epilepsy_union,t2d_xue,0,0,Epilepsy (all sources),T2D (Xue 2018)
+epilepsy_union,ndd_fu_dd477,0.08762886597938144,51,Epilepsy (all sources),"DD (Fu 2022, DD477)"
+epilepsy_union,scz_union,0.010676156583629894,3,Epilepsy (all sources),SCZ (all sources)
+ndd_fu_dd477,cad_aragam,0.017518248175182483,12,"DD (Fu 2022, DD477)",CAD (Aragam 2022)
+ndd_fu_dd477,ibd_alegbe,0,0,"DD (Fu 2022, DD477)",IBD (Alegbe 2026)
+ndd_fu_dd477,t2d_xue,0,0,"DD (Fu 2022, DD477)",T2D (Xue 2018)
+ndd_fu_dd477,epilepsy_union,0.08762886597938144,51,"DD (Fu 2022, DD477)",Epilepsy (all sources)
+ndd_fu_dd477,scz_union,0.018518518518518517,11,"DD (Fu 2022, DD477)",SCZ (all sources)
+scz_union,cad_aragam,0.005780346820809248,2,SCZ (all sources),CAD (Aragam 2022)
+scz_union,ibd_alegbe,0,0,SCZ (all sources),IBD (Alegbe 2026)
+scz_union,t2d_xue,0.00625,1,SCZ (all sources),T2D (Xue 2018)
+scz_union,epilepsy_union,0.010676156583629894,3,SCZ (all sources),Epilepsy (all sources)
+scz_union,ndd_fu_dd477,0.018518518518518517,11,SCZ (all sources),"DD (Fu 2022, DD477)"

@@ -1,0 +1,12 @@
+cell_type,n_hit_genes,tested
+IN-MGE-SST,166,TRUE
+EN-Non-IT-Immature,129,TRUE
+IN-CGE-Immature,117,TRUE
+EN-L6b,107,TRUE
+OPC,45,TRUE
+IN-MGE-Immature,43,TRUE
+Astrocyte-Immature,42,TRUE
+EN-Newborn,38,TRUE
+EN-IT-Immature,25,TRUE
+EN-L6-IT,20,TRUE
+IPC-EN,5,FALSE

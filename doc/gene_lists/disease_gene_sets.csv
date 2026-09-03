@@ -1,0 +1,1331 @@
+set_id,set_label,condition,source,level,set_type,gene_symbol
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,AAK1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ABCG8
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ABHD2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ABO
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ACER2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ACVR2A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ACVRL1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ADAMTS7
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,AFAP1L2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ANGPTL4
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,APOB
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,APOC3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,APOE
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARHGAP15
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARHGAP21
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARHGAP42
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARHGEF12
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARHGEF26
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARID1A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARNTL
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ARVCF
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ATP1B3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ATP2B1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ATXN2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,B9D2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,BCAR1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,BCAS3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,BMP1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,C1S
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,C5
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CABIN1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CAMK1D
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CCDC30
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CCM2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CDH13
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CDK8
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CEL
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CELSR2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CENPW
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CETP
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CFTR
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CMIP
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CNNM2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CNPY2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,COL4A1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CRYAB
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CTAGE1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CXCL12
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CXCR4
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,CYP17A1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DAB2IP
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DAGLB
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DMXL1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DNAH10
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DOCK5
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DOCK8
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DOCK9
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,DYNLRB2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,EDNRA
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,EIF2B2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,F10
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FAM46A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FBN2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FDX1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FER
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FES
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FGD5
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FGD6
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FGF1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FHL3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FHL5
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FIGN
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FLT1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FN1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FNDC3B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,FOXC1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GATA6
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GEM
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GGCX
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GIGYF2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GNPDA2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GPSM1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,GUCY1A3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HBS1L
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HDAC9
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HDGFL1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HHAT
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HHIPL1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HMGCR
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HNF1A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,HTRA1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,IL6R
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,IRS1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ITGA1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ITGB3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,JCAD
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,KCNK5
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,KIAA0040
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,KLF4
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LAMB2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LDLR
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LEPRE1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LIPA
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LIPC
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LIPG
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LMAN1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LOX
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LOXL4
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LPA
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,LPL
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MAD1L1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MAD2L1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MAFB
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MAGI3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MAP1S
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MAP3K1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MC4R
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MECOM
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MFGE8
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MIA3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MLH3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MMP13
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MORF4L
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MRAS
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MTAP
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MYH11
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,MYO9B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,N4BP2L2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,NBEAL1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,NCOA6
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,NGF
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,NME7
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,NOS3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,NRP1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,OSM
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,OSR1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PALLD
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PARP12
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PAWR
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PCSK9
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PDE1A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PDE1C
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PDE3A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PDE5A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PDGFD
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PECAM1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PHACTR1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PID1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PIP4K2B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PLCE1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PLCG2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PLEKHG1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PLG
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PLTP
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PNPLA3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,POLG
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PPAP2B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PPP2R3A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PRDM16
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PRKCE
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PTK7
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,PTRF
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,RAC1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,RASGEF1B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,RDX
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,REST
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,RGL3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,RRBP1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,RRP1B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SAP130
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SCARB1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SCUBE1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SEMA3C
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SEMA5A
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SERPINA1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SERPINH1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SGCD
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SHROOM3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SIPA1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SKI
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SKP2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SLC22A1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SLC2A12
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SLC5A3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SMAD3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SMAD7
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SMG6
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SORT1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SREBF1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ST3GAL4
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,STAT2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SWAP70
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,SYN3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TARID
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TBX20
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TBX3
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TCF21
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TCF7L2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TFAP2B
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TGFB1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TIPARP
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TNS1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TRIB1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TRIM5
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TSPAN14
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,TWIST1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,UHRF1BP1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,UMPS
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,UNC13D
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,VEGFA
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,VPS11
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,WIPI1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,WT1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,XPO6
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ZC3HC1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ZEB2
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ZKSCAN1
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ZNF652
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ZNF781
+cad_aragam,CAD (Aragam 2022),CAD,Aragam 2022,paper,control,ZNF827
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,ABO
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,ADSL
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,ARPC3
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,CCND3
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,CCR1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,CDK18
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,CTTNBP2
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,FLRT3
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,FOXO1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,FUBP1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,GATD3
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,GPR183
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,IGFBP3
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,LRRK2-DT
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,MAML2
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,ME2
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,MTHFD2L
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,MYC
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,OSER1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,PRKAB1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,RASGRP1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,REXO1
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,STK10
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,TET2
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,VDR
+ibd_alegbe,IBD (Alegbe 2026),IBD,Alegbe 2026,paper,control,YEATS4
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,ANKFY1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,ANKH
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,ARAP1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,ARG1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,ATP5G1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,C15orf38
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CAMK1D
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CAMKK2
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CD101
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CENPW
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CEP68
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CUTA
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,CWF19L1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,EHHADH
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,HLA-DQB1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,KLHDC5
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,LOC283070
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,LTA
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,MED23
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,MICB
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,NUDT5
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,P2RX4
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,PABPC4
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,PLEKHA1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,POC5
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,RCCD1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,RP11-10L12.4
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,RPL8
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,RREB1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,SNORA12
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,SSSCA1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,TP53INP1
+t2d_xue,T2D (Xue 2018),T2D,Xue 2018,paper,control,UBE2Z
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ACTL6B
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ADAM22
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ADGRV1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ALDH7A1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,AP2M1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,AP3B2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,AP3D1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ARHGEF15
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ARX
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ATP1A2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ATP1A3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ATP6V0A1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ATP6V0C
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ATP6V1A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,BCL11A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,BRAT1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CACNA1A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CACNA1E
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CACNA1I
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CACNA2D1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CACNA2D2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CACNB4
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CAD
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CDK19
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CDK5RAP3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CELF2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CHD2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CHRM3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CHRNA2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CHRNA4
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CLCN2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CNPY3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CPA6
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CPLX1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CUX2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,CYFIP2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,DALRD3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,DENND5A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,DEPDC5
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,DMXL2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,DNM1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,EEF1A2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,EFHC1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,FAM19A5
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,FBXO28
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,FGF12
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,FGF13
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,FZR1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABBR2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRA1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRA2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRA3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRA5
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRB1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRB2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRB3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRD
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GABRG2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GAD1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GAL
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GLS
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GNAO1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GOT2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GRIK1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GRIN1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GRIN2A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GRIN2B
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,GRIN2D
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,HCN1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,HCN2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,HCN4
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,HID1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,HNRNPU
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,ICK
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNA2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNB1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNC1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNC2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNIP2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNMA1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNN2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNQ2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNQ3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNT1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KCNT2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,KIF5A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,LGI1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,MARCH6
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,MAST3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,MDH1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,MDH2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NAPB
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NEUROD2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NPRL2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NPRL3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NRROS
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NSF
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NTRK2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,NUS1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PACS2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PARS2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PCDH7
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PHACTR1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PIGB
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PIGP
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PIGS
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PLPBP
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PNPO
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,POU3F3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PPP3CA
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PRRT2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,PTPRK
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RAPGEF2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RBFOX1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RELN
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RHOBTB2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RMI1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RNF13
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RORB
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RSPO2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,RYR2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SAMD12
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SCN1A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SCN1B
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SCN2A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SCN3A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SCN8A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SEMA6B
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SETD1A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SETD1B
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SIK1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC12A5
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC1A2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC2A1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC35A2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC38A3
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC6A1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SLC7A6OS
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SMC1A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SPOCK1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SPTAN1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,STAC
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,STARD7
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,STX1B
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SUGCT
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,SYNJ1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,TBC1D24
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,TMEM74
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,TMPRSS15
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,TNRC6A
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,TRAK1
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,UFSP2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,UGDH
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,UGP2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,YEATS2
+epilepsy_union,Epilepsy (all sources),Epilepsy,union: ILAE 2023 + Zhang 2024,condition,neuro,YWHAG
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,AP3D1
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,ARHGEF15
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,BCL11A
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,CACNA1I
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,CACNA2D2
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,CDK5RAP3
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,CHRM3
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,FAM19A5
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,GABRA2
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,GLS
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,GRIK1
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,KCNIP2
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,KCNN2
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,PCDH7
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,POU3F3
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,PTPRK
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,RBFOX1
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,RMI1
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,RORB
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,RSPO2
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,RYR2
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,SCN1A
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,SCN8A
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,SPOCK1
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,STAC
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,STX1B
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,SUGCT
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,TMEM74
+epi_ilae,Epilepsy (ILAE 2023),Epilepsy,ILAE 2023,paper,neuro,TMPRSS15
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ACTL6B
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ADAM22
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ADGRV1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ALDH7A1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,AP2M1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,AP3B2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ARX
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ATP1A2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ATP1A3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ATP6V0A1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ATP6V0C
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ATP6V1A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,BRAT1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CACNA1A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CACNA1E
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CACNA2D1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CACNB4
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CAD
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CDK19
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CELF2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CHD2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CHRNA2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CHRNA4
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CLCN2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CNPY3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CPA6
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CPLX1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CUX2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,CYFIP2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,DALRD3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,DENND5A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,DEPDC5
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,DMXL2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,DNM1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,EEF1A2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,EFHC1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,FBXO28
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,FGF12
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,FGF13
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,FZR1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABBR2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRA1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRA2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRA3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRA5
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRB1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRB2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRB3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRD
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GABRG2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GAD1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GAL
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GLS
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GNAO1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GOT2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GRIN1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GRIN2A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GRIN2B
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,GRIN2D
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,HCN1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,HCN2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,HCN4
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,HID1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,HNRNPU
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,ICK
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNA2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNB1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNC1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNC2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNMA1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNQ2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNQ3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNT1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KCNT2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,KIF5A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,LGI1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,MARCH6
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,MAST3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,MDH1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,MDH2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NAPB
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NEUROD2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NPRL2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NPRL3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NRROS
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NSF
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NTRK2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,NUS1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PACS2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PARS2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PHACTR1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PIGB
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PIGP
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PIGS
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PLPBP
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PNPO
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PPP3CA
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,PRRT2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,RAPGEF2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,RELN
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,RHOBTB2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,RNF13
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,RORB
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SAMD12
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SCN1A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SCN1B
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SCN2A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SCN3A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SCN8A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SEMA6B
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SETD1A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SETD1B
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SIK1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC12A5
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC1A2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC2A1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC35A2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC38A3
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC6A1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SLC7A6OS
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SMC1A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SPTAN1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,STARD7
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,STX1B
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,SYNJ1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,TBC1D24
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,TNRC6A
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,TRAK1
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,UFSP2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,UGDH
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,UGP2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,YEATS2
+epi_zhang,Epilepsy (Zhang 2024),Epilepsy,Zhang 2024,paper,neuro,YWHAG
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ABCC9
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ABCF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ABL1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ACTA2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ACTL6B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ACTR1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ADCY5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ADNP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AFF3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AGO1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AHDC1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AKT3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ALDH18A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ANK3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ANKRD11
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ANKRD12
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AP1G1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AP2S1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AP3B2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARCN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARHGAP35
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARID1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARID1B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARID2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ARIH1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ASH1L
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ASXL1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ASXL2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ASXL3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATF2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP1A2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP1A3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP2B1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP2B2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP6V0A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP6V1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ATP6V1B2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,AUTS2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BAI1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BAP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BCAS3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BCL11A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BCL11B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BCL2L2-PABPN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BICD2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BOD1L1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BPTF
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BRAF
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BRD3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BRD4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BRPF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,BRSK1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CACNA1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CACNA1C
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CACNA1E
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CACNA1G
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CAMK2A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CAMK2B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CAMK2D
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CAMK2G
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CAMK4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CAMTA1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CASKIN2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CASZ1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CBL
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CBLL1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CBX3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CBX5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CDC42
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CDK13
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CDK8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CELF2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CENPE
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHAMP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHD2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHD3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHD4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHD5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHD7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHD8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CHMP7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CIC
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CLTC
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CNOT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CNOT2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CNOT3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,COL2A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,COL4A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,COL4A3BP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CREBBP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CRIM1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CSNK1E
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CSNK2A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CSNK2B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CTBP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CTCF
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CTNNB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CTNND1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CTR9
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,CUL3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DAZAP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DCAF7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DDX23
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DDX6
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DEAF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DHDDS
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DHX30
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DLG4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DLL1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DNM1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DNM1L
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DNMT3A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DOT1L
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DPF2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DPYSL5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DUSP16
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DYNC1H1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,DYRK1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EBF3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EEF1A2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EFTUD2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EHMT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EIF3B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EIF5A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EP300
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ERF
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ESRRG
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ETF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EXT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,EZH2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FBN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FBN2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FBXO11
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FBXO28
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FBXW7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FGF12
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FGFR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FGFR2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FGFR3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FOSL2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FOXG1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FOXP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FOXP2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,FUS
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,G3BP2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GABBR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GABBR2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GABRA1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GABRB2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GABRB3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GABRG2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GATA3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GATAD2B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GFAP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GIGYF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GLI3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GLTSCR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GLYR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GNAI1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GNAO1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GNAS
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GNB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GNB2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GRIA2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GRIN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GRIN2A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GRIN2B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,GSK3B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,H3F3A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HDAC2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HDAC4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HECTD4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HECW2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HIST1H1E
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HIST1H2AC
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HIST1H2AE
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HIST1H4J
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HIVEP2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HK1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HNRNPD
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HNRNPK
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HNRNPU
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,HRAS
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,INF2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,INHBA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,IRF2BPL
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ITPR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,JAG1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KANSL1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KAT6A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KAT6B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KAT8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KBTBD6
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KBTBD7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNA1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNA2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCND3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNH1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNK9
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNMA1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNQ2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNQ3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KCNT2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KDM1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KDM3B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KDM5B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KDM6B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIAA0100
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIAA1551
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIDINS220
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIF11
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIF1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIF2A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIF5B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KIF5C
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KLF7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KLHL20
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KMT2A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KMT2B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KMT2C
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KMT2D
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KMT2E
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,KRAS
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,LASP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,LHX2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,LMNB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,LONP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,LZTR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAEA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAGEL2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAP2K1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAP3K7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAP4K4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAPK8IP3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MARK2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MAX
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MBD5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MED13
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MED13L
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MEF2C
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MEIS2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MFN2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MIB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MIP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MORC2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MSI1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MSL2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MTOR
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MYCN
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MYH3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MYRF
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,MYT1L
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NAA15
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NACC1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NALCN
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NARS
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NCL
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NEDD8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NFIA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NFIB
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NFIX
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NIPBL
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NKX2-1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NLGN2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NOTCH1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NOTCH2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NR4A2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NSD1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,NTRK2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ODC1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,OTUD7A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,OTX2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PACS1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PACS2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PAFAH1B1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PAK1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PAX2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PBX1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PBX3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PCBP2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PDE4D
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PFN2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PHF12
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PHF21A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PHIP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PHLDB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PIAS2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PIK3CA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PIK3R1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PIK3R2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PIP5K1C
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PISD
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,POGZ
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,POLR3B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,POU3F3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPFIA2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPM1D
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPP1CB
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPP2CA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPP2R1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPP2R5D
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PPP3CA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRKAR1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRKAR1B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRKCB
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRKCE
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRKD1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRKG1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PROC
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRPF8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PRR12
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PSMC3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PSMC5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PTCH1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PTEN
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PTPN11
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PTPRD
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PUF60
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PUM2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,PURA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,QRICH1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAB11A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAB11B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAB14
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAC1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAI1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RALA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RAP1B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RARB
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RBBP4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RFX3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RFX7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RHOBTB2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RIT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RMND5A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RORA
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RORB
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RPL10A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RPL19
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,RYR2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SALL3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SATB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SATB2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SCN1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SCN2A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SCN3A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SCN4A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SCN8A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SCUBE3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SEC16A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SEMA6B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SET
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SETBP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SETD1A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SETD1B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SETD2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SETD5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SF3B2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SF3B3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SHANK2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SHANK3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SHH
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SHOC2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SIN3A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SKI
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SLC2A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SLC39A8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SLC6A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SLC9A1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMAD4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMAD6
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMARCA2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMARCA4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMARCB1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMARCE1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SMC3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SNAP25
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOGA1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SON
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOS1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOX10
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOX11
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOX2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOX4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOX5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SOX9
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPAST
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPEN
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPI1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPOP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPTAN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPTBN1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SPTBN2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SRCAP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SRP54
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SRRM2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SRSF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,STAG1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,STAT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,STX1B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,STXBP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SUPT16H
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SUV420H1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SYNCRIP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SYNGAP1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,SYT1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TAB2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TANC2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TAOK1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TBL1XR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TBR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TBX3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TCF12
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TCF20
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TCF3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TCF4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TCF7L2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TERF2IP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TLK2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TMEM63B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TNFRSF21
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TNNC2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TNPO2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TNPO3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TNRC6B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TOP2B
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TP53BP2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TRAF7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TRIM8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TRIO
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TRIP12
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TRPM3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TRRAP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TSC2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,TTBK1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,U2AF2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,UBA2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,UBE3A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,UBTF
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,UPF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,USP7
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,VAMP2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,VCP
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,VEZF1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,VPS4A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,WAC
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,WDR26
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,WDR48
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,WHSC1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,XPO1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,XPR1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,YWHAG
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,YY1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZBTB10
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZBTB18
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZBTB20
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZBTB7A
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZDBF2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZDHHC5
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZEB2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZFHX3
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZFHX4
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZMIZ1
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZMYM2
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZMYND11
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZMYND8
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZNF148
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZNF292
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZNF462
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZNF644
+ndd_fu_dd477,"DD (Fu 2022, DD477)",NDD,Fu 2022,paper,neuro,ZNF865
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,AC068490.2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ACE
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ACTR1B
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,AKT3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ALMS1P
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ASPHD1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ATG13
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ATP2A2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,BCL11B
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,BCL2L12
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,BNIP3L
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,BSCL2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,C12orf43
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CACNA1C
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CALN1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CGREF1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CISD2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CLCN3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CNTN4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CREB3L4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CRHR1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CSMD1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CTD-2008L17.2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CUL9
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,CYP7B1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DARS2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DCC
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DCLK3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DDHD2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DLGAP2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DNAJA3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,DPYD
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,EMB
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,EMX1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ENOX1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ENSG00000262319
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,EPN2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,EYS
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,FAM114A2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,FAM216A
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,FAM83D
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,FTSJ2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,FURIN
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GABBR2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GATAD2A
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GPM6A
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GPR98
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GRAMD1B
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GRIN2A
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,GRM1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,HYI
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,IL1RAPL1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,IMMP2L
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,INO80E
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,IRF3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,KANSL1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,KIAA1549
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,KLC1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,KLF6
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,LINC00320
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,LINC01068
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,LINC01088
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,LRRC4B
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,LSM1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MAD1L1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MAN2A1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MAPK3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MAPT
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MLXIP
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MOB4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MSI2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,MYO19
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NAB2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NDFIP2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NEBL
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NEGR1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NLGN4X
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NRIP1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,NXPH1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,OPCML
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PAK6
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PCCB
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PCDHA2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PCDHA8
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PCGF3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PCLO
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PCNXL3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PDE4B
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PDIA3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PJA1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PLCH2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PSMA4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,PTPRD
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,R3HDM2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RERE
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RNASEH2C
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-10L12.4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-165J3.6
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-399D6.2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-490G2.2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-507B12.2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-53O19.3
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-586K2.1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,RP11-73M18.2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SETD6
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SF3B1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SGCD
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SLC39A8
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SLC4A10
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SLC6A1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SLC9B1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SNAP91
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,SP4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,STAG1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,THAP8
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,THOC7
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,TMTC1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,TRPC4
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,TSNARE1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,TXNRD1
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,WBSCR17
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,WDR76
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,WSCD2
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ZMYND11
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ZNF136
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ZNF804A
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ZNF823
+scz_union,SCZ (all sources),SCZ,union: Chick 2025 + Trubetskoy 2022,condition,neuro,ZNF835
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,BSCL2
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,CGREF1
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,KLC1
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,PCLO
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,SLC6A1
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,STAG1
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,ZMYND11
+scz_chick,SCZ (Chick 2025),SCZ,Chick 2025,paper,neuro,ZNF136
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,AC068490.2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ACE
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ACTR1B
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,AKT3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ALMS1P
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ASPHD1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ATG13
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ATP2A2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,BCL11B
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,BCL2L12
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,BNIP3L
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,C12orf43
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CACNA1C
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CALN1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CISD2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CLCN3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CNTN4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CREB3L4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CRHR1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CSMD1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CTD-2008L17.2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CUL9
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,CYP7B1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DARS2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DCC
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DCLK3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DDHD2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DLGAP2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DNAJA3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,DPYD
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,EMB
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,EMX1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ENOX1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ENSG00000262319
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,EPN2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,EYS
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,FAM114A2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,FAM216A
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,FAM83D
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,FTSJ2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,FURIN
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GABBR2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GATAD2A
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GPM6A
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GPR98
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GRAMD1B
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GRIN2A
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,GRM1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,HYI
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,IL1RAPL1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,IMMP2L
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,INO80E
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,IRF3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,KANSL1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,KIAA1549
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,KLF6
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,LINC00320
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,LINC01068
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,LINC01088
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,LRRC4B
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,LSM1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MAD1L1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MAN2A1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MAPK3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MAPT
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MLXIP
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MOB4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MSI2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,MYO19
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NAB2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NDFIP2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NEBL
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NEGR1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NLGN4X
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NRIP1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,NXPH1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,OPCML
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PAK6
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PCCB
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PCDHA2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PCDHA8
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PCGF3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PCNXL3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PDE4B
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PDIA3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PJA1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PLCH2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PSMA4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,PTPRD
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,R3HDM2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RERE
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RNASEH2C
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-10L12.4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-165J3.6
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-399D6.2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-490G2.2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-507B12.2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-53O19.3
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-586K2.1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,RP11-73M18.2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SETD6
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SF3B1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SGCD
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SLC39A8
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SLC4A10
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SLC9B1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SNAP91
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,SP4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,THAP8
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,THOC7
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,TMTC1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,TRPC4
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,TSNARE1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,TXNRD1
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,WBSCR17
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,WDR76
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,WSCD2
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ZNF804A
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ZNF823
+scz_trubetskoy,SCZ (Trubetskoy 2022),SCZ,Trubetskoy 2022,paper,neuro,ZNF835

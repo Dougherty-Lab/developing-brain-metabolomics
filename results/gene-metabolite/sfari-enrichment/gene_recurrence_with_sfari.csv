@@ -1,4 +1,4 @@
-gene,n_metabolites,n_cell_types,n_associations,is_sfari,sfari_score,is_hub
+gene,n_metabolites,n_cell_types,n_associations,is_sfari,sfari_score,is_recurrent
 ENSG00000253500,14,1,14,FALSE,NA,TRUE
 TSHZ2,13,4,13,FALSE,NA,TRUE
 GUCY1A1,12,3,14,FALSE,NA,TRUE

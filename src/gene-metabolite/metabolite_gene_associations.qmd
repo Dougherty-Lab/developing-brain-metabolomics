@@ -176,6 +176,22 @@ hits <- candidates |>
 
 cat(sprintf("Global-FDR hits (FDR < %.2f & |logFC| >= %.2f): %s\n",
             FDR_GLOBAL, LFC_MIN, format(nrow(hits), big.mark = ",")))
+
+# Reviewer/co-author question: how many associations survive a stricter global
+# FDR? Reported only -- `hits` and everything downstream stay at FDR_GLOBAL.
+# |logFC| is held at LFC_MIN so FDR is the only variable that moves. The
+# candidate prefilter (p < 0.05) is a superset of any FDR < 0.10 cut, so
+# tightening the threshold needs no rerun.
+for (f in c(0.05, 0.01)) {
+  h <- candidates |> filter(FDR_global < f, abs(logFC) >= LFC_MIN)
+  cat(sprintf(
+    "  FDR < %.2f: %s associations | %s metabolites | %s genes | %s cell types\n",
+    f,
+    format(nrow(h), big.mark = ","),
+    format(dplyr::n_distinct(h$Compound.ID), big.mark = ","),
+    format(dplyr::n_distinct(h$gene), big.mark = ","),
+    dplyr::n_distinct(h$cell_type)))
+}
 ```
 
 ```{r}
@@ -309,21 +325,18 @@ print(p_ct)
 knitr::kable(ct_recur, caption = "Hit counts per cell type")
 ```
 
-## Gene sharing across cell types (UpSet)
+## Sharing across cell types (UpSet)
 
-Which genes are shared vs. cell-type-specific in their metabolite associations.
+Which findings are shared vs. cell-type-specific. Three panels, because the
+answer differs by unit: **genes** (does a gene associate with any metabolite in
+more than one cell type), **associations** (does the same gene-metabolite pair
+recur across cell types — the strictest test), and **metabolites** (does a
+metabolite associate with any gene in more than one cell type).
 
 ```{r}
-#| label: upset-genes
+#| label: upset-sharing
 #| fig-width: 10
 #| fig-height: 6
-gene_by_ct <- hits |>
-  distinct(gene, cell_type) |>
-  mutate(present = 1L) |>
-  pivot_wider(names_from = cell_type, values_from = present, values_fill = 0L)
-
-ct_cols <- setdiff(colnames(gene_by_ct), "gene")
-
 # UpSetR >= 1.4.0: upset() RETURNS an object of class `upset`; all drawing lives
 # in print.upset(). So it cannot be passed to ggsave()/save_dual_format(), and it
 # must be print()-ed explicitly — inside eval() there is no auto-printing, which
@@ -347,21 +360,190 @@ save_dual_format_base <- function(expr, output_dir, filename_base,
   message("Saved: ", filename_base, ".png  +  svg/", filename_base, ".svg")
 }
 
-if (length(ct_cols) >= 2 && nrow(gene_by_ct) > 0) {
+# One UpSet per unit of analysis. `id_cols` defines the element being counted;
+# cell types are always the sets. Set sizes (left bars) = distinct elements per
+# cell type, so the three panels are NOT rescalings of each other.
+upset_by_celltype <- function(df, id_cols, filename_base, label) {
+  wide <- df |>
+    distinct(dplyr::across(dplyr::all_of(c(id_cols, "cell_type")))) |>
+    tidyr::unite("element", dplyr::all_of(id_cols), sep = " ~ ", remove = TRUE) |>
+    mutate(present = 1L) |>
+    pivot_wider(names_from = cell_type, values_from = present, values_fill = 0L)
+
+  ct_cols <- setdiff(colnames(wide), "element")
+
+  n_shared <- sum(rowSums(wide[, ct_cols, drop = FALSE]) > 1)
+  cat(sprintf("%s: %s total, %s in >1 cell type (%.1f%%)\n",
+              label, format(nrow(wide), big.mark = ","),
+              format(n_shared, big.mark = ","),
+              100 * n_shared / max(nrow(wide), 1)))
+
+  if (length(ct_cols) < 2 || nrow(wide) == 0) {
+    cat("  Not enough cell types / elements for an UpSet plot.\n")
+    return(invisible(NULL))
+  }
+
   upset_call <- quote(
     UpSetR::upset(
-      as.data.frame(gene_by_ct), sets = ct_cols,
+      as.data.frame(wide), sets = ct_cols,
       nsets = length(ct_cols), nintersects = NA,   # keep all non-empty intersections
       order.by = "freq", keep.order = TRUE,
       text.scale = 1.3
     )
   )
-  save_dual_format_base(eval(upset_call), out_dir, "upset_genes_by_celltype",
+  save_dual_format_base(eval(upset_call), out_dir, filename_base,
                         width = 10, height = 6)
   print(eval(upset_call))   # render inline in the rendered document
-} else {
-  cat("Not enough cell types / genes for an UpSet plot.\n")
+  invisible(wide)
 }
+
+upset_by_celltype(hits, "gene",
+                  "upset_genes_by_celltype",        "Genes")
+upset_by_celltype(hits, c("gene", "Compound.ID"),
+                  "upset_associations_by_celltype", "Associations (gene x metabolite)")
+upset_by_celltype(hits, "Compound.ID",
+                  "upset_metabolites_by_celltype",  "Metabolites")
+```
+
+## Association sharing across neuronal lineages
+
+Cell-type-level results are sparse by construction, so a gene-metabolite pair
+recurring in two related cell types (e.g. IN-MGE-Immature and IN-MGE-SST) is
+more informative than one appearing in a single type. Here we ask two things:
+whether pairs recur *within* a lineage, and whether any pair is shared *between*
+excitatory neurons, inhibitory neurons, and glia. Sharing is evaluated on the
+gene x metabolite pair, which is stricter than the gene-level UpSet above.
+
+```{r}
+#| label: lineage-sharing
+# Lineage assignment. EN-*/IN-* are resolved by prefix (covers EN-Newborn,
+# IN-Mix-LAMP5, IN-dLGE-Immature etc.); everything else is mapped explicitly
+# below. Only cell types present in `hits` are used, so entries for types that
+# fail filtering are simply inert.
+#   - Progenitors (RG-*, IPC-*) are kept separate from mature glia: they are
+#     neurogenic, and folding them in would blur an "excitatory vs glia" claim.
+#     IPC-EN is an excitatory-neuron progenitor, but it is still a progenitor —
+#     move it to "Excitatory" only if the claim is about lineage, not state.
+#   - Microglia is grouped with Glia by convention, though it is myeloid-derived
+#     rather than neuroectodermal. Split it out if a reviewer objects.
+#   - Cajal-Retzius cells are glutamatergic but arise from the cortical hem, so
+#     they are held separate rather than counted as excitatory.
+#   - "Unknown" is its own category so it can never silently prop up a
+#     cross-lineage overlap claim.
+NONNEURONAL_MAP <- c(
+  "Astrocyte-Immature"       = "Glia",
+  "Astrocyte-Fibrous"        = "Glia",
+  "Oligodendrocyte-Immature" = "Glia",
+  "OPC"                      = "Glia",
+  "Microglia"                = "Glia",
+  "RG-oRG"                   = "Progenitor",
+  "RG-tRG"                   = "Progenitor",
+  "RG-vRG"                   = "Progenitor",
+  "IPC-EN"                   = "Progenitor",
+  "IPC-Glia"                 = "Progenitor",
+  "Cajal-Retzius cell"       = "Cajal-Retzius",
+  "Vascular"                 = "Other",
+  "Unknown"                  = "Unknown"
+)
+
+assign_lineage <- function(ct) {
+  out <- dplyr::case_when(
+    grepl("^EN", ct) ~ "Excitatory",
+    grepl("^IN", ct) ~ "Inhibitory",
+    TRUE             ~ unname(NONNEURONAL_MAP[ct])
+  )
+  out[is.na(out)] <- "Unmapped"
+  out
+}
+
+hits_lin <- hits |>
+  mutate(lineage = assign_lineage(cell_type))
+
+# Surface anything the map missed so the grouping is never silently wrong.
+unmapped <- hits_lin |> filter(lineage == "Unmapped") |> distinct(cell_type) |> pull()
+if (length(unmapped)) {
+  warning("Unmapped cell types (add to NONNEURONAL_MAP): ",
+          paste(unmapped, collapse = ", "))
+}
+
+cat("Cell types per lineage:\n")
+print(hits_lin |> distinct(lineage, cell_type) |> count(lineage, name = "n_cell_types"))
+
+# ---- Within-lineage recurrence: same pair in >1 cell type of the same lineage
+pair_within <- hits_lin |>
+  distinct(lineage, Compound.ID, gene, cell_type) |>
+  count(lineage, Compound.ID, gene, name = "n_cell_types")
+
+cat("\nGene-metabolite pairs recurring in >1 cell type of the same lineage:\n")
+print(pair_within |> filter(n_cell_types > 1) |> count(lineage, name = "n_pairs"))
+
+within_tbl <- pair_within |>
+  filter(n_cell_types > 1) |>
+  left_join(hits_lin |> distinct(Compound.ID, dplyr::across(dplyr::any_of(c("Name", "Super.Class", "Class")))),
+            by = "Compound.ID") |>
+  left_join(hits_lin |>
+              distinct(lineage, Compound.ID, gene, cell_type) |>
+              group_by(lineage, Compound.ID, gene) |>
+              summarise(cell_types = paste(sort(cell_type), collapse = ", "), .groups = "drop"),
+            by = c("lineage", "Compound.ID", "gene")) |>
+  arrange(lineage, desc(n_cell_types), gene)
+
+# Print the pairs themselves — these are what get quoted in the text.
+if (nrow(within_tbl)) {
+  cat("\nWithin-lineage recurrent pairs:\n")
+  print(as.data.frame(within_tbl |>
+          dplyr::select(dplyr::any_of(c("lineage", "gene", "Name", "Compound.ID",
+                                        "Class", "n_cell_types", "cell_types")))),
+        right = FALSE)
+} else {
+  cat("\nNo gene-metabolite pair recurred in >1 cell type of the same lineage.\n")
+}
+
+# ---- Between-lineage sharing: same pair in >1 lineage
+pair_between <- hits_lin |>
+  distinct(Compound.ID, gene, lineage) |>
+  group_by(Compound.ID, gene) |>
+  summarise(n_lineages = dplyr::n(),
+            lineages   = paste(sort(unique(lineage)), collapse = " + "),
+            .groups = "drop")
+
+cat(sprintf("\nPairs in >1 lineage: %s of %s total pairs\n",
+            format(sum(pair_between$n_lineages > 1), big.mark = ","),
+            format(nrow(pair_between), big.mark = ",")))
+
+between_tbl <- pair_between |>
+  filter(n_lineages > 1) |>
+  left_join(hits_lin |> distinct(Compound.ID, dplyr::across(dplyr::any_of(c("Name", "Super.Class", "Class")))),
+            by = "Compound.ID") |>
+  left_join(hits_lin |>
+              distinct(Compound.ID, gene, cell_type) |>
+              group_by(Compound.ID, gene) |>
+              summarise(cell_types = paste(sort(cell_type), collapse = ", "), .groups = "drop"),
+            by = c("Compound.ID", "gene")) |>
+  arrange(desc(n_lineages), lineages, gene)
+
+if (nrow(between_tbl)) {
+  cat("\nCross-lineage pairs:\n")
+  print(as.data.frame(between_tbl |>
+          dplyr::select(dplyr::any_of(c("gene", "Name", "Compound.ID", "Class",
+                                        "n_lineages", "lineages", "cell_types")))),
+        right = FALSE)
+} else {
+  cat("\nNo gene-metabolite pair was shared across lineages.\n")
+}
+
+# ---- Gene-level sharing between lineages, for comparison with the UpSet above
+gene_between <- hits_lin |>
+  distinct(gene, lineage) |>
+  count(gene, name = "n_lineages")
+
+cat(sprintf("\nGenes appearing in >1 lineage: %s of %s hit genes\n",
+            format(sum(gene_between$n_lineages > 1), big.mark = ","),
+            format(nrow(gene_between), big.mark = ",")))
+
+write_csv(within_tbl,  file.path(csv_dir, "lineage_pairs_within.csv"))
+write_csv(between_tbl, file.path(csv_dir, "lineage_pairs_between.csv"))
+cat("\nWrote lineage_pairs_within.csv and lineage_pairs_between.csv\n")
 ```
 
 ## Save recurrence tables

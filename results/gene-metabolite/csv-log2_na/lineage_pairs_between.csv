@@ -1,0 +1,7 @@
+Compound.ID,gene,n_lineages,lineages,Name,Super.Class,Class,cell_types
+C18-Pos-002636,EBF1,2,Excitatory + Inhibitory,S-4-(2-Oxo-Butyl)Glutathione,Organic acids and derivatives,Carboxylic acids and derivatives,"EN-L6b, IN-MGE-SST"
+Amide-Neg-000697,GPR149,2,Excitatory + Inhibitory,Dl-Arginine,Organic acids and derivatives,Carboxylic acids and derivatives,"EN-L6b, IN-CGE-Immature"
+C18-Pos-002636,GPR149,2,Excitatory + Inhibitory,S-4-(2-Oxo-Butyl)Glutathione,Organic acids and derivatives,Carboxylic acids and derivatives,"EN-L6b, IN-MGE-SST"
+Amide-Neg-000697,LNC-LBCS,2,Excitatory + Inhibitory,Dl-Arginine,Organic acids and derivatives,Carboxylic acids and derivatives,"EN-L6b, IN-MGE-SST"
+C18-Pos-002636,LRMDA,2,Excitatory + Inhibitory,S-4-(2-Oxo-Butyl)Glutathione,Organic acids and derivatives,Carboxylic acids and derivatives,"EN-L6b, IN-MGE-SST"
+C8-Pos-001073,GUCY1A1,2,Glia + Inhibitory,Cer(D15:2_7:0),Lipids and lipid-like molecules,Sphingolipids,"IN-CGE-Immature, OPC"

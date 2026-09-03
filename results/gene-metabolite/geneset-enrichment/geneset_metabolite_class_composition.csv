@@ -1,0 +1,56 @@
+group,metab_class,n,pct
+Disease-set gene,(5'->5')-dinucleotides,5,3.875968992248062
+Disease-set gene,Carboxylic acids and derivatives,41,31.782945736434108
+Disease-set gene,Diazines,1,0.7751937984496124
+Disease-set gene,Fatty Acyls,3,2.3255813953488373
+Disease-set gene,Glycerolipids,15,11.627906976744185
+Disease-set gene,Glycerophospholipids,40,31.007751937984494
+Disease-set gene,Indoles and derivatives,1,0.7751937984496124
+Disease-set gene,Keto acids and derivatives,4,3.10077519379845
+Disease-set gene,Lactones,1,0.7751937984496124
+Disease-set gene,Nucleoside and nucleotide analogues,1,0.7751937984496124
+Disease-set gene,Organic phosphoric acids and derivatives,6,4.651162790697675
+Disease-set gene,Organic sulfuric acids and derivatives,1,0.7751937984496124
+Disease-set gene,Organonitrogen compounds,1,0.7751937984496124
+Disease-set gene,Organooxygen compounds,3,2.3255813953488373
+Disease-set gene,Prenol lipids,2,1.550387596899225
+Disease-set gene,Pyrroles,2,1.550387596899225
+Disease-set gene,Steroids and steroid derivatives,2,1.550387596899225
+Other hit gene,(3'->5')-dinucleotides and analogues,1,0.10080645161290322
+Other hit gene,(5'->5')-dinucleotides,29,2.9233870967741935
+Other hit gene,5'-deoxyribonucleosides,2,0.20161290322580644
+Other hit gene,Benzene and substituted derivatives,2,0.20161290322580644
+Other hit gene,Benzodioxoles,3,0.3024193548387097
+Other hit gene,Benzoxazoles,3,0.3024193548387097
+Other hit gene,Biotin and derivatives,1,0.10080645161290322
+Other hit gene,Carboximidic acids and derivatives,7,0.7056451612903226
+Other hit gene,Carboxylic acids and derivatives,246,24.798387096774192
+Other hit gene,Diazines,6,0.6048387096774194
+Other hit gene,Fatty Acyls,23,2.318548387096774
+Other hit gene,Fatty acyls,4,0.4032258064516129
+Other hit gene,Furans,3,0.3024193548387097
+Other hit gene,Glycerolipids,81,8.165322580645162
+Other hit gene,Glycerophospholipids,160,16.129032258064516
+Other hit gene,Hydroxy acids and derivatives,7,0.7056451612903226
+Other hit gene,Imidazopyrimidines,17,1.7137096774193548
+Other hit gene,Indoles and derivatives,2,0.20161290322580644
+Other hit gene,Keto acids and derivatives,71,7.157258064516129
+Other hit gene,Lactones,10,1.0080645161290323
+Other hit gene,Nucleoside and nucleotide analogues,11,1.1088709677419355
+Other hit gene,Organic phosphoric acids and derivatives,13,1.310483870967742
+Other hit gene,Organic sulfuric acids and derivatives,2,0.20161290322580644
+Other hit gene,Organonitrogen compounds,4,0.4032258064516129
+Other hit gene,Organooxygen compounds,25,2.5201612903225805
+Other hit gene,Peptidomimetics,1,0.10080645161290322
+Other hit gene,Phenols,1,0.10080645161290322
+Other hit gene,Phenylpropanoic acids,3,0.3024193548387097
+Other hit gene,Piperidines,1,0.10080645161290322
+Other hit gene,Prenol lipids,30,3.024193548387097
+Other hit gene,Purine nucleosides,11,1.1088709677419355
+Other hit gene,Purine nucleotides,14,1.4112903225806452
+Other hit gene,Pyrimidine nucleosides,2,0.20161290322580644
+Other hit gene,Pyrimidine nucleotides,9,0.907258064516129
+Other hit gene,Pyrroles,98,9.879032258064516
+Other hit gene,Quinolines and derivatives,2,0.20161290322580644
+Other hit gene,Sphingolipids,13,1.310483870967742
+Other hit gene,Steroids and steroid derivatives,74,7.459677419354839
