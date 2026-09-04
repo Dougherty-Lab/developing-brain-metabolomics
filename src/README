@@ -44,3 +44,70 @@ All outputs are written to `results/untargeted/`.
 | `untargeted_neurotransmitters/` | Neurotransmitter subgroup analysis results |
 | `profiles/` | Single-metabolite profile figures |
 
+# Targeted Hormones (src/targeted/)
+LC-MS/MS quantification of testosterone (TT), 17B-estradiol (E2), and progesterone (P4)
+
+## Script Run Order
+
+| Order | Script | Description |
+|-------|--------|-------------|
+| 1 | `corr_age_hormones.Rmd` | Outlier detection, GW–hormone linear/polynomial model comparison, hormone-hormone Pearson correlations |
+| 2 | `Exogenous_Flagging.Rmd` | Sex differences in hormone concentrations, receptor Kd reference, literature comparison|
+
+## Key Outputs
+All outputs are written to `results/targeted/`.
+
+| Directory | Contents |
+|-----------|----------|
+| `age_analysis_plots/` | GW–hormone LOESS, linear, and polynomial fit figures |
+| `hormone_hormone_correlation_plots/` | Pairwise hormone scatter plots (by sex, by GW) |
+| `sex_comparison_plots/` | Distribution histograms, sex-comparison boxplots, literature comparison panels |
+| `untargeted_neurotransmitters/` | Neurotransmitter subgroup analysis results |
+| `hormone_csv/` | Correlation summary, sex comparison stats |
+
+## Gene-Hormone Analysis (src/gene-hormone/)
+Pseudobulk limma-voom association of gonadal hormone concentrations with snRNA-seq gene expression across cortical cell types (n = 24, GW 16–24).
+Testosterone is analyzed in males only; estradiol and progesterone are sex-combined with sex as covariate. Each hormone is tested at three annotation levels (celltype, subclass, class).
+
+
+## Script Run Order
+
+| Order | Script | Description |
+|-------|--------|-------------|
+| 1 | `filter_recluster.R` | Filter snRNA-seq data, remove absent samples, Harmony recluster | REQUIRES data/SSD_RNAonly.rds
+| 2 | `prep_data.R` | Cache pseudobulk aggregates, batch proportions, Seurat subsets |
+| 3 | `QC_UMAP_plots.qmd` | Cell type QC tables and UMAP visualizations |
+| 4 | `Gene_Covariate_Testing.qmd` | Covariate regression (GW, cell count, sex, batch fraction) |
+| 5 | `pseudobulk_cell_comparison.qmd` | Determine optimal pseudobulking group size |
+| 6 | `receptor_expression.qmd` | Hormone receptor gene expression across cell types |
+| 7 | `testosterone_gene_limma.qmd` | TT–gene limma-voom (celltype) |
+| 8 | `testosterone_gene_limma_class.qmd` | TT–gene limma-voom (class) |
+| 9 | `testosterone_gene_limma_subclass.qmd` | TT–gene limma-voom (subclass) |
+| 10 | `estradiol_progesterone_gene_limma.qmd` | E2/P4–gene limma-voom (celltype) |
+| 11 | `estradiol_progesterone_gene_limma_class.qmd` | E2/P4–gene limma-voom (class) |
+| 12 | `estradiol_progesterone_gene_limma_subclass.qmd` | E2/P4–gene limma-voom (subclass) |
+| 13 | `targeted_gene_list_limma.qmd` | Limma-voom on subset of gene-lists from hormone gene expression studies |
+| 14 | `gene_list_scatter.R` | Scatter plots for gene list hits |
+
+## Shared Function Files
+
+| File | Description |
+|------|-------------|
+| `pseudobulk_functions.R` | pseudobulk aggregation,
+limma-voom wrappers, hormone metadata merging, plotting functions |
+
+## Key Outputs
+All outputs are written to `results/gene-hormone/`.
+
+| Directory | Contents |
+|-----------|----------|
+| `qc/, umap/` | Cell type QC tables and UMAP figures |
+| `covariate_analysis/` | Covariate regression results and volcano plots |
+| `cell_comparison/` | Pseudobulk comparison |
+| `testosterone_genes/` | TT–gene limma results (celltype) |
+| `testosterone_genes_class/, testosterone_genes_subclass/` | TT results at class/subclass level |
+| `estradiol_genes/, progesterone_genes/` | E2/P4 limma results (celltype) |
+| `estradiol_genes_class/, progesterone_genes_class/, estradiol_genes_subclass/, progesterone_genes_subclass/` | E2/P4 at class/subclass level |
+| `single_cell_plots_analysis_celltypes/` | Receptor gene expression cell-type figures |
+|`targeted_gene_list/` | Results from literature gene-list hypothesis driven analysis |
+| `gene_list_scatter/` | Per-hormone gene list scatter PDFs |

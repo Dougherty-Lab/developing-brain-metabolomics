@@ -1,14 +1,22 @@
 ---
-title: "Calculate Relationship Between Age and Gonadal Hormone Concentrations"
+title: "Gonadal Hormone Age Relationships and Inter-Hormone Correlations"
 author: "Emma Jones, Sneha Chaturvedi"
-date: "Most recent update 9.23.25"
-output: 
-  html_document: 
-    toc: TRUE
+date: "Last updated `r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: show
 ---
 
-The purpose of this analysis is threefold: 1) to find outliers in the distribution of hormone concentrations, 2) to understand the relationship between age (gestational week) and hormone concentration, and 3) to determine if the hormones themselves are correlated with each other. This is important for downstream analyses, to see if GW should be added as a co-variate, and if outliers should be removed.
+Outlier detection for each hormone (TT, E2, P4), Pearson correlations between all hormone pairs (combined and sex-stratified), and linear vs. polynomial model comparison of each hormone's relationship with gestational week.
 
+| | |
+|---|---|
+| **Inputs** | `doc/targeted/targeted_hormones.xlsx` |
+| **Outputs** | Figures in `results/targeted/age_analysis_plots/` and `results/targeted/hormone_hormone_correlation_plots/`, model comparison CSVs in `results/targeted/hormone_csv/` |
+| **Upstream** | None (reads raw hormone data) |
+| **Downstream** | `hormone_sex_comparison.Rmd` |
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -16,17 +24,32 @@ knitr::opts_chunk$set(echo = TRUE)
 Packages <- c("tidyverse", "readxl", "stats", "ggpubr", "svglite", "knitr", "gridExtra", "broom")
 lapply(Packages, library, character.only=TRUE)
 
-svg_path_age <- "../../results/targeted/age_analysis_plots"
-svg_path_correlation <- "../../results/targeted/hormone_hormone_correlation_plots"
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+
+root <- find_project_root()
+svg_path_age <- file.path(root, "results/targeted/age_analysis_plots")
+svg_path_correlation <- file.path(root, "results/targeted/hormone_hormone_correlation_plots")
+csv_path <- file.path(root, "results/targeted/hormone_csv")
+dir.create(svg_path_age, recursive = TRUE, showWarnings = FALSE)
+dir.create(svg_path_correlation, recursive = TRUE, showWarnings = FALSE)
+dir.create(csv_path, recursive = TRUE, showWarnings = FALSE)
 ```
 
 ## Load data
 
 ```{r load seurat object and excel spreadsheet}
 # load hormone metabolomics data
-targeted_comparision_raw <- read_xlsx("../../doc/targeted/targeted_hormones.xlsx")
+targeted_comparision_raw <- read_xlsx(file.path(root, "doc/targeted/targeted_hormones.xlsx"))
 
-#create new column for estradiol labeled E2 to prevent future coding difficulties with a column label starting with a number
+#create new column for estradiol labeled E2
 targeted_comparision_raw$`E2 (ng/mL)`<- targeted_comparision_raw$`17B-E2 (ng/mL)`
 
 ```
@@ -97,9 +120,8 @@ ggsave("sample_distribution_GW_by_sex_histogram.svg",
 ```
 ## Remove Outliers
 
-The statistical definition of an outlier differs by field, but generally Q3 + 1.5*IQR is accepted as a way to detect outliers
+Q3 + 1.5*IQR 
 
-Let's calculate below:
 
 ```{r remove outliers}
 detect_outliers <- function(data, variable) {
@@ -299,7 +321,7 @@ correlation_summary$P_Value <- formatC(correlation_summary$P_Value, format = "e"
 print(correlation_summary)
 
 # Save as CSV
-write.csv(correlation_summary, "../../results/targeted/hormone_csv/hormone_correlation_summary.csv", row.names = FALSE)
+write.csv(correlation_summary, file.path(csv_path, "hormone_correlation_summary.csv"), row.names = FALSE)
 
 # Optional: Create a formatted table using knitr/kable if you're in RMarkdown
 library(knitr)
@@ -390,7 +412,7 @@ ggsave("TT_Polynomial_combined.svg", plot = p_tt_poly_combined, path = svg_path_
 # Model comparison table
 tt_combined_table <- create_model_table(tt_linear_combined, tt_poly_combined, "TT Combined")
 print(tt_combined_table)
-write.csv(tt_combined_table, file.path( "../../results/targeted/hormone_csv/TT_combined_model_comparison.csv"), row.names = FALSE)
+write.csv(tt_combined_table, file.path(csv_path, "TT_combined_model_comparison.csv"), row.names = FALSE)
 ```
 
 
@@ -470,7 +492,7 @@ tt_male_table <- create_model_table(tt_linear_male, tt_poly_male, "TT Male")
 tt_female_table <- create_model_table(tt_linear_female, tt_poly_female, "TT Female")
 tt_sex_table <- rbind(tt_male_table, tt_female_table)
 print(tt_sex_table)
-write.csv(tt_sex_table, file.path( "../../results/targeted/hormone_csv/TT_sex_model_comparison.csv"), row.names = FALSE)
+write.csv(tt_sex_table, file.path(csv_path, "TT_sex_model_comparison.csv"), row.names = FALSE)
 ```
 
 # Estrogen
@@ -529,7 +551,7 @@ ggsave("E2_Polynomial_combined.svg", plot = p_e2_poly_combined, path = svg_path_
 # Model comparison table
 e2_combined_table <- create_model_table(e2_linear_combined, e2_poly_combined, "E2 Combined")
 print(e2_combined_table)
-write.csv(e2_combined_table, file.path( "../../results/targeted/hormone_csv/E2_combined_model_comparison.csv"), row.names = FALSE)
+write.csv(e2_combined_table, file.path(csv_path, "E2_combined_model_comparison.csv"), row.names = FALSE)
 
 ```
 ### Separate Sex
@@ -608,7 +630,7 @@ e2_male_table <- create_model_table(e2_linear_male, e2_poly_male, "E2 Male")
 e2_female_table <- create_model_table(e2_linear_female, e2_poly_female, "E2 Female")
 e2_sex_table <- rbind(e2_male_table, e2_female_table)
 print(e2_sex_table)
-write.csv(e2_sex_table, file.path( "../../results/targeted/hormone_csv/E2_sex_model_comparison.csv"), row.names = FALSE)
+write.csv(e2_sex_table, file.path(csv_path, "E2_sex_model_comparison.csv"), row.names = FALSE)
 ```
 
 # Progesterone
@@ -668,7 +690,7 @@ ggsave("P4_Polynomial_combined.svg", plot = p_p4_poly_combined, path = svg_path_
 # Model comparison table
 p4_combined_table <- create_model_table(p4_linear_combined, p4_poly_combined, "P4 Combined")
 print(p4_combined_table)
-write.csv(p4_combined_table, file.path( "../../results/targeted/hormone_csv/P4_combined_model_comparison.csv"), row.names = FALSE)
+write.csv(p4_combined_table, file.path(csv_path, "P4_combined_model_comparison.csv"), row.names = FALSE)
 
 ```
 
@@ -748,7 +770,7 @@ p4_male_table <- create_model_table(p4_linear_male, p4_poly_male, "P4 Male")
 p4_female_table <- create_model_table(p4_linear_female, p4_poly_female, "P4 Female")
 p4_sex_table <- rbind(p4_male_table, p4_female_table)
 print(p4_sex_table)
-write.csv(p4_sex_table, file.path("../../results/targeted/hormone_csv/P4_sex_model_comparison.csv"), row.names = FALSE)
+write.csv(p4_sex_table, file.path(csv_path, "P4_sex_model_comparison.csv"), row.names = FALSE)
 
 ```
 
@@ -767,5 +789,15 @@ all_models_summary <- rbind(
 )
 
 print(all_models_summary)
-write.csv(all_models_summary, file.path( "../../results/targeted/hormone_csv/ALL_hormones_model_comparison.csv"), row.names = FALSE)
+write.csv(all_models_summary, file.path(csv_path, "ALL_hormones_model_comparison.csv"), row.names = FALSE)
+```
+# AI Assistance Disclosure
+
+Code in this script was developed with assistance from Claude (Anthropic). All
+AI-generated code was reviewed, validated, and adapted by the author.
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
 ```

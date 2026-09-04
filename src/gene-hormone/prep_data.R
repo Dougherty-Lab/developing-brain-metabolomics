@@ -1,24 +1,22 @@
 # prep_data.R
+# ---------------------------------------------------------------------------
+# Loads the filtered Seurat object once and caches small derived objects for
+# all downstream scripts: pseudobulk counts at three annotation levels,
+# batch proportions, lightweight Seurat subsets for UMAP and receptor plots,
+# and a pseudobulk comparison subset.
 #
-# Loads SSD_RNAonly_filtered.rds (~44G) ONCE and caches the small derived
-# objects that subsequent scripts need
-
-# Outputs (all in ../../data/cache/):
-#   pb_base.rds              - build_pseudobulk() output, celltype level
-#   pb_base_subclass.rds     - build_pseudobulk() output, subclass level
-#   pb_base_class.rds        - build_pseudobulk() output, class level
-#   batch_props_sample.rds   - per-sample batch1_frac (Gene_Covariate_Testing)
-#   SSD_meta_umap.rds        - DietSeurat: meta.data + umap.rna only, 1 gene
-#                              (testosterone / estradiol / progesterone —
-#                               add_batch_fraction() + plot_analysis_umap())
-#   receptor_expr_object.rds - DietSeurat: meta.data + umap.rna + counts/data
-#                              for the 18 receptor genes only
-#   pb_comparison_subset.rds - counts_sub + sample_labels for
-#                              IN-CGE-Immature x SSD07/SSD47
-#                              (pseudobulk_cell_comparison.qmd)
+# Inputs:  data/SSD_RNAonly_filtered.rds
+# Outputs: data/cache/pb_base.rds, pb_base_subclass.rds, pb_base_class.rds,
+#          batch_props_sample.rds, SSD_meta_umap.rds, receptor_expr_object.rds,
+#          pb_comparison_subset.rds
+#
+# Upstream:  filter_recluster.R
+# Downstream: All QMD scripts in src/gene-hormone/
+#
+# Run: Rscript prep_data.R (or via sbatch; ~200GB RAM recommended)
+# ---------------------------------------------------------------------------
 Packages <- c("tidyverse", "Seurat", "harmony")
 lapply(Packages, library, character.only = TRUE)
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-hormone/")
 
 set.seed(123)
 
@@ -27,15 +25,27 @@ sample_col <- "Sample"
 # ---- 1. Load ----------------------------------------------------------------
 cat("Loading SSD_RNAonly_filtered.rds (this is the only full load)...\n")
 t0 <- Sys.time()
-SSD_data <- readRDS("../../data/SSD_RNAonly_filtered.rds")
+SSD_data <- readRDS(file.path(root, "data/SSD_RNAonly_filtered.rds"))
 cat("Load time:", format(Sys.time() - t0), "\n")
 
 celltype_col <- "celltype"
 sample_col   <- "Sample"
 
-source("pseudobulk_functions.R")
+# Bootstrap project root
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
 
-cache_dir <- "../../data/cache"
+source(file.path(root, "src/gene-hormone/pseudobulk_functions.R"))
+
+cache_dir <- file.path(root, "data/cache")
 dir.create(cache_dir, showWarnings = FALSE, recursive = TRUE)
 
 
@@ -136,3 +146,10 @@ saveRDS(
 cat("Saved pb_comparison_subset.rds\n")
 
 cat("\nDone. All cached objects written to", cache_dir, "\n")
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())
