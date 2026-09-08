@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## filter_recluster.R
 ##
 ## Standalone script: full filtering pipeline + reclustering
@@ -10,6 +11,24 @@
 Packages <- c("tidyverse", "Seurat", "harmony")
 lapply(Packages, library, character.only = TRUE)
 setwd("/scratch/jdlab/emma/developing-brain-metabolomics/src/gene-hormone/")
+=======
+# filter_recluster.R
+# ---------------------------------------------------------------------------
+# Filter snRNA-seq Seurat object: remove metabolomics-absent samples,
+# low-quality cells, and recluster with Harmony batch correction.
+#
+# Inputs:  data/SSD_RNAonly.rds
+# Outputs: data/SSD_RNAonly_filtered.rds
+#
+# Upstream:  None (first script)
+# Downstream: prep_data.R
+#
+# Run: Rscript filter_recluster.R (or via sbatch; ~200GB RAM recommended)
+# ---------------------------------------------------------------------------
+
+Packages <- c("tidyverse", "Seurat", "harmony")
+lapply(Packages, library, character.only = TRUE)
+>>>>>>> f939efd08d50f1978b54af5677f8e75f12309a7b
 
 set.seed(123)
 
@@ -18,7 +37,7 @@ sample_col <- "Sample"
 # ---- 1. Load ----------------------------------------------------------------
 cat("Loading SSD_RNAonly.rds...\n")
 t0 <- Sys.time()
-SSD_data <- readRDS("../../data/SSD_RNAonly.rds")
+SSD_data <- readRDS(file.path(root, "data/SSD_RNAonly.rds"))
 cat("Load time:", format(Sys.time() - t0), "\n")
 cat("Cells loaded:", ncol(SSD_data), "\n")
 
@@ -116,6 +135,14 @@ cat("Reclustering complete.\n")
 
 # ---- 6. Save ----------------------------------------------------------------
 cat("\nSaving SSD_RNAonly_filtered.rds...\n")
-saveRDS(SSD_data, "../../data/SSD_RNAonly_filtered.rds")
+saveRDS(SSD_data, file.path(root, "data/SSD_RNAonly_filtered.rds"))
 cat("Done. Final cell count:", ncol(SSD_data), "\n")
 cat("Total time:", format(Sys.time() - t0), "\n")
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

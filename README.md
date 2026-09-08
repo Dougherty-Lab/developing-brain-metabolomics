@@ -1,2 +1,8 @@
-# README
-Analysis repo for correlating targeted and untargeted metabolomics with gene expression and chromatin accessibility
+# Chaturvedi et al. 2026 Paper Title
+## Sneha M. Chaturvedi, Kelsey Hennick, Emma Jones, Rencheng Wang, Jaenyeon Kim, Minsoo Son, Leah P. Shriver, Young Ah Goo, Tomasz Nowakowski, Joseph D. Dougherty
+
+Analysis repo for our Chaturvedi et al. 2026 manuscript examining sample-matched metabolite values with single-nucleus gene expression data.
+
+## Abstract
+The molecular environment of the early cortex plays a large role on developmental trajectory, as changes in gene expression and cellular signaling both impact neurodevelopmental outcomes. Small metabolites and nutrients are products of specific genes’ functions (e.g., metabolic enzymes) and directly regulate gene expression (e.g., via nuclear hormone receptors). While several such nutrients are essential for brain development, there is no comprehensive catalog of the metabolites present in the developing brain, the degree and nature of relationships between such small molecules and transcriptional regulation, and whether they are global or vary by cell type. In this study, we combine comprehensive metabolomics with single nucleus (sn)RNAseq to test the interrelationships between gene expression and metabolite abundance in the human developing cortex during mid-gestation, and with cell-type specificity. We detected 525 distinct metabolites, with significant changes across gestational week and subtle sex effects, and provide the first measures of testosterone, progesterone, and estradiol directly from the developing brain. Integration of metabolomics with snRNAseq revealed nearly half of metabolites are significantly associated with expression of 542 genes across eleven cell types, via cell-type specific gene regulation. Such widespread relationships provide a resource for new understanding of metabolic impacts during human cortical development.  
+

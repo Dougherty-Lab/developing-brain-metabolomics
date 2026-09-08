@@ -1,7 +1,7 @@
 # pseudobulk_functions.R
 #
 # Shared functions for pseudobulk + limma-voom DE analysis of snRNA-seq data.
-# Sourced by manual hormone_gene_limma_sexseparate.Rmd and sex-combined scripts.
+# Sourced by all scripts in src/gene-hormone/.
 #
 # Design:
 #   build_pseudobulk()         -> pure aggregation; no hormone/phenotype knowledge.
@@ -29,6 +29,21 @@
 #   Groups with fewer than min_samples non-zero-hormone samples are dropped
 #   before model fitting. The floor must exceed the model's coefficient count
 #   to leave residual df (e.g. 10 for TT, 21 for E2/P4).
+
+# ---- Project root ------------------------------------------------------------
+
+#' Find the project root by walking up from the working directory.
+#' @param marker Directory name that marks the root (default: ".git").
+#' @return Absolute path to the project root.
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
 
 
 # ---- 1. Pseudobulk aggregation -----------------------------------------------
@@ -1324,3 +1339,7 @@ plot_analysis_umap <- function(seurat_obj,
 
   invisible(p)
 }
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this file was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.

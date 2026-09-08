@@ -1,33 +1,60 @@
 ---
 title: "Targeted Hormone Sex Comparison"
-author: "Sneha Chaturvedi"
-date: "Updated 11.6.25"
-output: 
+author: "Sneha M. Chaturvedi"
+date: "Last updated `r Sys.Date()`"
+output:
   html_document:
-    toc: TRUE
+    toc: true
+    toc_depth: 3
+    code_folding: show
 ---
 
-The purpose of this analysis is to 1) to find outliers in the distribution of hormone concentrations and 2) compare concentrations between males and females for significant differences. 
+Sex differences in targeted gonadal hormone concentrations (TT, E2, P4).
+Includes raw and outlier-removed distribution visualization, Shapiro-Wilk
+normality testing, parametric/non-parametric sex comparison, literature
+concentration comparison, and receptor Kd reference line overlays.
+
+| | |
+|---|---|
+| **Inputs** | `doc/targeted/targeted_hormones.xlsx` |
+| **Outputs** | Figures in `results/targeted/sex_comparison_plots/`, summary CSV in `results/targeted/hormone_csv/` |
+| **Upstream** | `corr_age_hormones.Rmd` (shared data, independent analyses) |
+| **Downstream** | None |
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 Packages <- c("tidyverse", "readxl", "stats", "ggpubr", "svglite", "knitr")
 
 lapply(Packages, library, character.only=TRUE)
-svg_path <- "../../results/targeted/sex_comparison_plots"
+
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+
+root <- find_project_root()
+svg_path <- file.path(root, "results/targeted/sex_comparison_plots")
+csv_path <- file.path(root, "results/targeted/hormone_csv")
+dir.create(svg_path, recursive = TRUE, showWarnings = FALSE)
+dir.create(csv_path, recursive = TRUE, showWarnings = FALSE)
 ```
 
 # Set Up
 ```{r LoadDataset, echo=TRUE}
 #Load Dataset
-targeted = read_excel('../../doc/targeted/targeted_hormones.xlsx',sheet="DATA",range=NULL)
+targeted = read_excel(file.path(root, 'doc/targeted/targeted_hormones.xlsx'),sheet="DATA",range=NULL)
 targeted <- targeted %>%
   rename(`TT (pg/mg)`     = `TT (ng/mL)`,
          `17B-E2 (pg/mg)` = `17B-E2 (ng/mL)`,
          `P4 (pg/mg)`     = `P4 (ng/mL)`)
 #Create separate datasets by sex
-female_targeted <- filter(targeted, Sex == 'F')
-male_targeted <- filter(targeted, Sex == 'M')
+female_targeted <- dplyr::filter(targeted, Sex == 'F')
+male_targeted <- dplyr::filter(targeted, Sex == 'M')
 
 #convert sex column to factor
 targeted$Sex <- as.factor(targeted$Sex)
@@ -41,12 +68,12 @@ detect_outliers <- function(data, variables) {
   #Calculate the outlier limit
   outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
   #Find outliers
-  outliers <- data %>% filter(.data[[variable]] > outlier_limit)
+  outliers <- data %>% dplyr::filter(.data[[variable]] > outlier_limit)
   #Print out outliers
   print(paste("Outliers for:", variable))
   print(outliers)
   #Create dataframe with outliers removed
-  filtered_data <- data %>% filter(.data[[variable]] <= outlier_limit)
+  filtered_data <- data %>% dplyr::filter(.data[[variable]] <= outlier_limit)
   }
   return(filtered_data)
 }
@@ -239,8 +266,8 @@ ggsave("clean_p4_distribution_sex.svg", path = svg_path)
 
 ```{r re-normality, echo = TRUE}
 #Create separate datasets by sex
-female_clean_targeted <- filter(clean_targeted, Sex == 'F')
-male_clean_targeted <- filter(clean_targeted, Sex == 'M')
+female_clean_targeted <- dplyr::filter(clean_targeted, Sex == 'F')
+male_clean_targeted <- dplyr::filter(clean_targeted, Sex == 'M')
 
 # Perform Shapiro-Wilk normality test for each sex group
   clean_all_shapiro_tt <- shapiro.test(clean_targeted$`TT (pg/mg)`)
@@ -556,24 +583,20 @@ stats_summary_enhanced$P_Value <- formatC(stats_summary_enhanced$P_Value, format
 
 # Print and save
 print(stats_summary_enhanced)
-write.csv(stats_summary_enhanced, "../../results/targeted/hormone_csv/hormone_sex_comparison_stats_detailed.csv", row.names = FALSE)
+write.csv(stats_summary_enhanced, file.path(csv_path, "hormone_sex_comparison_stats_detailed.csv"), row.names = FALSE)
 ```
 
 # Literature Comparison
 
-Compares the targeted hormone concentrations measured in fetal cortical tissue
-(pg/mg) against values reported in the literature. Note that with one exception
-these published values are **culture media exposure concentrations**, not tissue
-measurements: only the Kelava et al. ELISA readout is a measured concentration.
+Compares the targeted hormone concentrations measured in prenatal cortical tissue (pg/mg) against values reported in the literature. Note that with one exception these published values are **culture media exposure concentrations**, not tissue measurements: only Kelava et al has a measured concentration.
+
 Exposure and measured values are distinguished by point shape below.
 
 ```{r lit_setup, echo=TRUE}
 library(patchwork)
 
-# Literature values recorded as originally reported (pg/mL), then converted to
-# tissue-equivalent pg/mg using the same fetal brain density constant as the Kd
-# conversion, so all three scales in the figure are directly comparable.
-# type: "Exposure" = concentration applied to culture; "Measured" = assayed readout.
+# Literature values recorded as originally reported (pg/mL), then converted to tissue-equivalent pg/mg using the prenatal brain density constant
+# "Exposure" = concentration applied to culture; "Measured" = assayed readout.
 BRAIN_DENSITY <- 1120  # mg/mL; see doi:10.1002/uog.70140
 
 lit_hormones <- tribble(
@@ -608,7 +631,7 @@ lit_hormones <- tribble(
 
 # Our measured values, long format, outlier-removed set
 our_hormones <- clean_targeted %>%
-  select(Sex, `TT (pg/mg)`, `17B-E2 (pg/mg)`, `P4 (pg/mg)`) %>%
+  dplyr::select(Sex, `TT (pg/mg)`, `17B-E2 (pg/mg)`, `P4 (pg/mg)`) %>%
   pivot_longer(-Sex, names_to = "col", values_to = "value") %>%
   mutate(
     hormone = case_when(
@@ -620,7 +643,7 @@ our_hormones <- clean_targeted %>%
     study   = "Our data",
     type    = "Measured"
   ) %>%
-  filter(!is.na(value))
+  dplyr::filter(!is.na(value))
 
 # Log10 panels drop non-positive values; report how many
 n_dropped <- our_hormones %>%
@@ -628,7 +651,7 @@ n_dropped <- our_hormones %>%
   summarise(n_total = n(), n_nonpositive = sum(value <= 0), .groups = "drop")
 kable(n_dropped, caption = "Values excluded from log10 panels (<= 0)")
 
-our_hormones_log <- filter(our_hormones, value > 0)
+our_hormones_log <- dplyr::filter(our_hormones, value > 0)
 
 hormone_labels <- c(TT = "TT (pg/mg)", E2 = "17B-E2 (pg/mg)", P4 = "P4 (pg/mg)")
 
@@ -638,12 +661,10 @@ type_fills   <- c("Exposure" = "white", "Measured" = "black")
 
 ## Standalone literature panels (right-hand axis)
 
-These are sized to sit flush beside the existing sex-comparison plots. The axis
-is on the right so the two panels read as a single figure with independent scales.
 
 ```{r lit_standalone, echo=TRUE, fig.width=3, fig.height=4}
 plot_lit_panel <- function(h) {
-  d <- filter(lit_hormones, hormone == h)
+  d <- dplyr::filter(lit_hormones, hormone == h)
   if (nrow(d) == 0) return(NULL)
 
   ggplot(d, aes(x = study, y = value)) +
@@ -672,13 +693,12 @@ for (h in c("TT", "E2", "P4")) {
 
 ## Combined panels: our distribution with literature overlaid
 
-Preferred for the manuscript — a single log10 axis removes the need for the
-reader to align two independent scales.
+
 
 ```{r lit_combined, echo=TRUE, fig.width=4.5, fig.height=4.5}
 plot_lit_combined <- function(h) {
-  d_ours <- filter(our_hormones_log, hormone == h)
-  d_lit  <- filter(lit_hormones, hormone == h)
+  d_ours <- dplyr::filter(our_hormones_log, hormone == h)
+  d_lit  <- dplyr::filter(lit_hormones, hormone == h)
 
   ggplot() +
     geom_boxplot(data = d_ours, aes(x = "Our data", y = value),
@@ -736,14 +756,10 @@ Kd values are free-ligand affinities converted to a tissue concentration:
 
     Kd (nM) x MW (g/mol) = pg/mL, then / brain density (mg/mL) = pg/mg
 
-Note that measured tissue concentrations are *total* (protein-bound plus free
-plus intracellular), whereas Kd describes free ligand at the receptor. These
-lines therefore mark a permissive floor -- concentrations above the line are in
-a range where receptor binding is possible -- not an occupancy estimate.
+Note that measured tissue concentrations are *total* (protein-bound plus free plus intracellular), whereas Kd describes free ligand at the receptor. These lines therefore mark a permissive floor, not an occupancy estimate.
 
 ```{r kd_setup, echo=TRUE}
-# Single source of truth. Fetal brain density estimate appropriate to the
-# GW16-24 window (Ultrasound Obstet Gynecol, doi:10.1002/uog.70140).
+# Brain density estimate appropriate to the GW16-24 window (Ultrasound Obstet Gynecol, doi:10.1002/uog.70140).
 # Change here to propagate to every panel and to the literature conversions.
 BRAIN_DENSITY <- 1120  # mg/mL
 
@@ -765,7 +781,7 @@ kd_receptors <- tribble(
 
 kable(
   kd_receptors %>%
-    select(hormone, receptor, kd_nM, mw_g_mol, pg_per_mL, kd_pg_mg) %>%
+    dplyr::select(hormone, receptor, kd_nM, mw_g_mol, pg_per_mL, kd_pg_mg) %>%
     mutate(across(c(pg_per_mL, kd_pg_mg), ~round(.x, 4))),
   caption = paste0("Receptor Kd converted to tissue-equivalent pg/mg ",
                    "(brain density = ", BRAIN_DENSITY, " mg/mL)")
@@ -781,7 +797,7 @@ kable(
 #'                per-receptor default. Use "solid" on linear axes where the
 #'                lines sit close to zero and dashes are hard to resolve.
 add_kd_lines <- function(p, h, label = TRUE, x_label = Inf, lt = NULL) {
-  d <- filter(kd_receptors, hormone == h)
+  d <- dplyr::filter(kd_receptors, hormone == h)
   if (nrow(d) == 0) return(p)
   if (!is.null(lt)) d$linetype <- lt
 
@@ -805,14 +821,7 @@ add_kd_lines <- function(p, h, label = TRUE, x_label = Inf, lt = NULL) {
 
 ## Applying to the sex-comparison panels
 
-`add_kd_lines()` returns a modified plot, so assign the existing `ggboxplot()`
-call to an object first rather than piping straight into `ggsave()`.
-
 ### Linear axis
-
-Kd values are small relative to the measured ranges for E2 and P4, so on a
-linear axis these lines sit very close to zero. They are drawn solid here for
-visibility; see the log10 versions below for the readable comparison.
 
 ```{r kd_sex_panels_linear, echo=TRUE}
 # --- TT, outlier-removed, linear scale ---
@@ -909,7 +918,6 @@ ggsave("log_clean_p4_statistics_sex_kd.png", plot = p_p4, path = svg_path, dpi =
 
 ## Applying to the literature-comparison panels
 
-Requires the `lit_combined` chunk to have run first.
 
 ```{r kd_lit_panels, echo=TRUE, fig.width=4.5, fig.height=4.5}
 combined_plots_kd <- purrr::imap(combined_plots, ~add_kd_lines(.x, .y))
@@ -948,13 +956,24 @@ kd_fold <- our_hormones %>%
   summarise(median_pg_mg = median(value, na.rm = TRUE),
             max_pg_mg    = max(value, na.rm = TRUE),
             .groups = "drop") %>%
-  left_join(select(kd_receptors, hormone, receptor, kd_pg_mg), by = "hormone") %>%
+  left_join(dplyr::select(kd_receptors, hormone, receptor, kd_pg_mg), by = "hormone") %>%
   mutate(fold_median = median_pg_mg / kd_pg_mg,
          fold_max    = max_pg_mg / kd_pg_mg,
          across(c(median_pg_mg, max_pg_mg, kd_pg_mg), ~round(.x, 4)),
          across(c(fold_median, fold_max), ~round(.x, 1)))
 
 kable(kd_fold, caption = "Measured concentration relative to receptor Kd")
-write.csv(kd_fold, "../../results/targeted/hormone_csv/hormone_kd_fold.csv",
+write.csv(kd_fold, file.path(csv_path, "hormone_kd_fold.csv"),
           row.names = FALSE)
+```
+
+# AI Assistance Disclosure
+
+Code in this script was developed with assistance from Claude (Anthropic). All
+AI-generated code was reviewed, validated, and adapted by the author.
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
 ```

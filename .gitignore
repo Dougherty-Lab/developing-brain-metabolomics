@@ -1,3 +1,7 @@
+# Slurm outputs
+*.out
+*.err
+
 # History files
 .Rhistory
 .Rapp.history
@@ -16,6 +20,8 @@ results/gene-hormone/gene_hormone_csv/
 
 #slurm output files
 bin/docker/slurm-*.out
+*.tsv.bgz
+*.RData
 *.err
 *.log
 
@@ -33,6 +39,7 @@ bin/docker/slurm-*.out
 
 # RStudio files
 .Rproj.user/
+.Rproj
 
 # produced vignettes
 vignettes/*.html
@@ -65,3 +72,6 @@ rsconnect/
 .DS_Store
 results/gene-metabolite/stability-dfbetas-zscore_trim/qq-plots/svg/
 results/gene-metabolite/csv-log2_na/qq-plots/svg/
+# Mac Files
+.DS_Store
+

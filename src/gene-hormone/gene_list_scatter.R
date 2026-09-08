@@ -23,7 +23,10 @@
 #
 # =============================================================================
 
+<<<<<<< HEAD
 setwd("src/gene-hormone/")
+=======
+>>>>>>> f939efd08d50f1978b54af5677f8e75f12309a7b
 # ---- 0. Manual gene list (edit here) ----------------------------------------
 
 GENE_LIST <- c(
@@ -66,15 +69,27 @@ suppressPackageStartupMessages({
   library(svglite)
 })
 
-source("pseudobulk_functions.R")
+# Bootstrap project root
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
+
+source(file.path(root, "src/gene-hormone/pseudobulk_functions.R"))
 set.seed(123)
 
 # ---- 2. Load data -----------------------------------------------------------
 
-pb_base      <- readRDS("../../data/cache/pb_base.rds")
-SSD_data     <- readRDS("../../data/cache/SSD_meta_umap.rds")
+pb_base      <- readRDS(file.path(root, "data/cache/pb_base.rds"))
+SSD_data     <- readRDS(file.path(root, "data/cache/SSD_meta_umap.rds"))
 
-targeted_raw <- read_xlsx("../../doc/targeted/targeted_hormones.xlsx") |>
+targeted_raw <- read_xlsx(file.path(root, "doc/targeted/targeted_hormones.xlsx")) |>
   dplyr::mutate(
     E2 = `17B-E2 (ng/mL)`,
     TT = `TT (ng/mL)`,
@@ -224,7 +239,7 @@ plot_gene_scatter <- function(pb, gene, hormone, male_only = FALSE,
 
 # ---- 6. Generate PDFs per hormone -------------------------------------------
 
-output_dir <- "../../results/gene-hormone/gene_list_scatter"
+output_dir <- file.path(root, "results/gene-hormone/gene_list_scatter")
 dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
 hormone_config <- list(
@@ -271,3 +286,11 @@ for (h in names(hormone_config)) {
 }
 
 message("Done.")
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

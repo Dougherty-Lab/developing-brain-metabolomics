@@ -1,0 +1,4 @@
+Hormone,Subset,Name,Super Class,Class,Pathways,rho,fdr,n
+P4,Sex-combined,Progesterone,Lipids and lipid-like molecules,Steroids and steroid derivatives,map00140;R-HSA-1187000;R-HSA-1300642;R-HSA-1474165;R-HSA-193048;R-HSA-193993;R-HSA-194002;R-HSA-196071;R-HSA-211976;R-HSA-3371497;R-HSA-5579021;R-HSA-5579028;R-HSA-5579029;R-HSA-9018519;WP170;WP2263;WP2817;WP4523;WP4524;WP4756;WP4871;WP496;WP5074;WP5094;WP5277;WP5279;WP5320;WP5434;WP98,0.972,0,21
+P4,Sex-combined,"17-(1-Hydroxyethyl)-10,13-Dimethyl-2,3,6,7,8,9,10,11,12,13,14,15,16,17-Tetradecahydro-1h-Cyclopenta[A]Phenanthren-3-One",Lipids and lipid-like molecules,Steroids and steroid derivatives,WP5277,0.81,0.004,21
+P4,Sex-combined,Pc(11:1_29:4),Lipids and lipid-like molecules,Glycerophospholipids,NA,0.842,0.015,16
