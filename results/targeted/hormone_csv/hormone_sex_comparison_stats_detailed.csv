@@ -1,0 +1,4 @@
+"Hormone","N_Female","N_Male","Mean_Female","Mean_Male","Test_Type","Test_Statistic","P_Value","Significant"
+"`TT (pg/mg)`",18,23,0.0742,0.1327,"Wilcoxon rank-sum test",66,"1.856e-04",TRUE
+"`17B-E2 (pg/mg)`",18,23,1.2729,0.9517,"Wilcoxon rank-sum test",199,"8.455e-01",FALSE
+"`P4 (pg/mg)`",18,23,11.2447,11.658,"Wilcoxon rank-sum test",230,"5.585e-01",FALSE

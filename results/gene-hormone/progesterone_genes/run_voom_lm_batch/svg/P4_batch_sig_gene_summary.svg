@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' class='svglite' width='720.00pt' height='504.00pt' viewBox='0 0 720.00 504.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    .svglite line, .svglite polyline, .svglite polygon, .svglite path, .svglite rect, .svglite circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+    .svglite text {
+      white-space: pre;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: none;'/>
+<defs>
+  <clipPath id='cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA='>
+    <rect x='0.00' y='0.00' width='720.00' height='504.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+</g>
+<defs>
+  <clipPath id='cpMjMuNzJ8NzEzLjAzfDI5Ljg2fDQ4MC4yOA=='>
+    <rect x='23.72' y='29.86' width='689.30' height='450.42' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMjMuNzJ8NzEzLjAzfDI5Ljg2fDQ4MC4yOA==)'>
+</g>
+<g clip-path='url(#cpMC4wMHw3MjAuMDB8MC4wMHw1MDQuMDA=)'>
+<text x='368.37' y='493.97' text-anchor='middle' style='font-size: 14.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='59.13px' lengthAdjust='spacingAndGlyphs'>Cell Type</text>
+<text transform='translate(17.18,255.07) rotate(-90)' text-anchor='middle' style='font-size: 14.00px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='121.41px' lengthAdjust='spacingAndGlyphs'># Significant Genes</text>
+<text x='23.72' y='19.22' style='font-size: 16.80px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='304.86px' lengthAdjust='spacingAndGlyphs'>P4 — Base + Batch (~ P4 + batch1_frac)</text>
+</g>
+</svg>
