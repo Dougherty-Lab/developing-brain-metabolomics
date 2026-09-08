@@ -1,0 +1,523 @@
+---
+title: "Hormone–Metabolite Correlations"
+author: "Sneha Chaturvedi"
+date: "`r Sys.Date()`"
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    scrollable: true
+    embed-resources: false
+freeze: auto
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## {visibility="hidden"}
+
+```{r setup}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(readxl)
+  library(ppcor)
+  library(svglite)
+  library(patchwork)
+  library(knitr)
+})
+
+path_hormones <- "../../doc/targeted/targeted_hormones.xlsx"
+path_peak     <- "../../results/untargeted/batch2_peak_area_clean.csv"
+path_annot    <- "../../results/untargeted/batch2_metabolite_annotations_flagged.csv"
+
+out_dir <- "../../results/hormone-metabolite"
+dir.create(file.path(out_dir, "svg"), showWarnings = FALSE, recursive = TRUE)
+
+# Analysis parameters
+MIN_BEST_MATCH <- 80    # High-confidence annotations only
+MIN_N_TT       <- 10    # Males only; hard floor per Bonett & Wright 2000
+MIN_N_E2P4     <- 12    # Sex-combined; half of total n = 24
+FDR_THRESH     <- 0.10  
+RHO_THRESH     <- 0.40  # |ρ| ≥ 0.40 moderate correlation
+TOP_N          <- 10    # Scatter plots per hormone
+```
+
+## {visibility="hidden"}
+
+```{r helpers}
+# Local copy — avoids loading full pseudobulk_functions.R
+save_dual_format <- function(plot, output_dir, filename_base,
+                              width = 10, height = 7, dpi = 300) {
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  svg_d <- file.path(output_dir, "svg")
+  dir.create(svg_d, showWarnings = FALSE)
+  ggsave(file.path(output_dir, paste0(filename_base, ".png")),
+         plot = plot, width = width, height = height, dpi = dpi)
+  ggsave(file.path(svg_d,    paste0(filename_base, ".svg")),
+         plot = plot, width = width, height = height,
+         device = svglite::svglite)
+  message("Saved: ", filename_base, ".png  +  svg/", filename_base, ".svg")
+  invisible(plot)
+}
+
+theme_nature <- function(base_size = 9) {
+  theme_classic(base_size = base_size) +
+    theme(
+      text               = element_text(family = "Helvetica", colour = "black"),
+      axis.line          = element_line(colour = "black", linewidth = 0.4),
+      axis.ticks         = element_line(colour = "black", linewidth = 0.4),
+      axis.text          = element_text(colour = "black"),
+      panel.grid         = element_blank(),
+      legend.background  = element_blank(),
+      legend.key         = element_blank(),
+      # Subtle strip for Super.Class facets in heatmap
+      strip.background   = element_rect(fill = "grey96", colour = "grey80",
+                                         linewidth = 0.3),
+      strip.text         = element_text(size = 7.5, colour = "black"),
+      plot.title         = element_text(face = "bold", size = base_size + 1),
+      plot.subtitle      = element_text(size = base_size - 1, colour = "grey40")
+    )
+}
+```
+
+## {visibility="hidden"}
+
+```{r correlation-functions}
+# Raw Spearman — supplementary; pairwise complete observations
+run_raw_spearman <- function(df, hormone_col, met_ids, min_n = 5) {
+  map_dfr(met_ids, function(met) {
+    sub <- df |> dplyr::select(h = all_of(hormone_col), m = all_of(met)) |> drop_na()
+    if (nrow(sub) < min_n) return(NULL)
+    ct <- cor.test(sub$h, sub$m, method = "spearman", exact = FALSE)
+    tibble(compound_id = met,
+           rho = unname(ct$estimate),
+           p   = ct$p.value,
+           n   = nrow(sub))
+  })
+}
+
+# Partial Spearman — primary analysis; single covariate via ppcor
+#   TT:   males only, covariate = GW   (fetal TT varies with gestational age)
+#   E2:   sex-combined, covariate = Sex (binary, 0/1)
+#   P4:   sex-combined, covariate = Sex
+run_partial_spearman <- function(df, hormone_col, met_ids, covariate_col, min_n) {
+  map_dfr(met_ids, function(met) {
+    sub <- df |>
+      dplyr::select(h = all_of(hormone_col),
+             m = all_of(met),
+             z = all_of(covariate_col)) |>
+      drop_na()
+    if (nrow(sub) < min_n) return(NULL)
+    tryCatch({
+      res <- ppcor::pcor.test(sub$h, sub$m, sub$z, method = "spearman")
+      tibble(compound_id = met,
+             rho = res$estimate,
+             p   = res$p.value,
+             n   = res$n)
+    }, error = function(e) NULL)
+  })
+}
+
+add_fdr <- function(df) mutate(df, fdr = p.adjust(p, method = "BH"))
+add_sig <- function(df) mutate(df, sig = fdr < FDR_THRESH & abs(rho) >= RHO_THRESH)
+```
+
+## Data Loading & QC
+
+```{r load-data}
+hormones_raw <- read_xlsx(path_hormones)
+
+detect_outliers <- function(data, variable) {
+  limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) +
+           1.5 * IQR(data[[variable]], na.rm = TRUE)
+  filter(data, .data[[variable]] <= limit)
+}
+
+# Each analysis uses its own outlier-filtered sample set so that an outlier
+# in one hormone does not exclude samples from the other two analyses.
+horm_TT <- detect_outliers(hormones_raw, "TT (ng/mL)") |>
+  dplyr::select(Sample, Sex, GW, TT = `TT (ng/mL)`) |>
+  mutate(Sample = as.character(Sample)) |>
+  filter(Sex == "M")                        # TT: males only
+
+horm_E2 <- detect_outliers(hormones_raw, "17B-E2 (ng/mL)") |>
+  dplyr::select(Sample, Sex, GW, E2 = `17B-E2 (ng/mL)`) |>
+  mutate(Sample  = as.character(Sample),
+         sex_num = as.integer(Sex == "M"))
+
+horm_P4 <- detect_outliers(hormones_raw, "P4 (ng/mL)") |>
+  dplyr::select(Sample, Sex, GW, P4 = `P4 (ng/mL)`) |>
+  mutate(Sample  = as.character(Sample),
+         sex_num = as.integer(Sex == "M"))
+
+# Metabolomics annotations
+annot_clean <- read_csv(path_annot, show_col_types = FALSE)
+
+# Peak areas: log2(x+1) transform → pivot to sample × metabolite
+peak_raw  <- read_csv(path_peak, show_col_types = FALSE)
+smpl_cols <- names(peak_raw)[str_detect(names(peak_raw), "^Sample")]
+
+peak_wide <- peak_raw |>
+  mutate(across(all_of(smpl_cols), ~ log2(.x + 1))) |>
+  dplyr::select(Compound.ID, all_of(smpl_cols)) |>
+  pivot_longer(-Compound.ID, names_to = "Sample", values_to = "log2_area") |>
+  pivot_wider(names_from = "Compound.ID", values_from = "log2_area")
+
+# One merged dataset per hormone
+merged_TT <- inner_join(horm_TT, peak_wide, by = "Sample")
+merged_E2 <- inner_join(horm_E2, peak_wide, by = "Sample")
+merged_P4 <- inner_join(horm_P4, peak_wide, by = "Sample")
+
+# Single met_ids; metabolite filtering handled by min_n inside the loop
+met_ids <- intersect(annot_clean$Compound.ID, names(merged_E2))
+```
+
+```{r qc-table}
+#| results: asis
+tibble(
+  Metric = c(
+    "TT: samples post-outlier (males only)",
+    "E2: samples post-outlier",
+    "P4: samples post-outlier",
+    "Metabolomics samples (peak file)",
+    "TT: matched samples",
+    "E2: matched samples",
+    "P4: matched samples",
+    "Metabolites tested (min_n filter applied per pair)"
+  ),
+  N = c(
+    nrow(horm_TT),
+    nrow(horm_E2), nrow(horm_P4),
+    length(smpl_cols),
+    nrow(merged_TT), nrow(merged_E2), nrow(merged_P4),
+    length(met_ids)
+  )
+) |> knitr::kable(format = "html")
+```
+
+## Analysis Overview
+
+:::: {.columns}
+
+::: {.column width="55%"}
+**Raw Spearman** *(supplementary only)*
+
+- Pairwise complete observations
+- FDR correction within each hormone (BH)
+- Saved to CSV; not shown in figures
+
+**Partial Spearman** *(primary)*
+
+| Hormone | Subset | Covariate | min *n* |
+|---------|--------|-----------|---------|
+| TT | Males | GW | 10 |
+| E2 | All | Sex | 12 |
+| P4 | All | Sex | 12 |
+:::
+
+::: {.column width="45%"}
+**Significance thresholds**
+
+- FDR < 0.10 (BH within hormone)
+- |ρ| ≥ 0.40 (moderate correlation)
+
+**Outputs**
+
+- `raw_spearman_all_hormones.csv`
+- `partial_spearman_all_hormones.csv`
+- `significant_hits_summary.csv`
+- `significant_hits_pathway_annotated.csv`
+- Heatmap + scatter plots (PNG + SVG)
+:::
+
+::::
+
+## Correlation Results
+
+```{r run-correlations}
+message("Running raw Spearman correlations...")
+
+raw_TT <- run_raw_spearman(merged_TT, "TT", met_ids, min_n = MIN_N_TT) |>
+  add_fdr() |> dplyr::mutate(hormone = "TT", subset = "Males")
+raw_E2 <- run_raw_spearman(merged_E2, "E2", met_ids, min_n = MIN_N_E2P4) |>
+  add_fdr() |> dplyr::mutate(hormone = "E2", subset = "Sex-combined")
+raw_P4 <- run_raw_spearman(merged_P4, "P4", met_ids, min_n = MIN_N_E2P4) |>
+  add_fdr() |> dplyr::mutate(hormone = "P4", subset = "Sex-combined")
+
+raw_all <- bind_rows(raw_TT, raw_E2, raw_P4) |>
+  left_join(annot_clean |> dplyr::select(Compound.ID, Name, Super.Class, Pathways),
+            by = c("compound_id" = "Compound.ID")) |>
+  dplyr::select(hormone, subset, compound_id, Name, Super.Class, Pathways, rho, p, fdr, n) |>
+  arrange(hormone, fdr, desc(abs(rho)))
+
+write_csv(raw_all, file.path(out_dir, "raw_spearman_all_hormones.csv"))
+
+message("Running partial Spearman correlations...")
+
+adj_TT <- run_partial_spearman(merged_TT, "TT", met_ids, "GW",
+                                MIN_N_TT) |>
+  add_fdr() |> add_sig() |>
+  mutate(hormone = "TT", covariate = "GW", subset = "Males")
+
+adj_E2 <- run_partial_spearman(merged_E2, "E2", met_ids, "sex_num",
+                                MIN_N_E2P4) |>
+  add_fdr() |> add_sig() |>
+  mutate(hormone = "E2", covariate = "Sex", subset = "Sex-combined")
+
+adj_P4 <- run_partial_spearman(merged_P4, "P4", met_ids, "sex_num",
+                                MIN_N_E2P4) |>
+  add_fdr() |> add_sig() |>
+  mutate(hormone = "P4", covariate = "Sex", subset = "Sex-combined")
+
+adj_all <- bind_rows(adj_TT, adj_E2, adj_P4) |>
+  left_join(annot_clean |> dplyr::select(Compound.ID, Name, Super.Class, Pathways),
+            by = c("compound_id" = "Compound.ID")) |>
+  dplyr::select(hormone, subset, covariate, compound_id, Name,
+         Super.Class, Pathways, rho, p, fdr, sig, n) |>
+  arrange(hormone, fdr, desc(abs(rho)))
+
+sig_hits <- adj_all |> filter(sig)
+
+write_csv(adj_all,  file.path(out_dir, "partial_spearman_all_hormones.csv"))
+write_csv(sig_hits, file.path(out_dir, "significant_hits_summary.csv"))
+```
+
+```{r results-summary-table}
+#| results: asis
+tibble(
+  Hormone   = c("TT (Males)", "E2", "P4"),
+  Subset    = c("Males only", "Sex-combined", "Sex-combined"),
+  Covariate = c("GW", "Sex", "Sex"),
+  Tested    = c(nrow(adj_TT), nrow(adj_E2), nrow(adj_P4)),
+  `FDR < 0.10 & |ρ| ≥ 0.40` = c(
+    sum(adj_TT$sig, na.rm = TRUE),
+    sum(adj_E2$sig, na.rm = TRUE),
+    sum(adj_P4$sig, na.rm = TRUE)
+  )
+) |> knitr::kable(format = "html")
+```
+
+## Heatmap
+
+```{r heatmap}
+sig_met_ids <- unique(sig_hits$compound_id)
+
+if (length(sig_met_ids) == 0) {
+
+  cat("No metabolites reached significance (FDR < 0.10 and |ρ| ≥ 0.40).")
+
+} else {
+
+  hm_data <- adj_all |>
+    filter(compound_id %in% sig_met_ids) |>
+    mutate(
+      hormone     = factor(hormone, levels = c("TT", "E2", "P4")),
+      sig_label   = ifelse(sig, "*", ""),
+      super_class = str_wrap(Super.Class, width = 22)
+    )
+
+  # Order metabolites: group by Super.Class, then by |ρ| for TT within class
+  tt_order <- hm_data |>
+    filter(hormone == "TT") |>
+    arrange(super_class, desc(abs(rho))) |>
+    pull(compound_id)
+
+  remaining <- setdiff(sig_met_ids, tt_order)
+  if (length(remaining) > 0) {
+    extra <- hm_data |>
+      filter(compound_id %in% remaining) |>
+      distinct(compound_id, super_class) |>
+      arrange(super_class) |>
+      pull(compound_id)
+    tt_order <- c(tt_order, extra)
+  }
+
+  name_map  <- hm_data |> distinct(compound_id, Name)       |> deframe()
+  class_map <- hm_data |> distinct(compound_id, super_class) |> deframe()
+
+  hm_data <- hm_data |>
+    mutate(
+      met_label  = factor(name_map[compound_id],
+                           levels = rev(name_map[tt_order])),
+      super_class = factor(class_map[compound_id],
+                            levels = unique(class_map[tt_order]))
+    )
+
+  hm_height <- max(4.5, length(sig_met_ids) * 0.45 + 1.5)
+
+  p_heatmap <- ggplot(hm_data,
+                       aes(x = hormone, y = met_label, fill = rho)) +
+    geom_tile(colour = "white", linewidth = 0.4) +
+    geom_text(aes(label = sig_label), size = 5.5, colour = "black",
+              vjust = 0.75) +
+    facet_grid(super_class ~ ., scales = "free_y", space = "free_y") +
+    scale_fill_gradient2(
+      low = "#2166AC", mid = "white", high = "#D6604D",
+      midpoint = 0, limits = c(-1, 1),
+      name = "Partial ρ",
+      breaks = c(-1, -0.5, 0, 0.5, 1)
+    ) +
+    scale_x_discrete(
+      labels = c("TT" = "TT\n(Males)", "E2" = "E2", "P4" = "P4")
+    ) +
+    labs(
+      x        = NULL,
+      y        = NULL,
+      title    = "Hormone–Metabolite Partial Spearman Correlations",
+      subtitle = "* FDR < 0.10, |ρ| ≥ 0.40"
+    ) +
+    theme_nature(base_size = 9) +
+    theme(
+      axis.text.y     = element_text(size = 8),
+      axis.text.x     = element_text(size = 9, face = "bold"),
+      legend.position = "right"
+    )
+
+  save_dual_format(p_heatmap, out_dir, "heatmap_hormone_metabolite",
+                   width = 5.5, height = hm_height)
+  p_heatmap
+}
+```
+
+## Scatter Plots
+
+```{r scatter-functions}
+make_scatter <- function(df, hormone_col, met_id, met_name,
+                          rho_val, fdr_val, color_by_sex, hormone_label) {
+  sub <- df |>
+    dplyr::select(h = all_of(hormone_col), m = all_of(met_id), Sex) |>
+    drop_na()
+
+  annotation <- sprintf("Partial \u03c1 = %.2f\nFDR = %.3f", rho_val, fdr_val)
+
+  p <- ggplot(sub, aes(x = h, y = m)) +
+    geom_smooth(method = "lm", se = TRUE, colour = "grey70",
+                linewidth = 0.5, alpha = 0.2) +
+    { if (color_by_sex) {
+        list(
+          geom_point(aes(colour = Sex), size = 2.2, alpha = 0.85),
+          scale_colour_manual(
+            values = c("M" = "#4575B4", "F" = "#D73027"),
+            labels = c("M" = "Male",    "F" = "Female"),
+            name   = NULL
+          )
+        )
+      } else {
+        list(geom_point(colour = "#4575B4", size = 2.2, alpha = 0.85))
+      }
+    } +
+    annotate("text",
+             x = -Inf, y = Inf, label = annotation,
+             hjust = -0.08, vjust = 1.5,
+             size = 2.4, fontface = "italic", colour = "grey30") +
+    labs(
+      x     = paste0(hormone_label, " (ng/mL)"),
+      y     = "log\u2082(peak area + 1)",
+      title = met_name
+    ) +
+    theme_nature(base_size = 8) +
+    theme(
+      legend.position  = "bottom",
+      legend.key.size  = unit(0.3, "cm"),
+      plot.title       = element_text(size = 7.5, face = "plain")
+    )
+  p
+}
+
+make_scatter_panel <- function(adj_df, df, hormone_col, hormone_label,
+                                color_by_sex, out_dir) {
+  hits <- adj_df |>
+    filter(sig) |>
+    arrange(desc(abs(rho))) |>
+    slice_head(n = TOP_N) |>
+    left_join(annot_clean |> dplyr::select(Compound.ID, Name),
+              by = c("compound_id" = "Compound.ID"))
+
+  if (nrow(hits) == 0) {
+    message("No significant hits for ", hormone_label)
+    return(invisible(NULL))
+  }
+
+  plots <- purrr::map(seq_len(nrow(hits)), function(i) {
+    r <- hits[i, ]
+    make_scatter(df, hormone_col, r$compound_id, r$Name,
+                  r$rho, r$fdr, color_by_sex, hormone_label)
+  })
+
+  n_plots <- length(plots)
+  nc      <- min(2, n_plots)
+  nr      <- ceiling(n_plots / nc)
+
+  panel <- wrap_plots(plots, ncol = nc) +
+    plot_annotation(
+      title    = paste0("Top ", n_plots, " Metabolite Correlates: ", hormone_label),
+      subtitle = "Partial Spearman | FDR < 0.10, |ρ| ≥ 0.40 | Ordered by |ρ|",
+      theme    = theme(
+        plot.title    = element_text(family = "Helvetica", face = "bold",
+                                      size = 10, colour = "black"),
+        plot.subtitle = element_text(family = "Helvetica",
+                                      size = 8, colour = "grey40")
+      )
+    )
+
+  fname <- paste0("scatter_top", n_plots, "_", tolower(hormone_col))
+  save_dual_format(panel, out_dir, fname,
+                   width = nc * 3.6, height = nr * 3.3)
+  panel
+}
+```
+
+## Scatter Plots — TT (Males)
+
+```{r scatter-tt}
+p_tt <- make_scatter_panel(adj_TT, merged_TT, "TT", "TT",
+                            color_by_sex = FALSE, out_dir)
+if (!is.null(p_tt)) p_tt else cat("No significant TT hits.")
+```
+
+## Scatter Plots — E2
+
+```{r scatter-e2}
+p_e2 <- make_scatter_panel(adj_E2, merged_E2, "E2", "E2",
+                            color_by_sex = TRUE, out_dir)
+if (!is.null(p_e2)) p_e2 else cat("No significant E2 hits.")
+```
+
+## Scatter Plots — P4
+
+```{r scatter-p4}
+p_p4 <- make_scatter_panel(adj_P4, merged_P4, "P4", "P4",
+                            color_by_sex = TRUE, out_dir)
+if (!is.null(p_p4)) p_p4 else cat("No significant P4 hits.")
+```
+
+## Pathway Summary
+
+```{r pathway-summary}
+#| results: asis
+
+if (nrow(sig_hits) == 0) {
+  cat("No significant hits to summarize.")
+} else {
+  pathway_tbl <- sig_hits |>
+    left_join(annot_clean |> dplyr::select(Compound.ID, Class),
+              by = c("compound_id" = "Compound.ID")) |>
+    dplyr::select(
+      Hormone       = hormone,
+      Subset        = subset,
+      Name,
+      `Super Class` = Super.Class,
+      Class,
+      Pathways,
+      rho, fdr, n
+    ) |>
+    mutate(across(c(rho, fdr), ~ round(.x, 3))) |>
+    arrange(Hormone, fdr)
+
+  knitr::kable(pathway_tbl, format = "html")
+
+  write_csv(pathway_tbl,
+            file.path(out_dir, "significant_hits_pathway_annotated.csv"))
+}
+```
