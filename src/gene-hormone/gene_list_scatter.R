@@ -23,7 +23,7 @@
 #
 # =============================================================================
 
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-hormone/")
+setwd("src/gene-hormone/")
 # ---- 0. Manual gene list (edit here) ----------------------------------------
 
 GENE_LIST <- c(

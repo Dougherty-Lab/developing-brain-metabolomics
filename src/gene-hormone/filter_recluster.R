@@ -1,15 +1,15 @@
 ## filter_recluster.R
 ##
 ## Standalone script: full filtering pipeline + reclustering
-## Run via Rscript in terminal:
-##   Rscript filter_recluster.R
+## Run via SLURM batch job:
+## sbatch run_filter_recluster.sh
 ##
 ## Outputs:
 ##   ../../data/SSD_RNAonly_filtered.rds - filtered + reclustered Seurat object
 
 Packages <- c("tidyverse", "Seurat", "harmony")
 lapply(Packages, library, character.only = TRUE)
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-hormone/")
+setwd("/scratch/jdlab/emma/developing-brain-metabolomics/src/gene-hormone/")
 
 set.seed(123)
 

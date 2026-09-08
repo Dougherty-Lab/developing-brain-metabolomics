@@ -18,7 +18,7 @@
 #                              (pseudobulk_cell_comparison.qmd)
 Packages <- c("tidyverse", "Seurat", "harmony")
 lapply(Packages, library, character.only = TRUE)
-setwd("/scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-hormone/")
+setwd("/scratch/jdlab/emma/developing-brain-metabolomics/src/gene-hormone/")
 
 set.seed(123)
 

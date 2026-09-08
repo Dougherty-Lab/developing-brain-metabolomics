@@ -16,6 +16,8 @@ results/gene-hormone/gene_hormone_csv/
 
 #slurm output files
 bin/docker/slurm-*.out
+*.err
+*.log
 
 # User-specific files
 .Ruserdata
