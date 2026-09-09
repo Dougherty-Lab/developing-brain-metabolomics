@@ -1,9 +1,9 @@
 #!/bin/bash
 # run_metabolite_gene_limma.sh
 # ---------------------------------------------------------------------------
-# Submit 4.1_metabolite-gene limma-voom loop to SLURM via Singularity.
+# Submit metabolite-gene limma-voom loop to SLURM via Singularity.
 #
-# Inputs:  metabolite_gene_limma.R
+# Inputs:  4.1_metabolite_gene_limma.R
 # Outputs: results/gene-metabolite/parquet-log2_na/*.parquet
 #
 # Usage: sbatch src/gene-metabolite/run_metabolite_gene_limma.sh
@@ -48,7 +48,7 @@ cd ${SCRIPT_DIR}
 singularity exec \
   --bind ${REPO}:${REPO} \
   ${SIF} \
-  Rscript /scratch/jdlab/sneha/developing-brain-metabolomics/src/gene-metabolite/4.1_metabolite_gene_limma.R
+  Rscript src/gene-metabolite/4.1_metabolite_gene_limma.R
 
 EXIT_CODE=$?
 echo "---"
