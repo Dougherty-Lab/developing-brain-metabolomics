@@ -1,29 +1,13 @@
-#!/usr/bin/env Rscript
 # sfari_enrichment.R
 # ---------------------------------------------------------------------------
-# Two clean enrichment tests for SFARI autism risk genes:
+# Test enrichment of metabolite-associated genes in the SFARI autism gene
+# database using covariate-matched permutation null.
 #
-#   Test 1: Are SFARI genes enriched among genes with ANY significant
-#           gene-metabolite association?
-#           Foreground = hit genes, Background = TESTED gene universe
+# Inputs:  Association CSVs, SFARI gene list in doc/gene_lists/
+# Outputs: Enrichment results in results/gene-metabolite/sfari/
 #
-#   Test 2: Among hit genes, are SFARI genes more likely to be associated
-#           with >= N distinct metabolites?
-#           Foreground = genes associated with >= N metabolites
-#           Background = hit genes
-#
-# Each test: Fisher's exact + Wilcoxon rank-sum + SFARI score stratification.
-#
-# Background note (Test 1): the background is the set of genes that actually
-# entered a limma model -- i.e. every gene appearing in the parquet archive --
-# NOT colnames(pb_base$counts). Genes dropped by the per-cell-type expression
-# filter had zero opportunity to become a hit; including them inflates the
-# non-hit/non-SFARI cell and biases the OR upward. 
-# Universe = union over cell types (a gene tested in >=1 cell type), which
-# matches the foreground definition ("a hit in >=1 cell type").
-#
-# Run from src/gene-metabolite/:
-#   Rscript sfari_enrichment.R
+# Upstream:  metabolite_gene_associations.Rmd
+# Downstream: None
 # ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
@@ -33,7 +17,18 @@ suppressPackageStartupMessages({
   library(svglite)
 })
 
-source("pseudobulk_functions.R")
+# Bootstrap project root
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
+source(file.path(root, "src/gene-metabolite/pseudobulk_functions.R"))
 
 # ---- Config ----------------------------------------------------------------
 # METHOD keys the parquet archive, the hits CSV, and the cached gene universe
@@ -41,15 +36,15 @@ source("pseudobulk_functions.R")
 METHOD      <- "log2_na"                       # "int" | "zscore" | "zscore_trim" | "log2_na"
 suffix      <- if (METHOD == "int") "" else paste0("-", METHOD)
 parquet_dir <- if (METHOD == "int") {
-  "../../results/gene-metabolite/parquet"
+  file.path(root, "results/gene-metabolite/parquet")
 } else {
-  sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
+  sprintf(file.path(root, "results/gene-metabolite/parquet-%s"), METHOD)
 }
 
-hits_path  <- sprintf("../../results/gene-metabolite/csv%s/metabolite_gene_hits.csv", suffix)
-sfari_path <- "../../doc/gene_lists/SFARI-Gene_genes_07-12-2026release_08-13-2026export.csv"
-cache_dir  <- "../../data/cache"
-out_dir    <- "../../results/gene-metabolite/sfari-enrichment"
+hits_path  <- sprintf(file.path(root, "results/gene-metabolite/csv%s/metabolite_gene_hits.csv"), suffix)
+sfari_path <- file.path(root, "doc/gene_lists/SFARI-Gene_genes_07-12-2026release_08-13-2026export.csv")
+cache_dir  <- file.path(root, "data/cache")
+out_dir    <- file.path(root, "results/gene-metabolite/sfari-enrichment")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 MIN_METAB_RECURRENCE <- 5
@@ -943,3 +938,11 @@ cat(sprintf("SFARI genes in hits: %d\n", nrow(sfari_overlap)))
 cat(sprintf("SFARI genes associated with >=%d metabolites: %d\n",
             MIN_METAB_RECURRENCE,
             sum(sfari_overlap$n_metabolites >= MIN_METAB_RECURRENCE)))
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

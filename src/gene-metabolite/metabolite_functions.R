@@ -298,3 +298,7 @@ analyze_metabolite <- function(pb_counts, metadata,
     res
   })
 }
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this file was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.

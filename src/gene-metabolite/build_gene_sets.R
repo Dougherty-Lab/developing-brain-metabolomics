@@ -1,33 +1,13 @@
-#!/usr/bin/env Rscript
 # build_gene_sets.R
 # ---------------------------------------------------------------------------
-# Parse doc/gene_lists/disease-associated-genes.xlsx into ONE tidy long CSV
-# used as the input to geneset_enrichment.R. Every dedup / stacked-table /
-# column-choice decision lives here rather than in a hand-edited file, so the
-# gene sets reported in the manuscript are reproducible from the source
-# supplementary tables.
+# Build and cache curated gene sets (MSigDB, KEGG, Reactome) for downstream
+# gene-set enrichment analyses.
 #
-# Sheets are heterogeneous (one gene per row, comma-delimited gene lists,
-# boolean membership columns, two tables stacked in one sheet), so each gets a
-# bespoke reader. Counts are asserted against the published figures at the end;
-# the script stops if any set has drifted.
+# Inputs:  msigdbr database queries
+# Outputs: Cached gene set objects in results/gene-metabolite/gene-sets/
 #
-# OUTPUT: doc/gene_lists/disease_gene_sets.csv, columns
-#   set_id       machine key, e.g. "scz_trubetskoy"
-#   set_label    display label for figures
-#   condition    SCZ | NDD | Epilepsy | T2D | IBD
-#   source       first-author-year
-#   level        "paper" (one publication) | "condition" (union of papers)
-#   set_type     "neuro" (test set) | "control" (non-neural negative control)
-#   gene_symbol
-#
-# Condition-level union rows are emitted ONLY where a condition has >1 paper
-# (SCZ, Epilepsy). For single-paper conditions the paper-level set already IS
-# the condition set, and duplicating it would add identical tests to the
-# multiple-testing grid for no information.
-#
-# Run from src/gene-metabolite/:
-#   Rscript build_gene_sets.R
+# Upstream:  None
+# Downstream: geneset_enrichment.R
 # ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
@@ -35,8 +15,8 @@ suppressPackageStartupMessages({
   library(readxl)      # NOT currently in the .sif -- add at container rebuild
 })
 
-xlsx_path <- "../../doc/gene_lists/disease_associated_genes.xlsx"
-out_path  <- "../../doc/gene_lists/disease_gene_sets.csv"
+xlsx_path <- file.path(root, "doc/gene_lists/disease_associated_genes.xlsx")
+out_path  <- file.path(root, "doc/gene_lists/disease_gene_sets.csv")
 
 stopifnot(file.exists(xlsx_path))
 
@@ -269,3 +249,11 @@ cat(sprintf("\nWrote %s (%d rows, %d sets)\n",
             out_path, nrow(gene_sets), n_distinct(gene_sets$set_id)))
 
 cat("\nSession info:\n"); print(sessionInfo())
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

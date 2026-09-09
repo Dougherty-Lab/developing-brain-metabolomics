@@ -1,0 +1,23 @@
+Source code for running analysis
+
+# Targeted Hormones (src/targeted/)
+LC-MS/MS quantification of testosterone (TT), 17B-estradiol (E2), and progesterone (P4)
+
+## Script Run Order
+
+| Order | Script | Description |
+|-------|--------|-------------|
+| 1 | `corr_age_hormones.Rmd` | Outlier detection, GW–hormone linear/polynomial model comparison, hormone-hormone Pearson correlations |
+| 2 | `Exogenous_Flagging.Rmd` | Sex differences in hormone concentrations, receptor Kd reference, literature comparison|
+
+## Key Outputs
+All outputs are written to `results/targeted/`.
+
+| Directory | Contents |
+|-----------|----------|
+| `age_analysis_plots/` | GW–hormone LOESS, linear, and polynomial fit figures |
+| `hormone_hormone_correlation_plots/` | Pairwise hormone scatter plots (by sex, by GW) |
+| `sex_comparison_plots/` | Distribution histograms, sex-comparison boxplots, literature comparison panels |
+| `untargeted_neurotransmitters/` | Neurotransmitter subgroup analysis results |
+| `hormone_csv/` | Correlation summary, sex comparison stats |
+

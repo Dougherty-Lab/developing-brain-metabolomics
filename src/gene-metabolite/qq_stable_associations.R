@@ -1,21 +1,14 @@
-#!/usr/bin/env Rscript
 # qq_stable_associations.R
-# ─────────────────────────────────────────────────────────────────────────────
-# QQ plots (per cell type) for gene–metabolite associations (log2_na model).
+# ---------------------------------------------------------------------------
+# QQ plots of p-value distributions from the DFBETAS-stable association
+# subset, checking for residual inflation.
 #
-# Loads the FULL parquet p-value distribution (via Arrow) to assess per-cell-
-# type calibration, then overlays global-FDR hits in the signal tail.
-# Inflation factor λ annotated on each panel.
+# Inputs:  Stable-hit CSVs from metabolite_gene_imputation_sensitivity.Rmd
+# Outputs: QQ plot figures in results/gene-metabolite/stability-dfbetas-log2_na/
 #
-# Reference (λ): Devlin & Roeder (1999) Biometrics 56:45–57.
-#
-# Outputs  →  csv-log2_na/qq-plots/
-#   qq_<cell_type>.png/.svg  — per-cell-type panel
-#   qq_combined.png/.svg     — patchwork grid (all cell types)
-#   qq_lambda_summary.csv    — λ, n_tests, n_hits per cell type
-#
-# Usage: Rscript qq_stable_associations.R
-# ─────────────────────────────────────────────────────────────────────────────
+# Upstream:  metabolite_gene_imputation_sensitivity.Rmd
+# Downstream: None
+# ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
   library(tidyverse)
@@ -262,3 +255,11 @@ if (n_plots > 0L) {
 }
 
 cat(sprintf("\nDone. All outputs in:\n  %s\n", normalizePath(qq_dir, mustWork = FALSE)))
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

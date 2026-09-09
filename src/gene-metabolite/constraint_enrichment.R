@@ -1,39 +1,13 @@
-#!/usr/bin/env Rscript
 # constraint_enrichment.R
 # ---------------------------------------------------------------------------
-# Is pLoF constraint (gnomAD LOEUF) elevated among genes with significant
-# gene-metabolite associations? Mirrors sfari_enrichment.R.
+# Test whether metabolite-associated genes are enriched for evolutionary
+# constraint (gnomAD LOEUF scores) relative to background.
 #
-#   Test 1: hit genes vs the TESTED gene universe
-#   Test 2: genes associated with >= N metabolites vs all hit genes
-#   Test 3: LOEUF vs metabolite recurrence among hit genes (Spearman)
+# Inputs:  Association CSVs, gnomAD LOEUF scores in doc/gene_lists/
+# Outputs: Constraint enrichment figures and CSVs in results/gene-metabolite/constraint/
 #
-# LOEUF is continuous and gnomAD explicitly recommends using it that way, so
-# the PRIMARY test for 1 and 2 is a Wilcoxon rank-sum on the LOEUF
-# distribution. The percentile ladder (0.15 / 0.27 / 0.36 / 0.45 / 0.60) is a
-# SECONDARY sensitivity analysis only -- reported as a Fisher OR at every
-# threshold rather than at one hand-picked cut, so the reader can see whether
-# the answer depends on where the line is drawn.
-#
-# THE CONFOUND. LOEUF is not independent of statistical power. It is bounded
-# by the expected pLoF count, so short genes get wide CIs and inflated LOEUF
-# regardless of true constraint (Karczewski et al. 2020 Nature). Constrained
-# genes are also longer and more highly expressed, which raises power to
-# detect a gene-metabolite association in limma-voom. "Hits are more
-# constrained" can therefore be manufactured entirely by gene size and
-# expression. Three defences, all reported:
-#   (a) background = tested genes only  (see sfari_enrichment.R rationale)
-#   (b) logistic regression: hit ~ LOEUF + mean expression + log10(expected LoF)
-#   (c) expression-decile-matched resampling of the non-hit background
-# If (a)-(c) agree with the raw Wilcoxon, report the Wilcoxon and cite the
-# rest as robustness. If they disagree, the raw result was power, not biology.
-#
-# Input: gnomAD v4.1 constraint metrics TSV (MANE Select), or v2.1.1 -- the
-# LOEUF and expected-LoF columns are auto-detected. Download from
-# https://gnomad.broadinstitute.org/downloads#v4-constraint
-#
-# Run from src/gene-metabolite/:
-#   Rscript constraint_enrichment.R
+# Upstream:  metabolite_gene_associations.Rmd
+# Downstream: None
 # ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
@@ -44,7 +18,18 @@ suppressPackageStartupMessages({
   library(ggrepel)   # cell-type labels in the power-check panel
 })
 
-source("pseudobulk_functions.R")
+# Bootstrap project root
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
+source(file.path(root, "src/gene-metabolite/pseudobulk_functions.R"))
 
 set.seed(123)
 
@@ -52,16 +37,16 @@ set.seed(123)
 METHOD      <- "log2_na"                       # "int" | "zscore" | "zscore_trim" | "log2_na"
 suffix      <- if (METHOD == "int") "" else paste0("-", METHOD)
 parquet_dir <- if (METHOD == "int") {
-  "../../results/gene-metabolite/parquet"
+  file.path(root, "results/gene-metabolite/parquet")
 } else {
-  sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
+  sprintf(file.path(root, "results/gene-metabolite/parquet-%s"), METHOD)
 }
 
-hits_path      <- sprintf("../../results/gene-metabolite/csv%s/metabolite_gene_hits.csv", suffix)
-constraint_path <- "../../doc/gene_lists/gnomad.v4.1.1.constraint_metrics.tsv"
-sfari_path     <- "../../doc/gene_lists/SFARI-Gene_genes_07-12-2026release_08-13-2026export.csv"
-cache_dir      <- "../../data/cache"
-out_dir        <- "../../results/gene-metabolite/constraint-enrichment"
+hits_path      <- sprintf(file.path(root, "results/gene-metabolite/csv%s/metabolite_gene_hits.csv"), suffix)
+constraint_path <- file.path(root, "doc/gene_lists/gnomad.v4.1.1.constraint_metrics.tsv")
+sfari_path     <- file.path(root, "doc/gene_lists/SFARI-Gene_genes_07-12-2026release_08-13-2026export.csv")
+cache_dir      <- file.path(root, "data/cache")
+out_dir        <- file.path(root, "results/gene-metabolite/constraint-enrichment")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 MIN_METAB_RECURRENCE <- 5      # multi-metabolite cut, matches sfari_enrichment.R
@@ -594,3 +579,11 @@ if (!is.null(cont_t2))
 cat(sprintf("Test 3 (LOEUF vs recurrence):    rho = %+.3f, p = %.3g\n",
             sp$estimate, sp$p.value))
 cat(sprintf("\nResults saved to %s\n", out_dir))
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

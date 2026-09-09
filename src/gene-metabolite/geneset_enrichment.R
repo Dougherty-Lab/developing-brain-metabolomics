@@ -1,34 +1,13 @@
-#!/usr/bin/env Rscript
 # geneset_enrichment.R
 # ---------------------------------------------------------------------------
-# Are disease-associated gene sets enriched among genes with significant
-# gene-metabolite associations? Generalizes Test 1 of sfari_enrichment.R over a
-# registry of sets built by build_gene_sets.R.
+# Gene-set enrichment analysis (fgsea) on metabolite-associated gene rankings
+# from limma-voom results.
 #
-#   Analysis 1 (pooled):       foreground = genes hit in >=1 cell type
-#                              background = genes tested in >=1 cell type
-#   Analysis 2 (per cell type): foreground = genes hit in cell type C
-#                              background = genes TESTED in cell type C
+# Inputs:  Association CSVs, gene sets from build_gene_sets.R
+# Outputs: Enrichment CSVs and figures in results/gene-metabolite/geneset/
 #
-# THE BACKGROUND. In Analysis 2 the background is the set of
-# genes that entered a limma model IN THAT CELL TYPE, not the global universe.
-# The per-cell-type expression filter (rowSums(counts >= 2) >= 3) admits
-# different genes in each cell type, so a gene that was never testable in
-# IN-MGE-PV is an unobserved gene there, not a failed one. Using the global
-# universe would inflate the non-hit cell and bias every OR upward, and would
-# do so MOST in the cell types with the shallowest libraries.
-#
-# NEGATIVE CONTROLS. T2D (Xue) and IBD (Alegbe) are included precisely because
-# they should NOT enrich. Hit genes are longer and more highly expressed than
-# background, which can manufacture enrichment for any set biased toward large
-# well-expressed genes. If the controls enrich alongside the neuro sets, the
-# neuro result is power, not biology. They are plotted in a separate facet so
-# they are never read as findings.
-#
-# Input: ../../doc/gene_lists/disease_gene_sets.csv  (see build_gene_sets.R)
-#
-# Run from src/gene-metabolite/:
-#   Rscript geneset_enrichment.R
+# Upstream:  metabolite_gene_associations.Rmd, build_gene_sets.R
+# Downstream: None
 # ---------------------------------------------------------------------------
 
 suppressPackageStartupMessages({
@@ -38,7 +17,18 @@ suppressPackageStartupMessages({
   library(svglite)
 })
 
-source("pseudobulk_functions.R")
+# Bootstrap project root
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
+source(file.path(root, "src/gene-metabolite/pseudobulk_functions.R"))
 
 # dplyr verbs are namespace-qualified throughout. pseudobulk_functions.R is
 # sourced AFTER the library() calls above, so any package it attaches masks the
@@ -52,15 +42,15 @@ set.seed(123)
 METHOD      <- "log2_na"          # "int" | "zscore" | "zscore_trim" | "log2_na"
 suffix      <- if (METHOD == "int") "" else paste0("-", METHOD)
 parquet_dir <- if (METHOD == "int") {
-  "../../results/gene-metabolite/parquet"
+  file.path(root, "results/gene-metabolite/parquet")
 } else {
-  sprintf("../../results/gene-metabolite/parquet-%s", METHOD)
+  sprintf(file.path(root, "results/gene-metabolite/parquet-%s"), METHOD)
 }
 
-hits_path     <- sprintf("../../results/gene-metabolite/csv%s/metabolite_gene_hits.csv", suffix)
-gene_set_path <- "../../doc/gene_lists/disease_gene_sets.csv"
-cache_dir     <- "../../data/cache"
-out_dir       <- "../../results/gene-metabolite/geneset-enrichment"
+hits_path     <- sprintf(file.path(root, "results/gene-metabolite/csv%s/metabolite_gene_hits.csv"), suffix)
+gene_set_path <- file.path(root, "doc/gene_lists/disease_gene_sets.csv")
+cache_dir     <- file.path(root, "data/cache")
+out_dir       <- file.path(root, "results/gene-metabolite/geneset-enrichment")
 csv_dir       <- out_dir
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
@@ -763,3 +753,11 @@ if (nrow(highlights) == 0) {
 }
 
 cat("\nSession info:\n"); print(sessionInfo())
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

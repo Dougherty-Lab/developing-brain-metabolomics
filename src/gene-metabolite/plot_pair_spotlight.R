@@ -1,45 +1,15 @@
-# =============================================================================
-# plot_pair_spotlight.R  —  Gene × Metabolite × Cell-type spotlight
-# =============================================================================
-# Prints model statistics and a 5-panel scatter for one or more
-# (Compound.ID, gene, cell_type) triplets taken directly from
-# metabolite_gene_hits.csv (global-FDR set).
+# plot_pair_spotlight.R
+# ---------------------------------------------------------------------------
+# Generate metabolite-gene scatter plots for spotlight pairs from the
+# global-FDR hit list.
 #
-# 5 panels:
-#   Row 1: raw log2 (all samples) | outlier-trimmed log2 | covariate-adjusted log2
-#   Row 2:           [spacer]     | outlier-trimmed z     | covariate-adjusted z
-# Log2 x-axes are free per metabolite; z-score x-axis is fixed across all plots.
-# One pooled regression line per panel (Sex is a model covariate, not a group).
+# Inputs:  Association CSVs, cached pseudobulk and metabolite data
+# Outputs: Scatter PNGs/SVGs in results/gene-metabolite/figures-log2_na/spotlight/
 #
-# Usage: source() in an R session with src/gene-metabolite/ as working dir,
-#        after filling in PAIRS and optionally toggling SAVE_OUTPUT below.
-#
-# =============================================================================
+# Upstream:  metabolite_gene_associations.Rmd
+# Downstream: None
+# ---------------------------------------------------------------------------
 
-# ── CONFIG  (edit here) ───────────────────────────────────────────────────────
-
-# Each entry: c(Compound.ID = "...", gene = "...", cell_type = "...")
-# Copy values directly from metabolite_gene_hits.csv (global-FDR set)
-PAIRS <- list(
-  c(Compound.ID = "Amide-Neg-000484", gene = "FOXP2",   cell_type = "IN-CGE-Immature"),
-  c(Compound.ID = "Amide-Neg-000484", gene = "FOXP2",  cell_type = "IN-MGE-SST"),
-  c(Compound.ID = "Amide-Neg-000697", gene = "EBF1",  cell_type = "IN-MGE-SST"),
-  c(Compound.ID = "Amide-Neg-000697", gene = "EBF1",  cell_type = "IN-CGE-Immature"),
-  c(Compound.ID = "Amide-Neg-000697", gene = "CALN1",  cell_type = "IN-MGE-SST"),
-  c(Compound.ID = "Amide-Neg-000697", gene = "CALN1",  cell_type = "IN-CGE-Immature")
-)
-
-SAVE_OUTPUT <- TRUE    # TRUE  → saves PNG + SVG to scatter_dir
-METHOD      <- "log2_na"
-
-# ── PATHS ─────────────────────────────────────────────────────────────────────
-cache_dir    <- "../../data/cache"
-metab_path   <- "../../results/untargeted/batch2_peak_area_clean.csv"
-hormone_xlsx <- "../../doc/targeted/targeted_hormones.xlsx"
-hits_csv     <- "../../results/gene-metabolite/csv-log2_na/metabolite_gene_hits.csv"
-scatter_dir  <- "../../results/gene-metabolite/csv-log2_na/scatter-spotlight"
-
-# ── PACKAGES ──────────────────────────────────────────────────────────────────
 suppressPackageStartupMessages({
   library(tidyverse)
   library(edgeR)
@@ -48,8 +18,19 @@ suppressPackageStartupMessages({
   library(svglite)
   library(readxl)
 })
-source("pseudobulk_functions.R")   # save_dual_format(), merge_hormone_metadata()
-source("metabolite_functions.R")   # read_metabolite_matrix(), transform_metabolite_matrix(), etc.
+# Bootstrap project root
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
+source(file.path(root, "src/gene-metabolite/pseudobulk_functions.R"))   # save_dual_format(), merge_hormone_metadata()
+source(file.path(root, "src/gene-metabolite/metabolite_functions.R"))   # read_metabolite_matrix(), transform_metabolite_matrix(), etc.
 
 # ── LOAD HITS CSV (model results) ─────────────────────────────────────────────
 hits <- read_csv(hits_csv, show_col_types = FALSE)
@@ -275,3 +256,11 @@ for (p in PAIRS) {
     cat(sprintf("Saved → %s\n\n", file.path(scatter_dir, base_name)))
   }
 }
+
+# ---- AI assistance disclosure ------------------------------------------------
+# Code in this script was developed with assistance from Claude (Anthropic).
+# All AI-generated code was reviewed, validated, and adapted by the author.
+
+# ---- session info ------------------------------------------------------------
+cat("\n\n---- Session Info ----\n")
+print(sessionInfo())

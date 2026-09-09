@@ -1,0 +1,29 @@
+Source code for running analysis
+
+# Multi-Omics Factor Analysis (MOFA) (src/mofa)
+MOFA2 integration of pseudobulk gene expression (11 cell-type views) with untargeted metabolomics (1 view, log2_na transform). Post-hoc Spearman correlation of latent factors with gonadal hormone concentrations.
+
+| Order | Script | Description |
+|-------|--------|-------------|
+| 1 | `mofa_input_inventory.R` | Sample/cell-type grid inventory, completeness assessment |
+| 2 | `mofa_integration.Rmd` | MOFA2 model fitting, variance decomposition, factor characterization, hormone correlation |
+| 3 | `mofa_factor_pathway_analysis.R` | ORA and MSEA on metabolite factor weights |
+| 4 | `mofa_umap_exploration.R` | MOFA factor values and gene expression on UMAP |
+
+## Shared Function Files (sourced from src/gene-metabolite/)
+
+| File | Description |
+|------|-------------|
+| `pseudobulk_functions.R` | (sourced from src/gene-hormone/)
+| `metabolite_functions.R` | (sourced from src/gene-metabolite/)
+
+## Key Outputs
+All outputs are written to `results/mofa/`.
+
+| Directory | Contents |
+|-----------|----------|
+| `results/mofa/` | Varianceplots, factor weight CSVs, hormone correlation figures |
+| `mofa_model.hdf5` | Trained MOFA model object |
+| `pathway/` | Factor-weight ORA and MSEA results |
+| `umap-exploration/` | UMAP overlay figures |
+
