@@ -1,0 +1,803 @@
+---
+title: "Gonadal Hormone Age Relationships and Inter-Hormone Correlations"
+author: "Emma Jones, Sneha Chaturvedi"
+date: "Last updated `r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: show
+---
+
+Outlier detection for each hormone (TT, E2, P4), Pearson correlations between all hormone pairs (combined and sex-stratified), and linear vs. polynomial model comparison of each hormone's relationship with gestational week.
+
+| | |
+|---|---|
+| **Inputs** | `doc/targeted/targeted_hormones.xlsx` |
+| **Outputs** | Figures in `results/targeted/age_analysis_plots/` and `results/targeted/hormone_hormone_correlation_plots/`, model comparison CSVs in `results/targeted/hormone_csv/` |
+| **Upstream** | None (reads raw hormone data) |
+| **Downstream** | `hormone_sex_comparison.Rmd` |
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+Packages <- c("tidyverse", "readxl", "stats", "ggpubr", "svglite", "knitr", "gridExtra", "broom")
+lapply(Packages, library, character.only=TRUE)
+
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+
+root <- find_project_root()
+svg_path_age <- file.path(root, "results/targeted/age_analysis_plots")
+svg_path_correlation <- file.path(root, "results/targeted/hormone_hormone_correlation_plots")
+csv_path <- file.path(root, "results/targeted/hormone_csv")
+dir.create(svg_path_age, recursive = TRUE, showWarnings = FALSE)
+dir.create(svg_path_correlation, recursive = TRUE, showWarnings = FALSE)
+dir.create(csv_path, recursive = TRUE, showWarnings = FALSE)
+```
+
+## Load data
+
+```{r load seurat object and excel spreadsheet}
+# load hormone metabolomics data
+targeted_comparision_raw <- read_xlsx(file.path(root, "doc/targeted/targeted_hormones.xlsx"))
+
+#create new column for estradiol labeled E2
+targeted_comparision_raw$`E2 (ng/mL)`<- targeted_comparision_raw$`17B-E2 (ng/mL)`
+
+```
+
+``` {r gw histogram}
+# Count samples per gestational week
+sample_counts <- targeted_comparision_raw %>%
+  group_by(GW) %>%
+  summarise(n_samples = n()) %>%
+  ungroup()
+
+# Print sample counts
+cat("\nSample counts by gestational week:\n")
+print(sample_counts)
+
+# Create histogram
+p_histogram <- ggplot(targeted_comparision_raw, aes(x = GW)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black", alpha = 0.7) +
+  labs(title = "Sample Distribution Across Gestational Weeks",
+       x = "Gestational Week (GW)",
+       y = "Number of Samples") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10))
+
+# Display plot
+print(p_histogram)
+
+# Save plot
+ggsave("sample_distribution_GW_histogram.svg", 
+       plot = p_histogram, 
+       path = svg_path_age,
+       width = 8, 
+       height = 6)
+
+# Count samples per gestational week and sex
+sample_counts_sex <- targeted_comparision_raw %>%
+  group_by(GW, Sex) %>%
+  summarise(n_samples = n(), .groups = "drop") %>%
+  ungroup()
+
+cat("\nSample counts by gestational week and sex:\n")
+print(sample_counts_sex)
+
+# Create histogram with sex breakdown
+p_histogram_sex <- ggplot(targeted_comparision_raw, aes(x = GW, fill = Sex)) +
+  geom_histogram(binwidth = 1, color = "black", alpha = 0.7, position = "stack") +
+  labs(title = "Sample Distribution Across Gestational Weeks by Sex",
+       x = "Gestational Week (GW)",
+       y = "Number of Samples") +
+  scale_fill_manual(values = c("M" = "dodgerblue", "F" = "violetred2"),
+                    labels = c("M" = "Male", "F" = "Female")) +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        legend.position = "right")
+
+print(p_histogram_sex)
+
+ggsave("sample_distribution_GW_by_sex_histogram.svg", 
+       plot = p_histogram_sex, 
+       path = svg_path_age,
+       width = 8, 
+       height = 6)
+
+```
+## Remove Outliers
+
+Q3 + 1.5*IQR 
+
+
+```{r remove outliers}
+detect_outliers <- function(data, variable) {
+  outlier_limit <- quantile(data[[variable]], 0.75, na.rm = TRUE) + 1.5 * IQR(data[[variable]], na.rm = TRUE)
+  data %>% filter(.data[[variable]] <= outlier_limit)
+}
+
+targeted_comparision_filtered_TT <- detect_outliers(targeted_comparision_raw, "TT (ng/mL)")
+targeted_comparision_filtered_E2 <- detect_outliers(targeted_comparision_raw, "E2 (ng/mL)")
+targeted_comparision_filtered_P4 <- detect_outliers(targeted_comparision_raw, "P4 (ng/mL)")
+
+# save only samples with observations for all 3, will be used for correlations later
+all_obs <- intersect(targeted_comparision_filtered_TT$Sample, targeted_comparision_filtered_E2$Sample)
+all_obs <- intersect(all_obs, targeted_comparision_filtered_P4$Sample)
+
+targeted_comparision_filtered <- subset(targeted_comparision_raw, Sample %in% all_obs)
+```
+
+# Hormone Correlations
+## Testosterone and Estradiol
+```{r look at overall hormone relationships - tt and e2}
+# look at relationship with tt and e2
+ggplot(targeted_comparision_filtered, aes(x = `TT (ng/mL)` , y = `E2 (ng/mL)` , color = GW)) +
+  geom_point() + 
+  theme_minimal() 
+ggsave("TT_E2_scatter_gw.svg", path = svg_path_correlation)
+ggplot(targeted_comparision_filtered, aes(x = `TT (ng/mL)`, y = `E2 (ng/mL)`, color = Sex)) +
+  geom_point() + theme_minimal()
+ggsave("TT_E2_scatter_sex.svg", path = svg_path_correlation)
+
+# Correlation test
+tt_e2 <- cor.test(targeted_comparision_filtered$`TT (ng/mL)`, 
+                  targeted_comparision_filtered$`E2 (ng/mL)`, 
+                  method = "pearson")
+print(tt_e2)
+
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+tt_e2_m <- cor.test(targeted_comparision_males$`TT (ng/mL)`, 
+                    targeted_comparision_males$`E2 (ng/mL)`, 
+                    method = "pearson")
+print(tt_e2_m)
+
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+tt_e2_f <- cor.test(targeted_comparision_females$`TT (ng/mL)`, 
+                    targeted_comparision_females$`E2 (ng/mL)`, 
+                    method = "pearson")
+print(tt_e2_f)
+```
+
+## Progesterone and Estradiol
+```{r look at overall hormone relationships - p4 and e2}
+# look at relationship with p4 and e2
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `E2 (ng/mL)`, color = GW)) +
+  geom_point() + theme_minimal()
+ggsave("P4_E2_scatter_gw.svg", path = svg_path_correlation)
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `E2 (ng/mL)`, color = Sex)) +
+  geom_point() + theme_minimal()
+ggsave("P4_E2_scatter_sex.svg", path = svg_path_correlation)
+
+# Correlation test
+p4_e2 <- cor.test(targeted_comparision_filtered$`P4 (ng/mL)`, 
+                  targeted_comparision_filtered$`E2 (ng/mL)`, 
+                  method = "pearson")
+print(p4_e2)
+
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+p4_e2_f <- cor.test(targeted_comparision_females$`P4 (ng/mL)`, 
+                    targeted_comparision_females$`E2 (ng/mL)`, 
+                    method = "pearson")
+print(p4_e2_f)
+
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+p4_e2_m <- cor.test(targeted_comparision_males$`P4 (ng/mL)`, 
+                    targeted_comparision_males$`E2 (ng/mL)`, 
+                    method = "pearson")
+print(p4_e2_m)
+```
+
+## Progesterone and Testosterone
+```{r look at overall hormone relationships - p4 and tt}
+# look at relationship with p4 and tt
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `TT (ng/mL)`, color = GW)) +
+  geom_point() + theme_minimal()
+ggsave("P4_TT_scatter_gw.svg", path = svg_path_correlation)
+ggplot(targeted_comparision_filtered, aes(x = `P4 (ng/mL)`, y = `TT (ng/mL)`, color = Sex)) +
+  geom_point() + theme_minimal()
+ggsave("P4_TT_scatter_sex.svg", path = svg_path_correlation)
+
+# Correlation test
+p4_tt <- cor.test(targeted_comparision_filtered$`P4 (ng/mL)`, 
+                  targeted_comparision_filtered$`TT (ng/mL)`, 
+                  method = "pearson")
+print(p4_tt)
+
+targeted_comparision_females <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "F",]
+p4_tt_f <- cor.test(targeted_comparision_females$`P4 (ng/mL)`, 
+                    targeted_comparision_females$`TT (ng/mL)`, 
+                    method = "pearson")
+print(p4_tt_f)
+
+targeted_comparision_males <- targeted_comparision_filtered[targeted_comparision_filtered$Sex == "M",]
+p4_tt_m <- cor.test(targeted_comparision_males$`P4 (ng/mL)`, 
+                    targeted_comparision_males$`TT (ng/mL)`, 
+                    method = "pearson")
+print(p4_tt_m)
+```
+## Correlation Summary Table
+## Summary Table of Hormone Correlations
+```{r hormone correlation summary table}
+# Create comprehensive correlation summary table
+correlation_summary <- data.frame(
+  Comparison = c(
+    "TT vs E2", "TT vs E2", "TT vs E2",
+    "P4 vs E2", "P4 vs E2", "P4 vs E2",
+    "P4 vs TT", "P4 vs TT", "P4 vs TT"
+  ),
+  Sex = c(
+    "Combined", "Male", "Female",
+    "Combined", "Female", "Male",
+    "Combined", "Female", "Male"
+  ),
+  N = c(
+    nrow(targeted_comparision_filtered),
+    nrow(targeted_comparision_males),
+    nrow(targeted_comparision_females),
+    nrow(targeted_comparision_filtered),
+    nrow(targeted_comparision_females),
+    nrow(targeted_comparision_males),
+    nrow(targeted_comparision_filtered),
+    nrow(targeted_comparision_females),
+    nrow(targeted_comparision_males)
+  ),
+  Correlation_r = c(
+    tt_e2$estimate,
+    tt_e2_m$estimate,
+    tt_e2_f$estimate,
+    p4_e2$estimate,
+    p4_e2_f$estimate,
+    p4_e2_m$estimate,
+    p4_tt$estimate,
+    p4_tt_f$estimate,
+    p4_tt_m$estimate
+  ),
+  CI_Lower = c(
+    tt_e2$conf.int[1],
+    tt_e2_m$conf.int[1],
+    tt_e2_f$conf.int[1],
+    p4_e2$conf.int[1],
+    p4_e2_f$conf.int[1],
+    p4_e2_m$conf.int[1],
+    p4_tt$conf.int[1],
+    p4_tt_f$conf.int[1],
+    p4_tt_m$conf.int[1]
+  ),
+  CI_Upper = c(
+    tt_e2$conf.int[2],
+    tt_e2_m$conf.int[2],
+    tt_e2_f$conf.int[2],
+    p4_e2$conf.int[2],
+    p4_e2_f$conf.int[2],
+    p4_e2_m$conf.int[2],
+    p4_tt$conf.int[2],
+    p4_tt_f$conf.int[2],
+    p4_tt_m$conf.int[2]
+  ),
+  P_Value = c(
+    tt_e2$p.value,
+    tt_e2_m$p.value,
+    tt_e2_f$p.value,
+    p4_e2$p.value,
+    p4_e2_f$p.value,
+    p4_e2_m$p.value,
+    p4_tt$p.value,
+    p4_tt_f$p.value,
+    p4_tt_m$p.value
+  ),
+  Significant = c(
+    tt_e2$p.value < 0.05,
+    tt_e2_m$p.value < 0.05,
+    tt_e2_f$p.value < 0.05,
+    p4_e2$p.value < 0.05,
+    p4_e2_f$p.value < 0.05,
+    p4_e2_m$p.value < 0.05,
+    p4_tt$p.value < 0.05,
+    p4_tt_f$p.value < 0.05,
+    p4_tt_m$p.value < 0.05
+  )
+)
+
+# Round numeric columns for readability
+correlation_summary$Correlation_r <- round(correlation_summary$Correlation_r, 4)
+correlation_summary$CI_Lower <- round(correlation_summary$CI_Lower, 4)
+correlation_summary$CI_Upper <- round(correlation_summary$CI_Upper, 4)
+correlation_summary$P_Value <- formatC(correlation_summary$P_Value, format = "e", digits = 3)
+
+# Print the table
+print(correlation_summary)
+
+# Save as CSV
+write.csv(correlation_summary, file.path(csv_path, "hormone_correlation_summary.csv"), row.names = FALSE)
+
+# Optional: Create a formatted table using knitr/kable if you're in RMarkdown
+library(knitr)
+kable(correlation_summary, 
+      caption = "Summary of Hormone Correlation Analyses (Pearson)",
+      align = c('l', 'l', 'r', 'r', 'r', 'r', 'r', 'c'))
+```
+# Hormone/Gestational Week Analysis 
+
+Functions
+``` {r age_analysis_functions}
+# Function to filter data keeping only timepoints with n >= 3
+filter_by_n <- function(data, min_n = 3) {
+  data %>%
+    group_by(GW) %>%
+    filter(n() >= min_n) %>%
+    ungroup()
+}
+
+# Function to create model comparison table
+create_model_table <- function(linear_model, poly_model, model_name) {
+  linear_stats <- glance(linear_model)
+  poly_stats <- glance(poly_model)
+  
+  data.frame(
+    Model = c(paste(model_name, "- Linear"), paste(model_name, "- Polynomial")),
+    R_squared = c(linear_stats$r.squared, poly_stats$r.squared),
+    Adj_R_squared = c(linear_stats$adj.r.squared, poly_stats$adj.r.squared),
+    P_value = c(linear_stats$p.value, poly_stats$p.value),
+    AIC = c(AIC(linear_model), AIC(poly_model))
+  )
+}
+
+
+```
+## Testosterone
+### Combined sex
+```{r look at age (gestational week) relationship}
+cat("\n=== TESTOSTERONE ANALYSIS ===\n")
+
+# Filter data (n >= 3 per timepoint)
+TT_filtered <- filter_by_n(targeted_comparision_filtered_TT, min_n = 3)
+TT_males <- TT_filtered %>% filter(Sex == "M")
+TT_females <- TT_filtered %>% filter(Sex == "F")
+
+# --- COMBINED SEX ANALYSIS ---
+cat("\n--- Testosterone: Combined Sex ---\n")
+
+# LOESS plot - Combined
+p_tt_loess_combined <- ggplot(TT_filtered, aes(x = GW, y = `TT (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE) +
+  labs(title = "Testosterone: LOESS Fit (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Testosterone (ng/mL)") +
+  theme_minimal()
+ggsave("TT_LOESS_combined.svg", plot = p_tt_loess_combined, path = svg_path_age)
+
+# Linear model - Combined
+tt_linear_combined <- lm(`TT (ng/mL)` ~ GW, data = TT_filtered)
+cat("\nLinear Model Summary:\n")
+print(summary(tt_linear_combined))
+
+p_tt_linear_combined <- ggplot(TT_filtered, aes(x = GW, y = `TT (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  labs(title = "Testosterone: Linear Model (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Testosterone (ng/mL)") +
+  theme_minimal()
+ggsave("TT_Linear_combined.svg", plot = p_tt_linear_combined, path = svg_path_age)
+
+# Polynomial model - Combined
+tt_poly_combined <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = TT_filtered)
+cat("\nPolynomial Model Summary:\n")
+print(summary(tt_poly_combined))
+
+TT_filtered$pred_poly <- predict(tt_poly_combined)
+p_tt_poly_combined <- ggplot(TT_filtered, aes(x = GW, y = `TT (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_poly), color = "black", size = 1) +
+  labs(title = "Testosterone: Polynomial Model (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Testosterone (ng/mL)") +
+  theme_minimal()
+ggsave("TT_Polynomial_combined.svg", plot = p_tt_poly_combined, path = svg_path_age)
+
+# Model comparison table
+tt_combined_table <- create_model_table(tt_linear_combined, tt_poly_combined, "TT Combined")
+print(tt_combined_table)
+write.csv(tt_combined_table, file.path(csv_path, "TT_combined_model_comparison.csv"), row.names = FALSE)
+```
+
+
+### Separate Sex
+```{r loess - tt}
+cat("\n--- Testosterone: Sex-Separate ---\n")
+
+# Prepare combined data for plotting
+TT_males$sex <- "Male"
+TT_females$sex <- "Female"
+TT_sex_combined <- rbind(TT_males, TT_females)
+
+# LOESS plot - Sex separate
+p_tt_loess_sep <- ggplot(TT_sex_combined, aes(x = GW, y = `TT (ng/mL)`, color = sex, fill = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
+  labs(title = "Testosterone: LOESS Fit by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Testosterone (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  scale_fill_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("TT_LOESS_by_sex.svg", plot = p_tt_loess_sep, path = svg_path_age)
+
+# Linear models - Males
+tt_linear_male <- lm(`TT (ng/mL)` ~ GW, data = TT_males)
+cat("\nMales - Linear Model Summary:\n")
+print(summary(tt_linear_male))
+
+# Linear models - Females
+tt_linear_female <- lm(`TT (ng/mL)` ~ GW, data = TT_females)
+cat("\nFemales - Linear Model Summary:\n")
+print(summary(tt_linear_female))
+
+# Linear plot - Sex separate
+TT_males$pred_linear <- predict(tt_linear_male)
+TT_females$pred_linear <- predict(tt_linear_female)
+TT_sex_combined_linear <- rbind(TT_males, TT_females)
+
+p_tt_linear_sep <- ggplot(TT_sex_combined_linear, aes(x = GW, y = `TT (ng/mL)`, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_linear), size = 1) +
+  labs(title = "Testosterone: Linear Model by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Testosterone (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("TT_Linear_by_sex.svg", plot = p_tt_linear_sep, path = svg_path_age)
+
+# Polynomial models - Males
+tt_poly_male <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = TT_males)
+cat("\nMales - Polynomial Model Summary:\n")
+print(summary(tt_poly_male))
+
+# Polynomial models - Females
+tt_poly_female <- lm(`TT (ng/mL)` ~ GW + I(GW^2), data = TT_females)
+cat("\nFemales - Polynomial Model Summary:\n")
+print(summary(tt_poly_female))
+
+# Polynomial plot - Sex separate
+TT_males$pred_poly <- predict(tt_poly_male)
+TT_females$pred_poly <- predict(tt_poly_female)
+TT_sex_combined_poly <- rbind(TT_males, TT_females)
+
+p_tt_poly_sep <- ggplot(TT_sex_combined_poly, aes(x = GW, y = `TT (ng/mL)`, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_poly), size = 1) +
+  labs(title = "Testosterone: Polynomial Model by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Testosterone (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("TT_Polynomial_by_sex.svg", plot = p_tt_poly_sep, path = svg_path_age)
+
+# Model comparison tables - Sex separate
+tt_male_table <- create_model_table(tt_linear_male, tt_poly_male, "TT Male")
+tt_female_table <- create_model_table(tt_linear_female, tt_poly_female, "TT Female")
+tt_sex_table <- rbind(tt_male_table, tt_female_table)
+print(tt_sex_table)
+write.csv(tt_sex_table, file.path(csv_path, "TT_sex_model_comparison.csv"), row.names = FALSE)
+```
+
+# Estrogen
+### Combined Sex
+
+```{r look at overall relationship - e2}
+cat("\n=== ESTRADIOL ANALYSIS ===\n")
+
+# Filter data (n >= 3 per timepoint)
+E2_filtered <- filter_by_n(targeted_comparision_filtered_E2, min_n = 3)
+E2_males <- E2_filtered %>% filter(Sex == "M")
+E2_females <- E2_filtered %>% filter(Sex == "F")
+
+# --- COMBINED SEX ANALYSIS ---
+cat("\n--- Estradiol: Combined Sex ---\n")
+
+# LOESS plot - Combined
+p_e2_loess_combined <- ggplot(E2_filtered, aes(x = GW, y = `E2 (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE) +
+  labs(title = "Estradiol: LOESS Fit (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Estradiol (ng/mL)") +
+  theme_minimal()
+ggsave("E2_LOESS_combined.svg", plot = p_e2_loess_combined, path = svg_path_age)
+
+# Linear model - Combined
+e2_linear_combined <- lm(`E2 (ng/mL)` ~ GW, data = E2_filtered)
+cat("\nLinear Model Summary:\n")
+print(summary(e2_linear_combined))
+
+p_e2_linear_combined <- ggplot(E2_filtered, aes(x = GW, y = `E2 (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  labs(title = "Estradiol: Linear Model (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Estradiol (ng/mL)") +
+  theme_minimal()
+ggsave("E2_Linear_combined.svg", plot = p_e2_linear_combined, path = svg_path_age)
+
+# Polynomial model - Combined
+e2_poly_combined <- lm(`E2 (ng/mL)` ~ GW + I(GW^2), data = E2_filtered)
+cat("\nPolynomial Model Summary:\n")
+print(summary(e2_poly_combined))
+
+E2_filtered$pred_poly <- predict(e2_poly_combined)
+p_e2_poly_combined <- ggplot(E2_filtered, aes(x = GW, y = `E2 (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_poly), color = "black", size = 1) +
+  labs(title = "Estradiol: Polynomial Model (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Estradiol (ng/mL)") +
+  theme_minimal()
+ggsave("E2_Polynomial_combined.svg", plot = p_e2_poly_combined, path = svg_path_age)
+
+# Model comparison table
+e2_combined_table <- create_model_table(e2_linear_combined, e2_poly_combined, "E2 Combined")
+print(e2_combined_table)
+write.csv(e2_combined_table, file.path(csv_path, "E2_combined_model_comparison.csv"), row.names = FALSE)
+
+```
+### Separate Sex
+```{r loess - e2}
+cat("\n--- Estradiol: Sex-Separate ---\n")
+
+# Prepare combined data for plotting
+E2_males$sex <- "Male"
+E2_females$sex <- "Female"
+E2_sex_combined <- rbind(E2_males, E2_females)
+
+# LOESS plot - Sex separate
+p_e2_loess_sep <- ggplot(E2_sex_combined, aes(x = GW, y = `E2 (ng/mL)`, color = sex, fill = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
+  labs(title = "Estradiol: LOESS Fit by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Estradiol (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  scale_fill_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("E2_LOESS_by_sex.svg", plot = p_e2_loess_sep, path = svg_path_age)
+
+# Linear models - Males
+e2_linear_male <- lm(`E2 (ng/mL)` ~ GW, data = E2_males)
+cat("\nMales - Linear Model Summary:\n")
+print(summary(e2_linear_male))
+
+# Linear models - Females
+e2_linear_female <- lm(`E2 (ng/mL)` ~ GW, data = E2_females)
+cat("\nFemales - Linear Model Summary:\n")
+print(summary(e2_linear_female))
+
+# Linear plot - Sex separate
+E2_males$pred_linear <- predict(e2_linear_male)
+E2_females$pred_linear <- predict(e2_linear_female)
+E2_sex_combined_linear <- rbind(E2_males, E2_females)
+
+p_e2_linear_sep <- ggplot(E2_sex_combined_linear, aes(x = GW, y = `E2 (ng/mL)`, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_linear), size = 1) +
+  labs(title = "Estradiol: Linear Model by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Estradiol (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("E2_Linear_by_sex.svg", plot = p_e2_linear_sep, path = svg_path_age)
+
+# Polynomial models - Males
+e2_poly_male <- lm(`E2 (ng/mL)` ~ GW + I(GW^2), data = E2_males)
+cat("\nMales - Polynomial Model Summary:\n")
+print(summary(e2_poly_male))
+
+# Polynomial models - Females
+e2_poly_female <- lm(`E2 (ng/mL)` ~ GW + I(GW^2), data = E2_females)
+cat("\nFemales - Polynomial Model Summary:\n")
+print(summary(e2_poly_female))
+
+# Polynomial plot - Sex separate
+E2_males$pred_poly <- predict(e2_poly_male)
+E2_females$pred_poly <- predict(e2_poly_female)
+E2_sex_combined_poly <- rbind(E2_males, E2_females)
+
+p_e2_poly_sep <- ggplot(E2_sex_combined_poly, aes(x = GW, y = `E2 (ng/mL)`, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_poly), size = 1) +
+  labs(title = "Estradiol: Polynomial Model by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Estradiol (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("E2_Polynomial_by_sex.svg", plot = p_e2_poly_sep, path = svg_path_age)
+
+# Model comparison tables - Sex separate
+e2_male_table <- create_model_table(e2_linear_male, e2_poly_male, "E2 Male")
+e2_female_table <- create_model_table(e2_linear_female, e2_poly_female, "E2 Female")
+e2_sex_table <- rbind(e2_male_table, e2_female_table)
+print(e2_sex_table)
+write.csv(e2_sex_table, file.path(csv_path, "E2_sex_model_comparison.csv"), row.names = FALSE)
+```
+
+# Progesterone
+
+## Combined Sex 
+
+```{r look at overall relationship - p4}
+cat("\n=== PROGESTERONE ANALYSIS ===\n")
+
+# Filter data (n >= 3 per timepoint)
+P4_filtered <- filter_by_n(targeted_comparision_filtered_P4, min_n = 3)
+P4_males <- P4_filtered %>% filter(Sex == "M")
+P4_females <- P4_filtered %>% filter(Sex == "F")
+
+# --- COMBINED SEX ANALYSIS ---
+cat("\n--- Progesterone: Combined Sex ---\n")
+
+# LOESS plot - Combined
+p_p4_loess_combined <- ggplot(P4_filtered, aes(x = GW, y = `P4 (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE) +
+  labs(title = "Progesterone: LOESS Fit (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Progesterone (ng/mL)") +
+  theme_minimal()
+ggsave("P4_LOESS_combined.svg", plot = p_p4_loess_combined, path = svg_path_age)
+
+# Linear model - Combined
+p4_linear_combined <- lm(`P4 (ng/mL)` ~ GW, data = P4_filtered)
+cat("\nLinear Model Summary:\n")
+print(summary(p4_linear_combined))
+
+p_p4_linear_combined <- ggplot(P4_filtered, aes(x = GW, y = `P4 (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "black") +
+  labs(title = "Progesterone: Linear Model (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Progesterone (ng/mL)") +
+  theme_minimal()
+ggsave("P4_Linear_combined.svg", plot = p_p4_linear_combined, path = svg_path_age)
+
+# Polynomial model - Combined
+p4_poly_combined <- lm(`P4 (ng/mL)` ~ GW + I(GW^2), data = P4_filtered)
+cat("\nPolynomial Model Summary:\n")
+print(summary(p4_poly_combined))
+
+P4_filtered$pred_poly <- predict(p4_poly_combined)
+p_p4_poly_combined <- ggplot(P4_filtered, aes(x = GW, y = `P4 (ng/mL)`, color = Sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_poly), color = "black", size = 1) +
+  labs(title = "Progesterone: Polynomial Model (Combined)", 
+       x = "Gestational Week (GW)", 
+       y = "Progesterone (ng/mL)") +
+  theme_minimal()
+ggsave("P4_Polynomial_combined.svg", plot = p_p4_poly_combined, path = svg_path_age)
+
+# Model comparison table
+p4_combined_table <- create_model_table(p4_linear_combined, p4_poly_combined, "P4 Combined")
+print(p4_combined_table)
+write.csv(p4_combined_table, file.path(csv_path, "P4_combined_model_comparison.csv"), row.names = FALSE)
+
+```
+
+## Separate Sex
+```{r loess - p4}
+cat("\n--- Progesterone: Sex-Separate ---\n")
+
+# Prepare combined data for plotting
+P4_males$sex <- "Male"
+P4_females$sex <- "Female"
+P4_sex_combined <- rbind(P4_males, P4_females)
+
+# LOESS plot - Sex separate
+p_p4_loess_sep <- ggplot(P4_sex_combined, aes(x = GW, y = `P4 (ng/mL)`, color = sex, fill = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", span = 0.85, se = TRUE, size = 1.2) +
+  labs(title = "Progesterone: LOESS Fit by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Progesterone (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  scale_fill_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("P4_LOESS_by_sex.svg", plot = p_p4_loess_sep, path = svg_path_age)
+
+# Linear models - Males
+p4_linear_male <- lm(`P4 (ng/mL)` ~ GW, data = P4_males)
+cat("\nMales - Linear Model Summary:\n")
+print(summary(p4_linear_male))
+
+# Linear models - Females
+p4_linear_female <- lm(`P4 (ng/mL)` ~ GW, data = P4_females)
+cat("\nFemales - Linear Model Summary:\n")
+print(summary(p4_linear_female))
+
+# Linear plot - Sex separate
+P4_males$pred_linear <- predict(p4_linear_male)
+P4_females$pred_linear <- predict(p4_linear_female)
+P4_sex_combined_linear <- rbind(P4_males, P4_females)
+
+p_p4_linear_sep <- ggplot(P4_sex_combined_linear, aes(x = GW, y = `P4 (ng/mL)`, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_linear), size = 1) +
+  labs(title = "Progesterone: Linear Model by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Progesterone (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("P4_Linear_by_sex.svg", plot = p_p4_linear_sep, path = svg_path_age)
+
+# Polynomial models - Males
+p4_poly_male <- lm(`P4 (ng/mL)` ~ GW + I(GW^2), data = P4_males)
+cat("\nMales - Polynomial Model Summary:\n")
+print(summary(p4_poly_male))
+
+# Polynomial models - Females
+p4_poly_female <- lm(`P4 (ng/mL)` ~ GW + I(GW^2), data = P4_females)
+cat("\nFemales - Polynomial Model Summary:\n")
+print(summary(p4_poly_female))
+
+# Polynomial plot - Sex separate
+P4_males$pred_poly <- predict(p4_poly_male)
+P4_females$pred_poly <- predict(p4_poly_female)
+P4_sex_combined_poly <- rbind(P4_males, P4_females)
+
+p_p4_poly_sep <- ggplot(P4_sex_combined_poly, aes(x = GW, y = `P4 (ng/mL)`, color = sex)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = pred_poly), size = 1) +
+  labs(title = "Progesterone: Polynomial Model by Sex", 
+       x = "Gestational Week (GW)", 
+       y = "Progesterone (ng/mL)") +
+  scale_color_manual(values = c("Male" = "dodgerblue", "Female" = "violetred2")) +
+  theme_minimal()
+ggsave("P4_Polynomial_by_sex.svg", plot = p_p4_poly_sep, path = svg_path_age)
+
+# Model comparison tables - Sex separate
+p4_male_table <- create_model_table(p4_linear_male, p4_poly_male, "P4 Male")
+p4_female_table <- create_model_table(p4_linear_female, p4_poly_female, "P4 Female")
+p4_sex_table <- rbind(p4_male_table, p4_female_table)
+print(p4_sex_table)
+write.csv(p4_sex_table, file.path(csv_path, "P4_sex_model_comparison.csv"), row.names = FALSE)
+
+```
+
+``` {r summary_age}
+
+cat("\n=== CREATING SUMMARY TABLE ===\n")
+
+# Combined all model comparison tables
+all_models_summary <- rbind(
+  tt_combined_table,
+  tt_sex_table,
+  e2_combined_table,
+  e2_sex_table,
+  p4_combined_table,
+  p4_sex_table
+)
+
+print(all_models_summary)
+write.csv(all_models_summary, file.path(csv_path, "ALL_hormones_model_comparison.csv"), row.names = FALSE)
+```
+# AI Assistance Disclosure
+
+Code in this script was developed with assistance from Claude (Anthropic). All
+AI-generated code was reviewed, validated, and adapted by the author.
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
+```

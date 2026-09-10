@@ -1,0 +1,44 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Metabolism overview (WikiPathways),2,18,3.499785380433708,0.1397242600960027,L-Aspartic Acid;Glucose 1-Phosphate,0.48635954259851133,WikiPathways
+"Cerebral organic acidurias, including diseases (WikiPathways)",1,5,6.743993959376693,0.17259077535362977,L-Aspartic Acid,0.48635954259851133,WikiPathways
+"Gamma-glutamyl cycle for the biosynthesis and degradation of glutathione, including diseases (WikiPathways)",1,5,6.743993959376693,0.17259077535362977,Dl-Pyroglutamic Acid,0.48635954259851133,WikiPathways
+Glycogen synthesis and degradation (WikiPathways),1,5,6.743993959376693,0.17259077535362977,Glucose 1-Phosphate,0.48635954259851133,WikiPathways
+Pyrimidine biosynthesis (Reactome),1,5,6.743993959376693,0.17259077535362977,L-Aspartic Acid,0.48635954259851133,Reactome
+Disorders of fructose metabolism (WikiPathways),1,6,5.394188737421201,0.20353718336205695,Glucose 1-Phosphate,0.48635954259851133,WikiPathways
+Glycogen metabolism (Reactome),1,6,5.394188737421201,0.20353718336205695,Glucose 1-Phosphate,0.48635954259851133,Reactome
+Urea cycle (Reactome),1,6,5.394188737421201,0.20353718336205695,L-Aspartic Acid,0.48635954259851133,Reactome
+Urea cycle and related diseases (WikiPathways),1,6,5.394188737421201,0.20353718336205695,L-Aspartic Acid,0.48635954259851133,WikiPathways
+Lactate shuttle in glial cells (WikiPathways),1,7,4.491933486859219,0.23338490232876474,Glucose 1-Phosphate,0.48635954259851133,WikiPathways
+Phenylalanine and tyrosine metabolism (Reactome),1,7,4.491933486859219,0.23338490232876474,L-Aspartic Acid,0.48635954259851133,Reactome
+"Sensory perception of sweet, bitter, and umami (glutamate) taste (Reactome)",1,7,4.491933486859219,0.23338490232876474,L-Aspartic Acid,0.48635954259851133,Reactome
+Tyrosine metabolism (KEGG),1,7,4.491933486859219,0.23338490232876474,L-Aspartic Acid,0.48635954259851133,KEGG
+Glyoxylate metabolism and glycine degradation (Reactome),1,8,3.8463826356921436,0.2621708447314398,L-Aspartic Acid,0.48635954259851133,Reactome
+Sensory perception of taste (Reactome),1,8,3.8463826356921436,0.2621708447314398,L-Aspartic Acid,0.48635954259851133,Reactome
+Thiamine metabolic pathways (WikiPathways),1,8,3.8463826356921436,0.2621708447314398,Glucose 1-Phosphate,0.48635954259851133,WikiPathways
+Aspartate and asparagine metabolism (Reactome),1,9,3.3610415653101233,0.2899307535435237,L-Aspartic Acid,0.48635954259851133,Reactome
+Glucuronidation (WikiPathways),1,9,3.3610415653101233,0.2899307535435237,Glucose 1-Phosphate,0.48635954259851133,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),1,9,3.3610415653101233,0.2899307535435237,L-Aspartic Acid,0.48635954259851133,WikiPathways
+Metabolic disorders of biological oxidation enzymes (Reactome),1,9,3.3610415653101233,0.2899307535435237,Vitamin D3,0.48635954259851133,Reactome
+beta-Alanine metabolism (KEGG),1,9,3.3610415653101233,0.2899307535435237,L-Aspartic Acid,0.48635954259851133,KEGG
+Alanine and aspartate metabolism (WikiPathways),1,10,2.9832821141517836,0.3166992370408911,L-Aspartic Acid,0.48635954259851133,WikiPathways
+Biomarkers for urea cycle disorders (WikiPathways),1,10,2.9832821141517836,0.3166992370408911,L-Aspartic Acid,0.48635954259851133,WikiPathways
+GABA metabolism (aka GHB) (WikiPathways),1,10,2.9832821141517836,0.3166992370408911,N-Acetylputrescine,0.48635954259851133,WikiPathways
+Galactose Metabolism (KEGG),1,10,2.9832821141517836,0.3166992370408911,Glucose 1-Phosphate,0.48635954259851133,KEGG
+Glutamate and glutamine metabolism (Reactome),1,10,2.9832821141517836,0.3166992370408911,L-Aspartic Acid,0.48635954259851133,Reactome
+Purine ribonucleoside monophosphate biosynthesis (Reactome),1,10,2.9832821141517836,0.3166992370408911,L-Aspartic Acid,0.48635954259851133,Reactome
+Urea cycle and metabolism of amino groups (WikiPathways),1,10,2.9832821141517836,0.3166992370408911,L-Aspartic Acid,0.48635954259851133,WikiPathways
+Nucleotide biosynthesis (Reactome),1,11,2.680783340605185,0.3425098026397442,L-Aspartic Acid,0.4926656520993169,Reactome
+Amino acid transport defects (IEMs) (WikiPathways),1,12,2.4330431951833345,0.3673948897908297,L-Aspartic Acid,0.4926656520993169,WikiPathways
+Nitrogen metabolism (KEGG),1,12,2.4330431951833345,0.3673948897908297,L-Aspartic Acid,0.4926656520993169,KEGG
+Metabolic pathways of fibroblasts (WikiPathways),1,13,2.2265122701489126,0.3913859019544508,Glucose 1-Phosphate,0.4926656520993169,WikiPathways
+Urea cycle and associated pathways (WikiPathways),1,13,2.2265122701489126,0.3913859019544508,L-Aspartic Acid,0.4926656520993169,WikiPathways
+Arginine and proline metabolism (KEGG),1,15,1.901611280558606,0.4368063208146038,L-Aspartic Acid,0.4926656520993169,KEGG
+Synthesis of substrates in N-glycan biosythesis (Reactome),1,15,1.901611280558606,0.4368063208146038,Glucose 1-Phosphate,0.4926656520993169,Reactome
+Amino Sugar Metabolism (KEGG),1,16,1.7715226176028167,0.4582936298598297,Glucose 1-Phosphate,0.4926656520993169,KEGG
+Cytosolic tRNA aminoacylation (Reactome),1,16,1.7715226176028167,0.4582936298598297,L-Aspartic Acid,0.4926656520993169,Reactome
+Mitochondrial tRNA aminoacylation (Reactome),1,16,1.7715226176028167,0.4582936298598297,L-Aspartic Acid,0.4926656520993169,Reactome
+Pyrimidine metabolism and related diseases (WikiPathways),1,16,1.7715226176028167,0.4582936298598297,L-Aspartic Acid,0.4926656520993169,WikiPathways
+tRNA Aminoacylation (Reactome),1,16,1.7715226176028167,0.4582936298598297,L-Aspartic Acid,0.4926656520993169,Reactome
+Purine metabolism and related disorders (WikiPathways),1,21,1.3158711374463214,0.554577665290567,L-Aspartic Acid,0.5816302343291312,WikiPathways
+"Alanine, aspartate and glutamate metabolism (KEGG)",1,23,1.1914787167068446,0.5883496069168233,L-Aspartic Acid,0.5883496069168233,KEGG
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",1,23,1.1914787167068446,0.5883496069168233,Ophthalmate,0.5883496069168233,WikiPathways

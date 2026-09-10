@@ -97,7 +97,7 @@
 <rect x='254.82' y='487.17' width='10.64' height='10.64' style='stroke-width: 1.07; stroke: none; stroke-linecap: butt; stroke-linejoin: miter; fill: #E15759; fill-opacity: 0.90;' />
 <text x='200.45' y='495.93' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='48.18px' lengthAdjust='spacingAndGlyphs'>Non-SFARI</text>
 <text x='271.64' y='495.93' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='27.76px' lengthAdjust='spacingAndGlyphs'>SFARI</text>
-<text x='182.91' y='29.73' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='265.33px' lengthAdjust='spacingAndGlyphs'>Chi-square p = 0.0003 (simulated); classes below 2% collapsed</text>
+<text x='182.91' y='29.73' style='font-size: 9.43px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='265.33px' lengthAdjust='spacingAndGlyphs'>Chi-square p = 0.0001 (simulated); classes below 2% collapsed</text>
 <text x='182.91' y='14.64' style='font-size: 12.57px; font-weight: 0; font-family: "TeX Gyre Heros";' textLength='374.87px' lengthAdjust='spacingAndGlyphs'>Metabolite classes associated with SFARI vs non-SFARI genes</text>
 </g>
 </svg>

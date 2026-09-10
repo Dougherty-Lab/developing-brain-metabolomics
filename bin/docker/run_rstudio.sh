@@ -9,7 +9,7 @@
 . /ref/jdlab/software/spack/share/spack/setup-env.sh
 
 # load singularity
-spack load singularityce
+spack load singularityce@3.8.0%gcc@8.5.0
 
 # print ssh address
 host=$(hostname)
@@ -24,7 +24,7 @@ echo -e "
 singularity exec \
    -B /tmp:/var/lib/rstudio-server \
    -B /tmp:/var/run/rstudio-server \
-   -B /scratch/jdlab/sneha/developing-brain-metabolomics \
+   -B /scratch/jdlab/emma/developing-brain-metabolomics \
    developing-brain-metabolomics_1.0.5.sif \
    rserver \
      --server-user=$USER

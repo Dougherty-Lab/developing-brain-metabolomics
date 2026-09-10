@@ -1,0 +1,59 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+Warburg effect modulated by deubiquitinating enzymes and their substrates (WikiPathways),2,6,9.531672541328563,0.035130419739600134,Dl-Lactic Acid;D-Glucose,0.5543096781514499,WikiPathways
+Class C/3 (Metabotropic glutamate/pheromone receptors) (Reactome),2,7,7.625346994659378,0.04759673325415009,L-Ornithine;D-Glucose,0.5543096781514499,Reactome
+T cell modulation in pancreatic cancer (WikiPathways),2,7,7.625346994659378,0.04759673325415009,L-Ornithine;Dl-Arginine,0.5543096781514499,WikiPathways
+Cori cycle (WikiPathways),2,9,5.437021042939645,0.07644050169860986,Dl-Lactic Acid;D-Glucose,0.5543096781514499,WikiPathways
+GABA metabolism (aka GHB) (WikiPathways),2,10,4.751684250018726,0.0924980301265763,Glycolic Acid;N-Acetylputrescine,0.5543096781514499,WikiPathways
+Glucose homeostasis (WikiPathways),2,14,3.1484830212435457,0.16444626413213417,L-Ornithine;D-Glucose,0.5543096781514499,WikiPathways
+Carnosine metabolism of glial cells (WikiPathways),1,5,4.607569131287979,0.23770801435103728,Dl-Lactic Acid,0.5543096781514499,WikiPathways
+Glycogen synthesis and degradation (WikiPathways),1,5,4.607569131287979,0.23770801435103728,D-Glucose,0.5543096781514499,WikiPathways
+Glycolysis in senescence (WikiPathways),1,5,4.607569131287979,0.23770801435103728,Dl-Lactic Acid,0.5543096781514499,WikiPathways
+Metabolism overview (WikiPathways),2,18,2.3445271017925915,0.24351181820274484,L-Ornithine;D-Glucose,0.5543096781514499,WikiPathways
+Glycogen metabolism (Reactome),1,6,3.6831028434670916,0.2782235332733245,D-Glucose,0.5543096781514499,Reactome
+Glycosphingolipid metabolism (Reactome),1,6,3.6831028434670916,0.2782235332733245,D-Glucose,0.5543096781514499,Reactome
+HIF1A and PPARG in cardiac hypertropthy (WikiPathways),1,6,3.6831028434670916,0.2782235332733245,D-Glucose,0.5543096781514499,WikiPathways
+Hereditary leiomyomatosis and renal cell carcinoma pathway (WikiPathways),1,6,3.6831028434670916,0.2782235332733245,Dl-Lactic Acid,0.5543096781514499,WikiPathways
+Regulation of insulin secretion (Reactome),1,6,3.6831028434670916,0.2782235332733245,D-Glucose,0.5543096781514499,Reactome
+Urea cycle (Reactome),1,6,3.6831028434670916,0.2782235332733245,L-Ornithine,0.5543096781514499,Reactome
+Urea cycle and related diseases (WikiPathways),1,6,3.6831028434670916,0.2782235332733245,L-Ornithine,0.5543096781514499,WikiPathways
+Glycolysis (Reactome),1,7,3.0658867672906145,0.31666133327652024,D-Glucose,0.5543096781514499,Reactome
+Lactate shuttle in glial cells (WikiPathways),1,7,3.0658867672906145,0.31666133327652024,Dl-Lactic Acid,0.5543096781514499,WikiPathways
+Late SARS-CoV-2 Infection Events (Reactome),1,7,3.0658867672906145,0.31666133327652024,D-Glucose,0.5543096781514499,Reactome
+Metabolic reprogramming in pancreatic cancer (WikiPathways),1,7,3.0658867672906145,0.31666133327652024,Dl-Lactic Acid,0.5543096781514499,WikiPathways
+Orexin receptor pathway (WikiPathways),1,7,3.0658867672906145,0.31666133327652024,D-Glucose,0.5543096781514499,WikiPathways
+"Sensory perception of sweet, bitter, and umami (glutamate) taste (Reactome)",1,7,3.0658867672906145,0.31666133327652024,D-Glucose,0.5543096781514499,Reactome
+Translation of Structural Proteins (Reactome),1,7,3.0658867672906145,0.31666133327652024,D-Glucose,0.5543096781514499,Reactome
+Aerobic glycolysis (WikiPathways),1,8,2.624168329688217,0.3531240684574176,D-Glucose,0.5543096781514499,WikiPathways
+Creatine metabolism (Reactome),1,8,2.624168329688217,0.3531240684574176,L-Ornithine,0.5543096781514499,Reactome
+Fructose and mannose metabolism (KEGG),1,8,2.624168329688217,0.3531240684574176,D-Glucose,0.5543096781514499,KEGG
+Gluconeogenesis (Reactome),1,8,2.624168329688217,0.3531240684574176,D-Glucose,0.5543096781514499,Reactome
+Glyoxylate metabolism (WikiPathways),1,8,2.624168329688217,0.3531240684574176,Glycolic Acid,0.5543096781514499,WikiPathways
+Glyoxylate metabolism and glycine degradation (Reactome),1,8,2.624168329688217,0.3531240684574176,Glycolic Acid,0.5543096781514499,Reactome
+Sensory perception of taste (Reactome),1,8,2.624168329688217,0.3531240684574176,D-Glucose,0.5543096781514499,Reactome
+Vitamin B12 metabolism (WikiPathways),1,8,2.624168329688217,0.3531240684574176,D-Glucose,0.5543096781514499,WikiPathways
+Folate metabolism (WikiPathways),1,9,2.2927243890495985,0.3877095143022683,D-Glucose,0.5543096781514499,WikiPathways
+Glucuronidation (WikiPathways),1,9,2.2927243890495985,0.3877095143022683,D-Glucose,0.5543096781514499,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),1,9,2.2927243890495985,0.3877095143022683,D-Glucose,0.5543096781514499,WikiPathways
+"Incretin synthesis, secretion, and inactivation (Reactome)",1,9,2.2927243890495985,0.3877095143022683,D-Glucose,0.5543096781514499,Reactome
+Krebs cycle disorders (WikiPathways),1,9,2.2927243890495985,0.3877095143022683,Dl-Lactic Acid,0.5543096781514499,WikiPathways
+"Synthesis, secretion, and inactivation of Glucagon-like Peptide-1 (GLP-1) (Reactome)",1,9,2.2927243890495985,0.3877095143022683,D-Glucose,0.5543096781514499,Reactome
+Biomarkers for urea cycle disorders (WikiPathways),1,10,2.0346101589923493,0.4205107903217896,L-Ornithine,0.5543096781514499,WikiPathways
+Galactose Metabolism (KEGG),1,10,2.0346101589923493,0.4205107903217896,D-Glucose,0.5543096781514499,KEGG
+Glucose metabolism (Reactome),1,10,2.0346101589923493,0.4205107903217896,D-Glucose,0.5543096781514499,Reactome
+Glutamate and glutamine metabolism (Reactome),1,10,2.0346101589923493,0.4205107903217896,L-Ornithine,0.5543096781514499,Reactome
+Peptide hormone metabolism (Reactome),1,10,2.0346101589923493,0.4205107903217896,D-Glucose,0.5543096781514499,Reactome
+Urea cycle and metabolism of amino groups (WikiPathways),1,10,2.0346101589923493,0.4205107903217896,L-Ornithine,0.5543096781514499,WikiPathways
+Aerobic glycolysis - augmented (WikiPathways),1,12,1.6587888229702008,0.4811112991048,D-Glucose,0.5813428197516333,WikiPathways
+Amino acid transport defects (IEMs) (WikiPathways),1,12,1.6587888229702008,0.4811112991048,Dl-Arginine,0.5813428197516333,WikiPathways
+Methionine de novo and salvage pathway (WikiPathways),1,12,1.6587888229702008,0.4811112991048,L-Ornithine,0.5813428197516333,WikiPathways
+Purine catabolism (Reactome),1,12,1.6587888229702008,0.4811112991048,Xanthine,0.5813428197516333,Reactome
+Metabolic pathways of fibroblasts (WikiPathways),1,13,1.5177334325830765,0.5090753608296908,D-Glucose,0.5905274185624414,WikiPathways
+Urea cycle and associated pathways (WikiPathways),1,13,1.5177334325830765,0.5090753608296908,L-Ornithine,0.5905274185624414,WikiPathways
+Arginine and proline metabolism (KEGG),1,15,1.2959688826202536,0.5607139429154049,L-Ornithine,0.6278292240280765,KEGG
+Amino Sugar Metabolism (KEGG),1,16,1.2072101478773092,0.5845306568537263,D-Glucose,0.6278292240280765,KEGG
+Purine metabolism (WikiPathways),1,16,1.2072101478773092,0.5845306568537263,Xanthine,0.6278292240280765,WikiPathways
+Pyrimidine metabolism and related diseases (WikiPathways),1,16,1.2072101478773092,0.5845306568537263,L-Ornithine,0.6278292240280765,WikiPathways
+Amino acid transport across the plasma membrane (Reactome),1,21,0.8963321122638138,0.686136219168483,L-Ornithine,0.710641084138786,Reactome
+Purine metabolism and related disorders (WikiPathways),1,21,0.8963321122638138,0.686136219168483,Xanthine,0.710641084138786,WikiPathways
+"Trans-sulfuration, one-carbon metabolism and related pathways (WikiPathways)",1,23,0.8114774930343238,0.7196726054666599,L-Ornithine,0.7322984406502856,WikiPathways
+Nucleotide catabolism (Reactome),1,25,0.740741293980187,0.7497445363087989,Xanthine,0.7497445363087989,Reactome

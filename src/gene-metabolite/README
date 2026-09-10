@@ -10,17 +10,18 @@ Limma-voom association of untargeted metabolites with pseudobulk gene expression
 | 4.3 | `metabolite_gene_imputation_sensitivity.Rmd` | Check if imputation is driving associations |
 | 4.4 | `gene_metabolite_gene_pathway_analysis.Rmd` | Gene-side pathway enrichment (fgsea) |
 | 4.5 | `gene_metabolite_pathway_analysis.Rmd` | Metabolite-side pathway enrichment (MSEA/ORA) |
-| 4.6 | `build_gene_sets.R` | Cache curated gene sets (MSigDB, KEGG, Reactome) |
-| 4.7 | `geneset_enrichment.R` | Gene-set enrichment on association rankings |
-| 4.8 | `constraint_enrichment.R` | gnomAD LOEUF constraint enrichment |
-| 4.9 | `sfari_enrichment.R` | SFARI autism associated gene enrichment |
+| 4.6 | `constraint_enrichment.R` | gnomAD LOEUF constraint enrichment | requires gnomAD data input
+| 4.7 | `sfari_enrichment.R` | SFARI autism associated gene enrichment |
+| 4.8 | `geneset_enrichment.R` | Gene-set enrichment on association rankings |
+
+
 
 ## Standalone Scripts
 
 | Script | Description |
 |--------|-------------|
 | `plot_pair_spotlight.R` | Metabolite–gene scatter plots for spotlight pairs |
-| `qq_stable_associations.R` | QQ plots of DFBETAS-stable p-values |
+| `qq_stable_associations.R` | QQ plots of significant p-values |
 
 ## Shared Function Files
 
@@ -36,13 +37,14 @@ All outputs are written to `results/gene-metabolite/`.
 | Directory | Contents |
 |-----------|----------|
 | `parquet-log2_na/` | Raw per-metabolite limma results (one parquet each) |
+| `stability-imputation-log2_na` | Imputation sensitivity results |
 | `csv-log2_na/` | Thresholded hits, summary tables |
-| `figures-log2_na/` | Volcano plots, scatter plots, summary figures |
-| `stability-dfbetas-log2_na/` | DFBETAS-robust hit subset |
-| `gene-pathway/` | Gene-side fgsea enrichment results |
-| `metabolite-pathway/` | Metabolite-side MSEA/ORA results |
-| `geneset/` | Gene-set enrichment results |
-| `constraint/` | LOEUF constraint enrichment |
-| `sfari/` | SFARI enrichment results |
-| `inventory/` | Sample/cell-type grid inventory |
+    | `gene-pathway/` | Gene-side fgsea enrichment results |
+    | `pathway/` | Metabolite-side MSEA/ORA results |
+    | `qq-plots/` | QQ plots of significant hits |
+    | `scatter-plots/` | Scatters of top hits |
+    | `scatter-spotlight/` | Scatters of specific metabolite-gene pairs of interest |
+| `geneset-enrichment/` | Gene-set enrichment results |
+| `constraint-enrichment/` | LOEUF constraint enrichment |
+| `sfari-enrichment/` | SFARI enrichment results |
 

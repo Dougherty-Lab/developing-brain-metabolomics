@@ -1,0 +1,527 @@
+---
+title: "Metabolite–Gene Imputation Sensitivity"
+author: "Sneha M. Chaturvedi"
+date: "Last updated `r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    code_folding: show
+---
+
+| | |
+|---|---|
+| **Inputs** | Global-FDR hits from `metabolite_gene_associations.Rmd`, cached pseudobulk and metabolite data |
+| **Outputs** | Stable-hit CSVs in `results/gene-metabolite/stability-log2_na/` |
+| **Upstream** | `metabolite_gene_associations.Rmd` |
+| **Downstream** | Pathway analysis Rmds |
+
+
+## Purpose
+
+Diagnose whether global-FDR hits are driven by imputed metabolite values.
+Imputation: originally-missing metabolites (NaN in raw peak area) receive
+`min(log2 values)/5` before z-scoring, placing them as a cluster at the low
+end of the predictor. 
+
+This document:
+
+1. Annotates scatter plots with a **red ring** on imputed samples.
+2. Re-fits each association dropping all imputed samples; flags pairs where
+   significance is lost (`p > 0.05`) or direction reverses — the
+   **imputation sensitivity** test.
+3. Produces a **clean hit set**: global-FDR hits that are imputation-insensitive
+   (primary analysis)
+4. Summary recurrence figures (top genes, metabolites, cell types) on the clean set.
+
+## Setup
+
+```{r setup}
+Packages <- c("tidyverse", "arrow", "cowplot", "svglite", "edgeR", "patchwork")
+lapply(Packages, library, character.only = TRUE)
+find_project_root <- function(marker = ".git") {
+  d <- normalizePath(getwd())
+  repeat {
+    if (dir.exists(file.path(d, marker))) return(d)
+    parent <- dirname(d)
+    if (parent == d) stop("Project root not found (no ", marker, " above ", getwd(), ")")
+    d <- parent
+  }
+}
+root <- find_project_root()
+source(file.path(root, "src/gene-hormone/pseudobulk_functions.R"))
+source(file.path(root, "src/gene-metabolite/metabolite_functions.R"))
+set.seed(123)
+
+METHOD <- "log2_na"
+suffix <- if (METHOD == "int") "" else paste0("-", METHOD)
+
+parquet_dir  <- sprintf(file.path(root, "results/gene-metabolite/parquet-%s"), METHOD)
+annot_path   <- file.path(root, "results/untargeted/metabolite_annotations_flagged.csv")
+
+out_dir     <- file.path(root, "results/gene-metabolite")
+iter_dir    <- file.path(out_dir, paste0("stability-imputation", suffix))
+csv_dir     <- iter_dir
+fig_dir     <- iter_dir
+scatter_dir <- file.path(iter_dir, "scatter-plots")
+for (d in c(iter_dir, scatter_dir)) dir.create(d, recursive = TRUE, showWarnings = FALSE)
+
+FDR_GLOBAL  <- 0.10
+LFC_MIN     <- 0.25
+LABEL_CHARS <- 30
+# Minimum non-imputed samples required to attempt the drop-imputed re-fit.
+# Below this, the pair is flagged sensitive conservatively.
+MIN_OBS <- 5
+
+add_plot_label <- function(df, name_col = "Name", n = LABEL_CHARS) {
+  short <- ifelse(nchar(df[[name_col]]) > n,
+                  paste0(substr(df[[name_col]], 1, n), "\u2026"), df[[name_col]])
+  idx <- stats::ave(seq_along(short), short, FUN = seq_along)
+  short[idx > 1] <- paste0(short[idx > 1], "#", idx[idx > 1])
+  df$label <- short
+  df
+}
+
+bh_global <- function(p, m) {
+  o <- order(p); ro <- order(o)
+  adj <- p[o] * m / seq_along(p[o])
+  adj <- rev(cummin(rev(adj)))
+  pmin(adj[ro], 1)
+}
+```
+
+## Load data
+
+```{r load-data}
+cache_dir    <- file.path(root, "data/cache")
+metab_path   <- file.path(root, "results/untargeted/peak_area_clean.csv")
+hormone_xlsx <- file.path(root, "doc/targeted/targeted_hormones.xlsx")
+
+pb_base     <- readRDS(file.path(cache_dir, "pb_base.rds"))
+batch_props <- readRDS(file.path(cache_dir, "batch_props_sample.rds"))
+
+targeted_comparison_raw <- readxl::read_xlsx(hormone_xlsx)
+targeted_comparison_raw$E2 <- targeted_comparison_raw$`17B-E2 (ng/mL)`
+targeted_comparison_raw$TT <- targeted_comparison_raw$`TT (ng/mL)`
+targeted_comparison_raw$P4 <- targeted_comparison_raw$`P4 (ng/mL)`
+
+pb        <- build_metab_covariates(pb_base, targeted_comparison_raw, batch_props, min_cells = 30)
+metab_mat <- read_metabolite_matrix(metab_path)
+metab_tx  <- transform_metabolite_matrix(metab_mat, method = METHOD)
+metab_log <- t(apply(log2(metab_mat + 1), 1, min_value_impute))
+dimnames(metab_log) <- dimnames(metab_mat)
+
+# Imputation mask: TRUE = compound was absent (NaN) in the raw peak area matrix.
+imputed_mask <- is.na(metab_mat)   # features x samples (all metabolite columns)
+
+rn        <- rownames(pb$counts)
+row_ct    <- sub("^[^.]+\\.(.*)$", "\\1", rn)
+metab_col <- metab_sample_to_pb(colnames(metab_tx), sub("^([^.]+)\\..*$", "\\1", rn))
+cc_col    <- intersect(c("cell_count", "n_cells", "ncells"), colnames(pb$metadata))[1]
+```
+
+## Global-FDR hits
+
+```{r hits}
+ds      <- open_dataset(parquet_dir)
+n_tests <- nrow(ds)
+
+annot <- read_csv(annot_path, show_col_types = FALSE) |>
+  dplyr::select(Compound.ID, Super.Class, Class, Sub.Class,
+                Pathways, KEGG, Exogenous_Flag, Annotation_Confidence)
+
+hits <- ds |>
+  dplyr::filter(P.Value < 0.05) |>
+  collect() |>
+  mutate(FDR_global = bh_global(P.Value, n_tests)) |>
+  dplyr::filter(FDR_global < FDR_GLOBAL, abs(logFC) >= LFC_MIN) |>
+  dplyr::left_join(annot, by = "Compound.ID")
+
+cat(sprintf("Global-FDR hits",
+            format(nrow(hits),           big.mark = ",")))
+```
+
+## Imputation sensitivity test
+
+A pair is **imputation-sensitive** if, after dropping all imputed samples for
+that metabolite in that cell type, either:
+
+- the **slope direction reverses** (sign of `metab_trim` coefficient flips), or
+- the association **loses nominal significance** (`p > 0.05`).
+
+Pairs with fewer than `r MIN_OBS` non-imputed samples after the drop are flagged
+`too_few_observed = TRUE` and treated as sensitive (conservative).
+
+The re-fit uses `lm` on `log1p(CPM)`
+
+```{r imputation-sensitivity}
+imputation_sensitivity_group <- function(cid, ct, genes) {
+  idx  <- which(row_ct == ct)
+  pos  <- match(metab_col[idx], colnames(metab_tx))
+  keep <- !is.na(pos)
+  rows_use <- idx[keep]
+  pos_p    <- pos[keep]
+
+  mv      <- as.numeric(metab_tx[cid, pos_p])
+  obs_ok  <- !is.na(mv)           # NA in metab_tx = IQR-trimmed outlier; drop these
+  imp_flg <- as.logical(imputed_mask[cid, pos_p])
+
+  rows_use <- rows_use[obs_ok]
+  imp_flg  <- imp_flg[obs_ok]
+  mv       <- mv[obs_ok]
+
+  if (length(rows_use) < 3)
+    return(tibble(gene = genes, n_imputed = NA_integer_, n_observed = NA_integer_,
+                  too_few_observed = NA, slope_full = NA_real_, p_full = NA_real_,
+                  slope_noimpute = NA_real_, p_noimpute = NA_real_,
+                  direction_same = NA, sig_noimpute = NA, imputation_sensitive = NA))
+
+  md  <- pb$metadata[rn[rows_use], ]
+  lib <- rowSums(pb$counts[rows_use, , drop = FALSE])
+
+  base <- tibble(metab_trim  = mv,
+                 imputed     = imp_flg,
+                 GW          = md$GW,
+                 Sex         = md$Sex,
+                 batch1_frac = md$batch1_frac)
+
+  covs  <- c("GW", "Sex", "batch1_frac")
+  keepc <- covs[vapply(covs, function(cv) length(unique(base[[cv]])) >= 2, logical(1))]
+  fml   <- reformulate(c("metab_trim", keepc), response = "expr")
+
+  n_imp <- sum(imp_flg)
+  n_obs <- sum(!imp_flg)
+
+  purrr::map_dfr(genes, function(g) {
+    empty <- tibble(gene = g, n_imputed = n_imp, n_observed = n_obs,
+                    too_few_observed = NA, slope_full = NA_real_, p_full = NA_real_,
+                    slope_noimpute = NA_real_, p_noimpute = NA_real_,
+                    direction_same = NA, sig_noimpute = NA, imputation_sensitive = NA)
+
+    if (!g %in% colnames(pb$counts)) return(empty)
+
+    df      <- base
+    df$expr <- log1p(pb$counts[rows_use, g] / lib * 1e6)
+
+    # ---- Full model (all samples, imputed included) ----
+    fit_full <- tryCatch(lm(fml, data = df), error = function(e) NULL)
+    if (is.null(fit_full)) return(empty)
+
+    coef_full  <- summary(fit_full)$coefficients
+    slope_full <- coef_full["metab_trim", "Estimate"]
+    p_full     <- coef_full["metab_trim", "Pr(>|t|)"]
+
+    # ---- Drop-imputed model ----
+    df_obs  <- dplyr::filter(df, !imputed)
+    too_few <- nrow(df_obs) < MIN_OBS || length(unique(df_obs$metab_trim)) < 2
+
+    if (too_few) {
+      return(tibble(gene = g, n_imputed = n_imp, n_observed = n_obs,
+                    too_few_observed = TRUE,
+                    slope_full = slope_full, p_full = p_full,
+                    slope_noimpute = NA_real_, p_noimpute = NA_real_,
+                    direction_same = NA, sig_noimpute = NA,
+                    imputation_sensitive = TRUE))
+    }
+
+    # Covariates may become single-level after removing imputed rows
+    keepc_obs <- covs[vapply(covs, function(cv) length(unique(df_obs[[cv]])) >= 2, logical(1))]
+    fml_obs   <- reformulate(c("metab_trim", keepc_obs), response = "expr")
+    fit_obs   <- tryCatch(lm(fml_obs, data = df_obs), error = function(e) NULL)
+
+    if (is.null(fit_obs)) {
+      return(tibble(gene = g, n_imputed = n_imp, n_observed = n_obs,
+                    too_few_observed = FALSE,
+                    slope_full = slope_full, p_full = p_full,
+                    slope_noimpute = NA_real_, p_noimpute = NA_real_,
+                    direction_same = NA, sig_noimpute = NA,
+                    imputation_sensitive = TRUE))
+    }
+
+    coef_obs  <- summary(fit_obs)$coefficients
+    slope_obs <- coef_obs["metab_trim", "Estimate"]
+    p_obs     <- coef_obs["metab_trim", "Pr(>|t|)"]
+    dir_same  <- sign(slope_full) == sign(slope_obs)
+    sig_obs   <- p_obs < 0.05
+
+    tibble(gene = g, n_imputed = n_imp, n_observed = n_obs,
+           too_few_observed = FALSE,
+           slope_full = slope_full, p_full = p_full,
+           slope_noimpute = slope_obs, p_noimpute = p_obs,
+           direction_same = dir_same, sig_noimpute = sig_obs,
+           imputation_sensitive = !dir_same | !sig_obs)
+  })
+}
+
+reporter_imp <- hits |>
+  dplyr::group_by(Compound.ID, cell_type) |>
+  dplyr::group_modify(~ imputation_sensitivity_group(
+    .y$Compound.ID, .y$cell_type, .x$gene
+  )) |>
+  dplyr::ungroup()
+
+hits <- hits |>
+  dplyr::left_join(reporter_imp, by = c("Compound.ID", "cell_type", "gene"))
+
+cat(sprintf(
+  "Imputation-insensitive (direction held & p<0.05 without imputed): %s / %s (%.1f%%)\n",
+  format(sum(!hits$imputation_sensitive, na.rm = TRUE), big.mark = ","),
+  format(nrow(hits), big.mark = ","),
+  100 * mean(!hits$imputation_sensitive, na.rm = TRUE)
+))
+write_csv(hits, file.path(csv_dir, "metabolite_gene_hits_imputation_annotated.csv"))
+```
+
+## Sensitivity gate summary
+
+```{r summary-bar}
+counts <- hits |>
+  mutate(status = dplyr::case_when(
+    too_few_observed %in% TRUE     ~ "too few observed",
+    imputation_sensitive %in% TRUE ~ "imputation-sensitive",
+    TRUE                           ~ "insensitive"
+  )) |>
+  dplyr::count(status)
+
+p_cnt <- ggplot(counts, aes(status, n, fill = status)) +
+  geom_col(alpha = 0.85, show.legend = FALSE) +
+  geom_text(aes(label = scales::comma(n)), vjust = -0.3) +
+  scale_fill_manual(values = c(
+    insensitive              = "steelblue",
+    `imputation-sensitive`   = "firebrick",
+    `too few observed`       = "grey60"
+  )) +
+  labs(x = NULL, y = "Hits", title = "Imputation sensitivity gate") +
+  theme_cowplot(13)
+save_dual_format(p_cnt, fig_dir, "imputation_gate_counts", width = 6, height = 5)
+print(p_cnt)
+```
+
+## Why sensitive? (direction vs. significance)
+
+```{r sensitivity-breakdown}
+sens <- hits |>
+  dplyr::filter(imputation_sensitive %in% TRUE, !too_few_observed %in% TRUE)
+
+cat(sprintf(
+  "Direction flip only:        %d\nLost significance only:    %d\nBoth:                      %d\n",
+  sum(!sens$direction_same &  sens$sig_noimpute,  na.rm = TRUE),
+  sum( sens$direction_same & !sens$sig_noimpute,  na.rm = TRUE),
+  sum(!sens$direction_same & !sens$sig_noimpute,  na.rm = TRUE)
+))
+
+# Scatter: full-model slope vs. drop-imputed slope, colored by sensitivity reason
+p_slope <- hits |>
+  dplyr::filter(!is.na(slope_full), !is.na(slope_noimpute)) |>
+  mutate(reason = dplyr::case_when(
+    !direction_same & !sig_noimpute ~ "flip + lost sig",
+    !direction_same                 ~ "direction flip",
+    !sig_noimpute                   ~ "lost significance",
+    TRUE                            ~ "insensitive"
+  )) |>
+  ggplot(aes(slope_full, slope_noimpute, color = reason)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
+  geom_point(alpha = 0.5, size = 1.5) +
+  scale_color_manual(values = c(
+    "insensitive"       = "steelblue",
+    "direction flip"    = "firebrick",
+    "lost significance" = "darkorange",
+    "flip + lost sig"   = "purple"
+  )) +
+  labs(x = "Slope (full model)", y = "Slope (drop-imputed)",
+       title = "Full vs. drop-imputed slope",
+       color = "Sensitivity reason") +
+  theme_cowplot(12)
+save_dual_format(p_slope, fig_dir, "slope_comparison", width = 7, height = 6)
+print(p_slope)
+```
+
+## n_imputed distribution
+
+```{r imputed-counts}
+p_nimp <- hits |>
+  dplyr::filter(!is.na(n_imputed)) |>
+  mutate(sens_label = ifelse(imputation_sensitive %in% TRUE,
+                             "sensitive", "insensitive")) |>
+  ggplot(aes(n_imputed, fill = sens_label)) +
+  geom_histogram(binwidth = 1, position = "dodge", alpha = 0.85) +
+  scale_fill_manual(values = c(insensitive = "steelblue",
+                               sensitive   = "firebrick")) +
+  labs(x = "Number of imputed samples per pair",
+       y = "Pairs", fill = NULL,
+       title = "Imputed-sample count vs. sensitivity status") +
+  theme_cowplot(12)
+save_dual_format(p_nimp, fig_dir, "n_imputed_histogram", width = 7, height = 5)
+print(p_nimp)
+```
+
+## Clean hit set (imputation-insensitive)
+
+```{r clean-hits}
+# Clean set = imputation-insensitive only.
+clean_hits <- hits |>
+  dplyr::filter(!imputation_sensitive)
+
+write_csv(clean_hits, file.path(csv_dir, "metabolite_gene_hits_imputation_stable.csv"))
+
+cat(sprintf(
+  "Global-FDR hits:                       %s\nImputation-insensitive (clean set):     %s\n",
+  format(nrow(hits),       big.mark = ","),
+  format(nrow(clean_hits), big.mark = ",")
+))
+```
+
+## Recurrence on clean hits
+
+```{r recurrence}
+gene_recur <- clean_hits |>
+  dplyr::group_by(gene) |>
+  dplyr::summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop") |>
+  dplyr::slice_max(n_metabolites, n = 20)
+
+p_g <- ggplot(gene_recur, aes(reorder(gene, n_metabolites), n_metabolites)) +
+  geom_col(fill = "steelblue", alpha = 0.85) + coord_flip() +
+  labs(x = "Gene", y = "Distinct metabolites",
+       title = "Clean hits: top genes by metabolite associations") +
+  theme_cowplot(12)
+save_dual_format(p_g, fig_dir, "clean_recurrence_genes", width = 8, height = 7)
+print(p_g)
+
+metab_recur <- clean_hits |>
+  dplyr::group_by(Compound.ID, Name, Super.Class) |>
+  dplyr::summarise(n_genes = n_distinct(gene), .groups = "drop") |>
+  dplyr::slice_max(n_genes, n = 25) |>
+  add_plot_label()
+write_csv(metab_recur |> dplyr::select(label, Name, Compound.ID),
+          file.path(fig_dir, "clean_recurrence_metabolites_labels.csv"))
+
+p_m <- ggplot(metab_recur, aes(reorder(label, n_genes), n_genes, fill = Super.Class)) +
+  geom_col(alpha = 0.85) + coord_flip() +
+  labs(x = "Metabolite", y = "Distinct genes",
+       title = "Clean hits: top metabolites by gene associations") +
+  theme_cowplot(12)
+save_dual_format(p_m, fig_dir, "clean_recurrence_metabolites", width = 10, height = 7)
+print(p_m)
+
+ct_recur <- clean_hits |>
+  dplyr::group_by(cell_type) |>
+  dplyr::summarise(n_metabolites = n_distinct(Compound.ID), .groups = "drop")
+
+p_c <- ggplot(ct_recur, aes(reorder(cell_type, n_metabolites), n_metabolites)) +
+  geom_col(fill = "darkorange", alpha = 0.85) + coord_flip() +
+  labs(x = "Cell type", y = "Distinct metabolites",
+       title = "Clean hits: metabolites per cell type") +
+  theme_cowplot(12)
+save_dual_format(p_c, fig_dir, "clean_recurrence_celltypes", width = 8, height = 6)
+print(p_c)
+```
+
+## Scatter plots — top 20 clean hits with imputed labels
+
+Imputed samples shown with a **red open ring** overlay. All three panels
+(raw log2, outlier-trimmed z, covariate-adjusted) carry the same overlay so
+you can see the imputed cluster's position before and after transform.
+
+```{r scatter-builder}
+make_pair_plot <- function(cid, gene, ct, meta_name) {
+  idx     <- which(row_ct == ct)
+  pos     <- match(metab_col[idx], colnames(metab_tx))
+  present <- !is.na(pos) & gene %in% colnames(pb$counts)
+  if (!any(present)) return(NULL)
+  rows_use <- idx[present]
+  pos_p    <- pos[present]
+  if (length(rows_use) < 3) return(NULL)
+
+  expr    <- as.numeric(log1p(
+    edgeR::cpm(t(pb$counts[rows_use, , drop = FALSE]), log = FALSE)[gene, ]
+  ))
+  md      <- pb$metadata[rn[rows_use], ]
+  imp_flg <- as.logical(imputed_mask[cid, pos_p])
+
+  df <- tibble(
+    metab_raw   = as.numeric(metab_log[cid, pos_p]),
+    metab_trim  = as.numeric(metab_tx[cid,  pos_p]),
+    expr        = expr,
+    cell_count  = if (!is.na(cc_col)) md[[cc_col]] else NA_real_,
+    Sex         = md$Sex,
+    GW          = md$GW,
+    batch1_frac = md$batch1_frac,
+    imputed     = imp_flg
+  )
+
+  n_imp <- sum(imp_flg)
+
+  imputed_overlay <- geom_point(
+    data   = ~ dplyr::filter(.x, imputed == TRUE),
+    shape  = 21, size = 4.5, color = "red", fill = NA, stroke = 1.5
+  )
+
+  bl <- list(
+    geom_point(size = 2, alpha = 0.8),
+    imputed_overlay,
+    geom_smooth(method = "lm", se = TRUE),
+    scale_color_viridis_c(),
+    scale_shape_manual(values = c("M" = 16, "F" = 17)),
+    theme_minimal(base_size = 13)
+  )
+
+  p_raw <- ggplot(df, aes(metab_raw, expr, color = cell_count, shape = Sex)) + bl +
+    labs(title = "Raw (log2, all samples)",
+         x     = meta_name,
+         y     = "log1p(CPM)",
+         caption = sprintf("%d of %d samples imputed (red ring)", n_imp, nrow(df)))
+
+  dft <- dplyr::filter(df, !is.na(metab_trim))
+
+  p_mid <- ggplot(dft, aes(metab_trim, expr, color = cell_count, shape = Sex)) + bl +
+    labs(title = "Outlier-trimmed",
+         x     = paste0(meta_name, " (trimmed z)"),
+         y     = "log1p(CPM)")
+
+  covs  <- c("GW", "Sex", "batch1_frac")
+  keepc <- covs[vapply(covs, function(cv) length(unique(dft[[cv]])) >= 2, logical(1))]
+  fit   <- lm(reformulate(c("metab_trim", keepc), response = "expr"), data = dft)
+  dft$part <- resid(fit) + coef(fit)[["metab_trim"]] * dft$metab_trim
+
+  p_adj <- ggplot(dft, aes(metab_trim, part, color = cell_count, shape = Sex)) + bl +
+    labs(title = "Outlier-trimmed (adjusted)",
+         x     = paste0(meta_name, " (trimmed z)"),
+         y     = "log1p(CPM), adjusted")
+
+  (p_raw | p_mid | p_adj) +
+    plot_annotation(
+      title    = paste0(gene, "  ~  ", meta_name, "   (", ct, ")"),
+      subtitle = sprintf("%d of %d samples imputed", n_imp, nrow(df))
+    ) +
+    plot_layout(guides = "collect")
+}
+```
+
+```{r scatter-generate, results='asis'}
+top20 <- clean_hits |>
+  dplyr::arrange(FDR_global, dplyr::desc(abs(logFC))) |>
+  dplyr::distinct(Compound.ID, .keep_all = TRUE) |>
+  dplyr::slice_head(n = 20)
+
+for (i in seq_len(nrow(top20))) {
+  r  <- top20[i, ]
+  pl <- make_pair_plot(r$Compound.ID, r$gene, r$cell_type, r$Name)
+  if (is.null(pl)) next
+  base_name <- gsub("[^A-Za-z0-9]+", "-",
+                    paste(r$Compound.ID, r$gene, r$cell_type, sep = "_"))
+  save_dual_format(pl, scatter_dir, base_name, width = 16, height = 5)
+  print(pl)
+}
+cat("\nSaved", nrow(top20), "clean-hit scatters to", scatter_dir, "\n")
+```
+
+# AI Assistance Disclosure
+
+Code in this script was developed with assistance from Claude (Anthropic). All
+AI-generated code was reviewed, validated, and adapted by the author.
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
+```

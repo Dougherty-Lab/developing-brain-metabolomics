@@ -4,7 +4,7 @@
 # subset, checking for residual inflation.
 #
 # Inputs:  Stable-hit CSVs from metabolite_gene_imputation_sensitivity.Rmd
-# Outputs: QQ plot figures in results/gene-metabolite/stability-dfbetas-log2_na/
+# Outputs: QQ plot figures in results/gene-metabolite/stability-log2_na/
 #
 # Upstream:  metabolite_gene_imputation_sensitivity.Rmd
 # Downstream: None
@@ -18,7 +18,7 @@ suppressPackageStartupMessages({
   library(patchwork)
 })
 
-# Anchor paths to project root (matches gene_pathway_analysis.qmd convention)
+# Anchor paths to project root 
 find_project_root <- function(marker = ".git") {
   d <- normalizePath(getwd())
   repeat {

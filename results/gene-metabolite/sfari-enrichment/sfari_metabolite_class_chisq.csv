@@ -1,3 +1,3 @@
 comparison,unit,class_column,n_classes,n_pairs_total,n_pairs_sfari,n_pairs_nonsfari,statistic,df_asymptotic,p_simulated,p_asymptotic,B,min_expected,n_cells_exp_lt5,method
-SFARI vs non-SFARI hit genes,distinct gene-metabolite pairs,Class,38,1121,170,951,87.42745349862206,37,2.9997000299970003e-4,5.791401538561291e-6,10000,0.15165031222123104,48,"Pearson's Chi-squared test with simulated p-value
+SFARI vs non-SFARI hit genes,distinct gene-metabolite pairs,Class,38,1121,170,951,87.42745349862206,37,9.999000099990002e-5,5.791401538561291e-6,10000,0.15165031222123104,48,"Pearson's Chi-squared test with simulated p-value
 	 (based on 10000 replicates)"

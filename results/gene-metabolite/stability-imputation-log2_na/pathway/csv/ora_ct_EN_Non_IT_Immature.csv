@@ -1,0 +1,26 @@
+pathway,n_hits,set_size,odds_ratio,pval,hit_names,padj,pathway_source
+16p11.2 proximal deletion syndrome (WikiPathways),2,10,10.09417054328167,0.02749044409779964,Dihydroxyacetone Phosphate;D-Sphingosine,0.34686305512224913,WikiPathways
+Sphingolipid pathway (WikiPathways),1,5,9.396307473083466,0.12968399967443545,D-Sphingosine,0.34686305512224913,WikiPathways
+Disorders of fructose metabolism (WikiPathways),1,6,7.522056272966842,0.15366908629758091,Dihydroxyacetone Phosphate,0.34686305512224913,WikiPathways
+HIF1A and PPARG in cardiac hypertropthy (WikiPathways),1,6,7.522056272966842,0.15366908629758091,Dihydroxyacetone Phosphate,0.34686305512224913,WikiPathways
+Metabolism of sphingolipids in ER and Golgi apparatus (WikiPathways),1,6,7.522056272966842,0.15366908629758091,D-Sphingosine,0.34686305512224913,WikiPathways
+Sphingolipid metabolism overview (WikiPathways),1,6,7.522056272966842,0.15366908629758091,D-Sphingosine,0.34686305512224913,WikiPathways
+Synthesis of ceramides and 1-deoxyceramides (WikiPathways),1,6,7.522056272966842,0.15366908629758091,D-Sphingosine,0.34686305512224913,WikiPathways
+Glycolysis (Reactome),1,7,6.2658125784780605,0.17703917069961994,Dihydroxyacetone Phosphate,0.34686305512224913,Reactome
+KEGG:map01120 (KEGG),1,7,6.2658125784780605,0.17703917069961994,2-Furoic Acid,0.34686305512224913,KEGG
+Organic cation/anion/zwitterion transport (Reactome),1,7,6.2658125784780605,0.17703917069961994,Uric Acid,0.34686305512224913,Reactome
+Aerobic glycolysis (WikiPathways),1,8,5.366829605935943,0.1998088379134645,Dihydroxyacetone Phosphate,0.34686305512224913,WikiPathways
+Gluconeogenesis (Reactome),1,8,5.366829605935943,0.1998088379134645,Dihydroxyacetone Phosphate,0.34686305512224913,Reactome
+Thiamine metabolic pathways (WikiPathways),1,8,5.366829605935943,0.1998088379134645,Dihydroxyacetone Phosphate,0.34686305512224913,WikiPathways
+Cori cycle (WikiPathways),1,9,4.6919100883660505,0.22199235527823946,Dihydroxyacetone Phosphate,0.34686305512224913,WikiPathways
+Glycolysis and gluconeogenesis (WikiPathways),1,9,4.6919100883660505,0.22199235527823946,Dihydroxyacetone Phosphate,0.34686305512224913,WikiPathways
+Sphingolipid metabolism: integrated pathway (WikiPathways),1,9,4.6919100883660505,0.22199235527823946,D-Sphingosine,0.34686305512224913,WikiPathways
+Glucose metabolism (Reactome),1,10,4.165158956474787,0.24360367874273314,Dihydroxyacetone Phosphate,0.3564550598091525,Reactome
+Glycerophospholipid biosynthetic pathway (WikiPathways),1,11,3.7437718801356654,0.26465645905605684,Dihydroxyacetone Phosphate,0.3564550598091525,WikiPathways
+Aerobic glycolysis - augmented (WikiPathways),1,12,3.3981598159078357,0.28516404784732197,Dihydroxyacetone Phosphate,0.3564550598091525,WikiPathways
+Purine catabolism (Reactome),1,12,3.3981598159078357,0.28516404784732197,Uric Acid,0.3564550598091525,Reactome
+KEGG:map01100 (KEGG),1,16,2.475343108069486,0.361999382524375,2-Furoic Acid,0.41136293468678986,KEGG
+Purine metabolism (WikiPathways),1,16,2.475343108069486,0.361999382524375,Uric Acid,0.41136293468678986,WikiPathways
+Metabolism overview (WikiPathways),1,18,2.176155621536677,0.3974720429349059,Dihydroxyacetone Phosphate,0.4320348292770716,WikiPathways
+Purine metabolism and related disorders (WikiPathways),1,21,1.839529174320185,0.44726118537019244,Uric Acid,0.4658970680939505,WikiPathways
+Nucleotide catabolism (Reactome),1,25,1.520920644270685,0.5077165145710594,Uric Acid,0.5077165145710594,Reactome
