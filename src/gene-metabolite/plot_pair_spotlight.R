@@ -32,6 +32,20 @@ root <- find_project_root()
 source(file.path(root, "src/gene-metabolite/pseudobulk_functions.R"))   # save_dual_format(), merge_hormone_metadata()
 source(file.path(root, "src/gene-metabolite/metabolite_functions.R"))   # read_metabolite_matrix(), transform_metabolite_matrix(), etc.
 
+# ── CONFIG ────────────────────────────────────────────────────────────────────
+METHOD       <- "log2_na"
+SAVE_OUTPUT  <- TRUE
+
+cache_dir    <- file.path(root, "data/cache")
+metab_path   <- file.path(root, "results/untargeted/peak_area_clean.csv")
+hormone_xlsx <- file.path(root, "doc/targeted/targeted_hormones.xlsx")
+hits_csv     <- file.path(root, "results/gene-metabolite",
+                          paste0("csv-", METHOD),
+                          "metabolite_gene_hits.csv")
+scatter_dir  <- file.path(root, "results/gene-metabolite",
+                          paste0("figures-", METHOD), "spotlight")
+# ──────────────────────────────────────────────────────────────────────────────
+
 # ── LOAD HITS CSV (model results) ─────────────────────────────────────────────
 hits <- read_csv(hits_csv, show_col_types = FALSE)
 cat(sprintf("Loaded %s hits from %s\n\n", format(nrow(hits), big.mark = ","),

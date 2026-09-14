@@ -798,8 +798,6 @@ cat(sprintf("Test 3 (per cell type): %d/%d cell types enriched at FDR < %.2f (fl
             MIN_HIT_GENES_PER_CT))
 cat(sprintf("Threshold-free (no FDR cut):  ES = %+.4f, permutation p = %.4g\n",
             es_obs, p_es))
-cat(sprintf("Detectability-matched null:   %d observed vs %.1f expected (%.2fx), p = %.4g\n",
-            obs_overlap, mean(null_overlap), fold, p_match))
 
 # ---- Save results ----------------------------------------------------------
 sfari_overlap <- hit_recur |>
