@@ -16,4 +16,4 @@ spack load singularityce@3.8.0%gcc@8.5.0
 singularity exec \
    -B /scratch/jdlab/emma/developing-brain-metabolomics \
    developing-brain-metabolomics_1.0.5.sif \
-   Rscript /scratch/jdlab/emma/developing-brain-metabolomics/src/gene-hormone/filter_recluster.R
+   Rscript /scratch/jdlab/emma/developing-brain-metabolomics/src/gene-hormone/3.1_filter_recluster.R
